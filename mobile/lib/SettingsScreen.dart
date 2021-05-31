@@ -11,7 +11,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   File? _image;
+  String? _displayName;
+  String? _status;
   final picker = ImagePicker();
+  final displayNameController = TextEditingController();
+  final statusController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +41,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     "Change display name:",
                     style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
-                  TextField()
+                  TextField(controller: displayNameController,)
                 ],
               ),
             ),
@@ -50,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   "Change status:",
                   style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(controller: statusController,)
               ]),
             ),
             Padding(
@@ -64,15 +68,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                        icon: Icon(Icons.photo_library),
-                        onPressed: () {
-                          _imgFromGallery();
-                        }),
+                      iconSize: 50,
+                      icon: Icon(Icons.photo_library),
+                      onPressed: () {
+                        _imgFromGallery();
+                      },
+                      tooltip: "Add image using your gallery.",
+                    ),
                     IconButton(
-                        icon: Icon(Icons.photo_camera),
-                        onPressed: () {
-                          _imgFromCamera(context);
-                        }),
+                      iconSize: 50,
+                      icon: Icon(Icons.photo_camera),
+                      onPressed: () {
+                        _imgFromCamera(context);
+                      },
+                      tooltip: "Add image using your camera.",
+                    ),
                   ],
                 ),
               ]),
@@ -82,14 +92,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Column(
                 children: [
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _displayName = displayNameController.text;
+                      _status = statusController.text;
+                    },
                     child: Text(
                       "SUBMIT",
                       style: TextStyle(color: Colors.white),
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
+                        MaterialStateProperty.all<Color>(Colors.green)),
                   )
                 ],
               ),

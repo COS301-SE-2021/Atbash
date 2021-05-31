@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/MainScreen.dart';
+import 'package:mobile/RegistrationScreen.dart';
 
 import 'domain/Contact.dart';
 
@@ -23,7 +23,7 @@ class _AtbashAppState extends State<AtbashApp> {
       theme: ThemeData(primarySwatch: Colors.green),
       home: Navigator(
         pages: [
-          MaterialPage(child: MainScreen()),
+          MaterialPage(child: RegistrationScreen()),
         ],
         onPopPage: (route, result) => route.didPop(result),
       ),

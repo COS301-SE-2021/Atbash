@@ -5,7 +5,6 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Column(
         children: [
           Padding(
@@ -50,15 +49,18 @@ class LoginScreen extends StatelessWidget {
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
+                            MaterialStateProperty.all<Color>(Colors.green)),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => RegistrationScreen()));
+                      var result = Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegistrationScreen()));
+                      result.then((value) => print(value));
                     },
                     child: Text(
                       "Register",
@@ -69,7 +71,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
+                            MaterialStateProperty.all<Color>(Colors.green)),
                   ),
                 ),
               ],

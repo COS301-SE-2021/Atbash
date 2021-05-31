@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/RegistrationScreen.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -49,13 +50,16 @@ class LoginScreen extends StatelessWidget {
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
+                        MaterialStateProperty.all<Color>(Colors.green)),
                   ),
                 ),
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => RegistrationScreen()));
+                    },
                     child: Text(
                       "Register",
                       style: TextStyle(
@@ -65,7 +69,7 @@ class LoginScreen extends StatelessWidget {
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
+                        MaterialStateProperty.all<Color>(Colors.green)),
                   ),
                 ),
               ],

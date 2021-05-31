@@ -62,7 +62,22 @@ class LoginScreen extends StatelessWidget {
                             MaterialStateProperty.all<Color>(Colors.green)),
                   ),
                 ),
-
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Register",
+                      style: TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.green)),
+                  ),
+                ),
               ],
             ),
           ),

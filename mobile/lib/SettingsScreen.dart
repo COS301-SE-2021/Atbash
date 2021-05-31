@@ -28,7 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.green,
       ),
       body: Container(
-        child: Column(
+        child: ListView(
           children: [
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),

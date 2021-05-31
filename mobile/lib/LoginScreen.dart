@@ -29,6 +29,18 @@ class LoginScreen extends StatelessWidget {
               ],
             ),
           ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+            child: Column(
+              children: [
+                Text(
+                  "Password: ",
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                ),
+                TextField()
+              ],
+            ),
+          ),
 
         ],
       ),

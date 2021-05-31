@@ -7,7 +7,9 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _fullNameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
 
   @override
@@ -32,7 +34,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   "Username: ",
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(controller: _usernameController,)
               ],
             ),
           ),
@@ -44,7 +46,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   "Full Name: ",
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(controller: _fullNameController,)
               ],
             ),
           ),
@@ -56,7 +58,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   "Password: ",
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(controller: _passwordController,)
               ],
             ),
           ),
@@ -68,7 +70,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 Container(
                   child: TextButton(
                     onPressed: () {
-
+                      Navigator.pop(context, _usernameController.text);
                     },
                     child: Text(
                       "Register",

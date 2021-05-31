@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 
-class RegistrationScreen extends StatelessWidget {
+
+class RegistrationScreen extends StatefulWidget {
+  @override
+  _RegistrationScreenState createState() => _RegistrationScreenState();
+}
+
+class _RegistrationScreenState extends State<RegistrationScreen> {
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +67,9 @@ class RegistrationScreen extends StatelessWidget {
               children: [
                 Container(
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+
+                    },
                     child: Text(
                       "Register",
                       style: TextStyle(
@@ -79,3 +90,4 @@ class RegistrationScreen extends StatelessWidget {
     );
   }
 }
+

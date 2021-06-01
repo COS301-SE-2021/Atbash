@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/domain/Chat.dart';
 
 import 'domain/Contact.dart';
 
 class MainScreen extends StatelessWidget {
-  final contacts = [
-    Contact("1", "Contact 1"),
-    Contact("2", "Contact 2"),
-    Contact("3", "Contact 3"),
-    Contact("4", "Contact 4"),
-    Contact("5", "Contact 5"),
-    Contact("6", "Contact 6"),
+  final chats = [
+    Chat("1", Contact("1", "Contact 1")),
+    Chat("2", Contact("2", "Contact 2")),
+    Chat("3", Contact("3", "Contact 3")),
+    Chat("4", Contact("4", "Contact 4")),
+    Chat("5", Contact("5", "Contact 5")),
+    Chat("6", Contact("6", "Contact 6")),
   ];
 
   @override
@@ -17,15 +18,13 @@ class MainScreen extends StatelessWidget {
     return Scaffold(
       appBar: MainScreenAppBar(),
       body: ListView(
-        children: _buildContactList(),
+        children: _buildChatList(),
       ),
     );
   }
 
-  List<Widget> _buildContactList() {
-    List<Widget> contactList = [];
-    contacts.forEach((contact) => contactList.add(ContactListItem(contact)));
-    return contactList;
+  List<Widget> _buildChatList() {
+    return chats.map((c) => ChatListItem(c)).toList();
   }
 }
 
@@ -52,10 +51,10 @@ class MainScreenAppBar extends AppBar {
             ]);
 }
 
-class ContactListItem extends StatelessWidget {
-  final Contact _contact;
+class ChatListItem extends StatelessWidget {
+  final Chat _chat;
 
-  ContactListItem(this._contact);
+  ChatListItem(this._chat);
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +68,7 @@ class ContactListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _contact.name,
+                  _chat.contact.name,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -79,7 +78,7 @@ class ContactListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        print("""Contact with id '${_contact.id}' clicked""");
+        print("""Chat with id '${_chat.id}' clicked""");
       },
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/SettingsScreen.dart';
 import 'package:mobile/domain/Chat.dart';
 
+import 'LoginScreen.dart';
 import 'domain/Contact.dart';
 
 class MainScreen extends StatelessWidget {
@@ -82,6 +83,8 @@ class MainScreenAppBar extends AppBar {
             context, MaterialPageRoute(builder: (context) => SettingsScreen()));
         break;
       case MenuItem.logout:
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
         break;
     }
   }

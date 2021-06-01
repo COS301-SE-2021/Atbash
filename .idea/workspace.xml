@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0e5764d6-12f1-4b74-bec1-9fe6ef690319" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="development-frontend-main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1tJ8So1zev8kCqnKZbWB1k7NfWB" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="Git.Branch.Popup.ShowAllRemotes" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="dart.settings" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration name="main.dart" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application" temporary="true" nameIsGenerated="true">
+      <option name="filePath" value="$PROJECT_DIR$/mobile/lib/main.dart" />
+      <option name="workingDirectory" value="$PROJECT_DIR$/mobile" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Dart Command Line App.main.dart" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0e5764d6-12f1-4b74-bec1-9fe6ef690319" name="Default Changelist" comment="" />
+      <created>1622475835163</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1622475835163</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="360" y="200" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1622480662790">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="360" y="200" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.25.1792.1034@0.25.1792.1034" timestamp="1622480662790" />
+    <state x="100" y="125" width="1592" height="833" key="AVDManager" timestamp="1622492546017">
+      <screen x="0" y="25" width="1792" height="1035" />
+    </state>
+    <state x="100" y="125" width="1592" height="833" key="AVDManager/0.25.1792.1034@0.25.1792.1034" timestamp="1622480948596" />
+    <state x="100" y="125" width="1592" height="833" key="AVDManager/0.25.1792.1035@0.25.1792.1035" timestamp="1622492546017" />
+    <state width="1750" height="190" key="GridCell.Tab.0.bottom" timestamp="1622492793784">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state width="1750" height="190" key="GridCell.Tab.0.bottom/0.25.1792.1034@0.25.1792.1034" timestamp="1622492793784" />
+    <state width="1016" height="221" key="GridCell.Tab.0.bottom/0.25.1792.1035@0.25.1792.1035" timestamp="1622492506961" />
+    <state width="1750" height="190" key="GridCell.Tab.0.center" timestamp="1622492793784">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state width="1750" height="190" key="GridCell.Tab.0.center/0.25.1792.1034@0.25.1792.1034" timestamp="1622492793784" />
+    <state width="1016" height="221" key="GridCell.Tab.0.center/0.25.1792.1035@0.25.1792.1035" timestamp="1622492506961" />
+    <state width="1750" height="190" key="GridCell.Tab.0.left" timestamp="1622492793784">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state width="1750" height="190" key="GridCell.Tab.0.left/0.25.1792.1034@0.25.1792.1034" timestamp="1622492793784" />
+    <state width="1016" height="221" key="GridCell.Tab.0.left/0.25.1792.1035@0.25.1792.1035" timestamp="1622492506961" />
+    <state width="1750" height="190" key="GridCell.Tab.0.right" timestamp="1622492793784">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state width="1750" height="190" key="GridCell.Tab.0.right/0.25.1792.1034@0.25.1792.1034" timestamp="1622492793784" />
+    <state width="1016" height="221" key="GridCell.Tab.0.right/0.25.1792.1035@0.25.1792.1035" timestamp="1622492506961" />
+    <state x="405" y="177" key="SettingsEditor" timestamp="1622552744422">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="405" y="177" key="SettingsEditor/0.25.1792.1034@0.25.1792.1034" timestamp="1622552744422" />
+    <state x="697" y="460" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1622545976989">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="697" y="460" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1792.1034@0.25.1792.1034" timestamp="1622545976989" />
+    <state x="635" y="259" key="git4idea.branch.GitSmartOperationDialog" timestamp="1622552482219">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="635" y="259" key="git4idea.branch.GitSmartOperationDialog/0.25.1792.1034@0.25.1792.1034" timestamp="1622552482219" />
+    <state x="561" y="249" key="run.anything.popup" timestamp="1622480945562">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="561" y="249" key="run.anything.popup/0.25.1792.1034@0.25.1792.1034" timestamp="1622480945562" />
+    <state x="561" y="254" width="670" height="676" key="search.everywhere.popup" timestamp="1622481803697">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="561" y="254" width="670" height="676" key="search.everywhere.popup/0.25.1792.1034@0.25.1792.1034" timestamp="1622481803697" />
+  </component>
+</project>

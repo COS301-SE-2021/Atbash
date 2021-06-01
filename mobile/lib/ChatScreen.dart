@@ -15,8 +15,7 @@ class ChatScreen extends StatelessWidget {
           child: ListView(
             children: _buildMessages(),
           ),
-        )
-    );
+        ));
   }
 
   List<Widget> _buildMessages() {
@@ -26,23 +25,43 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
+class MessageItem extends StatelessWidget {
+  final String _message;
+
+  MessageItem(this._message);
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16.0, 10.0, 60.0, 10.0),
+        child: Expanded(
+          child: Text(_message),
+        ),
+      ),
+    );
+  }
+}
+
 class ChatScreenAppBar extends AppBar {
-  ChatScreenAppBar() : super(
-    title: Row(
-      children: [
-        EmptyProfileIcon(Colors.white),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              "Joshua",
-              overflow: TextOverflow.ellipsis,
-            ),
+  ChatScreenAppBar()
+      : super(
+          title: Row(
+            children: [
+              EmptyProfileIcon(Colors.white),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    "Joshua",
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+            ],
           ),
-        )
-      ],
-    ),
-  );
+        );
 }
 
 class EmptyProfileIcon extends StatelessWidget {

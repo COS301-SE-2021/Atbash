@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/ChatScreen.dart';
 import 'package:mobile/SettingsScreen.dart';
 import 'package:mobile/domain/Chat.dart';
 
@@ -117,7 +118,8 @@ class ChatListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        print("""Chat with id '${_chat.id}' clicked""");
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ChatScreen()));
       },
     );
   }

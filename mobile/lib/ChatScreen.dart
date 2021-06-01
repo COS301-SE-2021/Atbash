@@ -4,6 +4,7 @@ class ChatScreen extends StatelessWidget {
   final List<String> messages = [
     "Hello!",
     "This is a test message.",
+    "This is meant to be a very long message to show how the application will react to a long message that doesnt fit.",
     "Goodbye =D"
   ];
 
@@ -19,9 +20,10 @@ class ChatScreen extends StatelessWidget {
   }
 
   List<Widget> _buildMessages() {
-    List<Widget> messages = [];
+    List<Widget> messageWidgets = [];
     //TODO: populate messages
-    return messages;
+    messages.forEach((element) => messageWidgets.add(MessageItem(element)));
+    return messageWidgets;
   }
 }
 
@@ -33,10 +35,12 @@ class MessageItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Container(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16.0, 10.0, 60.0, 10.0),
-        child: Expanded(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16.0, 5.0, 60.0, 5.0),
+      child: Card(
+        color: Colors.green,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(16.0, 10.0, 20.0, 10.0),
           child: Text(_message),
         ),
       ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'MainScreen.dart';
-
 class ChatScreen extends StatelessWidget {
   final List<String> messages = [
     "Hello!",
@@ -45,4 +43,25 @@ class ChatScreenAppBar extends AppBar {
       ],
     ),
   );
+}
+
+class EmptyProfileIcon extends StatelessWidget {
+  final Color _color;
+
+  EmptyProfileIcon(this._color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(width: 1, color: _color),
+      ),
+      padding: EdgeInsets.all(4.0),
+      child: Icon(
+        Icons.person,
+        color: _color,
+      ),
+    );
+  }
 }

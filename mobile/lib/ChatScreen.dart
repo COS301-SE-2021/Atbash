@@ -17,8 +17,9 @@ class ChatScreen extends StatelessWidget {
           Flexible(
               child: ListView(
             children: _buildMessages(),
-          ))
-        , ],
+          )),
+          InputBar()
+        ],
       ),
     );
   }
@@ -31,13 +32,19 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-class InputBar extends StatelessWidget
-{
+class InputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Row(
+      children: [
+        Expanded(child: TextField()),
+        IconButton(
+          icon: Icon(Icons.send),
+          onPressed: () {},
+        )
+      ],
+    );
   }
-
 }
 
 class MessageItem extends StatelessWidget {

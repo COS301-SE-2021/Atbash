@@ -23,6 +23,12 @@ class MainScreen extends StatelessWidget {
       body: ListView(
         children: _buildChatList(),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.chat),
+        onPressed: () {
+          print("FAB pressed");
+        },
+      ),
     );
   }
 

@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/MainScreen.dart';
+import 'package:mobile/LoginScreen.dart';
 
-import 'ChatScreen.dart';
 import 'domain/Contact.dart';
 
 void main() {
@@ -20,14 +19,8 @@ class _AtbashAppState extends State<AtbashApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Atbash',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: Navigator(
-        pages: [
-          MaterialPage(child: ChatScreen()),
-        ],
-        onPopPage: (route, result) => route.didPop(result),
-      ),
-    );
+        title: 'Atbash',
+        theme: ThemeData(primarySwatch: Colors.green),
+        home: LoginScreen());
   }
 }

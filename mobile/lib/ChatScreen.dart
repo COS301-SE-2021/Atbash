@@ -82,7 +82,8 @@ class ChatScreenAppBar extends AppBar {
   ChatScreenAppBar()
       : super(
           title: Row(
-            children: [IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
+            children: [
+              IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
               EmptyProfileIcon(Colors.white),
               Expanded(
                 child: Padding(

@@ -19,9 +19,8 @@ class _AtbashAppState extends State<AtbashApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Atbash',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: MainScreen()
-    );
+        title: 'Atbash',
+        theme: ThemeData(primarySwatch: Colors.green),
+        home: LoginScreen());
   }
 }

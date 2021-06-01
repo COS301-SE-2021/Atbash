@@ -48,7 +48,7 @@ class MainScreenAppBar extends AppBar {
               ],
             ),
             actions: [
-              IconButton(onPressed: () {}, icon: Icon(Icons.search)), //Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => NewChatScreen()));
+              IconButton(onPressed: () {}, icon: Icon(Icons.search)),
               IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
             ]);
 }

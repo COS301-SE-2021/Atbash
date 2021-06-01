@@ -82,7 +82,8 @@ class ContactListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        print("""Contact with id '${_contact.id}' clicked"""); //Change this to navigate to Chat screen
+        print("""Creating new Chat for Contact with id '${_contact.id}'"""); //Change this to navigate to Chat screen
+        //Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ChatScreen()));
       },
     );
   }

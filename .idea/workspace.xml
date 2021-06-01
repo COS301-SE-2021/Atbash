@@ -31,7 +31,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mobile/lib/MainScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/lib/MainScreen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mobile/lib/NewChatScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/lib/NewChatScreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mobile/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/mobile/lib/main.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,6 +116,10 @@
     </state>
     <state x="100" y="125" width="1592" height="833" key="AVDManager/0.25.1792.1034@0.25.1792.1034" timestamp="1622480948596" />
     <state x="100" y="125" width="1592" height="833" key="AVDManager/0.25.1792.1035@0.25.1792.1035" timestamp="1622553661923" />
+    <state x="100" y="125" width="1592" height="834" key="DiffContextDialog" timestamp="1622555866893">
+      <screen x="0" y="25" width="1792" height="1034" />
+    </state>
+    <state x="100" y="125" width="1592" height="834" key="DiffContextDialog/0.25.1792.1034@0.25.1792.1034" timestamp="1622555866893" />
     <state width="1750" height="190" key="GridCell.Tab.0.bottom" timestamp="1622492793784">
       <screen x="0" y="25" width="1792" height="1034" />
     </state>

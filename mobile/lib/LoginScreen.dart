@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile/RegistrationScreen.dart';
 
 class LoginScreen extends StatelessWidget {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,7 +18,9 @@ class LoginScreen extends StatelessWidget {
                   "Username: ",
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(
+                  controller: _usernameController,
+                )
               ],
             ),
           ),
@@ -27,7 +32,9 @@ class LoginScreen extends StatelessWidget {
                   "Password: ",
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
-                TextField()
+                TextField(
+                  controller: _passwordController,
+                )
               ],
             ),
           ),
@@ -60,7 +67,11 @@ class LoginScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                               builder: (context) => RegistrationScreen()));
-                      result.then((value) => print(value));
+                      result.then((value) {
+                        _usernameController.text =
+                            (value as RegistrationData).username;
+                        _passwordController.text = (value).password;
+                      });
                     },
                     child: Text(
                       "Register",

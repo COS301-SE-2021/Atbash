@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/model/ChatModel.dart';
 import 'package:provider/provider.dart';
 
+//Main widget
 class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
+//Widget for list of messages
 class MessageList extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -24,6 +26,7 @@ class MessageList extends StatefulWidget {
   }
 }
 
+//State for MessageList
 class _MessageListState extends State<MessageList> {
   _MessageListState();
 
@@ -43,6 +46,7 @@ class _MessageListState extends State<MessageList> {
   }
 }
 
+//Widget for input
 class InputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -73,6 +77,7 @@ class InputBar extends StatelessWidget {
   }
 }
 
+//Widget for each individual message
 class MessageItem extends StatelessWidget {
   final String _message;
 
@@ -101,14 +106,9 @@ class MessageItem extends StatelessWidget {
       ),
     );
   }
-
-// EdgeInsets generateTextPadding()
-// {
-//   double leftPadding =
-//   return EdgeInsets.fromLTRB(120.0, 5.0, 16.0, 5.0);
-// }
 }
 
+//Widget for AppBar
 class ChatScreenAppBar extends AppBar {
   ChatScreenAppBar()
       : super(
@@ -130,6 +130,7 @@ class ChatScreenAppBar extends AppBar {
         );
 }
 
+//Widget for profile picture
 class EmptyProfileIcon extends StatelessWidget {
   final Color _color;
 

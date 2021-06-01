@@ -61,6 +61,8 @@ class InputBar extends StatelessWidget {
                   child: Card(
                       color: Colors.white54,
                       child: TextField(
+                        maxLines: 4,
+                        minLines: 1,
                         controller: inputController,
                         style: TextStyle(fontSize: 18),
                       ))),

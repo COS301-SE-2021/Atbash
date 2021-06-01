@@ -21,12 +21,7 @@ class _AtbashAppState extends State<AtbashApp> {
     return MaterialApp(
       title: 'Atbash',
       theme: ThemeData(primarySwatch: Colors.green),
-      home: Navigator(
-        pages: [
-          MaterialPage(child: LoginScreen()),
-        ],
-        onPopPage: (route, result) => route.didPop(result),
-      ),
+      home: MainScreen()
     );
   }
 }

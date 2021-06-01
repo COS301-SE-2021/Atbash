@@ -11,12 +11,16 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: ChatScreenAppBar(),
-        body: Card(
-          child: ListView(
+      appBar: ChatScreenAppBar(),
+      body: Column(
+        children: [
+          Flexible(
+              child: ListView(
             children: _buildMessages(),
-          ),
-        ));
+          ))
+        , ],
+      ),
+    );
   }
 
   List<Widget> _buildMessages() {
@@ -25,6 +29,15 @@ class ChatScreen extends StatelessWidget {
     messages.forEach((element) => messageWidgets.add(MessageItem(element)));
     return messageWidgets;
   }
+}
+
+class InputBar extends StatelessWidget
+{
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+
 }
 
 class MessageItem extends StatelessWidget {

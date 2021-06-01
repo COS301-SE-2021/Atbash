@@ -21,12 +21,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
         centerTitle: true,
         title: Text("Settings"),
         backgroundColor: Colors.green,
@@ -41,9 +35,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     "Change display name:",
                     style:
-                    TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
-                  TextField(controller: displayNameController,)
+                  TextField(
+                    controller: displayNameController,
+                  )
                 ],
               ),
             ),
@@ -54,7 +50,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   "Change status:",
                   style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
-                TextField(controller: statusController,)
+                TextField(
+                  controller: statusController,
+                )
               ]),
             ),
             Padding(
@@ -102,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     style: ButtonStyle(
                         backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.green)),
+                            MaterialStateProperty.all<Color>(Colors.green)),
                   )
                 ],
               ),

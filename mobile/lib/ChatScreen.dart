@@ -1,33 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/model/ChatModel.dart';
+import 'package:provider/provider.dart';
 
 class ChatScreen extends StatelessWidget {
-  final List<String> messages = [
-    "Hello!",
-    "This is a test message.",
-    "This is meant to be a very long message to show how the application will react to a long message that doesnt fit.",
-    "Goodbye =D"
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChatScreenAppBar(),
-      body: Column(
-        children: [
-          Flexible(
-              child: ListView(
-            children: _buildMessages(),
-          )),
-          InputBar()
-        ],
+      body: ChangeNotifierProvider(
+        create: (context) => ChatModel(),
+        child: Column(
+          children: [Flexible(child: MessageList()), InputBar()],
+        ),
       ),
     );
   }
+}
 
-  List<Widget> _buildMessages() {
+class MessageList extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _MessageListState();
+  }
+}
+
+class _MessageListState extends State<MessageList> {
+  _MessageListState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ChatModel>(builder: (context, chat, child) {
+      return ListView(
+        children: _buildMessages(chat.messages),
+      );
+    });
+  }
+
+  List<Widget> _buildMessages(List<String> messageList) {
     List<Widget> messageWidgets = [];
-    //TODO: populate messages
-    messages.forEach((element) => messageWidgets.add(MessageItem(element)));
+    messageList.forEach((element) => messageWidgets.add(MessageItem(element)));
     return messageWidgets;
   }
 }
@@ -35,22 +46,30 @@ class ChatScreen extends StatelessWidget {
 class InputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: Colors.green,
-        child: Row(
-          children: [
-            Expanded(
-                child: Card(
-                    color: Colors.white54,
-                    child: TextField(
-                      style: TextStyle(fontSize: 18),
-                    ))),
-            IconButton(
-              icon: Icon(Icons.send),
-              onPressed: () {},
-            )
-          ],
-        ));
+    final inputController = TextEditingController();
+
+    return Consumer<ChatModel>(builder: (context, chat, child) {
+      return Container(
+          color: Colors.green,
+          child: Row(
+            children: [
+              Expanded(
+                  child: Card(
+                      color: Colors.white54,
+                      child: TextField(
+                        controller: inputController,
+                        style: TextStyle(fontSize: 18),
+                      ))),
+              IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  chat.addMessage(inputController.text);
+                  inputController.text = "";
+                },
+              )
+            ],
+          ));
+    });
   }
 }
 
@@ -61,21 +80,33 @@ class MessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16.0, 5.0, 60.0, 5.0),
-      child: Card(
-        color: Colors.green,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(16.0, 10.0, 20.0, 10.0),
-          child: Text(
-            _message,
-            style: TextStyle(fontSize: 18),
-          ),
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(30.0, 0.0, 10.0, 0.0),
+        child: Wrap(
+          children: [
+            Card(
+              color: Colors.green,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16.0, 10.0, 20.0, 10.0),
+                child: Text(
+                  _message,
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+// EdgeInsets generateTextPadding()
+// {
+//   double leftPadding =
+//   return EdgeInsets.fromLTRB(120.0, 5.0, 16.0, 5.0);
+// }
 }
 
 class ChatScreenAppBar extends AppBar {

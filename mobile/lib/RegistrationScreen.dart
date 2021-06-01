@@ -61,6 +61,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
                 TextField(
+                  obscureText: true,
                   controller: _passwordController,
                 )
               ],

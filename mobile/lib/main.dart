@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/MainScreen.dart';
+import 'package:mobile/NewChatScreen.dart';
 
 import 'domain/Contact.dart';
 

@@ -35,15 +35,22 @@ class ChatScreen extends StatelessWidget {
 class InputBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: TextField()),
-        IconButton(
-          icon: Icon(Icons.send),
-          onPressed: () {},
-        )
-      ],
-    );
+    return Container(
+        color: Colors.green,
+        child: Row(
+          children: [
+            Expanded(
+                child: Card(
+                    color: Colors.white54,
+                    child: TextField(
+                      style: TextStyle(fontSize: 18),
+                    ))),
+            IconButton(
+              icon: Icon(Icons.send),
+              onPressed: () {},
+            )
+          ],
+        ));
   }
 }
 
@@ -61,7 +68,10 @@ class MessageItem extends StatelessWidget {
         color: Colors.green,
         child: Padding(
           padding: EdgeInsets.fromLTRB(16.0, 10.0, 20.0, 10.0),
-          child: Text(_message),
+          child: Text(
+            _message,
+            style: TextStyle(fontSize: 18),
+          ),
         ),
       ),
     );
@@ -72,7 +82,7 @@ class ChatScreenAppBar extends AppBar {
   ChatScreenAppBar()
       : super(
           title: Row(
-            children: [
+            children: [IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
               EmptyProfileIcon(Colors.white),
               Expanded(
                 child: Padding(

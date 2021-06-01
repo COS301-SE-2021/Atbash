@@ -46,7 +46,12 @@ class LoginScreen extends StatelessWidget {
                 Container(
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      // Navigator.pushReplacement(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //         builder: (context) => MainScreen()));
+                    },
                     child: Text(
                       "Login",
                       style: TextStyle(

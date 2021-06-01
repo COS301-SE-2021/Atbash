@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/SettingsScreen.dart';
 import 'package:mobile/domain/Chat.dart';
 
 import 'domain/Contact.dart';
@@ -16,7 +17,7 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MainScreenAppBar(),
+      appBar: MainScreenAppBar(context),
       body: ListView(
         children: _buildChatList(),
       ),
@@ -42,7 +43,7 @@ extension MenuItemExtension on MenuItem {
 }
 
 class MainScreenAppBar extends AppBar {
-  MainScreenAppBar()
+  MainScreenAppBar(BuildContext context)
       : super(
             title: Row(
               children: [
@@ -61,7 +62,8 @@ class MainScreenAppBar extends AppBar {
             actions: [
               IconButton(onPressed: () {}, icon: Icon(Icons.search)),
               PopupMenuButton(
-                onSelected: menuItemSelected,
+                onSelected: (value) =>
+                    menuItemSelected(value as MenuItem, context),
                 itemBuilder: (context) {
                   return MenuItem.values.map((menuItem) {
                     return PopupMenuItem(
@@ -73,8 +75,15 @@ class MainScreenAppBar extends AppBar {
               )
             ]);
 
-  static void menuItemSelected(MenuItem selected) {
-    print("""Menu item '${selected.text}' selected""");
+  static void menuItemSelected(MenuItem selected, BuildContext context) {
+    switch (selected) {
+      case MenuItem.settings:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+        break;
+      case MenuItem.logout:
+        break;
+    }
   }
 }
 

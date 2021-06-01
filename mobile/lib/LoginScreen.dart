@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/RegistrationScreen.dart';
 
+import 'MainScreen.dart';
+
 class LoginScreen extends StatelessWidget {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -48,10 +50,10 @@ class LoginScreen extends StatelessWidget {
                   margin: EdgeInsets.symmetric(horizontal: 8.0),
                   child: TextButton(
                     onPressed: () {
-                      // Navigator.pushReplacement(
-                      //     context,
-                      //     MaterialPageRoute(
-                      //         builder: (context) => MainScreen()));
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MainScreen()));
                     },
                     child: Text(
                       "Login",

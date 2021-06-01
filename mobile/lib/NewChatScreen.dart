@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import './domain/Contact.dart';
+import './ChatScreen.dart';
 
 class NewChatScreen extends StatelessWidget {
   final contactsList = [
@@ -83,6 +84,8 @@ class ContactListItem extends StatelessWidget {
       ),
       onTap: () {
         print("""Creating new Chat for Contact with id '${_contact.id}'"""); //Change this to navigate to Chat screen
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => ChatScreen()));
         //Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ChatScreen()));
       },
     );

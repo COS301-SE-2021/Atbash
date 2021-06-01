@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/ChatScreen.dart';
+import 'package:mobile/NewChatScreen.dart';
 import 'package:mobile/SettingsScreen.dart';
 import 'package:mobile/domain/Chat.dart';
 
@@ -26,7 +27,8 @@ class MainScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.chat),
         onPressed: () {
-          print("FAB pressed");
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => NewChatScreen()));
         },
       ),
     );

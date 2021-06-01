@@ -28,6 +28,19 @@ class MainScreen extends StatelessWidget {
   }
 }
 
+enum MenuItem { settings, logout }
+
+extension MenuItemExtension on MenuItem {
+  get text {
+    switch (this) {
+      case MenuItem.settings:
+        return "Settings";
+      case MenuItem.logout:
+        return "Logout";
+    }
+  }
+}
+
 class MainScreenAppBar extends AppBar {
   MainScreenAppBar()
       : super(
@@ -47,8 +60,22 @@ class MainScreenAppBar extends AppBar {
             ),
             actions: [
               IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-              IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
+              PopupMenuButton(
+                onSelected: menuItemSelected,
+                itemBuilder: (context) {
+                  return MenuItem.values.map((menuItem) {
+                    return PopupMenuItem(
+                      child: Text(menuItem.text),
+                      value: menuItem,
+                    );
+                  }).toList();
+                },
+              )
             ]);
+
+  static void menuItemSelected(MenuItem selected) {
+    print("""Menu item '${selected.text}' selected""");
+  }
 }
 
 class ChatListItem extends StatelessWidget {

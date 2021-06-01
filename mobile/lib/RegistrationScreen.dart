@@ -93,3 +93,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 }
 
+class RegistrationData {
+  final String username;
+  final String fullName;
+  final String password;
+
+  RegistrationData(this.username, this.fullName, this.password);
+}

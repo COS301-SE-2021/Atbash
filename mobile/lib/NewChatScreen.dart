@@ -1,21 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './domain/Contact.dart';
-
 class NewChatScreen extends StatelessWidget {
-  final contactsList = [
-    Contact("1", "Contact 1"),
-    Contact("2", "Contact 2"),
-    Contact("3", "Contact 3"),
-    Contact("4", "Contact 4"),
-    Contact("5", "Contact 5"),
-    Contact("6", "Contact 6"),
-    Contact("7", "Contact 7"),
-    Contact("8", "Contact 8"),
-    Contact("9", "Contact 9"),
-    Contact("10", "Contact 10"),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +13,7 @@ class NewChatScreen extends StatelessWidget {
 
   List<Widget> _buildContactList() {
     List<Widget> contactList = [];
-    contactsList.forEach((contact) => contactList.add(ContactListItem(contact)));
+    [].forEach((contact) => contactList.add(ContactListItem()));
     return contactList;
   }
 }
@@ -36,30 +21,26 @@ class NewChatScreen extends StatelessWidget {
 class NewChatScreenAppBar extends AppBar {
   NewChatScreenAppBar()
       : super(
-      title: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                "Select a Contact",
-                overflow: TextOverflow.ellipsis,
-              ),
+            title: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      "Select a Contact",
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+              ],
             ),
-          )
-        ],
-      ),
-      actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-        //IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
-      ]);
+            actions: [
+              IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+              //IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
+            ]);
 }
 
 class ContactListItem extends StatelessWidget {
-  final Contact _contact;
-
-  ContactListItem(this._contact);
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -72,7 +53,7 @@ class ContactListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _contact.name,
+                  "Contact name",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -82,7 +63,6 @@ class ContactListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        print("""Creating new Chat for Contact with id '${_contact.id}'"""); //Change this to navigate to Chat screen
         //Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ChatScreen()));
       },
     );

@@ -1,8 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'model/UserModel.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -10,9 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  File? _image;
-  String? _displayName;
-  String? _status;
   final picker = ImagePicker();
   final displayNameController = TextEditingController();
   final statusController = TextEditingController();
@@ -89,18 +87,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(
                 children: [
-                  TextButton(
-                    onPressed: () {
-                      _displayName = displayNameController.text;
-                      _status = statusController.text;
+                  Consumer<UserModel>(
+                    builder: (context, userModel, child) {
+                      return TextButton(
+                        onPressed: () {
+                          userModel.changeUserDisplayName(displayNameController.text);
+                          userModel.changeUserStatus(statusController.text);
+                        },
+                        child: Text(
+                          "SUBMIT",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.green)),
+                      );
                     },
-                    child: Text(
-                      "SUBMIT",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
                   )
                 ],
               ),
@@ -114,26 +116,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future _imgFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
+    // setState(() {
+    //   if (pickedFile != null) {
+    //     _image = File(pickedFile.path);
+    //   } else {
+    //     print('No image selected.');
+    //   }
+    // });
   }
 
   Future _imgFromCamera(BuildContext context) async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
 
-      setState(() {
-        if (pickedFile != null) {
-          _image = File(pickedFile.path);
-        } else {
-          print('No image selected.');
-        }
-      });
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
     } catch (e) {
       showAlertDialog(context);
     }

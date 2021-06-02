@@ -2,29 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:mobile/ChatScreen.dart';
 import 'package:mobile/NewChatScreen.dart';
 import 'package:mobile/SettingsScreen.dart';
+import 'package:mobile/domain/Contact.dart';
+import 'package:provider/provider.dart';
 
 import 'LoginScreen.dart';
+import 'model/UserModel.dart';
 
 class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: MainScreenAppBar(context),
-      body: ListView(
-        children: _buildChatList(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.chat),
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => NewChatScreen()));
-        },
-      ),
-    );
+    return Consumer<UserModel>(builder: (context, userModel, child) {
+      return Scaffold(
+        appBar: MainScreenAppBar(context, userModel),
+        body: ListView(
+          children: _buildChatList(userModel.userChats),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.chat),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NewChatScreen()));
+          },
+        ),
+      );
+    });
   }
 
-  List<Widget> _buildChatList() {
-    return [].map((c) => ChatListItem()).toList();
+  List<Widget> _buildChatList(List<Contact> chats) {
+    return chats.map((c) => ChatListItem(c)).toList();
   }
 }
 
@@ -42,7 +47,7 @@ extension MenuItemExtension on MenuItem {
 }
 
 class MainScreenAppBar extends AppBar {
-  MainScreenAppBar(BuildContext context)
+  MainScreenAppBar(BuildContext context, UserModel userModel)
       : super(
             title: Row(
               children: [
@@ -51,7 +56,7 @@ class MainScreenAppBar extends AppBar {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      "Dylan Pfab",
+                      userModel.userDisplayName ?? "",
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -89,6 +94,10 @@ class MainScreenAppBar extends AppBar {
 }
 
 class ChatListItem extends StatelessWidget {
+  final Contact _contact;
+
+  ChatListItem(this._contact);
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -101,7 +110,7 @@ class ChatListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  "Chat with user",
+                  _contact.displayName,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),

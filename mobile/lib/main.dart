@@ -7,7 +7,10 @@ import 'package:provider/provider.dart';
 import 'domain/Contact.dart';
 
 void main() {
-  runApp(AtbashApp());
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (context) => UserModel())],
+    child: AtbashApp(),
+  ));
 }
 
 class AtbashApp extends StatefulWidget {

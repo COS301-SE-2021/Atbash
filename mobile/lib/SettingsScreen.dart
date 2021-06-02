@@ -23,79 +23,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text("Settings"),
         backgroundColor: Colors.green,
       ),
-      body: Consumer<UserModel>(
-        builder: (context, userModel, child) {
-          return Container(
-            child: ListView(
-              children: [
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Change display name:",
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
-                      ),
-                      TextField(
-                        controller: displayNameController,
-                      )
-                    ],
+      body: Container(
+        child: ListView(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+              child: Column(
+                children: [
+                  Text(
+                    "Change display name:",
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
+                  TextField(
+                    controller: displayNameController,
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+              child: Column(children: [
+                Text(
+                  "Change status:",
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-                  child: Column(children: [
-                    Text(
-                      "Change status:",
-                      style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
-                    ),
-                    TextField(
-                      controller: statusController,
-                    )
-                  ]),
+                TextField(
+                  controller: statusController,
+                )
+              ]),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+              child: Column(children: [
+                Text(
+                  "Change profile picture:",
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-                  child: Column(children: [
-                    Text(
-                      "Change profile picture:",
-                      style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      iconSize: 50,
+                      icon: Icon(Icons.photo_library),
+                      onPressed: () {
+                        _imgFromGallery();
+                      },
+                      tooltip: "Add image using your gallery.",
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          iconSize: 50,
-                          icon: Icon(Icons.photo_library),
-                          onPressed: () {
-                            _imgFromGallery();
-                          },
-                          tooltip: "Add image using your gallery.",
-                        ),
-                        IconButton(
-                          iconSize: 50,
-                          icon: Icon(Icons.photo_camera),
-                          onPressed: () {
-                            _imgFromCamera(context);
-                          },
-                          tooltip: "Add image using your camera.",
-                        ),
-                      ],
+                    IconButton(
+                      iconSize: 50,
+                      icon: Icon(Icons.photo_camera),
+                      onPressed: () {
+                        _imgFromCamera(context);
+                      },
+                      tooltip: "Add image using your camera.",
                     ),
-                  ]),
+                  ],
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-                  child: Column(
-                    children: [
-                      TextButton(
+              ]),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+              child: Column(
+                children: [
+                  Consumer<UserModel>(
+                    builder: (context, userModel, child) {
+                      return TextButton(
                         onPressed: () {
                           userModel.changeUserDisplayName(displayNameController.text);
                           userModel.changeUserStatus(statusController.text);
@@ -107,14 +101,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         style: ButtonStyle(
                             backgroundColor:
                                 MaterialStateProperty.all<Color>(Colors.green)),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        },
+                      );
+                    },
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -4,7 +4,18 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/User.dart';
 
 class UserModel extends ChangeNotifier {
-  User? _loggedInUser;
+  User? _loggedInUser = User("12345", "Dylan Pfab", "Hi");
+
+  UserModel() {
+    var c = Contact("123", "Josh", "");
+    c.chat = Chat();
+
+    var c2 = Contact("456", "Liam", "");
+    c2.chat = Chat();
+
+    _loggedInUser?.addContact(c);
+    _loggedInUser?.addContact(c2);
+  }
 
   // TODO this is a mock function
   void logInUser(String phoneNumber, String displayName) {

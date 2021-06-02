@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,9 +8,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  File? _image;
-  String? _displayName;
-  String? _status;
   final picker = ImagePicker();
   final displayNameController = TextEditingController();
   final statusController = TextEditingController();
@@ -91,8 +86,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      _displayName = displayNameController.text;
-                      _status = statusController.text;
                     },
                     child: Text(
                       "SUBMIT",
@@ -114,26 +107,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future _imgFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
+    // setState(() {
+    //   if (pickedFile != null) {
+    //     _image = File(pickedFile.path);
+    //   } else {
+    //     print('No image selected.');
+    //   }
+    // });
   }
 
   Future _imgFromCamera(BuildContext context) async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
 
-      setState(() {
-        if (pickedFile != null) {
-          _image = File(pickedFile.path);
-        } else {
-          print('No image selected.');
-        }
-      });
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
     } catch (e) {
       showAlertDialog(context);
     }

@@ -11,7 +11,7 @@ class User {
 
   User(this.phoneNumber, this.displayName, this.status);
 
-  get contacts => UnmodifiableListView(_contacts);
+  UnmodifiableListView<Contact> get contacts => UnmodifiableListView(_contacts);
 
   addContact(Contact contact) => _contacts.add(contact);
 }

@@ -96,7 +96,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Column(
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          userModel.changeUserDisplayName(displayNameController.text);
+                        },
                         child: Text(
                           "SUBMIT",
                           style: TextStyle(color: Colors.white),

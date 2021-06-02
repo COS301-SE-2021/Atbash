@@ -2,21 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mobile/ChatScreen.dart';
 import 'package:mobile/NewChatScreen.dart';
 import 'package:mobile/SettingsScreen.dart';
-import 'package:mobile/domain/Chat.dart';
 
 import 'LoginScreen.dart';
-import 'domain/Contact.dart';
 
 class MainScreen extends StatelessWidget {
-  final chats = [
-    Chat("1", Contact("1", "Contact 1")),
-    Chat("2", Contact("2", "Contact 2")),
-    Chat("3", Contact("3", "Contact 3")),
-    Chat("4", Contact("4", "Contact 4")),
-    Chat("5", Contact("5", "Contact 5")),
-    Chat("6", Contact("6", "Contact 6")),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +24,7 @@ class MainScreen extends StatelessWidget {
   }
 
   List<Widget> _buildChatList() {
-    return chats.map((c) => ChatListItem(c)).toList();
+    return [].map((c) => ChatListItem()).toList();
   }
 }
 
@@ -100,10 +89,6 @@ class MainScreenAppBar extends AppBar {
 }
 
 class ChatListItem extends StatelessWidget {
-  final Chat _chat;
-
-  ChatListItem(this._chat);
-
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -116,7 +101,7 @@ class ChatListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _chat.contact.name,
+                  "Chat with user",
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),

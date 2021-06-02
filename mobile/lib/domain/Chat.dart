@@ -1,8 +1,11 @@
-import 'package:mobile/domain/Contact.dart';
+import 'dart:collection';
+
+import 'Message.dart';
 
 class Chat {
-  final String id;
-  final Contact contact;
+  List<Message> _messages = [];
 
-  Chat(this.id, this.contact);
+  get messages => UnmodifiableListView<Message>(_messages);
+
+  addMessage(Message message) => _messages.add(message);
 }

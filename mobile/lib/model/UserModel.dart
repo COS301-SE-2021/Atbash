@@ -14,6 +14,8 @@ class UserModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? get userDisplayName => _loggedInUser?.displayName;
+
   void changeUserStatus(String status) {
     _loggedInUser?.status = status;
     notifyListeners();

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/LoginScreen.dart';
+import 'package:mobile/model/UserModel.dart';
+import 'package:provider/provider.dart';
 
 import 'domain/Contact.dart';
 
@@ -19,8 +21,12 @@ class _AtbashAppState extends State<AtbashApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Atbash',
-        theme: ThemeData(primarySwatch: Colors.green),
-        home: LoginScreen());
+      title: 'Atbash',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: ChangeNotifierProvider(
+        create: (context) => UserModel(),
+        child: LoginScreen(),
+      ),
+    );
   }
 }

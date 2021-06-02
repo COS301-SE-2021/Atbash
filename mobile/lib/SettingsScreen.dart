@@ -1,8 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import 'model/UserModel.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -10,9 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  File? _image;
-  String? _displayName;
-  String? _status;
   final picker = ImagePicker();
   final displayNameController = TextEditingController();
   final statusController = TextEditingController();
@@ -25,88 +23,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text("Settings"),
         backgroundColor: Colors.green,
       ),
-      body: Container(
-        child: ListView(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Change display name:",
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+      body: Consumer<UserModel>(
+        builder: (context, userModel, child) {
+          return Container(
+            child: ListView(
+              children: [
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Change display name:",
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: displayNameController,
+                      )
+                    ],
                   ),
-                  TextField(
-                    controller: displayNameController,
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(children: [
-                Text(
-                  "Change status:",
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                 ),
-                TextField(
-                  controller: statusController,
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+                  child: Column(children: [
+                    Text(
+                      "Change status:",
+                      style: TextStyle(
+                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    TextField(
+                      controller: statusController,
+                    )
+                  ]),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+                  child: Column(children: [
+                    Text(
+                      "Change profile picture:",
+                      style: TextStyle(
+                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          iconSize: 50,
+                          icon: Icon(Icons.photo_library),
+                          onPressed: () {
+                            _imgFromGallery();
+                          },
+                          tooltip: "Add image using your gallery.",
+                        ),
+                        IconButton(
+                          iconSize: 50,
+                          icon: Icon(Icons.photo_camera),
+                          onPressed: () {
+                            _imgFromCamera(context);
+                          },
+                          tooltip: "Add image using your camera.",
+                        ),
+                      ],
+                    ),
+                  ]),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
+                  child: Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          userModel.changeUserDisplayName(displayNameController.text);
+                          userModel.changeUserStatus(statusController.text);
+                        },
+                        child: Text(
+                          "SUBMIT",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.green)),
+                      )
+                    ],
+                  ),
                 )
-              ]),
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(children: [
-                Text(
-                  "Change profile picture:",
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      iconSize: 50,
-                      icon: Icon(Icons.photo_library),
-                      onPressed: () {
-                        _imgFromGallery();
-                      },
-                      tooltip: "Add image using your gallery.",
-                    ),
-                    IconButton(
-                      iconSize: 50,
-                      icon: Icon(Icons.photo_camera),
-                      onPressed: () {
-                        _imgFromCamera(context);
-                      },
-                      tooltip: "Add image using your camera.",
-                    ),
-                  ],
-                ),
-              ]),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      _displayName = displayNameController.text;
-                      _status = statusController.text;
-                    },
-                    child: Text(
-                      "SUBMIT",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -114,26 +122,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future _imgFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
+    // setState(() {
+    //   if (pickedFile != null) {
+    //     _image = File(pickedFile.path);
+    //   } else {
+    //     print('No image selected.');
+    //   }
+    // });
   }
 
   Future _imgFromCamera(BuildContext context) async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
 
-      setState(() {
-        if (pickedFile != null) {
-          _image = File(pickedFile.path);
-        } else {
-          print('No image selected.');
-        }
-      });
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
     } catch (e) {
       showAlertDialog(context);
     }

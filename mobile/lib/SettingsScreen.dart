@@ -2,16 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
 import 'model/SystemModel.dart';
 
+// Creates class for a stateful Widget
 class SettingsScreen extends StatefulWidget {
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
+// State class where entire setting screen is coded.
 class _SettingsScreenState extends State<SettingsScreen> {
+  //Picker is used to select image uploaded in settings.
   final picker = ImagePicker();
+  //Controllers used to grab the display name and status text.
   final displayNameController = TextEditingController();
   final statusController = TextEditingController();
 

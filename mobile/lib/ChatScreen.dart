@@ -52,7 +52,7 @@ class _MessageListState extends State<MessageList> {
   Widget build(BuildContext context) {
     return Consumer<SystemModel>(builder: (context, systemModel, child) {
       return ListView(
-        children: _buildMessages(_contact.chat?.messages, systemModel),
+        children: _buildMessages(_contact.chat?.messages ?? [], systemModel),
       );
     });
   }

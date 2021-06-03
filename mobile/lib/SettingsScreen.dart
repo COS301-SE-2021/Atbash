@@ -2,22 +2,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
 import 'model/SystemModel.dart';
 
+// Creates class for a stateful Widget
 class SettingsScreen extends StatefulWidget {
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
+// State class where entire setting screen is coded.
 class _SettingsScreenState extends State<SettingsScreen> {
+  //Picker is used to select image uploaded in settings.
   final picker = ImagePicker();
+  //Controllers used to grab the display name and status text.
   final displayNameController = TextEditingController();
   final statusController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //AppBar
       appBar: AppBar(
         centerTitle: true,
         title: Text("Settings"),
@@ -26,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Container(
         child: ListView(
           children: [
+            //Display name text field
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(
@@ -41,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+            //Status text field
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(children: [
@@ -53,6 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               ]),
             ),
+            //Change profile picture section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(children: [
@@ -83,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ]),
             ),
+            //Submit button section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(
@@ -114,6 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // Method retrieves image from gallery
   Future _imgFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
@@ -126,6 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // });
   }
 
+  // Method retrieves image from camera
   Future _imgFromCamera(BuildContext context) async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
@@ -142,6 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  // Method shows alert dialog on exception calls
   showAlertDialog(BuildContext context) {
     // Create button
 

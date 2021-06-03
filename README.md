@@ -1,5 +1,5 @@
 # Bit by Bit - Atbash
-Atbash is a messaging application, where privacy of messages is top priority. Message content is only visible to the sender and the recipient.
+Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.
 
 ---
 ## Demo 1 Recording

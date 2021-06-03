@@ -1,11 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/MainScreen.dart';
+import 'package:mobile/LoginScreen.dart';
+import 'package:mobile/model/SystemModel.dart';
+import 'package:provider/provider.dart';
 
 import 'domain/Contact.dart';
 
 void main() {
-  runApp(AtbashApp());
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (context) => SystemModel())],
+    child: AtbashApp(),
+  ));
 }
 
 class AtbashApp extends StatefulWidget {
@@ -21,12 +26,7 @@ class _AtbashAppState extends State<AtbashApp> {
     return MaterialApp(
       title: 'Atbash',
       theme: ThemeData(primarySwatch: Colors.green),
-      home: Navigator(
-        pages: [
-          MaterialPage(child: MainScreen()),
-        ],
-        onPopPage: (route, result) => route.didPop(result),
-      ),
+      home: LoginScreen(),
     );
   }
 }

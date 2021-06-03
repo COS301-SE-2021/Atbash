@@ -1,6 +1,11 @@
-class Contact {
-  final String id;
-  String name;
+import 'Chat.dart';
 
-  Contact(this.id, this.name);
+class Contact {
+  final String phoneNumber;
+  String displayName;
+  String status;
+
+  Chat? chat;
+
+  Contact(this.phoneNumber, this.displayName, this.status);
 }

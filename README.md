@@ -35,7 +35,7 @@ I am a 3rd year computer science student. I have been programming recreationally
 - __Experience with__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
 - __Attitudes__: Creative, patient and friendly
 - __About Me__: 
-  I am a 3rd year BIT student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spendinding time with the boys and playing games. 
+  I am a 3rd year BIT student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spending time with the boys and playing games. 
 
 </details>
 

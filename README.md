@@ -9,7 +9,6 @@ You can see a recoding of our [first demo here](/Documentation/Demo1/Atbash-Demo
 ---
 ## SRS Document
 
-NOTE: WE NEED TO UPDATE THIS WITH VERSION ON OVERLEAF!!
 Please see our [SRS document](/Documentation/Demo1/Atbash_SRS.pdf) to see more about the technical details of our application.
 
 ---

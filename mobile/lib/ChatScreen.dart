@@ -2,17 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:mobile/model/ChatModel.dart';
 import 'package:provider/provider.dart';
 
+import 'domain/Contact.dart';
+import 'domain/Message.dart';
+
 //Main widget
 class ChatScreen extends StatelessWidget {
+  final Contact contact;
+
+  ChatScreen(this.contact);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChatScreenAppBar(),
+      appBar: ChatScreenAppBar(contact),
       body: SafeArea(
         child: ChangeNotifierProvider(
-          create: (context) => ChatModel(),
+          create: (context) => ChatModel(contact.chat),
           child: Column(
-            children: [Flexible(child: MessageList()), InputBar()],
+            children: [Flexible(child: MessageList()), InputBar(contact)],
           ),
         ),
       ),
@@ -41,7 +48,7 @@ class _MessageListState extends State<MessageList> {
     });
   }
 
-  List<Widget> _buildMessages(List<String> messageList) {
+  List<Widget> _buildMessages(List<Message> messageList) {
     List<Widget> messageWidgets = [];
     messageList.forEach((element) => messageWidgets.add(MessageItem(element)));
     return messageWidgets;
@@ -50,6 +57,10 @@ class _MessageListState extends State<MessageList> {
 
 //Widget for input
 class InputBar extends StatelessWidget {
+  final Contact contact;
+
+  InputBar(this.contact);
+
   @override
   Widget build(BuildContext context) {
     final inputController = TextEditingController();
@@ -71,7 +82,8 @@ class InputBar extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {
-                  chat.addMessage(inputController.text);
+                  chat.addMessage(
+                      "", contact.phoneNumber, inputController.text);
                   inputController.text = "";
                 },
               )
@@ -83,16 +95,24 @@ class InputBar extends StatelessWidget {
 
 //Widget for each individual message
 class MessageItem extends StatelessWidget {
-  final String _message;
+  final Message _message;
 
   MessageItem(this._message);
 
   @override
   Widget build(BuildContext context) {
+    Alignment alignment = Alignment.centerLeft;
+    EdgeInsets paddingInset = EdgeInsets.fromLTRB(10.0, 0.0, 40.0, 0.0);
+
+    if (_message.from == "") {
+      alignment = Alignment.centerRight;
+      paddingInset = EdgeInsets.fromLTRB(40.0, 0.0, 10.0, 0.0);
+    }
+
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: alignment,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(30.0, 0.0, 10.0, 0.0),
+        padding: paddingInset,
         child: Wrap(
           children: [
             Card(
@@ -100,7 +120,7 @@ class MessageItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.fromLTRB(16.0, 10.0, 20.0, 10.0),
                 child: Text(
-                  _message,
+                  _message.contents,
                   style: TextStyle(fontSize: 18),
                 ),
               ),
@@ -114,7 +134,7 @@ class MessageItem extends StatelessWidget {
 
 //Widget for AppBar
 class ChatScreenAppBar extends AppBar {
-  ChatScreenAppBar()
+  ChatScreenAppBar(Contact contact)
       : super(
           title: Row(
             children: [
@@ -123,7 +143,7 @@ class ChatScreenAppBar extends AppBar {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    "Joshua",
+                    contact.displayName,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

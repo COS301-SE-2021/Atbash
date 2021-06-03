@@ -26,7 +26,7 @@ I am a 3rd year computer science student. I have been programming recreationally
 
 ### Connor Mayston <br>
 
-### Joshua Reddy (19196042) <br>[GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/)
+### Joshua Reddy (19196042) [GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/)
 
 <details><summary>Expand details</summary>
   

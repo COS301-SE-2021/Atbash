@@ -117,6 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // Method retrieves image from gallery
   Future _imgFromGallery() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
 
@@ -129,6 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // });
   }
 
+  // Method retrieves image from camera
   Future _imgFromCamera(BuildContext context) async {
     try {
       final pickedFile = await picker.getImage(source: ImageSource.camera);
@@ -145,6 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  // Method shows alert dialog on exception calls
   showAlertDialog(BuildContext context) {
     // Create button
 

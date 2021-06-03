@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: ChatScreenAppBar(),
-        body: ChangeNotifierProvider(
+    return Scaffold(
+      appBar: ChatScreenAppBar(),
+      body: SafeArea(
+        child: ChangeNotifierProvider(
           create: (context) => ChatModel(),
           child: Column(
             children: [Flexible(child: MessageList()), InputBar()],

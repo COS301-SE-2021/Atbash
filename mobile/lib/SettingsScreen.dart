@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import 'model/UserModel.dart';
+import 'model/SystemModel.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -87,12 +87,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(
                 children: [
-                  Consumer<UserModel>(
+                  Consumer<SystemModel>(
                     builder: (context, userModel, child) {
                       return TextButton(
                         onPressed: () {
-                          userModel.changeUserDisplayName(displayNameController.text);
-                          userModel.changeUserStatus(statusController.text);
+                          userModel
+                              .setUserDisplayName(displayNameController.text);
+                          userModel.setUserStatus(statusController.text);
                         },
                         child: Text(
                           "SUBMIT",

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/model/ChatModel.dart';
+import 'package:mobile/model/SystemModel.dart';
 import 'package:provider/provider.dart';
 
 import 'domain/Contact.dart';
@@ -7,19 +7,22 @@ import 'domain/Message.dart';
 
 //Main widget
 class ChatScreen extends StatelessWidget {
-  final Contact contact;
+  final Contact _contact;
 
-  ChatScreen(this.contact);
+  ChatScreen(this._contact);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChatScreenAppBar(contact),
+      appBar: ChatScreenAppBar(_contact),
       body: SafeArea(
         child: ChangeNotifierProvider(
-          create: (context) => ChatModel(contact.chat),
+          create: (context) => SystemModel(),
           child: Column(
-            children: [Flexible(child: MessageList()), InputBar(contact)],
+            children: [
+              Flexible(child: MessageList(_contact)),
+              InputBar(_contact)
+            ],
           ),
         ),
       ),
@@ -29,28 +32,36 @@ class ChatScreen extends StatelessWidget {
 
 //Widget for list of messages
 class MessageList extends StatefulWidget {
+  final Contact _contact;
+
+  MessageList(this._contact);
+
   @override
   State<StatefulWidget> createState() {
-    return _MessageListState();
+    return _MessageListState(_contact);
   }
 }
 
 //State for MessageList
 class _MessageListState extends State<MessageList> {
-  _MessageListState();
+  final Contact _contact;
+
+  _MessageListState(this._contact);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ChatModel>(builder: (context, chat, child) {
+    return Consumer<SystemModel>(builder: (context, systemModel, child) {
       return ListView(
-        children: _buildMessages(chat.messages),
+        children: _buildMessages(_contact.chat?.messages, systemModel),
       );
     });
   }
 
-  List<Widget> _buildMessages(List<Message> messageList) {
+  List<Widget> _buildMessages(
+      List<Message> messageList, SystemModel systemModel) {
     List<Widget> messageWidgets = [];
-    messageList.forEach((element) => messageWidgets.add(MessageItem(element)));
+    messageList.forEach(
+        (element) => messageWidgets.add(MessageItem(element, systemModel)));
     return messageWidgets;
   }
 }
@@ -65,7 +76,7 @@ class InputBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final inputController = TextEditingController();
 
-    return Consumer<ChatModel>(builder: (context, chat, child) {
+    return Consumer<SystemModel>(builder: (context, systemModel, child) {
       return Container(
           color: Colors.green,
           child: Row(
@@ -82,8 +93,7 @@ class InputBar extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {
-                  chat.addMessage(
-                      "", contact.phoneNumber, inputController.text);
+                  systemModel.sendMessage(contact, inputController.text);
                   inputController.text = "";
                 },
               )
@@ -96,15 +106,16 @@ class InputBar extends StatelessWidget {
 //Widget for each individual message
 class MessageItem extends StatelessWidget {
   final Message _message;
+  final SystemModel _systemModel;
 
-  MessageItem(this._message);
+  MessageItem(this._message, this._systemModel);
 
   @override
   Widget build(BuildContext context) {
     Alignment alignment = Alignment.centerLeft;
     EdgeInsets paddingInset = EdgeInsets.fromLTRB(10.0, 0.0, 40.0, 0.0);
 
-    if (_message.from == "") {
+    if (_message.from == _systemModel.userPhoneNumber) {
       alignment = Alignment.centerRight;
       paddingInset = EdgeInsets.fromLTRB(40.0, 0.0, 10.0, 0.0);
     }

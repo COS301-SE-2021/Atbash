@@ -3,19 +3,19 @@ import 'package:mobile/ChatScreen.dart';
 import 'package:mobile/NewChatScreen.dart';
 import 'package:mobile/SettingsScreen.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/model/SystemModel.dart';
 import 'package:provider/provider.dart';
 
 import 'LoginScreen.dart';
-import 'model/UserModel.dart';
 
 class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserModel>(builder: (context, userModel, child) {
+    return Consumer<SystemModel>(builder: (context, systemModel, child) {
       return Scaffold(
-        appBar: MainScreenAppBar(context, userModel),
+        appBar: MainScreenAppBar(context, systemModel),
         body: ListView(
-          children: _buildChatList(userModel.userChats),
+          children: _buildChatList(systemModel.userChats),
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.chat),
@@ -47,7 +47,7 @@ extension MenuItemExtension on MenuItem {
 }
 
 class MainScreenAppBar extends AppBar {
-  MainScreenAppBar(BuildContext context, UserModel userModel)
+  MainScreenAppBar(BuildContext context, SystemModel systemModel)
       : super(
             title: Row(
               children: [
@@ -56,7 +56,7 @@ class MainScreenAppBar extends AppBar {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      userModel.userDisplayName ?? "",
+                      systemModel.userDisplayName ?? "",
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -120,8 +120,8 @@ class ChatListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ChatScreen(_contact)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ChatScreen(_contact)));
       },
     );
   }

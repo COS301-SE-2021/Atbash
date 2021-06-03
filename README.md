@@ -26,7 +26,18 @@ I am a 3rd year computer science student. I have been programming recreationally
 
 ### Connor Mayston <br>
 
-### Joshua Reddy <br>
+### Joshua Reddy <br>[GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/)
+
+<details><summary>Expand details</summary>
+  
+- __Interests__: Playing games, coding, spending time with friends
+- __Strong Skills__: Java
+  __Skills__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
+- __Attitudes__: Creative, patient and friendly
+- __About Me__: 
+  I am a 3rd year BIT student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spendinding time with the boys and playing games. 
+
+</details>
 
 ### Targo Dove (15020275) [GitHub Profile](https://github.com/TargoDove), [CV](Documentation/CVS/Targo.pdf), [LinkedIN](https://www.linkedin.com/in/targodove/)
 

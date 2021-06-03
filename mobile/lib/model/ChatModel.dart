@@ -1,15 +1,34 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Message.dart';
 
-class ChatModel extends ChangeNotifier
-{
-  final List<String> _messages = [];
+class ChatModel extends ChangeNotifier {
+  final Chat? _chat;
 
-  UnmodifiableListView<String> get messages => UnmodifiableListView(_messages);
+  ChatModel(this._chat);
 
-  void addMessage(String message){
-    _messages.add(message);
+  UnmodifiableListView<Message> get messages =>
+      _chat?.messages ?? UnmodifiableListView([]);
+
+  void addMessage(String from, String to, String contents) {
+    _chat?.addMessage(Message(from, to, contents));
+    _chat?.addMessage(Message(to, from, randomResponseGenerator()));
     notifyListeners();
+  }
+
+  String randomResponseGenerator() {
+    List<String> responses = [
+      "Hello",
+      "k",
+      "perfect!",
+      "Why don't you love me anymore? I thought we had something special. :(",
+      "Bye!",
+      "I'm good thanks"
+    ];
+    Random rnd = Random();
+    return responses[rnd.nextInt(responses.length)];
   }
 }

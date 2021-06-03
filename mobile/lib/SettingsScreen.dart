@@ -21,6 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //AppBar
       appBar: AppBar(
         centerTitle: true,
         title: Text("Settings"),
@@ -29,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: Container(
         child: ListView(
           children: [
+            //Display name text field
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(
@@ -44,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
+            //Status text field
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(children: [
@@ -56,6 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 )
               ]),
             ),
+            //Change profile picture section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(children: [
@@ -86,6 +90,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ]),
             ),
+            //Submit button section
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
               child: Column(

@@ -27,7 +27,7 @@ void main() {
 
     final chatModel = ChatModel(chat);
 
-    chatModel.addMessage("", "any", "");
+    chatModel.addMessage("", "any", "    ");
     expect(0, chatModel.messages.length);
   });
 
@@ -48,7 +48,7 @@ void main() {
 
     final chatModel = ChatModel(chat);
 
-    chatModel.addMessage("", "any", " \n \n ");
+    chatModel.addMessage("", "any", "\n\n");
     expect(0, chatModel.messages.length);
   });
 }

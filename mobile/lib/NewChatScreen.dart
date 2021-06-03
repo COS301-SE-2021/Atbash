@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/model/SystemModel.dart';
+import 'package:provider/provider.dart';
+
+import 'ChatScreen.dart';
+import 'domain/Contact.dart';
 
 class NewChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: NewChatScreenAppBar(),
-      body: ListView(
-        children: _buildContactList(),
-      ),
-    );
+    return Consumer<SystemModel>(builder: (context, systemModel, child) {
+      return Scaffold(
+        appBar: NewChatScreenAppBar(),
+        body: ListView(
+          children: _buildContactList(systemModel),
+        ),
+      );
+    });
   }
 
-  List<Widget> _buildContactList() {
-    List<Widget> contactList = [];
-    [].forEach((contact) => contactList.add(ContactListItem()));
-    return contactList;
+  List<Widget> _buildContactList(SystemModel systemModel) {
+    return systemModel.userContacts
+        .map((c) => ContactListItem(c, systemModel))
+        .toList();
   }
 }
 
@@ -36,11 +43,15 @@ class NewChatScreenAppBar extends AppBar {
             ),
             actions: [
               IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-              //IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
             ]);
 }
 
 class ContactListItem extends StatelessWidget {
+  final Contact _contact;
+  final SystemModel _systemModel;
+
+  ContactListItem(this._contact, this._systemModel);
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -53,7 +64,7 @@ class ContactListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  "Contact name",
+                  _contact.displayName,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -63,7 +74,13 @@ class ContactListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        //Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ChatScreen()));
+        if (_contact.chat == null) {
+          _systemModel.createChatWithContact(_contact.phoneNumber);
+        }
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => ChatScreen(_contact)));
       },
     );
   }

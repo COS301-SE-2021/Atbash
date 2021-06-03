@@ -51,10 +51,6 @@ class SystemModel extends ChangeNotifier {
       _loggedInUser?.contacts.where((c) => c.chat != null) ?? []);
 
   void sendMessage(Contact contact, String contents) {
-    if (contact.chat == null) {
-      contact.chat = Chat();
-    }
-
     if (userPhoneNumber != null) {
       contact.chat?.addMessage(
           Message(userPhoneNumber!, contact.phoneNumber, contents));
@@ -62,6 +58,13 @@ class SystemModel extends ChangeNotifier {
           contact.phoneNumber, userPhoneNumber!, _randomResponseGenerator()));
       notifyListeners();
     }
+  }
+
+  void createChatWithContact(String contactNumber) {
+    _loggedInUser?.contacts
+        .firstWhere((c) => c.phoneNumber == contactNumber)
+        .chat = Chat();
+    notifyListeners();
   }
 
   String _randomResponseGenerator() {

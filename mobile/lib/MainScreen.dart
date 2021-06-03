@@ -1,36 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/ChatScreen.dart';
+import 'package:mobile/NewChatScreen.dart';
+import 'package:mobile/SettingsScreen.dart';
+import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/model/SystemModel.dart';
+import 'package:provider/provider.dart';
 
-import 'domain/Contact.dart';
+import 'LoginScreen.dart';
 
 class MainScreen extends StatelessWidget {
-  final contacts = [
-    Contact("1", "Contact 1"),
-    Contact("2", "Contact 2"),
-    Contact("3", "Contact 3"),
-    Contact("4", "Contact 4"),
-    Contact("5", "Contact 5"),
-    Contact("6", "Contact 6"),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: MainScreenAppBar(),
-      body: ListView(
-        children: _buildContactList(),
-      ),
-    );
+    return Consumer<SystemModel>(builder: (context, systemModel, child) {
+      return Scaffold(
+        appBar: MainScreenAppBar(context, systemModel),
+        body: ListView(
+          children: _buildChatList(systemModel.userChats),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.chat),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => NewChatScreen()));
+          },
+        ),
+      );
+    });
   }
 
-  List<Widget> _buildContactList() {
-    List<Widget> contactList = [];
-    contacts.forEach((contact) => contactList.add(ContactListItem(contact)));
-    return contactList;
+  List<Widget> _buildChatList(List<Contact> chats) {
+    return chats.map((c) => ChatListItem(c)).toList();
+  }
+}
+
+enum MenuItem { settings, logout }
+
+extension MenuItemExtension on MenuItem {
+  get text {
+    switch (this) {
+      case MenuItem.settings:
+        return "Settings";
+      case MenuItem.logout:
+        return "Logout";
+    }
   }
 }
 
 class MainScreenAppBar extends AppBar {
-  MainScreenAppBar()
+  MainScreenAppBar(BuildContext context, SystemModel systemModel)
       : super(
             title: Row(
               children: [
@@ -39,7 +56,7 @@ class MainScreenAppBar extends AppBar {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      "Dylan Pfab",
+                      systemModel.userDisplayName ?? "",
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -48,14 +65,38 @@ class MainScreenAppBar extends AppBar {
             ),
             actions: [
               IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-              IconButton(onPressed: () {}, icon: Icon(Icons.more_vert))
+              PopupMenuButton(
+                onSelected: (value) =>
+                    menuItemSelected(value as MenuItem, context),
+                itemBuilder: (context) {
+                  return MenuItem.values.map((menuItem) {
+                    return PopupMenuItem(
+                      child: Text(menuItem.text),
+                      value: menuItem,
+                    );
+                  }).toList();
+                },
+              )
             ]);
+
+  static void menuItemSelected(MenuItem selected, BuildContext context) {
+    switch (selected) {
+      case MenuItem.settings:
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+        break;
+      case MenuItem.logout:
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        break;
+    }
+  }
 }
 
-class ContactListItem extends StatelessWidget {
+class ChatListItem extends StatelessWidget {
   final Contact _contact;
 
-  ContactListItem(this._contact);
+  ChatListItem(this._contact);
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +110,7 @@ class ContactListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _contact.name,
+                  _contact.displayName,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18),
                 ),
@@ -79,7 +120,8 @@ class ContactListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-        print("""Contact with id '${_contact.id}' clicked""");
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ChatScreen(_contact)));
       },
     );
   }

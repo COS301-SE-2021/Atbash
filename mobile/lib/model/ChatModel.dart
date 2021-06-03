@@ -14,8 +14,10 @@ class ChatModel extends ChangeNotifier {
       _chat?.messages ?? UnmodifiableListView([]);
 
   void addMessage(String from, String to, String contents) {
-    _chat?.addMessage(Message(from, to, contents));
-    _chat?.addMessage(Message(to, from, randomResponseGenerator()));
+    if (contents.replaceAll(" ", "").replaceAll("\n", "").isNotEmpty) {
+      _chat?.addMessage(Message(from, to, contents));
+      _chat?.addMessage(Message(to, from, randomResponseGenerator()));
+    }
     notifyListeners();
   }
 

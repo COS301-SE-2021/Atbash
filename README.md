@@ -32,7 +32,7 @@ I am a 3rd year computer science student. I have been programming recreationally
   
 - __Interests__: Playing games, coding, spending time with friends
 - __Strong Skills__: Java
-  __Skills__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
+- __Experience with__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
 - __Attitudes__: Creative, patient and friendly
 - __About Me__: 
   I am a 3rd year BIT student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spendinding time with the boys and playing games. 

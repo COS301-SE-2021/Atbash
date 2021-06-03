@@ -82,13 +82,8 @@ class InputBar extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.send),
                 onPressed: () {
-                  if (inputController.text
-                          .replaceAll("\n", "")
-                          .replaceAll(" ", "") !=
-                      "") {
-                    chat.addMessage(
-                        "", contact.phoneNumber, inputController.text);
-                  }
+                  chat.addMessage(
+                      "", contact.phoneNumber, inputController.text);
                   inputController.text = "";
                 },
               )

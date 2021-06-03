@@ -8,10 +8,12 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChatScreenAppBar(),
-      body: ChangeNotifierProvider(
-        create: (context) => ChatModel(),
-        child: Column(
-          children: [Flexible(child: MessageList()), InputBar()],
+      body: SafeArea(
+        child: ChangeNotifierProvider(
+          create: (context) => ChatModel(),
+          child: Column(
+            children: [Flexible(child: MessageList()), InputBar()],
+          ),
         ),
       ),
     );

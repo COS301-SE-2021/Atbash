@@ -121,7 +121,7 @@ class ChatListItem extends StatelessWidget {
       ),
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ChatScreen()));
+            context, MaterialPageRoute(builder: (context) => ChatScreen(_contact)));
       },
     );
   }

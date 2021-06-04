@@ -4,7 +4,7 @@ Atbash is a messaging application, where the privacy of messages is the top prio
 ---
 ## Demo 1 Recording
 
-You can see a recoding of our [first demo here](/Documentation/Demo1/Atbash-Demo1.mkv) 
+You can see a recoding of our [first demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 
 
 ---
 ## SRS Document
@@ -24,18 +24,18 @@ I am a 3rd year computer science student. I have been programming recreationally
 
 ### Liam Mayston <br>
 
-<details><summary>Expand details</summary>
+### Connor Mayston (u19061936) <br> [GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/)
+
+<details><summary>Expand details</summary> 
   
-- __Interests__: Playing games, coding
-- __Strong skills__: Java, Javascript
+- __Interests__: Playing games, coding, spending time with friends
+- __Strong skills__: Java
 - __Experience with__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
-- __Attitudes__: Creative, Hard worker, Experienced
+- __Attitudes__: Creative, patient and friendly
 - __About Me__: 
-  I am a 3rd year Computer Science student, I have been coding since I was young and I am always eager to learn.
+  I am a 3rd year Computer Science student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spending time with the boys and playing games. 
 
 </details>
-
-### Connor Mayston <br>
 
 ### Joshua Reddy (19196042) [GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/)
 

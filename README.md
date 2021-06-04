@@ -24,6 +24,17 @@ I am a 3rd year computer science student. I have been programming recreationally
 
 ### Liam Mayston <br>
 
+<details><summary>Expand details</summary> 
+  
+- __Interests__: Playing games, coding
+- __Strong skills__: Java
+- __Experience with__: Springboot, C++, JavaScript, NodeJS, PHP, SQL, Assembly
+- __Attitudes__: Hard working
+- __About Me__: 
+  I am a 3rd year Computer Science student. I have been coding since highschool and my project/work experience is only limited to university at the moment. I enjoy spending time with the boys and playing games. 
+
+</details>
+
 ### Connor Mayston (u19061936) [GitHub Profile](https://github.com/Josh-Reddy), [LinkedIn](https://www.linkedin.com/in/joshua-christopher-reddy-a59018210/) <br> 
 
 <details><summary>Expand details</summary> 

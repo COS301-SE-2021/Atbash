@@ -8,7 +8,7 @@ import za.ac.up.cs.atbash.repository.UserRepository
 @Service
 class UserService(@Autowired private val userRepository: UserRepository) {
 
-    fun getUserByNumber(to: String): User? {
-        return null
+    fun getUserByNumber(number: String): User? {
+        return userRepository.findByNumber(number)
     }
 }

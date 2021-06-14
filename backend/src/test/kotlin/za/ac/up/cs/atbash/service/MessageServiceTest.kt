@@ -1,11 +1,14 @@
 package za.ac.up.cs.atbash.service
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
+import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.MessageRepository
-import za.ac.up.cs.atbash.repository.UserRepository
 
 @ExtendWith(MockitoExtension::class)
 class MessageServiceTest {
@@ -18,4 +21,10 @@ class MessageServiceTest {
     @InjectMocks
     private lateinit var messageService: MessageService
 
+    @Test
+    fun sendMessageWhenUserDoesNotExist() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(null)
+        val successful = messageService.sendMessage("", "")
+        Assertions.assertFalse(successful)
+    }
 }

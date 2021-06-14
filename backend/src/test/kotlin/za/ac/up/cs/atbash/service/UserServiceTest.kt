@@ -31,8 +31,8 @@ class UserServiceTest {
     @Test
     @DisplayName("When user is already registered, registerUser should return false")
     fun registerUserReturnsFalseIfUserAlreadyExists(){
-        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("number", "apiKey", "password"))
-        val success = userService.registerUser("number", "password")
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", "apiKey", "password"))
+        val success = userService.registerUser("123", "password")
 
         Assertions.assertFalse(success)
     }

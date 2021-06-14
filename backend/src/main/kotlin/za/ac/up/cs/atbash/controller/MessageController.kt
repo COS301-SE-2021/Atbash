@@ -15,6 +15,10 @@ class MessageController(@Autowired private val messageService: MessageService) {
 
     @PostMapping(path = ["rs/v1/messages"])
     fun sendMessage(@RequestBody json: SendMessageRequestJson): ResponseEntity<SendMessageResponseJson> {
+        if(json.to == null || json.contents == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SendMessageResponseJson(false))
+        }
+
         val successful = messageService.sendMessage(json.to, json.contents)
         return if(successful) {
             ResponseEntity.status(HttpStatus.OK).body(SendMessageResponseJson(true))

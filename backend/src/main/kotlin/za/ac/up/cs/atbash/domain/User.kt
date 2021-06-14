@@ -10,7 +10,10 @@ data class User(
     val number: String,
 
     @Column(unique = true)
-    val apiKey: String
+    val apiKey: String,
+
+    @Column
+    val password: String
 ) {
     @Id
     @GeneratedValue(generator = "UUID")

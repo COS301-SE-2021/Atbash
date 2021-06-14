@@ -6,4 +6,5 @@ import za.ac.up.cs.atbash.domain.User
 
 @Repository
 interface UserRepository: JpaRepository<User, String> {
+    fun findByNumber(number: String): User?
 }

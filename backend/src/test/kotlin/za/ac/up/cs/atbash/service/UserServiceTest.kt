@@ -29,6 +29,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("When User with some number does not exist, getUserByNumber should return null")
     fun getUserByNumberReturnsNullIfNoMatch() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
         Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123"))

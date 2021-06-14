@@ -10,7 +10,7 @@ import za.ac.up.cs.atbash.repository.UserRepository
 @ExtendWith(MockitoExtension::class)
 class MessageServiceTest {
     @Mock
-    private lateinit var userRepository: UserRepository
+    private lateinit var userService: UserService
 
     @Mock
     private lateinit var messageRepository: MessageRepository

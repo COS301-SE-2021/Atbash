@@ -21,6 +21,15 @@ class UserServiceTest {
     private lateinit var userService: UserService
 
     @Test
+    @DisplayName("When User with some number does not exist, verifyLogin should return null")
+    fun verifyLoginReturnsNullIfNoMatch(){
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
+        val userNull = userService.verifyLogin("number", "password")
+
+        Assertions.assertNull(userNull)
+    }
+
+    @Test
     @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
     fun getUserByNumberReturnsMatch() {
         Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", "apiKey", "password"))

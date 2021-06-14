@@ -31,6 +31,7 @@ class MessageServiceTest {
     }
 
     @Test
+    @DisplayName("When UserRepository throws any exception, sendMessage should return false")
     fun sendMessageWhenRepositoryThrows() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123"))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }

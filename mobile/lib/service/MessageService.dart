@@ -7,9 +7,9 @@ class MessageService {
 
     final url = Uri.parse("http://localhost/rs/v1/messages");
     http.post(url, body: {"to": to, "contents": message.encodeBody()}).then(
-            (value) {
-          // TODO handle response
-        });
+        (value) {
+      // TODO handle response
+    });
 
     // TODO save to db
 

@@ -26,6 +26,28 @@ class UserServiceTest {
     @InjectMocks
     private lateinit var userService: UserService
 
+    //------registerUserTestCases------//
+
+    @Test
+    @DisplayName("When user is already registered, registerUser should return false")
+    fun registerUserReturnsFalseIfUserAlreadyExists(){
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("number", "apiKey", "password"))
+        val success = userService.registerUser("number", "password")
+
+        Assertions.assertFalse(success)
+    }
+
+    @Test
+    @DisplayName("When user is not registered, registerUser should return true")
+    fun registerUserReturnsTrueIfUserDoesNotAlreadyExist(){
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
+        val success = userService.registerUser("number", "password")
+
+        Assertions.assertTrue(success)
+    }
+
+    //------verifyLoginTestCases------//
+
     @Test
     @DisplayName("When User with some number does not exist, verifyLogin should return null")
     fun verifyLoginReturnsNullIfUserDoesNotExist(){
@@ -55,6 +77,8 @@ class UserServiceTest {
 
         Assertions.assertNull(apiKeyNull)
     }
+
+    //------getUserByNumberTestCases------//
 
     @Test
     @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")

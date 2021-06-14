@@ -27,4 +27,12 @@ class MessageControllerTest {
         val response = messageController.sendMessage(SendMessageRequestJson("", ""))
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }
+
+    @Test
+    @DisplayName("When service sendMessage returns false, response status should be INTERNAL_SERVER_ERROR")
+    fun sendMessageWhenServiceUnsuccessful() {
+        Mockito.`when`(messageService.sendMessage(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
+        val response = messageController.sendMessage(SendMessageRequestJson("", ""))
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
+    }
 }

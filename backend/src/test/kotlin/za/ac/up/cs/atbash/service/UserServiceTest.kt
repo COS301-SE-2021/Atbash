@@ -1,6 +1,7 @@
 package za.ac.up.cs.atbash.service
 
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
@@ -20,6 +21,7 @@ class UserServiceTest {
     private lateinit var userService: UserService
 
     @Test
+    @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
     fun getUserByNumberReturnsMatch() {
         Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123"))
         val user = userService.getUserByNumber("123")

@@ -1,10 +1,10 @@
 package za.ac.up.cs.atbash.domain
 
 import org.hibernate.annotations.GenericGenerator
-import javax.persistence.Column
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
+import javax.persistence.*
 
+@Entity
+@Table
 data class User(
     @Column(unique = true)
     val number: String

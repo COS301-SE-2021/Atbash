@@ -23,4 +23,8 @@ class MessageService(
             false
         }
     }
+
+    fun getMessages(forUser: String): List<Message> {
+        return emptyList()
+    }
 }

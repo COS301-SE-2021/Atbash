@@ -25,4 +25,15 @@ class UserServiceTest {
         val user = userService.getUserByNumber("123")
         Assertions.assertNotNull(user)
     }
+
+    @Test
+    fun getUserByNumberReturnsNullIfNoMatch() {
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123"))
+        val userMatch = userService.getUserByNumber("123")
+        val userNoMatch = userService.getUserByNumber("456")
+
+        Assertions.assertNotNull(userMatch)
+        Assertions.assertNull(userNoMatch)
+    }
 }

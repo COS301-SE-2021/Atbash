@@ -3,6 +3,8 @@ package za.ac.up.cs.atbash.domain
 import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
 
+@Entity
+@Table
 data class Message(
     @Column
     @ManyToOne(fetch = FetchType.EAGER)

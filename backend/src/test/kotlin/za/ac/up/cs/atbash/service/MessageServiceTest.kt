@@ -35,4 +35,11 @@ class MessageServiceTest {
         val successful = messageService.sendMessage("", "")
         Assertions.assertFalse(successful)
     }
+
+    @Test
+    fun sendMessageWhenRepositoryDoesNotThrow() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123"))
+        val successful = messageService.sendMessage("", "")
+        Assertions.assertTrue(successful)
+    }
 }

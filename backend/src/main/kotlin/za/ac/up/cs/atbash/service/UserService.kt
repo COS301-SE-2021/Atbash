@@ -12,6 +12,10 @@ class UserService(@Autowired private val userRepository: UserRepository) {
         return null
     }
 
+    fun verifyLogin(number: String, password: String): Boolean {
+        return false
+    }
+
     fun getUserByNumber(number: String): User? {
         return userRepository.findByNumber(number)
     }

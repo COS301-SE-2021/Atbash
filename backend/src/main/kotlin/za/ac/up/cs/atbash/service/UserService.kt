@@ -15,13 +15,13 @@ class UserService(@Autowired private val userRepository: UserRepository) {
 
     fun verifyLogin(number: String, password: String): String? {
         val user = userRepository.findByNumber(number)
-        return if(user != null){
-            if(BCryptPasswordEncoder().matches(password, user.password)){
+        return if (user != null) {
+            if (BCryptPasswordEncoder().matches(password, user.password)) {
                 user.apiKey
-            }else{
+            } else {
                 null
             }
-        }else{
+        } else {
             null
         }
     }

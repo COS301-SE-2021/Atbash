@@ -40,6 +40,7 @@ class MessageServiceTest {
     }
 
     @Test
+    @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123"))
         val successful = messageService.sendMessage("", "")

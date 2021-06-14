@@ -14,6 +14,10 @@ class UserController(@Autowired private val userService: UserService){
 
     @PostMapping(path = ["rs/v1/login"])
     fun login(@RequestBody json: LoginRequestJson): ResponseEntity<Unit>{
+        if(json.number == null || json.password == null){
+            return ResponseEntity(HttpStatus.BAD_REQUEST)
+        }
+
         return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 

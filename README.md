@@ -1,3 +1,6 @@
+[![Dart](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml)
+[![Java CI with Maven](https://github.com/COS301-SE-2021/Atbash/actions/workflows/maven.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/maven.yml)
+
 # Bit by Bit - Atbash
 Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.
 

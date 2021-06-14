@@ -4,14 +4,20 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.AdditionalMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.junit.jupiter.MockitoSettings
+import org.mockito.quality.Strictness
+import org.powermock.api.mockito.PowerMockito
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
 
 @ExtendWith(MockitoExtension::class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class UserServiceTest {
 
     @Mock
@@ -22,11 +28,32 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When User with some number does not exist, verifyLogin should return null")
-    fun verifyLoginReturnsNullIfNoMatch(){
+    fun verifyLoginReturnsNullIfUserDoesNotExist(){
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
-        val userNull = userService.verifyLogin("number", "password")
+        val apiKeyNull = userService.verifyLogin("number", "password")
 
-        Assertions.assertNull(userNull)
+        Assertions.assertNull(apiKeyNull)
+    }
+
+    @Test
+    @DisplayName("When User exists but password is wrong, verifyLogin should return null")
+    fun verifyLoginReturnsNullIfPasswordDoesNotMatch(){
+        val encoder = PowerMockito.mock(BCryptPasswordEncoder::class.java)
+        PowerMockito.whenNew(BCryptPasswordEncoder::class.java).withNoArguments().thenReturn(encoder)
+        PowerMockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("123","apiKey","password"))
+        val apiKeyNull = userService.verifyLogin("number", "incorrectPassword")
+
+        Assertions.assertNull(apiKeyNull)
+    }
+
+    @Test
+    @DisplayName("When User exists but password is correct, verifyLogin should return apiKey")
+    fun verifyLoginReturnsApiKeyIfPasswordDoesMatch(){
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("123","apiKey",BCryptPasswordEncoder().encode("password")))
+        val apiKeyNull = userService.verifyLogin("number", "password")
+
+        Assertions.assertNull(apiKeyNull)
     }
 
     @Test

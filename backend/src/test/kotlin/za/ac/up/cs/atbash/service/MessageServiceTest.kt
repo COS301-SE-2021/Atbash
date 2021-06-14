@@ -33,7 +33,7 @@ class MessageServiceTest {
     @Test
     @DisplayName("When UserRepository throws any exception, sendMessage should return false")
     fun sendMessageWhenRepositoryThrows() {
-        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", Mockito.anyString(), Mockito.anyString()))
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }
         val successful = messageService.sendMessage("", "")
         Assertions.assertFalse(successful)
@@ -42,7 +42,7 @@ class MessageServiceTest {
     @Test
     @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
-        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", Mockito.anyString(), Mockito.anyString()))
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
         val successful = messageService.sendMessage("", "")
         Assertions.assertTrue(successful)
     }

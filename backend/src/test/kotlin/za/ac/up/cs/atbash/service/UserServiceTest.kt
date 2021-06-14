@@ -23,7 +23,7 @@ class UserServiceTest {
     @Test
     @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
     fun getUserByNumberReturnsMatch() {
-        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", Mockito.anyString(), Mockito.anyString()))
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", "apiKey", "password"))
         val user = userService.getUserByNumber("123")
         Assertions.assertNotNull(user)
     }
@@ -32,7 +32,7 @@ class UserServiceTest {
     @DisplayName("When User with some number does not exist, getUserByNumber should return null")
     fun getUserByNumberReturnsNullIfNoMatch() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
-        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", Mockito.anyString(), Mockito.anyString()))
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", "apiKey", "password"))
         val userMatch = userService.getUserByNumber("123")
         val userNoMatch = userService.getUserByNumber("456")
 

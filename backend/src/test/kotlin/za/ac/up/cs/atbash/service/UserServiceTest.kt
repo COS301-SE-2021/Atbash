@@ -4,14 +4,12 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.AdditionalMatchers
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.junit.jupiter.MockitoSettings
 import org.mockito.quality.Strictness
-import org.powermock.api.mockito.PowerMockito
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
@@ -59,11 +57,12 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When User exists but password is wrong, verifyLogin should return null")
-    fun verifyLoginReturnsNullIfPasswordDoesNotMatch(){
-        val encoder = PowerMockito.mock(BCryptPasswordEncoder::class.java)
-        PowerMockito.whenNew(BCryptPasswordEncoder::class.java).withNoArguments().thenReturn(encoder)
-        PowerMockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
-        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("123","apiKey","password"))
+    fun verifyLoginReturnsNullIfPasswordDoesNotMatch() {
+        val encoder = BCryptPasswordEncoder() // TODO should be mocked
+
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
+            .thenReturn(User("123", "apiKey", encoder.encode("password")))
+
         val apiKeyNull = userService.verifyLogin("number", "incorrectPassword")
 
         Assertions.assertNull(apiKeyNull)
@@ -71,11 +70,14 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When User exists but password is correct, verifyLogin should return apiKey")
-    fun verifyLoginReturnsApiKeyIfPasswordDoesMatch(){
-        Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(User("123","apiKey",BCryptPasswordEncoder().encode("password")))
-        val apiKeyNull = userService.verifyLogin("number", "password")
+    fun verifyLoginReturnsApiKeyIfPasswordDoesMatch() {
+        val encoder = BCryptPasswordEncoder() // TODO should be mocked
 
-        Assertions.assertNull(apiKeyNull)
+        Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
+            .thenReturn(User("123", "apiKey", encoder.encode("password")))
+        val apiKey = userService.verifyLogin("number", "password")
+
+        Assertions.assertNotNull(apiKey)
     }
 
     //------getUserByNumberTestCases------//

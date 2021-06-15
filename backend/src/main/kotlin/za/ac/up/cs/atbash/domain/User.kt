@@ -7,7 +7,13 @@ import javax.persistence.*
 @Table(name = "[user]")
 data class User(
     @Column(unique = true)
-    val number: String
+    val number: String,
+
+    @Column(unique = true)
+    val apiKey: String,
+
+    @Column
+    val password: String
 ) {
     @Id
     @GeneratedValue(generator = "UUID")

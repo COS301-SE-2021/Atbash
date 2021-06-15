@@ -11,10 +11,10 @@ import java.util.*
 class UserService(@Autowired private val userRepository: UserRepository) {
 
     fun registerUser(number: String, password: String): Boolean {
-        return if(userRepository.findByNumber(number) == null){
+        return if (userRepository.findByNumber(number) == null) {
             userRepository.save(User(number, UUID.randomUUID().toString(), BCryptPasswordEncoder().encode(password)))
             true
-        }else{
+        } else {
             false
         }
 

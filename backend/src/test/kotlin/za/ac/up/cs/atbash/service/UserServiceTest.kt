@@ -21,6 +21,9 @@ class UserServiceTest {
     @Mock
     private lateinit var userRepository: UserRepository
 
+    @Mock
+    private lateinit var encoder: BCryptPasswordEncoder
+
     @InjectMocks
     private lateinit var userService: UserService
 
@@ -58,10 +61,11 @@ class UserServiceTest {
     @Test
     @DisplayName("When User exists but password is wrong, verifyLogin should return null")
     fun verifyLoginReturnsNullIfPasswordDoesNotMatch() {
-        val encoder = BCryptPasswordEncoder() // TODO should be mocked
+        Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
+        userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
-            .thenReturn(User("123", "apiKey", encoder.encode("password")))
+            .thenReturn(User("123", "apiKey", "password"))
 
         val apiKeyNull = userService.verifyLogin("number", "incorrectPassword")
 
@@ -71,10 +75,11 @@ class UserServiceTest {
     @Test
     @DisplayName("When User exists but password is correct, verifyLogin should return apiKey")
     fun verifyLoginReturnsApiKeyIfPasswordDoesMatch() {
-        val encoder = BCryptPasswordEncoder() // TODO should be mocked
+        Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
+        userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
-            .thenReturn(User("123", "apiKey", encoder.encode("password")))
+            .thenReturn(User("123", "apiKey", "password"))
         val apiKey = userService.verifyLogin("number", "password")
 
         Assertions.assertNotNull(apiKey)

@@ -30,7 +30,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When user is already registered, registerUser should return false")
-    fun registerUserReturnsFalseIfUserAlreadyExists(){
+    fun registerUserReturnsFalseIfUserAlreadyExists() {
         Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123", "apiKey", "password"))
         val success = userService.registerUser("123", "password")
 
@@ -39,7 +39,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When user is not registered, registerUser should return true")
-    fun registerUserReturnsTrueIfUserDoesNotAlreadyExist(){
+    fun registerUserReturnsTrueIfUserDoesNotAlreadyExist() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
         val success = userService.registerUser("number", "password")
 
@@ -50,7 +50,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("When User with some number does not exist, verifyLogin should return null")
-    fun verifyLoginReturnsNullIfUserDoesNotExist(){
+    fun verifyLoginReturnsNullIfUserDoesNotExist() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
         val apiKeyNull = userService.verifyLogin("number", "password")
 

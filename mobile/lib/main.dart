@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/LoginScreen.dart';
 import 'package:mobile/model/SystemModel.dart';
+import 'package:mobile/service/DatabaseAccess.dart';
 import 'package:mobile/service/MessageService.dart';
 import 'package:provider/provider.dart';
 
@@ -10,6 +11,7 @@ import 'domain/Contact.dart';
 
 void main() {
   GetIt.I.registerSingleton(MessageService());
+  GetIt.I.registerSingleton(DatabaseAccess());
 
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (context) => SystemModel())],

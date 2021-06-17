@@ -15,12 +15,12 @@ class MessageController(@Autowired private val messageService: MessageService) {
 
     @PostMapping(path = ["rs/v1/messages"])
     fun sendMessage(@RequestBody json: SendMessageRequestJson): ResponseEntity<SendMessageResponseJson> {
-        if(json.from == null || json.to == null || json.contents == null) {
+        if (json.from == null || json.to == null || json.contents == null || json.contents.id == null || json.contents.contents == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SendMessageResponseJson(false))
         }
 
-        val successful = messageService.sendMessage(json.from, json.to, json.contents)
-        return if(successful) {
+        val successful = messageService.sendMessage(json.from, json.to, json.contents.id, json.contents.contents)
+        return if (successful) {
             ResponseEntity.status(HttpStatus.OK).body(SendMessageResponseJson(true))
         } else {
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SendMessageResponseJson(false))

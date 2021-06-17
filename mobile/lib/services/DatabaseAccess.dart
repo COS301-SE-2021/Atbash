@@ -53,15 +53,12 @@ class DatabaseAccess {
 
   Message saveMessage(String from, String to, String contents) {
     Uuid uuid = new Uuid();
+    String randomID = uuid.v4();
+    Message message = new Message(randomID, from, to, contents);
     _database.then((db) {
-      db.execute(
-
-        """
-        insert into message
-        """
-      )
+      db.insert("message", message.toMap());
     });
-    return Message("", from, to, contents);
+    return message;
   }
 
   Future<List<Message>> getChatWithContact(String phoneNumber) async {

@@ -1,15 +1,26 @@
-import 'dart:convert';
-
 class Message {
-  final String from;
-  final String to;
+  final String id;
+  final String numberFrom;
+  final String numberTo;
   final String contents;
 
-  Message(this.from, this.to, this.contents);
+  Message(this.id, this.numberFrom, this.numberTo, this.contents);
 
-  String encodeBody() {
-    final jsonBody = {"from": from, "message": contents};
+  Map<String, String> toMap() {
+    return {
+      "id": id,
+      "number_from": numberFrom,
+      "number_to": numberTo,
+      "contents": contents,
+    };
+  }
 
-    return jsonEncode(jsonBody);
+  static Message fromMap(Map<String, Object?> map) {
+    final id = map["id"] as String;
+    final from = map["from"] as String;
+    final to = map["to"] as String;
+    final contents = map["contents"] as String;
+
+    return Message(id, from, to, contents);
   }
 }

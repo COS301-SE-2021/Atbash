@@ -99,10 +99,10 @@ class DatabaseAccess {
   Future<List<Contact>> getContacts() async {
     final db = await _database;
     List<Contact> contacts = [];
-    db.query("contact", distinct: true).then((list) {
-      list.forEach((element) {
-        contacts.add(Contact.fromMap(element));
-      });
+    final response = await db.query("contact", distinct: true);
+
+    response.forEach((element) {
+      contacts.add(Contact.fromMap(element));
     });
 
     return contacts;

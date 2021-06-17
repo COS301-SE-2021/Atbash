@@ -16,7 +16,7 @@ class UserService(@Autowired private val userRepository: UserRepository) {
 
     fun registerUser(number: String, password: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {
-            userRepository.save(User(number, UUID.randomUUID().toString(), passwordEncoder.encode(password)))
+            userRepository.save(User(number, passwordEncoder.encode(password)))
             true
         } else {
             false
@@ -28,7 +28,7 @@ class UserService(@Autowired private val userRepository: UserRepository) {
         val user = userRepository.findByNumber(number)
         return if (user != null) {
             if (passwordEncoder.matches(password, user.password)) {
-                user.apiKey
+                ""
             } else {
                 null
             }

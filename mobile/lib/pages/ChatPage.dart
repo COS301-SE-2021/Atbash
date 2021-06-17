@@ -150,5 +150,6 @@ class _ChatPageState extends State<ChatPage> {
     if (from != null) {
       _messageService.sendMessage(from, to, contents);
     }
+    _inputController.text = "";
   }
 }

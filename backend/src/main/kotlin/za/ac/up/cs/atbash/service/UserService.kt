@@ -16,7 +16,7 @@ class UserService(@Autowired private val userRepository: UserRepository) {
     var passwordEncoder = BCryptPasswordEncoder() // TODO should be immutable
 
     @Value("\${jwt.secret}")
-    val jwtSecret = ""
+    var jwtSecret = ""
 
     fun registerUser(number: String, password: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {

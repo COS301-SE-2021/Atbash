@@ -66,8 +66,6 @@ class DatabaseAccess {
     List<Message> messages = [];
 
     db.query("message",
-        distinct: false,
-        columns: null,
         where: "number_from = ? OR number_to = ?",
         whereArgs: [phoneNumber, phoneNumber]).then((query) {
       query.forEach((element) {
@@ -80,7 +78,13 @@ class DatabaseAccess {
 
   Future<Contact?> fetchContact(String number) async {
     final db = await _database;
-    return null;
+    db.query("contact", where: "phone_number = ?", whereArgs: [number]).then(
+        (list) {
+      if (list.isEmpty)
+        return null;
+      else
+        return Contact.fromMap(list.first);
+    });
   }
 
   Contact saveContact(String number, String displayName) {

@@ -23,10 +23,20 @@ class MessageServiceTest {
     private lateinit var messageService: MessageService
 
     @Test
-    @DisplayName("When User does not exist, sendMessage should return false")
-    fun sendMessageWhenUserDoesNotExist() {
-        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(null)
-        val successful = messageService.sendMessage("", "")
+    @DisplayName("When User to does not exist, sendMessage should return false")
+    fun sendMessageWhenUserFromDoesNotExist() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
+        Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
+        val successful = messageService.sendMessage("dne","", "")
+        Assertions.assertFalse(successful)
+    }
+
+    @Test
+    @DisplayName("When User to does not exist, sendMessage should return false")
+    fun sendMessageWhenUserToDoesNotExist() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
+        Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
+        val successful = messageService.sendMessage("","dne", "")
         Assertions.assertFalse(successful)
     }
 
@@ -35,7 +45,7 @@ class MessageServiceTest {
     fun sendMessageWhenRepositoryThrows() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }
-        val successful = messageService.sendMessage("", "")
+        val successful = messageService.sendMessage("" ,"", "")
         Assertions.assertFalse(successful)
     }
 
@@ -43,7 +53,7 @@ class MessageServiceTest {
     @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
-        val successful = messageService.sendMessage("", "")
+        val successful = messageService.sendMessage("" ,"", "")
         Assertions.assertTrue(successful)
     }
 }

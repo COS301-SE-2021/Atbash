@@ -1,149 +1,122 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/ChatScreen.dart';
-import 'package:mobile/pages/NewChatScreen.dart';
-import 'package:mobile/pages/SettingsScreen.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/model/SystemModel.dart';
-import 'package:provider/provider.dart';
+import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/pages/NewChatPage.dart';
+import 'package:mobile/pages/SettingsPage.dart';
+import 'package:mobile/services/UserService.dart';
+import 'package:mobile/widgets/ProfileIcon.dart';
 
-import 'LoginScreen.dart';
-
-class MainScreen extends StatelessWidget {
+class MainPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SystemModel>(builder: (context, systemModel, child) {
-      return Scaffold(
-        appBar: MainScreenAppBar(context, systemModel),
-        body: ListView(
-          children: _buildChatList(systemModel.userChats),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.chat),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => NewChatScreen()));
-          },
-        ),
-      );
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  final _userService = GetIt.I.get<UserService>();
+
+  String _displayName = "";
+  List<Contact> _chatContacts = [];
+
+  _MainPageState() {
+    _displayName = _userService.getUser()?.displayName ?? "";
+
+    _userService.getContactsWithChats().then((contacts) {
+      setState(() {
+        _chatContacts = contacts;
+      });
+    });
+
+    _userService.onChangeUserInfo((user) {
+      setState(() {
+        _displayName = user.displayName;
+      });
+    });
+
+    _userService.onChangeChats((chats) {
+      setState(() {
+        _chatContacts = chats;
+      });
     });
   }
 
-  List<Widget> _buildChatList(List<Contact> chats) {
-    return chats.map((c) => ChatListItem(c)).toList();
-  }
-}
-
-enum MenuItem { settings, logout }
-
-extension MenuItemExtension on MenuItem {
-  get text {
-    switch (this) {
-      case MenuItem.settings:
-        return "Settings";
-      case MenuItem.logout:
-        return "Logout";
-    }
-  }
-}
-
-class MainScreenAppBar extends AppBar {
-  MainScreenAppBar(BuildContext context, SystemModel systemModel)
-      : super(
-            title: Row(
-              children: [
-                EmptyProfileIcon(Colors.white),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      systemModel.userDisplayName ?? "",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            actions: [
-              IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-              PopupMenuButton(
-                onSelected: (value) =>
-                    menuItemSelected(value as MenuItem, context),
-                itemBuilder: (context) {
-                  return MenuItem.values.map((menuItem) {
-                    return PopupMenuItem(
-                      child: Text(menuItem.text),
-                      value: menuItem,
-                    );
-                  }).toList();
-                },
-              )
-            ]);
-
-  static void menuItemSelected(MenuItem selected, BuildContext context) {
-    switch (selected) {
-      case MenuItem.settings:
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SettingsScreen()));
-        break;
-      case MenuItem.logout:
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        break;
-    }
-  }
-}
-
-class ChatListItem extends StatelessWidget {
-  final Contact _contact;
-
-  ChatListItem(this._contact);
-
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(context),
+      body: _buildBody(),
+      floatingActionButton: _buildFloatingActionButton(context),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: Text(_displayName),
+      actions: [
+        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return ["Settings", "Logout"].map((menuItem) {
+              return PopupMenuItem(
+                child: Text(menuItem),
+                value: menuItem,
+              );
+            }).toList();
+          },
+          onSelected: (value) {
+            if (value == "Settings") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  ListView _buildBody() {
+    return ListView(
+        children: _chatContacts.map((chat) => _buildChat(chat)).toList());
+  }
+
+  InkWell _buildChat(Contact contact) {
     return InkWell(
-      child: Padding(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ChatPage(contact)));
+      },
+      child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
             EmptyProfileIcon(Colors.black),
             Expanded(
-              child: Padding(
+              child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _contact.displayName,
+                  contact.displayName,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18.0),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatScreen(_contact)));
-      },
     );
   }
-}
 
-class EmptyProfileIcon extends StatelessWidget {
-  final Color _color;
-
-  EmptyProfileIcon(this._color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(width: 1, color: _color),
-      ),
-      padding: EdgeInsets.all(4.0),
-      child: Icon(
-        Icons.person,
-        color: _color,
-      ),
+  FloatingActionButton _buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => NewChatPage()),
+        );
+      },
+      child: Icon(Icons.chat),
     );
   }
 }

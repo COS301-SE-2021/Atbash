@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import za.ac.up.cs.atbash.json.user.LoginRequestJson
-import za.ac.up.cs.atbash.json.user.LoginResponseJson
 import za.ac.up.cs.atbash.json.user.RegisterRequestJson
 import za.ac.up.cs.atbash.service.UserService
 
@@ -15,14 +14,14 @@ import za.ac.up.cs.atbash.service.UserService
 class UserController(@Autowired private val userService: UserService) {
 
     @PostMapping(path = ["rs/v1/login"])
-    fun login(@RequestBody json: LoginRequestJson): ResponseEntity<LoginResponseJson> {
+    fun login(@RequestBody json: LoginRequestJson): ResponseEntity<String> {
         if (json.number == null || json.password == null) {
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        val apiKey = userService.verifyLogin(json.number, json.password)
-        return if (apiKey != null) {
-            ResponseEntity.status(HttpStatus.OK).body(LoginResponseJson(apiKey))
+        val jwtToken = userService.verifyLogin(json.number, json.password)
+        return if (jwtToken != null) {
+            ResponseEntity.status(HttpStatus.OK).body(jwtToken)
         } else {
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }

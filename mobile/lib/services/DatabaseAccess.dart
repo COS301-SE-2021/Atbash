@@ -78,13 +78,14 @@ class DatabaseAccess {
 
   Future<Contact?> fetchContact(String number) async {
     final db = await _database;
-    db.query("contact", where: "phone_number = ?", whereArgs: [number]).then(
-        (list) {
-      if (list.isEmpty)
-        return null;
-      else
-        return Contact.fromMap(list.first);
-    });
+    final response = await db
+        .query("contact", where: "phone_number = ?", whereArgs: [number]);
+
+    if (response.isNotEmpty) {
+      return Contact.fromMap(response.first);
+    }
+
+    return null;
   }
 
   Contact saveContact(String number, String displayName) {

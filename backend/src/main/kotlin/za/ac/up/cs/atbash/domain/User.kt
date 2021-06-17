@@ -9,9 +9,6 @@ data class User(
     @Column(unique = true)
     val number: String,
 
-    @Column(unique = true)
-    val apiKey: String,
-
     @Column
     val password: String
 ) {

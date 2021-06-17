@@ -1,38 +1,24 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/LoginScreen.dart';
-import 'package:mobile/model/SystemModel.dart';
-import 'package:mobile/service/DatabaseAccess.dart';
-import 'package:mobile/service/MessageService.dart';
-import 'package:provider/provider.dart';
-
-import 'domain/Contact.dart';
+import 'package:mobile/pages/LoginPage.dart';
+import 'package:mobile/services/DatabaseAccess.dart';
+import 'package:mobile/services/UserService.dart';
 
 void main() {
-  GetIt.I.registerSingleton(MessageService());
+  WidgetsFlutterBinding.ensureInitialized();
   GetIt.I.registerSingleton(DatabaseAccess());
+  GetIt.I.registerSingleton(UserService());
 
-  runApp(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (context) => SystemModel())],
-    child: AtbashApp(),
-  ));
+  runApp(AtbashApp());
 }
 
-class AtbashApp extends StatefulWidget {
-  @override
-  _AtbashAppState createState() => _AtbashAppState();
-}
-
-class _AtbashAppState extends State<AtbashApp> {
-  Contact? selectedContact;
-
+class AtbashApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Atbash',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: LoginScreen(),
+      title: "Atbash",
+      theme: ThemeData(primarySwatch: Colors.orange),
+      home: LoginPage(),
     );
   }
 }

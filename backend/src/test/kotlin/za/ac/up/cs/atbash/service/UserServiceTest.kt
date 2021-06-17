@@ -78,6 +78,7 @@ class UserServiceTest {
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
         userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
+        userService.jwtSecret = "asjkchaisjkfahuisjhcajhd7372838y4hj" // TODO UserService jwtSecret should be immutable
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
             .thenReturn(User("123",  "password"))
         val jwtToken = userService.verifyLogin("number", "password")

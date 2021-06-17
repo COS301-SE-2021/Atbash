@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/RegistrationScreen.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/pages/MainPage.dart';
+import 'package:mobile/services/UserService.dart';
 
-import 'MainScreen.dart';
-
-class LoginScreen extends StatelessWidget {
-  final _usernameController = TextEditingController();
+class LoginPage extends StatelessWidget {
+  final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
@@ -13,95 +13,74 @@ class LoginScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Username: ",
-                    style:
-                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+            Container(
+              margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+              child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                   ),
-                  TextField(
-                    controller: _usernameController,
-                  )
-                ],
+                  hintText: "Phone number",
+                ),
+                textAlign: TextAlign.center,
+                keyboardType: TextInputType.phone,
+                controller: _phoneNumberController,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Column(
-                children: [
-                  Text(
-                    "Password: ",
-                    style:
-                        TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+            Container(
+              margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+              child: TextField(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                   ),
-                  TextField(
-                    obscureText: true,
-                    controller: _passwordController,
-                  )
-                ],
+                  hintText: "Password",
+                ),
+                textAlign: TextAlign.center,
+                obscureText: true,
+                controller: _passwordController,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainScreen()));
-                      },
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.green)),
+            Container(
+              margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+              child: ElevatedButton(
+                onPressed: () => _login(context),
+                child: Text("LOGIN"),
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.0),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 8.0),
-                    child: TextButton(
-                      onPressed: () {
-                        var result = Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegistrationScreen()));
-                        result.then((value) {
-                          _usernameController.text =
-                              (value as RegistrationData).username;
-                          _passwordController.text = (value).password;
-                        });
-                      },
-                      child: Text(
-                        "Register",
-                        style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.green)),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
+            Container(
+              margin: EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
+              child: ElevatedButton(
+                onPressed: _register,
+                child: Text("REGISTER"),
+                style: ButtonStyle(
+                  shape: MaterialStateProperty.all(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32.0),
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
     );
   }
+
+  void _login(BuildContext context) {
+    GetIt.I.get<UserService>().login("123", "password");
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => MainPage()));
+  }
+
+  void _register() {}
 }

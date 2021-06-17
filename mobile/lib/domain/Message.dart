@@ -15,10 +15,10 @@ class Message {
     };
   }
 
-  static Message fromMap(Map<String, Object?> map) {
+  static Message fromMap(Map<String, dynamic> map) {
     final id = map["id"] as String;
-    final from = map["from"] as String;
-    final to = map["to"] as String;
+    final from = map["number_from"] as String;
+    final to = map["number_to"] as String;
     final contents = map["contents"] as String;
 
     return Message(id, from, to, contents);

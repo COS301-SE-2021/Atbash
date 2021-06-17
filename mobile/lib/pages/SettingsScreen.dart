@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'model/SystemModel.dart';
+import '../model/SystemModel.dart';
 
 // Creates class for a stateful Widget
 class SettingsScreen extends StatefulWidget {

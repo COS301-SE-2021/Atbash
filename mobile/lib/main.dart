@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/LoginScreen.dart';
+import 'package:mobile/pages/LoginScreen.dart';
 import 'package:mobile/model/SystemModel.dart';
 import 'package:mobile/service/DatabaseAccess.dart';
 import 'package:mobile/service/MessageService.dart';

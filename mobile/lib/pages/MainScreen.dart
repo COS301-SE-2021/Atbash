@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/ChatScreen.dart';
-import 'package:mobile/NewChatScreen.dart';
-import 'package:mobile/SettingsScreen.dart';
+import 'package:mobile/pages/ChatScreen.dart';
+import 'package:mobile/pages/NewChatScreen.dart';
+import 'package:mobile/pages/SettingsScreen.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/model/SystemModel.dart';
 import 'package:provider/provider.dart';

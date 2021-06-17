@@ -3,7 +3,7 @@ import 'package:mobile/model/SystemModel.dart';
 import 'package:provider/provider.dart';
 
 import 'ChatScreen.dart';
-import 'domain/Contact.dart';
+import '../domain/Contact.dart';
 
 class NewChatScreen extends StatelessWidget {
   @override

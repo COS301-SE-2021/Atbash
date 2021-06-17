@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobile/model/SystemModel.dart';
 import 'package:provider/provider.dart';
 
-import 'domain/Contact.dart';
-import 'domain/Message.dart';
+import '../domain/Contact.dart';
+import '../domain/Message.dart';
 
 //Main widget
 class ChatScreen extends StatelessWidget {

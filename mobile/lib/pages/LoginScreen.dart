@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/RegistrationScreen.dart';
+import 'package:mobile/pages/RegistrationScreen.dart';
 
 import 'MainScreen.dart';
 

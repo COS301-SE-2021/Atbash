@@ -6,8 +6,12 @@ import javax.persistence.*
 @Entity
 @Table
 data class Message(
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "from_id")
+    val from: User,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_id")
     val to: User,
 
     @Column

@@ -65,12 +65,12 @@ class DatabaseAccess {
     final db = await _database;
     List<Message> messages = [];
 
-    db.query("message",
+    final response = await db.query("message",
         where: "number_from = ? OR number_to = ?",
-        whereArgs: [phoneNumber, phoneNumber]).then((query) {
-      query.forEach((element) {
-        messages.add(Message.fromMap(element));
-      });
+        whereArgs: [phoneNumber, phoneNumber]);
+
+    response.forEach((element) {
+      messages.add(Message.fromMap(element));
     });
 
     return messages;

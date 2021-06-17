@@ -23,10 +23,11 @@ class MessageServiceTest {
     private lateinit var messageService: MessageService
 
     @Test
-    @DisplayName("When User does not exist, sendMessage should return false")
-    fun sendMessageWhenUserDoesNotExist() {
-        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(null)
-        val successful = messageService.sendMessage("","", "")
+    @DisplayName("When User to does not exist, sendMessage should return false")
+    fun sendMessageWhenUserToDoesNotExist() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
+        Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
+        val successful = messageService.sendMessage("","dne", "")
         Assertions.assertFalse(successful)
     }
 

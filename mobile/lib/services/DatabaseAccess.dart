@@ -74,8 +74,12 @@ class DatabaseAccess {
 
   Contact saveContact(String number, String displayName) {
     Uuid uuid = new Uuid();
-    _database.then((db) {});
-    return Contact(number, displayName, false);
+    String randomID = uuid.v4();
+    Contact contact = new Contact(number, displayName, false);
+    _database.then((db) {
+      db.insert("contact", contact.toMap());
+    });
+    return contact;
   }
 
   Future<List<Contact>> getContacts() async {

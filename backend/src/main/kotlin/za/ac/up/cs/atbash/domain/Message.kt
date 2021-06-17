@@ -4,8 +4,11 @@ import org.hibernate.annotations.GenericGenerator
 import javax.persistence.*
 
 @Entity
-@Table
+@Table(indexes = [Index(columnList = "clientSideId")])
 data class Message(
+    @Column(length = 36, updatable = false, nullable = false)
+    val clientSideId: String,
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_id")
     val from: User,

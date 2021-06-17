@@ -11,11 +11,11 @@ class MessageService(
     @Autowired private val messageRepository: MessageRepository
 ) {
 
-    fun sendMessage(from: String, to: String, contents: String): Boolean {
+    fun sendMessage(from: String, to: String, clientSideId: String, contents: String): Boolean {
         val userFrom = userService.getUserByNumber(from) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false
 
-        val message = Message(userFrom, userTo, contents)
+        val message = Message(clientSideId, userFrom, userTo, contents)
 
         return try {
             messageRepository.save(message)

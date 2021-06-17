@@ -120,6 +120,15 @@ class DatabaseAccess {
   }
 
   Future<bool> createChatWithContact(String number) async {
+    final db = await _database;
+    int numChanges = await db.rawUpdate("""
+      UPDATE contact
+      SET has_chat = 1
+      WHERE phone_number = ?;
+      """, [number]);
+
+    if (numChanges == 0) return false;
+
     return true;
   }
 }

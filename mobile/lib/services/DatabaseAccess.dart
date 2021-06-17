@@ -63,8 +63,19 @@ class DatabaseAccess {
 
   Future<List<Message>> getChatWithContact(String phoneNumber) async {
     final db = await _database;
+    List<Message> messages = [];
 
-    return [];
+    db.query("message",
+        distinct: false,
+        columns: null,
+        where: "number_from = ? OR number_to = ?",
+        whereArgs: [phoneNumber, phoneNumber]).then((query) {
+      query.forEach((element) {
+        messages.add(Message.fromMap(element));
+      });
+    });
+
+    return messages;
   }
 
   Future<Contact?> fetchContact(String number) async {

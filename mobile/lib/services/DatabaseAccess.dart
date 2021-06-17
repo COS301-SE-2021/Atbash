@@ -109,6 +109,13 @@ class DatabaseAccess {
 
   Future<List<Contact>> getContactsWithChats() async {
     final db = await _database;
-    return [];
+    List<Contact> contacts = [];
+    db.query("contact",
+        distinct: true, where: "has_chat = ?", whereArgs: [1]).then((list) {
+      list.forEach((element) {
+        contacts.add(Contact.fromMap(element));
+      });
+    });
+    return contacts;
   }
 }

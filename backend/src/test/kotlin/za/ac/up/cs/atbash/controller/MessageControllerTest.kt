@@ -55,10 +55,18 @@ class MessageControllerTest {
     }
 
     @Test
-    @DisplayName("When request body `id` is null, response status should be BAD_REQUEST")
+    @DisplayName("When request body `contents`:`id` is null, response status should be BAD_REQUEST")
     fun sendMessageWhenRequestContentsIdNull() {
         val response =
             messageController.sendMessage(SendMessageRequestJson("", "", SendMessageRequestJsonContents(null, "")))
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    @DisplayName("When request body `contents`:`contents` is null, response status should be BAD_REQUEST")
+    fun sendMessageWhenRequestContentsContentsNull() {
+        val response =
+            messageController.sendMessage(SendMessageRequestJson("", "", SendMessageRequestJsonContents("", null)))
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
 

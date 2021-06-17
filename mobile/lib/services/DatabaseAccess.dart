@@ -10,29 +10,32 @@ class DatabaseAccess {
 
   static Future<Database> _init() async {
     String path = join(await getDatabasesPath(), "atbash.db");
-    return openDatabase(path, version: 1, onCreate: (db, version) {
-      db.execute(
-        """
-          create table message (
-            "id" text primary key,
-            "number_from" text not null,
-            "number_to" text not null,
-            "contents" text not null
-          );   
-          """,
-      );
-
-      db.execute(
-        """
-          create table contact (
-            "phone_number" text primary key,
-            "display_name" text not null,
-            "has_chat" tinyint not null
-          );
-          """,
-      ).then((value) {
+    return openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) {
         db.execute(
           """
+          create table message (
+            id text primary key,
+            number_from text not null,
+            number_to text not null,
+            contents text not null
+          );   
+          """,
+        );
+
+        db.execute(
+          """
+          create table contact (
+            phone_number text primary key,
+            display_name text not null,
+            has_chat tinyint not null
+          );
+          """,
+        ).then((value) {
+          db.execute(
+            """
             insert into contact
             values
               ('011 123 1234', 'Liam', 1), 
@@ -41,9 +44,10 @@ class DatabaseAccess {
               ('041 456 4567', 'Targo', 0)
             ;
             """,
-        );
-      });
-    });
+          );
+        });
+      },
+    );
   }
 
   Message saveMessage(String from, String to, String contents) {

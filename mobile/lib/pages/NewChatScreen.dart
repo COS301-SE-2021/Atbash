@@ -1,59 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/model/SystemModel.dart';
-import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/services/UserService.dart';
+import 'package:mobile/widgets/ProfileIcon.dart';
 
-import 'ChatScreen.dart';
-import '../domain/Contact.dart';
-
-class NewChatScreen extends StatelessWidget {
+class NewChatPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Consumer<SystemModel>(builder: (context, systemModel, child) {
-      return Scaffold(
-        appBar: NewChatScreenAppBar(),
-        body: ListView(
-          children: _buildContactList(systemModel),
-        ),
-      );
+  _NewChatPageState createState() => _NewChatPageState();
+}
+
+class _NewChatPageState extends State<NewChatPage> {
+  final _userService = GetIt.I.get<UserService>();
+
+  List<Contact> _contacts = [];
+
+  _NewChatPageState() {
+    _userService.getContacts().then((contacts) {
+      setState(() {
+        _contacts = contacts;
+      });
     });
   }
 
-  List<Widget> _buildContactList(SystemModel systemModel) {
-    return systemModel.userContacts
-        .map((c) => ContactListItem(c, systemModel))
-        .toList();
-  }
-}
-
-class NewChatScreenAppBar extends AppBar {
-  NewChatScreenAppBar()
-      : super(
-            title: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      "Select a Contact",
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            actions: [
-              IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-            ]);
-}
-
-class ContactListItem extends StatelessWidget {
-  final Contact _contact;
-  final SystemModel _systemModel;
-
-  ContactListItem(this._contact, this._systemModel);
-
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: _buildBody(context),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "Select a Contact",
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        IconButton(
+          onPressed: () {},
+          icon: Icon(Icons.search),
+        ),
+      ],
+    );
+  }
+
+  ListView _buildBody(BuildContext context) {
+    return ListView(
+      children: _buildContactList(context),
+    );
+  }
+
+  List<InkWell> _buildContactList(BuildContext context) {
+    return _contacts.map((e) => _buildContact(context, e)).toList();
+  }
+
+  InkWell _buildContact(BuildContext context, Contact contact) {
     return InkWell(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -64,45 +76,25 @@ class ContactListItem extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  _contact.displayName,
+                  contact.displayName,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18.0),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
       onTap: () {
-        if (_contact.chat == null) {
-          _systemModel.createChatWithContact(_contact.phoneNumber);
-        }
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => ChatScreen(_contact)));
+        _userService.newChat(contact.phoneNumber).then((contact) {
+          if (contact != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ChatPage(contact)),
+            );
+          }
+        });
       },
-    );
-  }
-}
-
-class EmptyProfileIcon extends StatelessWidget {
-  final Color _color;
-
-  EmptyProfileIcon(this._color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(width: 1, color: _color),
-      ),
-      padding: EdgeInsets.all(4.0),
-      child: Icon(
-        Icons.person,
-        color: _color,
-      ),
     );
   }
 }

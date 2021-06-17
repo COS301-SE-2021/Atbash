@@ -51,26 +51,33 @@ class DatabaseAccess {
   }
 
   Message saveMessage(String from, String to, String contents) {
+    _database.then((db) {});
     return Message("", from, to, contents);
   }
 
   Future<List<Message>> getChatWithContact(String phoneNumber) async {
+    final db = await _database;
+
     return [];
   }
 
   Future<Contact?> fetchContact(String number) async {
+    final db = await _database;
     return null;
   }
 
   Contact saveContact(String number, String displayName) {
+    _database.then((db) {});
     return Contact(number, displayName, false);
   }
 
   Future<List<Contact>> getContacts() async {
+    final db = await _database;
     return [];
   }
 
   Future<List<Contact>> getContactsWithChats() async {
+    final db = await _database;
     return [];
   }
 }

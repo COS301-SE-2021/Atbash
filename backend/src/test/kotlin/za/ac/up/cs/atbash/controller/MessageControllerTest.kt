@@ -55,6 +55,14 @@ class MessageControllerTest {
     }
 
     @Test
+    @DisplayName("When request body `id` is null, response status should be BAD_REQUEST")
+    fun sendMessageWhenRequestContentsIdNull() {
+        val response =
+            messageController.sendMessage(SendMessageRequestJson("", "", SendMessageRequestJsonContents(null, "")))
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
     @DisplayName("When service sendMessage returns true, response status should be OK")
     fun sendMessageWhenServiceSuccessful() {
         Mockito.`when`(

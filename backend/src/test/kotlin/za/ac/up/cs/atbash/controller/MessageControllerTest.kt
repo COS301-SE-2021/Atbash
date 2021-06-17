@@ -21,6 +21,13 @@ class MessageControllerTest {
     private lateinit var messageController: MessageController
 
     @Test
+    @DisplayName("When request body `from` is null, response status should be BAD_REQUEST")
+    fun sendMessageWhenRequestFromNull() {
+        val response = messageController.sendMessage(SendMessageRequestJson(null, "some to", "some contents"))
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
     @DisplayName("When request body `to` is null, response status should be BAD_REQUEST")
     fun sendMessageWhenRequestToNull() {
         val response = messageController.sendMessage(SendMessageRequestJson("some from",null, "Some contents"))

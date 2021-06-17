@@ -2,6 +2,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseAccess {
   Future<Database> _database;
@@ -51,7 +52,15 @@ class DatabaseAccess {
   }
 
   Message saveMessage(String from, String to, String contents) {
-    _database.then((db) {});
+    Uuid uuid = new Uuid();
+    _database.then((db) {
+      db.execute(
+
+        """
+        insert into message
+        """
+      )
+    });
     return Message("", from, to, contents);
   }
 
@@ -67,6 +76,7 @@ class DatabaseAccess {
   }
 
   Contact saveContact(String number, String displayName) {
+    Uuid uuid = new Uuid();
     _database.then((db) {});
     return Contact(number, displayName, false);
   }

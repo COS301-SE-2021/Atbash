@@ -118,4 +118,8 @@ class DatabaseAccess {
     });
     return contacts;
   }
+
+  Future<bool> createChatWithContact(String number) async {
+    return true;
+  }
 }

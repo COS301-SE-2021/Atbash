@@ -27,7 +27,7 @@ class MessageServiceTest {
     fun sendMessageWhenUserFromDoesNotExist() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("dne","", "")
+        val successful = messageService.sendMessage("dne","", "", "")
         Assertions.assertFalse(successful)
     }
 
@@ -36,7 +36,7 @@ class MessageServiceTest {
     fun sendMessageWhenUserToDoesNotExist() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("","dne", "")
+        val successful = messageService.sendMessage("","dne", "", "")
         Assertions.assertFalse(successful)
     }
 
@@ -45,7 +45,7 @@ class MessageServiceTest {
     fun sendMessageWhenRepositoryThrows() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }
-        val successful = messageService.sendMessage("" ,"", "")
+        val successful = messageService.sendMessage("" ,"", "", "")
         Assertions.assertFalse(successful)
     }
 
@@ -53,7 +53,7 @@ class MessageServiceTest {
     @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "apiKey", "password"))
-        val successful = messageService.sendMessage("" ,"", "")
+        val successful = messageService.sendMessage("" ,"", "", "")
         Assertions.assertTrue(successful)
     }
 }

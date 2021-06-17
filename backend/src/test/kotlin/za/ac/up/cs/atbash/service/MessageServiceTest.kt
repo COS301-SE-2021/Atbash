@@ -24,6 +24,15 @@ class MessageServiceTest {
 
     @Test
     @DisplayName("When User to does not exist, sendMessage should return false")
+    fun sendMessageWhenUserFromDoesNotExist() {
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
+        Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
+        val successful = messageService.sendMessage("dne","", "")
+        Assertions.assertFalse(successful)
+    }
+
+    @Test
+    @DisplayName("When User to does not exist, sendMessage should return false")
     fun sendMessageWhenUserToDoesNotExist() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)

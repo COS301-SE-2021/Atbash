@@ -31,7 +31,8 @@ class UserService {
       storage.write(key: "bearer_token", value: response.body);
       final displayName = await storage.read(key: "display_name") ?? "";
       final status = await storage.read(key: "status") ?? "";
-      _loggedInUser = User(number, displayName, status);
+      final imageData = await storage.read(key: "profile_image") ?? "";
+      _loggedInUser = User(number, displayName, status, imageData);
     }
     return response.statusCode == 200;
   }

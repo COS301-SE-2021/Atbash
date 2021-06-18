@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/domain/Contact.dart';
@@ -27,7 +28,10 @@ class UserService {
     final headers = {"Content-Type": "application/json"};
 
     final response = await http.post(url, headers: headers, body: body);
-    print(response.body);
+    if (response.statusCode == 200) {
+      final storage = FlutterSecureStorage();
+      storage.write(key: "bearer_token", value: response.body);
+    }
     return response.statusCode == 200;
   }
 

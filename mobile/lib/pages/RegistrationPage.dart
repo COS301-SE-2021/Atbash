@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/services/UserService.dart';
 
-class RegistrationPage extends StatelessWidget {
+class RegistrationPage extends StatefulWidget {
+  @override
+  _RegistrationPageState createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
   final _phoneNumberController = TextEditingController();
   final _displayNameController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  RegistrationPage() {
+  _RegistrationPageState() {
     // TODO this is mock data
     _phoneNumberController.text = "12345";
     _passwordController.text = "password";

@@ -101,10 +101,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        userService.register(phoneNumber, deviceToken, password);
+        userService
+            .register(phoneNumber, deviceToken, password)
+            .then((successful) {
+          if (successful) {
+            Navigator.pop(context);
+          }
+        });
       }
     });
-
-    Navigator.pop(context);
   }
 }

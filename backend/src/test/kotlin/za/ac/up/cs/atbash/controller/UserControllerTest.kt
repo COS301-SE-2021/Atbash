@@ -62,7 +62,7 @@ class UserControllerTest {
     @Test
     @DisplayName("When RegisterRequest 'number' is null, response status should be BAD_REQUEST")
     fun registerWhenRequestNumberNull(){
-        val response = userController.register(RegisterRequestJson(null, "password"))
+        val response = userController.register(RegisterRequestJson(null, "password", "deviceToken"))
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -70,7 +70,15 @@ class UserControllerTest {
     @Test
     @DisplayName("When RegisterRequest 'password' is null, response status should be BAD_REQUEST")
     fun registerWhenRequestPasswordNull(){
-        val response = userController.register(RegisterRequestJson("number", null))
+        val response = userController.register(RegisterRequestJson("number", null, "deviceToken"))
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    @DisplayName("When RegisterRequest 'deviceToken' is null, response status should be BAD_REQUEST")
+    fun registerWhenRequestDeviceTokenNull(){
+        val response = userController.register(RegisterRequestJson("number", "password", null))
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -78,8 +86,8 @@ class UserControllerTest {
     @Test
     @DisplayName("When user requesting to register already exists, response status should be INTERNAL_SERVER_ERROR")
     fun registerWhenServiceUnsuccessful(){
-        Mockito.`when`(userService.registerUser(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
-        val response = userController.register(RegisterRequestJson("number", "password"))
+        Mockito.`when`(userService.registerUser(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(false)
+        val response = userController.register(RegisterRequestJson("number", "password", "deviceToken"))
 
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
@@ -87,8 +95,8 @@ class UserControllerTest {
     @Test
     @DisplayName("When user requesting to register does not exist, response status should be OK")
     fun registerWhenServiceSuccessful(){
-        Mockito.`when`(userService.registerUser(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        val response = userController.register(RegisterRequestJson("number", "password"))
+        Mockito.`when`(userService.registerUser(Mockito.anyString(), Mockito.anyString(), Mockito.anyString())).thenReturn(true)
+        val response = userController.register(RegisterRequestJson("number", "password", "deviceToken"))
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }

@@ -10,7 +10,10 @@ data class User(
     val number: String,
 
     @Column
-    val password: String
+    val password: String,
+
+    @Column
+    val deviceToken: String
 ) {
     @Id
     @GeneratedValue(generator = "UUID")

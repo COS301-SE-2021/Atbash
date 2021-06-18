@@ -32,8 +32,8 @@ class UserServiceTest {
     @Test
     @DisplayName("When user is already registered, registerUser should return false")
     fun registerUserReturnsFalseIfUserAlreadyExists() {
-        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password"))
-        val success = userService.registerUser("123", "password")
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password", "deviceToken"))
+        val success = userService.registerUser("123", "password", "deviceToken")
 
         Assertions.assertFalse(success)
     }
@@ -42,7 +42,7 @@ class UserServiceTest {
     @DisplayName("When user is not registered, registerUser should return true")
     fun registerUserReturnsTrueIfUserDoesNotAlreadyExist() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
-        val success = userService.registerUser("number", "password")
+        val success = userService.registerUser("number", "password", "deviceToken")
 
         Assertions.assertTrue(success)
     }
@@ -65,7 +65,7 @@ class UserServiceTest {
         userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
-            .thenReturn(User("123",  "password"))
+            .thenReturn(User("123",  "password", "deviceToken"))
 
         val apiKeyNull = userService.verifyLogin("number", "incorrectPassword")
 
@@ -80,7 +80,7 @@ class UserServiceTest {
 
         userService.jwtSecret = "asjkchaisjkfahuisjhcajhd7372838y4hj" // TODO UserService jwtSecret should be immutable
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
-            .thenReturn(User("123",  "password"))
+            .thenReturn(User("123",  "password", "deviceToken"))
         val jwtToken = userService.verifyLogin("number", "password")
 
         Assertions.assertNotNull(jwtToken)
@@ -91,7 +91,7 @@ class UserServiceTest {
     @Test
     @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
     fun getUserByNumberReturnsMatch() {
-        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password"))
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password", "deviceToken"))
         val user = userService.getUserByNumber("123")
         Assertions.assertNotNull(user)
     }
@@ -100,7 +100,7 @@ class UserServiceTest {
     @DisplayName("When User with some number does not exist, getUserByNumber should return null")
     fun getUserByNumberReturnsNullIfNoMatch() {
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
-        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password"))
+        Mockito.`when`(userRepository.findByNumber("123")).thenReturn(User("123",  "password", "deviceToken"))
         val userMatch = userService.getUserByNumber("123")
         val userNoMatch = userService.getUserByNumber("456")
 

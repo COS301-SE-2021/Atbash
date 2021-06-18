@@ -15,9 +15,20 @@ class UserService {
   List<void Function(User)> _userInfoListeners = [];
   List<void Function(UnmodifiableListView<Contact>)> _chatsListeners = [];
 
-  void login(String number, String password) {
+  Future<bool> login(String number, String password) async {
     // TODO this is mock data
     _loggedInUser = User(number, "Dylan Pfab", "Just chilling");
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
+
+    final bodyMap = {"number": number, "password": password};
+
+    final body = jsonEncode(bodyMap);
+
+    final headers = {"Content-Type": "application/json"};
+
+    final response = await http.post(url, headers: headers, body: body);
+    print(response.body);
+    return response.statusCode == 200;
   }
 
   Future<bool> register(

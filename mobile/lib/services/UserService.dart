@@ -69,6 +69,8 @@ class UserService {
     final user = _loggedInUser;
     if (user != null) {
       user.status = status;
+      final storage = FlutterSecureStorage();
+      storage.write(key: "status", value: status);
       _notifyUserInfoListeners();
     }
   }

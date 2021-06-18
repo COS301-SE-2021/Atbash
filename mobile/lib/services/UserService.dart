@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/domain/Contact.dart';
@@ -15,9 +16,24 @@ class UserService {
   List<void Function(User)> _userInfoListeners = [];
   List<void Function(UnmodifiableListView<Contact>)> _chatsListeners = [];
 
-  void login(String number, String password) {
-    // TODO this is mock data
-    _loggedInUser = User(number, "Dylan Pfab", "Just chilling");
+  Future<bool> login(String number, String password) async {
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
+
+    final bodyMap = {"number": number, "password": password};
+
+    final body = jsonEncode(bodyMap);
+
+    final headers = {"Content-Type": "application/json"};
+
+    final response = await http.post(url, headers: headers, body: body);
+    if (response.statusCode == 200) {
+      final storage = FlutterSecureStorage();
+      storage.write(key: "bearer_token", value: response.body);
+      final displayName = await storage.read(key: "display_name") ?? "";
+      final status = await storage.read(key: "status") ?? "";
+      _loggedInUser = User(number, displayName, status);
+    }
+    return response.statusCode == 200;
   }
 
   Future<bool> register(
@@ -43,6 +59,8 @@ class UserService {
     final user = _loggedInUser;
     if (user != null) {
       user.displayName = displayName;
+      final storage = FlutterSecureStorage();
+      storage.write(key: "display_name", value: displayName);
       _notifyUserInfoListeners();
     }
   }
@@ -51,6 +69,8 @@ class UserService {
     final user = _loggedInUser;
     if (user != null) {
       user.status = status;
+      final storage = FlutterSecureStorage();
+      storage.write(key: "status", value: status);
       _notifyUserInfoListeners();
     }
   }

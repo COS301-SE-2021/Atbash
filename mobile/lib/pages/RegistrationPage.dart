@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -106,6 +107,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
             .then((successful) {
           if (successful) {
             Navigator.pop(context);
+            final storage = FlutterSecureStorage();
+            storage.write(key: "display_name", value: displayName);
           }
         });
       }

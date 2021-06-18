@@ -29,8 +29,12 @@ class JwtService {
         }
     }
 
-    fun parseToken(token: String): Map<String, Any> {
-        val key = SecretKeySpec(jwtSecret.toByteArray(), SignatureAlgorithm.HS256.jcaName)
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body.toMap()
+    fun parseToken(token: String): Map<String, Any>? {
+        return try {
+            val key = SecretKeySpec(jwtSecret.toByteArray(), SignatureAlgorithm.HS256.jcaName)
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body.toMap()
+        } catch (exception: SignatureException) {
+            null
+        }
     }
 }

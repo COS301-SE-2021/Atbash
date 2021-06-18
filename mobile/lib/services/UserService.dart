@@ -59,6 +59,8 @@ class UserService {
     final user = _loggedInUser;
     if (user != null) {
       user.displayName = displayName;
+      final storage = FlutterSecureStorage();
+      storage.write(key: "display_name", value: displayName);
       _notifyUserInfoListeners();
     }
   }

@@ -3,6 +3,7 @@ package za.ac.up.cs.atbash.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import za.ac.up.cs.atbash.domain.Message
+import za.ac.up.cs.atbash.dto.UnreadMessageDto
 import za.ac.up.cs.atbash.repository.MessageRepository
 
 @Service
@@ -30,8 +31,17 @@ class MessageService(
         }
     }
 
-    fun getMessages(forUser: String): List<Message> {
-        return emptyList()
+    fun getUnreadMessages(bearer: String): List<UnreadMessageDto>? {
+        val tokenPayload = jwtService.parseToken(bearer)
+
+        val userNumber = tokenPayload?.get("number").toString()
+
+        return try {
+            val messages = messageRepository.findAllByToId(userNumber)
+            messages.map { UnreadMessageDto(it.from.number, it.contents) }
+        } catch (exception: Exception) {
+            null
+        }
     }
 
     fun deleteMessages(ids: List<String>): Boolean {

@@ -56,4 +56,25 @@ class MessageServiceTest {
         val successful = messageService.sendMessage("" ,"", "", "")
         Assertions.assertTrue(successful)
     }
+
+    @Test
+    @DisplayName("When MessageRepository does throw an exception, deleteMessages should return false")
+    fun deleteMessagesWhenRepositoryDoesThrow() {
+        Mockito.`when`(messageRepository.deleteAllById(Mockito.anyList())).thenAnswer { throw Exception() }
+        val list : List<String> = ArrayList()
+        val bool = messageService.deleteMessages(list)
+
+        Assertions.assertFalse(bool)
+
+    }
+
+    @Test
+    @DisplayName("When MessageRepository does not throw an exception, deleteMessages should return true")
+    fun deleteMessagesWhenRepositoryDoesNotThrow() {
+        val list : List<String> = ArrayList()
+        val bool = messageService.deleteMessages(list)
+
+        Assertions.assertTrue(bool)
+
+    }
 }

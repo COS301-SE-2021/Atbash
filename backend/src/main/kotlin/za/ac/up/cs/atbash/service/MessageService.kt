@@ -28,4 +28,15 @@ class MessageService(
     fun getMessages(forUser: String): List<Message> {
         return emptyList()
     }
+
+    fun deleteMessages(ids: List<String>): Boolean{
+
+            try{
+                messageRepository.deleteAllById(ids)
+            }catch(e: Exception){
+                return false
+            }
+
+        return true
+    }
 }

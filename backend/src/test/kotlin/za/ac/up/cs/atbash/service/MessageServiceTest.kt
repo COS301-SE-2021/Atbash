@@ -96,4 +96,12 @@ class MessageServiceTest {
 
         Assertions.assertTrue(bool)
     }
+
+    @Test
+    @DisplayName("When message repository throws, getUnreadMessages should return null")
+    fun getUnreadMessagesWhenRepositoryDoesThrow() {
+        Mockito.`when`(messageRepository.findAllByToId(Mockito.anyString())).thenAnswer { throw Exception() }
+        val messages = messageService.getUnreadMessages("")
+        Assertions.assertNull(messages)
+    }
 }

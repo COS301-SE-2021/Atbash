@@ -77,10 +77,14 @@ class LoginPage extends StatelessWidget {
   }
 
   void _login(BuildContext context) {
-    GetIt.I.get<UserService>().login("123", "password");
-
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => MainPage()));
+    final phoneNumber = _phoneNumberController.text.trim();
+    final password = _passwordController.text.trim();
+    GetIt.I.get<UserService>().login(phoneNumber, password).then((successful) {
+      if (successful) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => MainPage()));
+      }
+    });
   }
 
   void _register(BuildContext context) {

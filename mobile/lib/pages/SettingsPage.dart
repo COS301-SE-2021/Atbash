@@ -33,6 +33,16 @@ class SettingsPage extends StatelessWidget {
       child: ListView(
         children: [
           Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+            child: Column(children: <Widget>[
+              CircleAvatar(
+                radius: 80,
+                child: Text("Picture"),
+              ),
+              const SizedBox(height: 10.0),
+            ]),
+          ),
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
             child: Column(children: [
               Text(

@@ -15,7 +15,7 @@ class MessageService(
     fun sendMessage(bearer: String, to: String, contents: String): Boolean {
         val tokenPayload = jwtService.parseToken(bearer)
 
-        val fromNumber = tokenPayload["number"].toString()
+        val fromNumber = tokenPayload?.get("number").toString()
 
         val userFrom = userService.getUserByNumber(fromNumber) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false

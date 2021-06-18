@@ -76,6 +76,16 @@ class UserService {
     }
   }
 
+  void setProfileImage(String imageData) {
+    final user = _loggedInUser;
+    if (user != null) {
+      user.imageData = imageData;
+      final storage = FlutterSecureStorage();
+      storage.write(key: "profile_image", value: imageData);
+      _notifyUserInfoListeners();
+    }
+  }
+
   Future<Contact?> newChat(String withContactNumber) async {
     final user = _loggedInUser;
     if (user != null) {

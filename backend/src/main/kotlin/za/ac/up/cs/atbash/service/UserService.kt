@@ -11,12 +11,12 @@ import za.ac.up.cs.atbash.repository.UserRepository
 import javax.crypto.spec.SecretKeySpec
 
 @Service
-class UserService(@Autowired private val userRepository: UserRepository) {
+class UserService(
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val jwtService: JwtService
+) {
 
     var passwordEncoder = BCryptPasswordEncoder() // TODO should be immutable
-
-    @Value("\${jwt.secret}")
-    var jwtSecret = ""
 
     fun registerUser(number: String, password: String, deviceToken: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {
@@ -32,8 +32,8 @@ class UserService(@Autowired private val userRepository: UserRepository) {
         val user = userRepository.findByNumber(number)
         return if (user != null) {
             if (passwordEncoder.matches(password, user.password)) {
-                val key = SecretKeySpec(jwtSecret.toByteArray(), SignatureAlgorithm.HS256.jcaName)
-                Jwts.builder().setPayload("""{"number": "${user.number}"}""").signWith(key).compact()
+                val payload = """{"number": "${user.number}"}"""
+                jwtService.encode(payload)
             } else {
                 null
             }

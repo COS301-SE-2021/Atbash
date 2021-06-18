@@ -47,7 +47,7 @@ class MessageServiceTest {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(mapOf(Pair("number", "dne")))
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("dne","", "")
+        val successful = messageService.sendMessage("dne", "", "")
         Assertions.assertFalse(successful)
     }
 
@@ -57,7 +57,7 @@ class MessageServiceTest {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(mapOf(Pair("number", "")))
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("","dne", "")
+        val successful = messageService.sendMessage("", "dne", "")
         Assertions.assertFalse(successful)
     }
 
@@ -66,15 +66,15 @@ class MessageServiceTest {
     fun sendMessageWhenRepositoryThrows() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "password", ""))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }
-        val successful = messageService.sendMessage("" ,"", "")
+        val successful = messageService.sendMessage("", "", "")
         Assertions.assertFalse(successful)
     }
 
     @Test
     @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
-        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123",  "password", ""))
-        val successful = messageService.sendMessage("" ,"", "")
+        Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "password", ""))
+        val successful = messageService.sendMessage("", "", "")
         Assertions.assertTrue(successful)
     }
 
@@ -82,20 +82,18 @@ class MessageServiceTest {
     @DisplayName("When MessageRepository does throw an exception, deleteMessages should return false")
     fun deleteMessagesWhenRepositoryDoesThrow() {
         Mockito.`when`(messageRepository.deleteAllById(Mockito.anyList())).thenAnswer { throw Exception() }
-        val list : List<String> = ArrayList()
+        val list: List<String> = ArrayList()
         val bool = messageService.deleteMessages(list)
 
         Assertions.assertFalse(bool)
-
     }
 
     @Test
     @DisplayName("When MessageRepository does not throw an exception, deleteMessages should return true")
     fun deleteMessagesWhenRepositoryDoesNotThrow() {
-        val list : List<String> = ArrayList()
+        val list: List<String> = ArrayList()
         val bool = messageService.deleteMessages(list)
 
         Assertions.assertTrue(bool)
-
     }
 }

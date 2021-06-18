@@ -34,14 +34,12 @@ class MessageService(
         return emptyList()
     }
 
-    fun deleteMessages(ids: List<String>): Boolean{
-
-            try{
-                messageRepository.deleteAllById(ids)
-            }catch(e: Exception){
-                return false
-            }
-
+    fun deleteMessages(ids: List<String>): Boolean {
+        try {
+            messageRepository.deleteAllById(ids)
+        } catch (e: Exception) {
+            return false
+        }
         return true
     }
 }

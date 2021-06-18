@@ -1,70 +1,54 @@
 import 'package:flutter/material.dart';
 
-class RegistrationScreen extends StatefulWidget {
-  @override
-  _RegistrationScreenState createState() => _RegistrationScreenState();
-}
-
-class _RegistrationScreenState extends State<RegistrationScreen> {
-  TextEditingController _usernameController = TextEditingController();
-  TextEditingController _fullNameController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+class RegistrationPage extends StatelessWidget {
+  final _phoneNumberController = TextEditingController();
+  final _displayNameController = TextEditingController();
+  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: (IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(Icons.arrow_back),
-        )),
-        backgroundColor: Colors.green,
-      ),
       body: ListView(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-            child: Column(
-              children: [
-                Text(
-                  "Username: ",
-                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+          Container(
+            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+            child: TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                 ),
-                TextField(
-                  controller: _usernameController,
-                )
-              ],
+                hintText: "Phone number",
+              ),
+              textAlign: TextAlign.center,
+              keyboardType: TextInputType.phone,
+              controller: _phoneNumberController,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-            child: Column(
-              children: [
-                Text(
-                  "Full Name: ",
-                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+          Container(
+            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+            child: TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                 ),
-                TextField(
-                  controller: _fullNameController,
-                )
-              ],
+                hintText: "Display name",
+              ),
+              textAlign: TextAlign.center,
+              controller: _displayNameController,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-            child: Column(
-              children: [
-                Text(
-                  "Password: ",
-                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+          Container(
+            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+            child: TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                 ),
-                TextField(
-                  obscureText: true,
-                  controller: _passwordController,
-                )
-              ],
+                hintText: "Password",
+              ),
+              textAlign: TextAlign.center,
+              controller: _passwordController,
+              obscureText: true,
             ),
           ),
           Padding(
@@ -73,24 +57,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  child: TextButton(
-                    onPressed: () {
-                      var registrationData = RegistrationData(
-                          _usernameController.text,
-                          _fullNameController.text,
-                          _passwordController.text);
-                      Navigator.pop(context, registrationData);
-                    },
-                    child: Text(
-                      "Register",
-                      style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
+                  child: ElevatedButton(
+                    onPressed: () => _register(context),
+                    child: Text("REGISTER"),
                     style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green)),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -100,12 +76,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       ),
     );
   }
-}
 
-class RegistrationData {
-  final String username;
-  final String fullName;
-  final String password;
+  void _register(BuildContext context) {
+    final phoneNumber = _phoneNumberController.text.trim();
+    final displayName = _displayNameController.text.trim();
+    final password = _passwordController.text.trim();
 
-  RegistrationData(this.username, this.fullName, this.password);
+    Navigator.pop(context);
+  }
 }

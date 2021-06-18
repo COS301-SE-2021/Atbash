@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/MainPage.dart';
+import 'package:mobile/pages/RegistrationScreen.dart';
 import 'package:mobile/services/UserService.dart';
 
 class LoginPage extends StatelessWidget {
@@ -58,7 +59,7 @@ class LoginPage extends StatelessWidget {
             Container(
               margin: EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
               child: ElevatedButton(
-                onPressed: _register,
+                onPressed: () => _register(context),
                 child: Text("REGISTER"),
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(
@@ -82,5 +83,8 @@ class LoginPage extends StatelessWidget {
         context, MaterialPageRoute(builder: (context) => MainPage()));
   }
 
-  void _register() {}
+  void _register(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => RegistrationPage()));
+  }
 }

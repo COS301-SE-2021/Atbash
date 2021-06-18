@@ -1,17 +1,29 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/services/UserService.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
   final _userService = GetIt.I.get<UserService>();
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
+  Uint8List? _selectedProfileImage;
 
-  SettingsPage() {
+  _SettingsPageState() {
     _displayNameController.text = _userService.getUser()?.displayName ?? "";
     _statusController.text = _userService.getUser()?.status ?? "";
+    _selectedProfileImage =
+        base64Decode(_userService.getUser()?.imageData ?? "");
   }
 
   @override
@@ -37,7 +49,8 @@ class SettingsPage extends StatelessWidget {
             child: Column(children: <Widget>[
               CircleAvatar(
                 radius: 80,
-                child: Text("Picture"),
+                child: _selectedProfileImage == null ? Text("Picture") : null,
+                backgroundImage: _buildAvatarImage(),
               ),
               const SizedBox(height: 10.0),
             ]),
@@ -56,7 +69,7 @@ class SettingsPage extends StatelessWidget {
                     iconSize: 50,
                     icon: Icon(Icons.photo_library),
                     onPressed: () {
-                      _imgFromGallery();
+                      _loadPicker(ImageSource.gallery);
                     },
                     tooltip: "Add image using your gallery.",
                   ),
@@ -110,9 +123,12 @@ class SettingsPage extends StatelessWidget {
                 onPressed: () {
                   final displayName = _displayNameController.text;
                   final status = _statusController.text;
+                  final profileImage =
+                      base64Encode(_selectedProfileImage ?? []);
 
                   _userService.setDisplayName(displayName);
                   _userService.setStatus(status);
+                  _userService.setProfileImage(profileImage);
 
                   Navigator.pop(context);
                 },
@@ -125,17 +141,32 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Future _imgFromGallery() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-    // setState(() {
-    //   if (pickedFile != null) {
-    //     _image = File(pickedFile.path);
-    //   } else {
-    //     print('No image selected.');
-    //   }
-    // });
+  MemoryImage? _buildAvatarImage() {
+    final image = _selectedProfileImage;
+    return image != null ? MemoryImage(image) : null;
   }
+
+  Future _loadPicker(ImageSource source) async {
+    final pickedFile = await picker.getImage(source: source);
+    if (pickedFile != null) {
+      final File file = File(pickedFile.path);
+      final imageBytes = await file.readAsBytes();
+      setState(() {
+        _selectedProfileImage = imageBytes;
+      });
+    }
+  }
+
+  // Future _imgFromGallery() async {
+  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  //   // setState(() {
+  //   //   if (pickedFile != null) {
+  //   //     _image = File(pickedFile.path);
+  //   //   } else {
+  //   //     print('No image selected.');
+  //   //   }
+  //   // });
+  // }
 
   Future _imgFromCamera(BuildContext context) async {
     try {

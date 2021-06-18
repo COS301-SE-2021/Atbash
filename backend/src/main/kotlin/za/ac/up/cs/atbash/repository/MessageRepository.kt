@@ -6,5 +6,5 @@ import za.ac.up.cs.atbash.domain.Message
 
 @Repository
 interface MessageRepository: JpaRepository<Message, String> {
-    fun findAllByToId(toId: String): List<Message>
+    fun findAllByToNumber(toNumber: String): List<Message>
 }

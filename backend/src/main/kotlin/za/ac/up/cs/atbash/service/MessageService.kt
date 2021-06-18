@@ -37,7 +37,7 @@ class MessageService(
         val userNumber = tokenPayload?.get("number").toString()
 
         return try {
-            val messages = messageRepository.findAllByToId(userNumber)
+            val messages = messageRepository.findAllByToNumber(userNumber)
             messages.map { UnreadMessageDto(it.from.number, it.contents) }
         } catch (exception: Exception) {
             null

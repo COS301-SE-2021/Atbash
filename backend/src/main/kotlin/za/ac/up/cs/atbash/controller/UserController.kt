@@ -30,11 +30,11 @@ class UserController(@Autowired private val userService: UserService) {
 
     @PostMapping(path = ["rs/v1/register"])
     fun register(@RequestBody json: RegisterRequestJson): ResponseEntity<Boolean>{
-        if(json.number == null || json.password == null){
+        if(json.number == null || json.password == null || json.deviceToken == null){
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        return if(userService.registerUser(json.number, json.password)){
+        return if(userService.registerUser(json.number, json.password, json.deviceToken)){
             ResponseEntity(HttpStatus.OK)
         }else{
             ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)

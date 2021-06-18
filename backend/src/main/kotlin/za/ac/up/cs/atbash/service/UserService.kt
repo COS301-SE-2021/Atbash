@@ -18,9 +18,9 @@ class UserService(@Autowired private val userRepository: UserRepository) {
     @Value("\${jwt.secret}")
     var jwtSecret = ""
 
-    fun registerUser(number: String, password: String): Boolean {
+    fun registerUser(number: String, password: String, deviceToken: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {
-            userRepository.save(User(number, passwordEncoder.encode(password)))
+            userRepository.save(User(number, passwordEncoder.encode(password), deviceToken))
             true
         } else {
             false

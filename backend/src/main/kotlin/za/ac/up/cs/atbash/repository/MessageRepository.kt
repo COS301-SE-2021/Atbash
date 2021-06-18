@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository
 import za.ac.up.cs.atbash.domain.Message
 
 @Repository
-interface MessageRepository: JpaRepository<Message, String>
+interface MessageRepository: JpaRepository<Message, String> {
+    fun findAllByToNumber(toNumber: String): List<Message>
+}

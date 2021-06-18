@@ -1,7 +1,6 @@
 package za.ac.up.cs.atbash.service
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Bean
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import za.ac.up.cs.atbash.domain.User
@@ -42,8 +41,4 @@ class UserService(
         return userRepository.findByNumber(number)
     }
 
-    @Bean
-    fun getPasswordEncode(): BCryptPasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
 }

@@ -17,8 +17,6 @@ class UserService {
   List<void Function(UnmodifiableListView<Contact>)> _chatsListeners = [];
 
   Future<bool> login(String number, String password) async {
-    // TODO this is mock data
-    _loggedInUser = User(number, "Dylan Pfab", "Just chilling");
     final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
 
     final bodyMap = {"number": number, "password": password};
@@ -31,6 +29,9 @@ class UserService {
     if (response.statusCode == 200) {
       final storage = FlutterSecureStorage();
       storage.write(key: "bearer_token", value: response.body);
+      final displayName = await storage.read(key: "display_name") ?? "";
+      final status = await storage.read(key: "status") ?? "";
+      _loggedInUser = User(number, displayName, status);
     }
     return response.statusCode == 200;
   }

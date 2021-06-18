@@ -1,22 +1,18 @@
 package za.ac.up.cs.atbash.service
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
-import javax.crypto.spec.SecretKeySpec
 
 @Service
 class UserService(
     @Autowired private val userRepository: UserRepository,
-    @Autowired private val jwtService: JwtService
+    @Autowired private val jwtService: JwtService,
+    @Autowired private val passwordEncoder: BCryptPasswordEncoder
 ) {
-
-    var passwordEncoder = BCryptPasswordEncoder() // TODO should be immutable
 
     fun registerUser(number: String, password: String, deviceToken: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {
@@ -44,5 +40,10 @@ class UserService(
 
     fun getUserByNumber(number: String): User? {
         return userRepository.findByNumber(number)
+    }
+
+    @Bean
+    fun getPasswordEncode(): BCryptPasswordEncoder {
+        return BCryptPasswordEncoder()
     }
 }

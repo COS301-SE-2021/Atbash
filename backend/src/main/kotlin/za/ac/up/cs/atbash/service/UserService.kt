@@ -1,22 +1,18 @@
 package za.ac.up.cs.atbash.service
 
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
-import javax.crypto.spec.SecretKeySpec
 
 @Service
-class UserService(@Autowired private val userRepository: UserRepository) {
-
-    var passwordEncoder = BCryptPasswordEncoder() // TODO should be immutable
-
-    @Value("\${jwt.secret}")
-    var jwtSecret = ""
+class UserService(
+    @Autowired private val userRepository: UserRepository,
+    @Autowired private val jwtService: JwtService,
+    @Autowired private val passwordEncoder: BCryptPasswordEncoder
+) {
 
     fun registerUser(number: String, password: String, deviceToken: String): Boolean {
         return if (userRepository.findByNumber(number) == null) {
@@ -32,8 +28,8 @@ class UserService(@Autowired private val userRepository: UserRepository) {
         val user = userRepository.findByNumber(number)
         return if (user != null) {
             if (passwordEncoder.matches(password, user.password)) {
-                val key = SecretKeySpec(jwtSecret.toByteArray(), SignatureAlgorithm.HS256.jcaName)
-                Jwts.builder().setPayload("""{"number": "${user.number}"}""").signWith(key).compact()
+                val payload = """{"number": "${user.number}"}"""
+                jwtService.encode(payload)
             } else {
                 null
             }
@@ -44,5 +40,10 @@ class UserService(@Autowired private val userRepository: UserRepository) {
 
     fun getUserByNumber(number: String): User? {
         return userRepository.findByNumber(number)
+    }
+
+    @Bean
+    fun getPasswordEncode(): BCryptPasswordEncoder {
+        return BCryptPasswordEncoder()
     }
 }

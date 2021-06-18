@@ -24,6 +24,9 @@ class UserServiceTest {
     @Mock
     private lateinit var encoder: BCryptPasswordEncoder
 
+    @Mock
+    private lateinit var jwtService: JwtService
+
     @InjectMocks
     private lateinit var userService: UserService
 
@@ -41,6 +44,7 @@ class UserServiceTest {
     @Test
     @DisplayName("When user is not registered, registerUser should return true")
     fun registerUserReturnsTrueIfUserDoesNotAlreadyExist() {
+        Mockito.`when`(encoder.encode(Mockito.anyString())).thenReturn("")
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString())).thenReturn(null)
         val success = userService.registerUser("number", "password", "deviceToken")
 
@@ -62,7 +66,6 @@ class UserServiceTest {
     @DisplayName("When User exists but password is wrong, verifyLogin should return null")
     fun verifyLoginReturnsNullIfPasswordDoesNotMatch() {
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(false)
-        userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
             .thenReturn(User("123",  "password", "deviceToken"))
@@ -75,14 +78,12 @@ class UserServiceTest {
     @Test
     @DisplayName("When User exists but password is correct, verifyLogin should return apiKey")
     fun verifyLoginReturnsJwtTokenIfPasswordDoesMatch() {
+        Mockito.`when`(jwtService.encode(Mockito.anyString())).thenReturn("")
         Mockito.`when`(encoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true)
-        userService.passwordEncoder = encoder // TODO UserService passwordEncoder should be immutable
 
-        userService.jwtSecret = "asjkchaisjkfahuisjhcajhd7372838y4hj" // TODO UserService jwtSecret should be immutable
         Mockito.`when`(userRepository.findByNumber(Mockito.anyString()))
             .thenReturn(User("123",  "password", "deviceToken"))
         val jwtToken = userService.verifyLogin("number", "password")
-
         Assertions.assertNotNull(jwtToken)
     }
 

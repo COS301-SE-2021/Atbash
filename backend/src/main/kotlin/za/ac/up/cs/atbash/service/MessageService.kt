@@ -8,14 +8,19 @@ import za.ac.up.cs.atbash.repository.MessageRepository
 @Service
 class MessageService(
     @Autowired private val userService: UserService,
-    @Autowired private val messageRepository: MessageRepository
+    @Autowired private val messageRepository: MessageRepository,
+    @Autowired private val jwtService: JwtService
 ) {
 
-    fun sendMessage(from: String, to: String, clientSideId: String, contents: String): Boolean {
-        val userFrom = userService.getUserByNumber(from) ?: return false
+    fun sendMessage(bearer: String, to: String, contents: String): Boolean {
+        val tokenPayload = jwtService.parseToken(bearer)
+
+        val fromNumber = tokenPayload?.get("number").toString()
+
+        val userFrom = userService.getUserByNumber(fromNumber) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false
 
-        val message = Message(clientSideId, userFrom, userTo, contents)
+        val message = Message(userFrom, userTo, contents)
 
         return try {
             messageRepository.save(message)

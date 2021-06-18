@@ -12,7 +12,7 @@ class MessageService(
     @Autowired private val jwtService: JwtService
 ) {
 
-    fun sendMessage(bearer: String, to: String, clientSideId: String, contents: String): Boolean {
+    fun sendMessage(bearer: String, to: String, contents: String): Boolean {
         val tokenPayload = jwtService.parseToken(bearer)
 
         val fromNumber = tokenPayload["number"].toString()
@@ -20,7 +20,7 @@ class MessageService(
         val userFrom = userService.getUserByNumber(fromNumber) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false
 
-        val message = Message(clientSideId, userFrom, userTo, contents)
+        val message = Message(userFrom, userTo, contents)
 
         return try {
             messageRepository.save(message)

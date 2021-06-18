@@ -1,6 +1,8 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/User.dart';
 import 'package:mobile/services/DatabaseAccess.dart';
@@ -16,6 +18,25 @@ class UserService {
   void login(String number, String password) {
     // TODO this is mock data
     _loggedInUser = User(number, "Dylan Pfab", "Just chilling");
+  }
+
+  Future<bool> register(
+      String number, String deviceToken, String password) async {
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/register");
+
+    final bodyMap = {
+      "number": number,
+      "deviceToken": deviceToken,
+      "password": password
+    };
+    final body = jsonEncode(bodyMap);
+
+    final headers = {
+      "Content-Type": "application/json",
+    };
+
+    final response = await http.post(url, headers: headers, body: body);
+    return response.statusCode == 200;
   }
 
   void setDisplayName(String displayName) {

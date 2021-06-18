@@ -1,9 +1,23 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/services/UserService.dart';
 
-class RegistrationPage extends StatelessWidget {
+class RegistrationPage extends StatefulWidget {
+  @override
+  _RegistrationPageState createState() => _RegistrationPageState();
+}
+
+class _RegistrationPageState extends State<RegistrationPage> {
   final _phoneNumberController = TextEditingController();
   final _displayNameController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  _RegistrationPageState() {
+    // TODO this is mock data
+    _phoneNumberController.text = "12345";
+    _passwordController.text = "password";
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +92,23 @@ class RegistrationPage extends StatelessWidget {
   }
 
   void _register(BuildContext context) {
+    final userService = GetIt.I.get<UserService>();
+
     final phoneNumber = _phoneNumberController.text.trim();
     final displayName = _displayNameController.text.trim();
     final password = _passwordController.text.trim();
 
-    Navigator.pop(context);
+    FirebaseMessaging.instance.getToken().then((token) {
+      final deviceToken = token;
+      if (deviceToken != null) {
+        userService
+            .register(phoneNumber, deviceToken, password)
+            .then((successful) {
+          if (successful) {
+            Navigator.pop(context);
+          }
+        });
+      }
+    });
   }
 }

@@ -15,22 +15,22 @@ import za.ac.up.cs.atbash.service.MessageService
 class MessageController(@Autowired private val messageService: MessageService) {
 
     @PostMapping(path = ["rs/v1/messages"])
-    fun sendMessage(@RequestHeader("Authorization") auth: String?, to: String?, contents: String?): ResponseEntity<SendMessageResponseJson> {
+    fun sendMessage(@RequestHeader("Authorization") auth: String?, to: String?, contents: String?): ResponseEntity<Unit> {
         if(auth == null) {
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }
 
         if (to == null || contents == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(SendMessageResponseJson(false))
+            return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
         val bearer = auth.substringAfter("Bearer ")
 
         val successful = messageService.sendMessage(bearer, to, contents)
         return if (successful) {
-            ResponseEntity.status(HttpStatus.OK).body(SendMessageResponseJson(true))
+            ResponseEntity(HttpStatus.OK)
         } else {
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(SendMessageResponseJson(false))
+            ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 }

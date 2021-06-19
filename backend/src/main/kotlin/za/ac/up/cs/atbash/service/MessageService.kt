@@ -10,7 +10,8 @@ import za.ac.up.cs.atbash.repository.MessageRepository
 class MessageService(
     @Autowired private val userService: UserService,
     @Autowired private val messageRepository: MessageRepository,
-    @Autowired private val jwtService: JwtService
+    @Autowired private val jwtService: JwtService,
+    @Autowired private val notificationService: NotificationService
 ) {
 
     fun sendMessage(bearer: String, to: String, contents: String): Boolean {
@@ -25,6 +26,7 @@ class MessageService(
 
         return try {
             messageRepository.save(message)
+            notificationService.notifyUserOfMessage(userTo)
             true
         } catch (exception: Exception) {
             false

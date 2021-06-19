@@ -8,10 +8,14 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class NotificationService {
+
+    @Value("\${fcm.serverKey}")
+    private val fcmServerKey = ""
 
     @Serializable
     data class PostBody(
@@ -33,7 +37,7 @@ class NotificationService {
         val client = HttpClient.newBuilder().build();
         val request = HttpRequest.newBuilder()
             .uri(URI.create("https://fcm.googleapis.com/fcm/send"))
-            .header("Authorization", "Bearer [server key]")
+            .header("Authorization", "Bearer " + fcmServerKey)
             .POST(HttpRequest.BodyPublishers.ofString(requestBody))
             .build()
         val response = client.send(request, HttpResponse.BodyHandlers.ofString());

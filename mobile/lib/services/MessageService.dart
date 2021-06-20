@@ -21,7 +21,7 @@ class MessageService {
       _notifyNewMessageListeners(_messages);
     });
 
-    fetchUnreadMessages().then((messages) {
+    fetchUnreadMessages(_contact.phoneNumber).then((messages) {
       this._messages.addAll(messages);
       _notifyNewMessageListeners(messages);
     });
@@ -46,7 +46,7 @@ class MessageService {
     ); //  TODO should use 200 to mark message as sent in db
   }
 
-  Future<List<Message>> fetchUnreadMessages() async {
+  Future<List<Message>> fetchUnreadMessages(String fromNumber) async {
     final storage = FlutterSecureStorage();
     final bearerToken = await storage.read(key: "bearer_token");
     final userPhoneNumber = GetIt.I.get<UserService>().getUser()?.phoneNumber;
@@ -62,7 +62,7 @@ class MessageService {
       final messages = <Message>[];
       body.forEach((element) {
         final m = _parseUnreadMessageMap(uuid.v4(), userPhoneNumber, element);
-        if (m != null) {
+        if (m != null && m.numberFrom == fromNumber) {
           messages.add(m);
         }
       });
@@ -83,6 +83,11 @@ class MessageService {
   void _addMessage(Message m) {
     _messages.add(m);
     _notifyNewMessageListeners([m]);
+  }
+
+  void deleteMessage(Message m) {
+    _messages.remove(m);
+    db.deleteMessage(m.id);
   }
 
   void listenForNewMessages(void Function(List<Message>) cb) {

@@ -11,7 +11,8 @@ import java.util.*
 class MessageService(
     @Autowired private val userService: UserService,
     @Autowired private val messageRepository: MessageRepository,
-    @Autowired private val jwtService: JwtService
+    @Autowired private val jwtService: JwtService,
+    @Autowired private val notificationService: NotificationService
 ) {
 
     fun sendMessage(bearer: String, to: String, contents: String, timestamp: Long): Boolean {
@@ -26,6 +27,7 @@ class MessageService(
 
         return try {
             messageRepository.save(message)
+            notificationService.notifyUserOfMessage(userTo, userFrom)
             true
         } catch (exception: Exception) {
             false

@@ -22,6 +22,9 @@ class MessageServiceTest {
     @Mock
     private lateinit var jwtService: JwtService
 
+    @Mock
+    private lateinit var notificationService: NotificationService
+
     @InjectMocks
     private lateinit var messageService: MessageService
 

@@ -1,9 +1,9 @@
 package za.ac.up.cs.atbash.service
 
 import org.junit.jupiter.api.*
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Description
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
 
@@ -58,5 +58,14 @@ class UserServiceIntegrationTest {
         Assertions.assertTrue(success)
     }
 
+    //Login Tests
+
+    @Test
+    @DisplayName("When User with some number does not exist, verifyLogin should return null")
+    fun verifyLoginReturnsNullIfUserDoesNotExist(){
+        val jwtToken = userService.verifyLogin(nonRegisteredUser.number, nonRegisteredUser.password)
+
+        Assertions.assertNull(jwtToken)
+    }
 
 }

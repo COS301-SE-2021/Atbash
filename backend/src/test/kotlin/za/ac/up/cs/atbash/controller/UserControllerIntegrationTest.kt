@@ -80,6 +80,14 @@ class UserControllerIntegrationTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
 
+    @Test
+    @DisplayName("When user requesting to register does not exist, response status should be OK")
+    fun registerWhenServiceSuccessful(){
+        val response = userController.register(RegisterRequestJson(nonRegisteredUser.number, nonRegisteredUser.password, nonRegisteredUser.deviceToken))
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
     //Login
 
     @Test

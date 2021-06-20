@@ -76,7 +76,8 @@ class MessageService {
       String id, String to, Map<dynamic, dynamic> map) {
     final String from = map["fromNumber"];
     final String contents = map["contents"];
-    return Message(id, from, to, contents);
+    final int timestamp = map["timestamp"];
+    return Message(id, from, to, contents, timestamp);
   }
 
   void _addMessage(Message m) {

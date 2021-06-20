@@ -50,5 +50,13 @@ class UserServiceIntegrationTest {
         Assertions.assertFalse(success)
     }
 
+    @Test
+    @DisplayName("When user is not registered, registerUser should return true")
+    fun registerUserReturnsTrueIfUserDoesNotAlreadyExist(){
+        val success = userService.registerUser(nonRegisteredUser.number, nonRegisteredUser.password, nonRegisteredUser.deviceToken)
+
+        Assertions.assertTrue(success)
+    }
+
 
 }

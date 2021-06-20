@@ -1,6 +1,7 @@
 package za.ac.up.cs.atbash.domain
 
 import org.hibernate.annotations.GenericGenerator
+import java.util.*
 import javax.persistence.*
 
 @Entity
@@ -15,7 +16,10 @@ data class Message(
     val to: User,
 
     @Column
-    val contents: String
+    val contents: String,
+
+    @Column
+    val timestamp: Date
 ) {
     @Id
     @GeneratedValue(generator = "UUID")

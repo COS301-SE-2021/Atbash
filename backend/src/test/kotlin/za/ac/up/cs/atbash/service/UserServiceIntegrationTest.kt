@@ -89,4 +89,12 @@ class UserServiceIntegrationTest {
         Assertions.assertNotNull(jwtToken)
     }
 
+    @Test
+    @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
+    fun getUserByNumberReturnsMatch(){
+        val user = userService.getUserByNumber(registeredUser.number)
+
+        Assertions.assertNotNull(user)
+    }
+
 }

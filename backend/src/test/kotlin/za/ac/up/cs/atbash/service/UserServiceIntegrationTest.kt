@@ -1,9 +1,6 @@
 package za.ac.up.cs.atbash.service
 
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Description
@@ -40,8 +37,18 @@ class UserServiceIntegrationTest {
     @AfterEach
     fun tearDown(){
         //Removing mock data being inserted into repo
-        userRepo.delete(registeredUser)
-        userRepo.delete(nonRegisteredUser)
+        userRepo.deleteAll()
     }
+
+    //Register Tests
+
+    @Test
+    @DisplayName("When user is already registered, registerUser should return false")
+    fun registerUserReturnsFalseIfUserAlreadyExists(){
+        val success = userService.registerUser(registeredUser.number, registeredUser.password, registeredUser.deviceToken)
+
+        Assertions.assertFalse(success)
+    }
+
 
 }

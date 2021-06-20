@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.repository.UserRepository
 
@@ -18,6 +19,10 @@ class UserServiceIntegrationTest {
     @Autowired
     lateinit var userRepo: UserRepository
 
+    //Other services
+    @Autowired
+    lateinit var passwordEncoder: BCryptPasswordEncoder
+
     //Variable declarations
     lateinit var registeredUser: User
     lateinit var nonRegisteredUser: User
@@ -26,7 +31,7 @@ class UserServiceIntegrationTest {
     @BeforeEach
     fun setup(){
         //Assigning data to variables
-        registeredUser = User("0728954174", "password1", "1234")
+        registeredUser = User("0728954174", passwordEncoder.encode("password1"), "1234")
         nonRegisteredUser = User("1234567890", "password2", "5678")
 
         //Saving necessary variables into repo's
@@ -74,6 +79,14 @@ class UserServiceIntegrationTest {
         val jwtToken = userService.verifyLogin(registeredUser.number, "WrongPassword")
 
         Assertions.assertNull(jwtToken)
+    }
+
+    @Test
+    @DisplayName("When User exists but password is correct, verifyLogin should return jwtToken")
+    fun verifyLoginReturnsJwtTokenIfPasswordDoesMatch(){
+        val jwtToken = userService.verifyLogin(registeredUser.number, "password1")
+
+        Assertions.assertNotNull(jwtToken)
     }
 
 }

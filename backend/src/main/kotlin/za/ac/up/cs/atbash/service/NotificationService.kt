@@ -29,9 +29,12 @@ class NotificationService {
         val body: String
     )
 
-    fun notifyUserOfMessage(user: User) {
+    fun notifyUserOfMessage(userTo: User, userFrom: User) {
         try {
-            val postBody = PostBody(user.deviceToken, NotificationContents("Atbash", "You have a new message"))
+            val postBody = PostBody(
+                userTo.deviceToken,
+                NotificationContents("Atbash", "You have a new message from \"" + userFrom.number + "\"")
+            )
             val requestBody: String = Json.encodeToString(postBody)
 
             val client = HttpClient.newBuilder().build()

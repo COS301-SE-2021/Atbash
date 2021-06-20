@@ -26,7 +26,7 @@ class MessageService(
 
         return try {
             messageRepository.save(message)
-            notificationService.notifyUserOfMessage(userTo)
+            notificationService.notifyUserOfMessage(userTo, userFrom)
             true
         } catch (exception: Exception) {
             false

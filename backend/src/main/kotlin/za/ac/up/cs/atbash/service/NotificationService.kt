@@ -29,7 +29,7 @@ class NotificationService {
         val body: String
     )
 
-    fun notifyUserOfMessage(user: User): String? {
+    fun notifyUserOfMessage(user: User) {
         try {
             val postBody = PostBody(user.deviceToken, NotificationContents("Atbash", "You have a new message"))
             val requestBody: String = Json.encodeToString(postBody)
@@ -41,11 +41,9 @@ class NotificationService {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
-            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-            return response.body()
+            client.send(request, HttpResponse.BodyHandlers.ofString())
         } catch (exception: Exception) {
             exception.printStackTrace()
-            return null
         }
     }
 }

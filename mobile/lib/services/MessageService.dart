@@ -20,6 +20,11 @@ class MessageService {
       this._messages = messages;
       _notifyNewMessageListeners(_messages);
     });
+
+    fetchUnreadMessages().then((messages) {
+      this._messages.addAll(messages);
+      _notifyNewMessageListeners(messages);
+    });
   }
 
   void sendMessage(String from, String to, String contents) async {

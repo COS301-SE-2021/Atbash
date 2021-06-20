@@ -32,7 +32,7 @@ class MessageServiceTest {
     @DisplayName("When token signature invalid, sendMessage should return false")
     fun sendMessageWhenTokenSignatureInvalid() {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(null)
-        val successful = messageService.sendMessage("", "", "")
+        val successful = messageService.sendMessage("", "", "", 0)
         Assertions.assertFalse(successful)
     }
 
@@ -40,7 +40,7 @@ class MessageServiceTest {
     @DisplayName("When token signature is valid, but contains no number key, sendMessage should return false")
     fun sendMessageWhenTokenNotContainsNumber() {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(mapOf())
-        val successful = messageService.sendMessage("", "", "")
+        val successful = messageService.sendMessage("", "", "", 0)
         Assertions.assertFalse(successful)
     }
 
@@ -50,7 +50,7 @@ class MessageServiceTest {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(mapOf(Pair("number", "dne")))
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("dne", "", "")
+        val successful = messageService.sendMessage("dne", "", "", 0)
         Assertions.assertFalse(successful)
     }
 
@@ -60,7 +60,7 @@ class MessageServiceTest {
         Mockito.`when`(jwtService.parseToken(Mockito.anyString())).thenReturn(mapOf(Pair("number", "")))
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("", "", ""))
         Mockito.`when`(userService.getUserByNumber("dne")).thenReturn(null)
-        val successful = messageService.sendMessage("", "dne", "")
+        val successful = messageService.sendMessage("", "dne", "", 0)
         Assertions.assertFalse(successful)
     }
 
@@ -69,7 +69,7 @@ class MessageServiceTest {
     fun sendMessageWhenRepositoryThrows() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "password", ""))
         Mockito.`when`(messageRepository.save(Mockito.any())).thenAnswer { throw Exception() }
-        val successful = messageService.sendMessage("", "", "")
+        val successful = messageService.sendMessage("", "", "", 0)
         Assertions.assertFalse(successful)
     }
 
@@ -77,7 +77,7 @@ class MessageServiceTest {
     @DisplayName("When UserRepository does not throw, sendMessage should return true")
     fun sendMessageWhenRepositoryDoesNotThrow() {
         Mockito.`when`(userService.getUserByNumber(Mockito.anyString())).thenReturn(User("123", "password", ""))
-        val successful = messageService.sendMessage("", "", "")
+        val successful = messageService.sendMessage("", "", "", 0)
         Assertions.assertTrue(successful)
     }
 

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import za.ac.up.cs.atbash.domain.Message
 import za.ac.up.cs.atbash.dto.UnreadMessageDto
 import za.ac.up.cs.atbash.repository.MessageRepository
+import java.util.*
 
 @Service
 class MessageService(
@@ -14,7 +15,7 @@ class MessageService(
     @Autowired private val notificationService: NotificationService
 ) {
 
-    fun sendMessage(bearer: String, to: String, contents: String): Boolean {
+    fun sendMessage(bearer: String, to: String, contents: String, timestamp: Long): Boolean {
         val tokenPayload = jwtService.parseToken(bearer)
 
         val fromNumber = tokenPayload?.get("number").toString()
@@ -22,7 +23,7 @@ class MessageService(
         val userFrom = userService.getUserByNumber(fromNumber) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false
 
-        val message = Message(userFrom, userTo, contents)
+        val message = Message(userFrom, userTo, contents, Date(timestamp))
 
         return try {
             messageRepository.save(message)
@@ -40,7 +41,7 @@ class MessageService(
 
         return try {
             val messages = messageRepository.findAllByToNumber(userNumber)
-            messages.map { UnreadMessageDto(it.from.number, it.contents) }
+            messages.map { UnreadMessageDto(it.from.number, it.contents, it.timestamp.time) }
         } catch (exception: Exception) {
             null
         }

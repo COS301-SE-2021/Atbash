@@ -5,14 +5,14 @@
 Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.
 
 ---
-## Demo 1 Recording
+## Demo 2 Recording
 
-You can see a recoding of our [first demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 
+You can see a recoding of our [second demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 
 
 ---
 ## SRS Document
 
-Please see our [SRS document](/Documentation/Demo1/Atbash_SRS.pdf) to see more about the technical details of our application.
+Please see our [SRS document](/Documentation/Demo2/SRS_Demo2.pdf) to see more about the technical details of our application.
 
 ---
 ## Project Management Tool

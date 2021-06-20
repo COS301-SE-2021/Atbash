@@ -42,9 +42,6 @@ class NotificationService {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
             client.send(request, HttpResponse.BodyHandlers.ofString())
-
-            //For testing
-            print(request.toString())
         } catch (exception: Exception) {
             exception.printStackTrace()
         }

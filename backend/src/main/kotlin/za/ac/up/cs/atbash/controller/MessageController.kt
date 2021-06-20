@@ -11,18 +11,18 @@ import za.ac.up.cs.atbash.service.MessageService
 class MessageController(@Autowired private val messageService: MessageService) {
 
     @PostMapping(path = ["rs/v1/messages"])
-    fun sendMessage(@RequestHeader("Authorization") auth: String?, to: String?, contents: String?): ResponseEntity<Unit> {
+    fun sendMessage(@RequestHeader("Authorization") auth: String?, to: String?, contents: String?, timestamp: Long?): ResponseEntity<Unit> {
         if(auth == null) {
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }
 
-        if (to == null || contents == null) {
+        if (to == null || contents == null || timestamp == null) {
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
         val bearer = auth.substringAfter("Bearer ")
 
-        val successful = messageService.sendMessage(bearer, to, contents)
+        val successful = messageService.sendMessage(bearer, to, contents, timestamp)
         return if (successful) {
             ResponseEntity(HttpStatus.OK)
         } else {

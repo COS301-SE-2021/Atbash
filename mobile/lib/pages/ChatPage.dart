@@ -103,19 +103,23 @@ class _ChatPageState extends State<ChatPage> {
         padding: padding,
         child: Wrap(
           children: [
-            HoldDetector(
-              onHold: () {
-                _deleteMessage(_messages.indexOf(message));
-              },
-              holdTimeout: Duration(milliseconds: 2000),
-              enableHapticFeedback: true,
-              child: Card(
-                color: Colors.orange,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    message.contents,
-                    style: TextStyle(fontSize: 18.0),
+            InkWell(
+              focusColor: Colors.red,
+              child: HoldTimeoutDetector(
+                onTimerInitiated: () {},
+                onTimeout: () {
+                  _deleteMessage(_messages.indexOf(message));
+                },
+                holdTimeout: Duration(milliseconds: 2000),
+                enableHapticFeedback: true,
+                child: Card(
+                  color: Colors.orange,
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      message.contents,
+                      style: TextStyle(fontSize: 18.0),
+                    ),
                   ),
                 ),
               ),

@@ -104,7 +104,11 @@ class _ChatPageState extends State<ChatPage> {
         child: Wrap(
           children: [
             HoldDetector(
-              onHold: _deleteMessage,
+              onHold: () {
+                _deleteMessage(_messages.indexOf(message));
+              },
+              holdTimeout: Duration(milliseconds: 2000),
+              enableHapticFeedback: true,
               child: Card(
                 color: Colors.orange,
                 child: Padding(
@@ -157,7 +161,10 @@ class _ChatPageState extends State<ChatPage> {
     _inputController.text = "";
   }
 
-  void _deleteMessage() {
-    print("del");
+  void _deleteMessage(index) {
+    setState(() {
+      _messageService.deleteMessage(_messages.elementAt(index));
+      _messages.removeAt(index);
+    });
   }
 }

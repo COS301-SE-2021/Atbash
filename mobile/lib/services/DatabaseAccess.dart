@@ -61,6 +61,11 @@ class DatabaseAccess {
     return message;
   }
 
+  void deleteMessage(String id) {
+    _database
+        .then((db) => db.delete("message", where: "id = ?", whereArgs: [id]));
+  }
+
   Future<List<Message>> getChatWithContact(String phoneNumber) async {
     final db = await _database;
     List<Message> messages = [];

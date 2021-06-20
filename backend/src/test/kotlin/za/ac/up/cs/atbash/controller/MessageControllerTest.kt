@@ -9,7 +9,6 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
-import za.ac.up.cs.atbash.json.message.SendMessageRequestJson
 import za.ac.up.cs.atbash.service.MessageService
 
 @ExtendWith(MockitoExtension::class)
@@ -23,24 +22,21 @@ class MessageControllerTest {
     @Test
     @DisplayName("When authorization header is not present, response status should be UNAUTHORIZED")
     fun sendMessageWhenAuthorizationNull() {
-        //val response = messageController.sendMessage(null, "", "")
-        val response = messageController.sendMessage(null, SendMessageRequestJson("", ""))
+        val response = messageController.sendMessage(null, "", "")
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
     }
 
     @Test
     @DisplayName("When request body `to` is null, response status should be BAD_REQUEST")
     fun sendMessageWhenRequestToNull() {
-        //val response = messageController.sendMessage("", null, "")
-        val response = messageController.sendMessage("", SendMessageRequestJson(null, ""))
+        val response = messageController.sendMessage("", null, "")
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
 
     @Test
     @DisplayName("When request body `contents` is null, response status should be BAD_REQUEST")
     fun sendMessageWhenRequestContentsNull() {
-        //val response = messageController.sendMessage("", "", null)
-        val response = messageController.sendMessage("", SendMessageRequestJson("", null))
+        val response = messageController.sendMessage("", "", null)
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
 
@@ -49,8 +45,7 @@ class MessageControllerTest {
     fun sendMessageWhenServiceSuccessful() {
         Mockito.`when`(messageService.sendMessage(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(true)
-        //val response = messageController.sendMessage("", "", "")
-        val response = messageController.sendMessage("", SendMessageRequestJson("", ""))
+        val response = messageController.sendMessage("", "", "")
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }
 
@@ -59,8 +54,7 @@ class MessageControllerTest {
     fun sendMessageWhenServiceUnsuccessful() {
         Mockito.`when`(messageService.sendMessage(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
             .thenReturn(false)
-        //val response = messageController.sendMessage("", "", "")
-        val response = messageController.sendMessage("", SendMessageRequestJson("", ""))
+        val response = messageController.sendMessage("", "", "")
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
 }

@@ -29,7 +29,7 @@ class NotificationService {
         val body: String
     )
 
-    fun notifyUserOfMessage(userTo: User, userFrom: User) {
+    fun notifyUserOfMessage(userTo: User, userFrom: User): Boolean {
         try {
             val postBody = PostBody(
                 userTo.deviceToken,
@@ -44,9 +44,13 @@ class NotificationService {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
-            client.send(request, HttpResponse.BodyHandlers.ofString())
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            if(response.statusCode() == 200){
+                return true
+            }
         } catch (exception: Exception) {
             exception.printStackTrace()
         }
+        return false
     }
 }

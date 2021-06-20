@@ -1,13 +1,13 @@
 package za.ac.up.cs.atbash.controller
 
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
+import za.ac.up.cs.atbash.domain.User
 import za.ac.up.cs.atbash.json.user.LoginRequestJson
 import za.ac.up.cs.atbash.json.user.RegisterRequestJson
+import za.ac.up.cs.atbash.repository.UserRepository
 import za.ac.up.cs.atbash.service.UserService
 
 @SpringBootTest
@@ -20,6 +20,31 @@ class UserControllerIntegrationTest {
     //Controllers
     @Autowired
     lateinit var userController: UserController
+
+    //Repos
+    @Autowired
+    lateinit var userRepo: UserRepository
+
+    //Declare variables
+    lateinit var registeredUser: User
+    lateinit var nonRegisteredUser: User
+
+    @BeforeEach
+    fun setup() {
+        //Assigning data to variables
+        registeredUser = User("0728954174", "password1", "1234")
+        nonRegisteredUser = User("1234567890", "password2", "5678")
+
+        //Saving necessary variables into repo's
+        userRepo.save(registeredUser)
+
+    }
+
+    @AfterEach
+    fun tearDown() {
+        //Removing mock data being inserted into repo
+        userRepo.deleteAll()
+    }
 
     //Register
 
@@ -45,6 +70,14 @@ class UserControllerIntegrationTest {
         val response = userController.register(RegisterRequestJson("number", "password", null))
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    @DisplayName("When user requesting to register already exists, response status should be INTERNAL_SERVER_ERROR")
+    fun registerWhenServiceUnsuccessful(){
+        val response = userController.register(RegisterRequestJson(registeredUser.number, registeredUser.password, registeredUser.deviceToken))
+
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
 
     //Login

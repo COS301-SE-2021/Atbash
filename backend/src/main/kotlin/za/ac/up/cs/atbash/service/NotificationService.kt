@@ -30,17 +30,21 @@ class NotificationService {
     )
 
     fun notifyUserOfMessage(user: User): String? {
+        try {
+            val postBody = PostBody(user.deviceToken, NotificationContents("Atbash", "You have a new message"))
+            val requestBody: String = Json.encodeToString(postBody)
 
-        val postBody: PostBody = PostBody(user.deviceToken, NotificationContents("Atbash", "You have a new message"))
-        val requestBody: String = Json.encodeToString(postBody)
-
-        val client = HttpClient.newBuilder().build();
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("https://fcm.googleapis.com/fcm/send"))
-            .header("Authorization", "Bearer " + fcmServerKey)
-            .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-            .build()
-        val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return response.body()
+            val client = HttpClient.newBuilder().build()
+            val request = HttpRequest.newBuilder()
+                .uri(URI.create("https://fcm.googleapis.com/fcm/send"))
+                .header("Authorization", "Bearer $fcmServerKey")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build()
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            return response.body()
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+            return null
+        }
     }
 }

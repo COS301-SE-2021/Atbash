@@ -17,14 +17,6 @@ class MessageController(@Autowired private val messageService: MessageService) {
         }
 
         if (to == null || contents == null) {
-            //Testing
-            if(to == null){
-                //For testing
-                print("to is null\n")
-            } else {
-                //For testing
-                print("contents is null\n")
-            }
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 

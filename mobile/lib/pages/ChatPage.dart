@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:holding_gesture/holding_gesture.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/MessageService.dart';
@@ -102,16 +103,19 @@ class _ChatPageState extends State<ChatPage> {
         padding: padding,
         child: Wrap(
           children: [
-            Card(
-              color: Colors.orange,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  message.contents,
-                  style: TextStyle(fontSize: 18.0),
+            HoldDetector(
+              onHold: _deleteMessage,
+              child: Card(
+                color: Colors.orange,
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    message.contents,
+                    style: TextStyle(fontSize: 18.0),
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -151,5 +155,9 @@ class _ChatPageState extends State<ChatPage> {
       _messageService.sendMessage(from, to, contents);
     }
     _inputController.text = "";
+  }
+
+  void _deleteMessage() {
+    print("del");
   }
 }

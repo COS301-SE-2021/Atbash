@@ -3,15 +3,18 @@ class Message {
   final String numberFrom;
   final String numberTo;
   final String contents;
+  final int timestamp;
 
-  Message(this.id, this.numberFrom, this.numberTo, this.contents);
+  Message(
+      this.id, this.numberFrom, this.numberTo, this.contents, this.timestamp);
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       "id": id,
       "number_from": numberFrom,
       "number_to": numberTo,
       "contents": contents,
+      "timestamp": timestamp,
     };
   }
 
@@ -20,7 +23,8 @@ class Message {
     final from = map["number_from"] as String;
     final to = map["number_to"] as String;
     final contents = map["contents"] as String;
+    final timestamp = map["timestamp"] as int;
 
-    return Message(id, from, to, contents);
+    return Message(id, from, to, contents, timestamp);
   }
 }

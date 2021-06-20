@@ -30,6 +30,7 @@ class _ChatPageState extends State<ChatPage> {
     _messageService.listenForNewMessages((newMessage) {
       setState(() {
         _messages.addAll(newMessage);
+        _messages.sort((a, b) => a.timestamp - b.timestamp);
         _scrollController.animateTo(
           0.0,
           duration: const Duration(milliseconds: 300),

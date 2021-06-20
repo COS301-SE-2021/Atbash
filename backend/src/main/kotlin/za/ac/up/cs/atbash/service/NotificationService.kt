@@ -38,6 +38,7 @@ class NotificationService {
             val request = HttpRequest.newBuilder()
                 .uri(URI.create("https://fcm.googleapis.com/fcm/send"))
                 .header("Authorization", "Bearer $fcmServerKey")
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build()
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())

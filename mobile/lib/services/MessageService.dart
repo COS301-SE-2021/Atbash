@@ -26,6 +26,11 @@ class MessageService {
     _notifyNewMessageListeners([m]);
   }
 
+  void deleteMessage(Message m) {
+    _messages.remove(m);
+    db.deleteMessage(m.id);
+  }
+
   void listenForNewMessages(void Function(List<Message>) cb) {
     _newMessageListeners.add(cb);
   }

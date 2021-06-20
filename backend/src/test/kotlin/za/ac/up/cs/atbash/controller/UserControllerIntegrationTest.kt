@@ -119,5 +119,13 @@ class UserControllerIntegrationTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
 
+    @Test
+    @DisplayName("When user requesting to login does exist, response status should be OK")
+    fun loginWhenServiceSuccessful(){
+        val response = userController.login(LoginRequestJson(registeredUser.number, "password1"))
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
 
 }

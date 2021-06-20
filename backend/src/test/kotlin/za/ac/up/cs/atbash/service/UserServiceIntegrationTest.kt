@@ -68,4 +68,12 @@ class UserServiceIntegrationTest {
         Assertions.assertNull(jwtToken)
     }
 
+    @Test
+    @DisplayName("When User exists but password is wrong, verifyLogin should return null")
+    fun verifyLoginReturnsNullIfPasswordDoesNotMatch() {
+        val jwtToken = userService.verifyLogin(registeredUser.number, "WrongPassword")
+
+        Assertions.assertNull(jwtToken)
+    }
+
 }

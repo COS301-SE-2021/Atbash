@@ -21,7 +21,8 @@ class DatabaseAccess {
             id text primary key,
             number_from text not null,
             number_to text not null,
-            contents text not null
+            contents text not null,
+            timestamp int not null
           );   
           """,
         );
@@ -54,7 +55,8 @@ class DatabaseAccess {
   Message saveMessage(String from, String to, String contents) {
     Uuid uuid = new Uuid();
     String randomID = uuid.v4();
-    Message message = new Message(randomID, from, to, contents);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    Message message = new Message(randomID, from, to, contents, timestamp);
     _database.then((db) {
       db.insert("message", message.toMap());
     });

@@ -19,12 +19,6 @@ void main() {
 
     //Verify both textfields exist
     expect(find.byType(TextField), findsNWidgets(2));
-
-    //Verify clicking on REGISTER button results in page navigation
-    await tester.tap(find.text('REGISTER'));
-    await tester.pumpAndSettle();
-    expect(find.text('REGISTER'), findsOneWidget);
-    expect(find.text('LOGIN'), findsNothing);
   });
 
   testWidgets('Check for correct widget functionality on Login Page', (WidgetTester tester) async {

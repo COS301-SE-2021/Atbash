@@ -26,7 +26,6 @@ class AtbashApp extends StatelessWidget {
           FirebaseMessaging.instance.getToken().then((value) => print(value));
 
           return MaterialApp(
-            key: Key('K'),
             title: "Atbash",
             theme: ThemeData(primarySwatch: Colors.orange),
             home: LoginPage(),

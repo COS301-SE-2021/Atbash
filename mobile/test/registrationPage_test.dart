@@ -13,24 +13,25 @@ import 'firebaseMock.dart';
 
 class MockUserService extends Mock implements UserService {
   @override
-  Future<bool> register(
-      String number, String deviceToken, String password){
+  Future<bool> register(String number, String deviceToken, String password) {
     return Future.delayed(
       Duration(milliseconds: 50),
-          () => true,
+      () => true,
     );
   }
 }
-class MockFirebaseMessaging extends Mock implements FirebaseMessaging {
 
+class MockFirebaseMessaging extends Mock implements FirebaseMessaging {
   @override
-  Future<String?> getToken({String? vapidKey}){
+  Future<String?> getToken({String? vapidKey}) {
     return Future.delayed(
       Duration(milliseconds: 50),
-          () => "12345",
+      () => "12345",
     );
   }
 }
+
+class MockNavigatorObserver extends Mock implements NavigatorObserver {}
 
 void main() {
   // TestWidgetsFlutterBinding.ensureInitialized(); Gets called in setupFirebaseAuthMocks()
@@ -43,7 +44,8 @@ void main() {
   //setUp((){}); Called before every test
   //tearDown((){}); Called after every test
 
-  testWidgets('Check for existence of correct widgets on Registration Page', (WidgetTester tester) async {
+  testWidgets('Check for existence of correct widgets on Registration Page',
+      (WidgetTester tester) async {
     // Build a MaterialApp with the LoginPage.
     await tester.pumpWidget(MaterialApp(home: RegistrationPage()));
 
@@ -55,9 +57,17 @@ void main() {
   });
 
   //need to mock User Service https://pub.dev/packages/mockito
-  testWidgets('Check for correct widget functionality on Registration Page', (WidgetTester tester) async {
+  testWidgets('Check for correct widget functionality on Registration Page',
+      (WidgetTester tester) async {
     // Build a MaterialApp with the LoginPage.
     await tester.pumpWidget(MaterialApp(home: RegistrationPage()));
+
+    // Build a MaterialApp with the LoginPage.
+    final mockObserver = MockNavigatorObserver();
+    await tester.pumpWidget(MaterialApp(
+      home: RegistrationPage(),
+      navigatorObservers: [mockObserver],
+    ));
 
     //Verify clicking on REGISTER button results in page navigation
     expect(find.text('LOGIN'), findsNothing);
@@ -68,6 +78,8 @@ void main() {
     await tester.tap(find.text('REGISTER'));
     await tester.pumpAndSettle();
     expect(find.text('REGISTER'), findsOneWidget);
-    expect(find.text('LOGIN'), findsOneWidget);
+    //expect(find.text('LOGIN'), findsOneWidget);
+    /// Verify that a push event happened
+    verify(mockObserver.didPop(any, any));
   });
 }

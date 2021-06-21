@@ -1,17 +1,8 @@
-import 'dart:collection';
-
-import 'Contact.dart';
-
 class User {
   final String phoneNumber;
   String displayName;
   String status;
+  String imageData;
 
-  List<Contact> _contacts = [];
-
-  User(this.phoneNumber, this.displayName, this.status);
-
-  UnmodifiableListView<Contact> get contacts => UnmodifiableListView(_contacts);
-
-  addContact(Contact contact) => _contacts.add(contact);
+  User(this.phoneNumber, this.displayName, this.status, this.imageData);
 }

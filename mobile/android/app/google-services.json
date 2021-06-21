@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "953759627144",
+    "project_id": "atbash-f0b75",
+    "storage_bucket": "atbash-f0b75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953759627144:android:2359b92c6b348e55172c3d",
+        "android_client_info": {
+          "package_name": "za.bitbybit.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "953759627144-rqmnkk7vki5f6opavjpmq13hpcto55gh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3-EcgmHkivjswuILOmOXoOGUkO70HSFg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "953759627144-rqmnkk7vki5f6opavjpmq13hpcto55gh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/User.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/UserService.dart';
@@ -39,7 +40,7 @@ void main() {
   GetIt.I.registerSingleton<UserService>(mockUserService);
 
   //Mock functions
-  when(mockUserService.register(any, any, any))
+  when(mockUserService.login(any, any))
       .thenAnswer((_) => Future<bool>.value(true));
 
   //Test Initializations
@@ -55,23 +56,24 @@ void main() {
           home: LoginPage(),
           navigatorObservers: [mockObserver],
         ));
+        mockUserService.setLoggedInUser(User("number", "name", "status", ""));
         await tester.tap(find.text('LOGIN'));
         await tester.pumpAndSettle();
 
         /// Verify that a push event happened
         verify(mockObserver.didPush(any, any));
 
-        //Verify clicking on REGISTER button results in page navigation
-        expect(find.text('LOGIN'), findsNothing);
-        await tester.enterText(find.byType(TextField).at(0), 'name');
-        await tester.enterText(find.byType(TextField).at(1), 'name');
-        await tester.enterText(find.byType(TextField).at(2), 'name');
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('REGISTER'));
-        await tester.pumpAndSettle();
-        expect(find.text('REGISTER'), findsOneWidget);
-
-        /// Verify that a pop event happened
-        verify(mockObserver.didPop(any, any));
+        // //Verify clicking on REGISTER button results in page navigation
+        // expect(find.text('LOGIN'), findsNothing);
+        // await tester.enterText(find.byType(TextField).at(0), 'name');
+        // await tester.enterText(find.byType(TextField).at(1), 'name');
+        // await tester.enterText(find.byType(TextField).at(2), 'name');
+        // await tester.pumpAndSettle();
+        // await tester.tap(find.text('REGISTER'));
+        // await tester.pumpAndSettle();
+        // expect(find.text('REGISTER'), findsOneWidget);
+        //
+        // /// Verify that a pop event happened
+        // verify(mockObserver.didPop(any, any));
       });
 }

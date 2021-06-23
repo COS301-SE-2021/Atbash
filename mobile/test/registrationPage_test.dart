@@ -1,47 +1,52 @@
 import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/UserService.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'firebaseMock.dart';
+import 'firebaseMessagingMock.dart';
+import 'package:firebase_messaging_platform_interface/firebase_messaging_platform_interface.dart';
 
 class MockUserService extends Mock implements UserService {
   @override
-  Future<bool> register(String number, String deviceToken, String password) {
-    return Future.delayed(
-      Duration(milliseconds: 50),
-      () => true,
-    );
-  }
+  Future<bool> register(
+          String? number, String? deviceToken, String? password) =>
+      super.noSuchMethod(
+          Invocation.method(#register, [number, deviceToken, password]),
+          returnValue: Future<bool>.value(true));
 }
 
-class MockFirebaseMessaging extends Mock implements FirebaseMessaging {
+class MockNavigatorObserver extends Mock implements NavigatorObserver {
   @override
-  Future<String?> getToken({String? vapidKey}) {
-    return Future.delayed(
-      Duration(milliseconds: 50),
-      () => "12345",
-    );
-  }
+  void didPop(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
+      super.noSuchMethod(
+          Invocation.method(#didPop, [route, previousRoute]));
+
+  @override
+  void didPush(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
+      super.noSuchMethod(
+          Invocation.method(#didPop, [route, previousRoute]));
 }
 
-class MockNavigatorObserver extends Mock implements NavigatorObserver { }
 
 void main() {
-  // TestWidgetsFlutterBinding.ensureInitialized(); Gets called in setupFirebaseAuthMocks()
-  setupFirebaseAuthMocks(); //https://stackoverflow.com/questions/63662031/how-to-mock-the-firebaseapp-in-flutter
-  Firebase.initializeApp();
+  setupFirebaseMessagingMocks();
   final MockUserService mockUserService = MockUserService();
-  final MockFirebaseMessaging mockFirebaseMessaging = MockFirebaseMessaging();
+  //final MockFirebaseMessaging mockFirebaseMessaging = MockFirebaseMessaging();
 
-  GetIt.I.registerSingleton<UserService>(MockUserService());
+  GetIt.I.registerSingleton<UserService>(mockUserService);
+  when(kMockMessagingPlatform.getToken())
+      .thenAnswer((_) => Future<String>.value("12345"));
+  when(mockUserService.register(any, any, any))
+      .thenAnswer((_) => Future<bool>.value(true));
+  setUpAll(() async {
+    await Firebase.initializeApp();
+    FirebaseMessagingPlatform.instance = kMockMessagingPlatform;
+  });
   //setUp((){}); Called before every test
   //tearDown((){}); Called after every test
 
@@ -57,20 +62,21 @@ void main() {
     expect(find.byType(TextField), findsNWidgets(3));
   });
 
-  //Have given up for the time being
-  //need to that pop event happened
   testWidgets('Check for correct widget functionality on Registration Page',
       (WidgetTester tester) async {
-    // Build a MaterialApp with the LoginPage.
-    await tester.pumpWidget(MaterialApp(home: RegistrationPage()));
-
-    // Build a MaterialApp with the LoginPage.
-    // final mockObserver = MockNavigatorObserver();
-    NavigatorObserver mockObserver = MockNavigatorObserver();
+    //Build a MaterialApp with the LoginPage.
+    final mockObserver = MockNavigatorObserver();
+    //NavigatorObserver mockObserver = MockNavigatorObserver();
     await tester.pumpWidget(MaterialApp(
-      home: RegistrationPage(),
+      // home: RegistrationPage(),
+      home: LoginPage(),
       navigatorObservers: [mockObserver],
     ));
+    await tester.tap(find.text('REGISTER'));
+    await tester.pumpAndSettle();
+
+    /// Verify that a push event happened
+    verify(mockObserver.didPush(any, any));
 
     //Verify clicking on REGISTER button results in page navigation
     expect(find.text('LOGIN'), findsNothing);
@@ -81,13 +87,8 @@ void main() {
     await tester.tap(find.text('REGISTER'));
     await tester.pumpAndSettle();
     expect(find.text('REGISTER'), findsOneWidget);
-    //expect(find.text('LOGIN'), findsOneWidget);
+
     /// Verify that a pop event happened
-    //verify(mockObserver.didPop(argThat(isNotNull)!, argThat(isNotNull)));
-    // verify(Navigator.pop(argThat(isNotNull)));
-    // verify(Navigator.pop(BuildContext)).called(1);
-    // when(Navigator.pop(argThat(isNotNull), hungry: anyNamed('hungry'))).thenReturn(true);
-    //when(Navigator.pop(argThat(isA<BuildContext>()))).thenReturn(true);
-    //verify(mockObserver.didPop(any, any));
+    verify(mockObserver.didPop(any, any));
   });
 }

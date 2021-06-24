@@ -29,7 +29,7 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {
   @override
   void didPush(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
-          Invocation.method(#didPop, [route, previousRoute]));
+          Invocation.method(#didPush, [route, previousRoute]));
 }
 
 

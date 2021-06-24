@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:mobile/services/MessageService.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -14,12 +12,9 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/User.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/MainPage.dart';
-import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/DatabaseAccess.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mockito/mockito.dart';
-import 'firebaseMessagingMock.dart';
-import 'package:firebase_messaging_platform_interface/firebase_messaging_platform_interface.dart';
 
 class MockUserService extends Mock implements UserService {
   @override
@@ -236,9 +231,5 @@ void main() {
 
     /// Verify that a push event happened
     verify(mockObserver.didPush(any, any));
-
-    // //Navigate back
-    // await tester.pageBack();
-    // await tester.pumpAndSettle();
   });
 }

@@ -22,8 +22,15 @@ class _SettingsPageState extends State<SettingsPage> {
   _SettingsPageState() {
     _displayNameController.text = _userService.getUser()?.displayName ?? "";
     _statusController.text = _userService.getUser()?.status ?? "";
-    _selectedProfileImage =
-        base64Decode(_userService.getUser()?.imageData ?? "");
+    try {
+      _selectedProfileImage =
+          base64Decode(_userService
+              .getUser()
+              ?.imageData ?? "");
+    }
+    on Exception{
+      _selectedProfileImage = null;
+    }
   }
 
   @override
@@ -49,7 +56,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(children: <Widget>[
               CircleAvatar(
                 radius: 80,
-                child: _selectedProfileImage == null ? Text("Picture") : null,
+                child: (_selectedProfileImage == null || _selectedProfileImage!.isEmpty) ? Text("Picture") : null,
                 backgroundImage: _buildAvatarImage(),
               ),
               const SizedBox(height: 10.0),
@@ -143,7 +150,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   MemoryImage? _buildAvatarImage() {
     final image = _selectedProfileImage;
-    return image != null ? MemoryImage(image) : null;
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
   }
 
   Future _loadPicker(ImageSource source) async {

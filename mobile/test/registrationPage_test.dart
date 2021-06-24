@@ -29,7 +29,7 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {
   @override
   void didPush(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
       super.noSuchMethod(
-          Invocation.method(#didPop, [route, previousRoute]));
+          Invocation.method(#didPush, [route, previousRoute]));
 }
 
 
@@ -40,9 +40,9 @@ void main() {
 
   GetIt.I.registerSingleton<UserService>(mockUserService);
   when(kMockMessagingPlatform.getToken())
-      .thenAnswer((_) => Future<String>.value("12345"));
+      .thenAnswer((_) async => Future<String>.value("12345"));
   when(mockUserService.register(any, any, any))
-      .thenAnswer((_) => Future<bool>.value(true));
+      .thenAnswer((_) async => Future<bool>.value(true));
   setUpAll(() async {
     await Firebase.initializeApp();
     FirebaseMessagingPlatform.instance = kMockMessagingPlatform;

@@ -2,15 +2,20 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:mobile/services/MessageService.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/User.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
+import 'package:mobile/services/DatabaseAccess.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mockito/mockito.dart';
 import 'firebaseMessagingMock.dart';
@@ -30,6 +35,36 @@ class MockUserService extends Mock implements UserService {
             Contact("123", "name1", true),
             Contact("1234", "name2", true)
           ])));
+
+  @override
+  Future<UnmodifiableListView<Contact>> getContacts() =>
+      super.noSuchMethod(Invocation.method(#getContacts, null),
+          returnValue: Future<UnmodifiableListView<Contact>>.value(
+              UnmodifiableListView([])));
+}
+
+class MockMessageService extends Mock implements MessageService {
+  @override
+  Future<List<Message>> fetchUnreadMessages(String? phoneNumber) =>
+      super.noSuchMethod(Invocation.method(#fetchUnreadMessages, [phoneNumber]),
+          returnValue: Future<List<Message>>.value([
+          ]));
+}
+
+class MockDatabaseAccess extends Mock implements DatabaseAccess {
+  @override
+  Future<List<Message>> getChatWithContact(String? phoneNumber) =>
+      super.noSuchMethod(Invocation.method(#getChatWithContact, [phoneNumber]),
+          returnValue: Future<List<Message>>.value([
+            Message((new Uuid()).v4(), "1234", "5678", "Message1_Content",
+                DateTime.now().millisecondsSinceEpoch - 6000),
+            Message((new Uuid()).v4(), "5678", "1234", "Message2_Content",
+                DateTime.now().millisecondsSinceEpoch - 5000),
+            Message((new Uuid()).v4(), "1234", "5678", "Message3_Content",
+                DateTime.now().millisecondsSinceEpoch - 4000),
+            Message((new Uuid()).v4(), "5678", "1234", "Message4_Content",
+                DateTime.now().millisecondsSinceEpoch - 2000),
+          ]));
 }
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {
@@ -45,17 +80,54 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {
 void main() {
   final MockUserService mockUserService = MockUserService();
   GetIt.I.registerSingleton<UserService>(mockUserService);
+  final MockDatabaseAccess mockDatabaseAccess = MockDatabaseAccess();
+  GetIt.I.registerSingleton<DatabaseAccess>(mockDatabaseAccess);
+  final MockMessageService mockMessageService = MockMessageService();
+
+  final loggedInUserContact = User("5678", "name", "status", "");
 
   //Mock functions
   when(mockUserService.login(any, any))
-      .thenAnswer((_) => Future<bool>.value(true));
+      .thenAnswer((_) async => Future<bool>.value(true));
   final List<Contact> cList = [
     Contact("123", "name1", true),
     Contact("1234", "name2", true)
   ];
-  final UnmodifiableListView<Contact> uList = UnmodifiableListView(cList);
-  when(mockUserService.getContactsWithChats())
-      .thenAnswer((_) => Future<UnmodifiableListView<Contact>>.value(uList));
+  //final UnmodifiableListView<Contact> uList = UnmodifiableListView(cList);
+  when(mockUserService.getContactsWithChats()).thenAnswer(
+      (_) async => Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
+  when(mockUserService.getContacts()).thenAnswer(
+          (_) async => Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
+  when(mockDatabaseAccess.getChatWithContact(any))
+      .thenAnswer((_) async => Future<List<Message>>.value([
+            Message(
+                (new Uuid()).v4(),
+                cList[0].phoneNumber,
+                loggedInUserContact.phoneNumber,
+                "Message1_Content",
+                DateTime.now().millisecondsSinceEpoch - 6000),
+            Message(
+                (new Uuid()).v4(),
+                loggedInUserContact.phoneNumber,
+                cList[0].phoneNumber,
+                "Message2_Content",
+                DateTime.now().millisecondsSinceEpoch - 5000),
+            Message(
+                (new Uuid()).v4(),
+                cList[0].phoneNumber,
+                loggedInUserContact.phoneNumber,
+                "Message3_Content",
+                DateTime.now().millisecondsSinceEpoch - 4000),
+            Message(
+                (new Uuid()).v4(),
+                loggedInUserContact.phoneNumber,
+                cList[0].phoneNumber,
+                "Message4_Content",
+                DateTime.now().millisecondsSinceEpoch - 2000),
+          ]));
+
+  when(mockMessageService.fetchUnreadMessages(any))
+      .thenAnswer((_) async => Future<List<Message>>.value([]));
 
   //Test Initializations
   //setUp((){}); Called before every test
@@ -70,7 +142,7 @@ void main() {
       home: LoginPage(),
       navigatorObservers: [mockObserver],
     ));
-    mockUserService.setLoggedInUser(User("number", "name", "status", ""));
+    mockUserService.setLoggedInUser(loggedInUserContact);
     await tester.tap(find.text('LOGIN'));
     await tester.pumpAndSettle();
 
@@ -94,8 +166,7 @@ void main() {
     verify(mockObserver.didPush(any, any));
   });
 
-  testWidgets(
-      'Check for correct widget functionality for main screen display',
+  testWidgets('Check for correct widget functionality for main screen display',
       (WidgetTester tester) async {
     //Build a MaterialApp with the LoginPage.
     final mockObserver = MockNavigatorObserver();
@@ -103,8 +174,7 @@ void main() {
       home: LoginPage(),
       navigatorObservers: [mockObserver],
     ));
-    final contact = User("number", "test_name", "status", "");
-    mockUserService.setLoggedInUser(contact);
+    mockUserService.setLoggedInUser(loggedInUserContact);
     await tester.tap(find.text('LOGIN'));
     await tester.pumpAndSettle();
 
@@ -112,7 +182,7 @@ void main() {
     verify(mockObserver.didPush(any, any));
 
     //Verify display name
-    expect(find.text(contact.displayName), findsOneWidget);
+    expect(find.text(loggedInUserContact.displayName), findsOneWidget);
 
     //Verify chats
     expect(find.text(cList[0].displayName), findsOneWidget);
@@ -121,33 +191,54 @@ void main() {
 
   testWidgets(
       'Check for correct widget functionality for main screen navigation to other screens',
-          (WidgetTester tester) async {
-        //Build a MaterialApp with the LoginPage.
-        final mockObserver = MockNavigatorObserver();
-        await tester.pumpWidget(MaterialApp(
-          home: MainPage(),
-          navigatorObservers: [mockObserver],
-        ));
-        final contact = User("number", "test_name", "status", "");
-        mockUserService.setLoggedInUser(contact);
+      (WidgetTester tester) async {
+    //Build a MaterialApp with the LoginPage.
+    final mockObserver = MockNavigatorObserver();
+    await tester.pumpWidget(MaterialApp(
+      home: MainPage(),
+      navigatorObservers: [mockObserver],
+    ));
+    mockUserService.setLoggedInUser(loggedInUserContact);
 
-        //Click menu button and verify settings button is now visible
-        await tester.tap(find.byIcon(Icons.more_vert));
-        await tester.pumpAndSettle();
-        expect(find.text('Settings'), findsOneWidget);
+    //Click menu button and verify settings button is now visible
+    await tester.tap(find.byIcon(Icons.more_vert));
+    await tester.pumpAndSettle();
+    expect(find.text('Settings'), findsOneWidget);
 
-        //Navigate to settings
-        await tester.tap(find.text('Settings'));
-        await tester.pumpAndSettle();
+    //Navigate to settings
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
 
-        /// Verify that a push event happened
-        verify(mockObserver.didPush(any, any));
+    /// Verify that a push event happened
+    verify(mockObserver.didPush(any, any));
 
-        //Navigate back
-        // await tester.pageBack();
-        //
-        // //Verify chats
-        // expect(find.text(cList[0].displayName), findsOneWidget);
-        // expect(find.text(cList[1].displayName), findsOneWidget);
-      });
+    //Navigate back
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    //Verify chat
+    expect(find.text(cList[0].displayName), findsOneWidget);
+
+    //Navigate to chat
+    await tester.tap(find.text(cList[0].displayName));
+    await tester.pumpAndSettle();
+
+    /// Verify that a push event happened
+    verify(mockObserver.didPush(any, any));
+
+    //Navigate back
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    //Navigate to new chat
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    /// Verify that a push event happened
+    verify(mockObserver.didPush(any, any));
+
+    // //Navigate back
+    // await tester.pageBack();
+    // await tester.pumpAndSettle();
+  });
 }

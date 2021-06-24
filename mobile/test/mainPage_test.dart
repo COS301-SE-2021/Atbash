@@ -93,6 +93,8 @@ void main() {
       (_) async => Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
   when(mockUserService.getContacts()).thenAnswer(
           (_) async => Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
+  when(mockUserService.getUser()).thenAnswer(
+          (_) => loggedInUserContact);
   when(mockDatabaseAccess.getChatWithContact(any))
       .thenAnswer((_) async => Future<List<Message>>.value([
             Message(

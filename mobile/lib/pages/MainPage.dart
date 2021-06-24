@@ -31,6 +31,7 @@ class _MainPageState extends State<MainPage> {
     _userService.onChangeUserInfo((user) {
       setState(() {
         _displayName = user.displayName;
+        print("Changing Info");
       });
     });
 

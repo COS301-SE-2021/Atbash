@@ -17,10 +17,10 @@ class UserService {
   List<void Function(User)> _userInfoListeners = [];
   List<void Function(UnmodifiableListView<Contact>)> _chatsListeners = [];
 
-  @visibleForTesting
-  void setLoggedInUser(User user){
-    _loggedInUser = user;
-  }
+  // @visibleForTesting
+  // void setLoggedInUser(User user){
+  //   _loggedInUser = user;
+  // }
 
   Future<bool> login(String number, String password) async {
     final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");

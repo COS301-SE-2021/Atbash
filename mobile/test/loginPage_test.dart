@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:mobile/pages/LoginPage.dart';
 
 void main() {
@@ -9,9 +10,6 @@ void main() {
   testWidgets('Check for existence of correct widgets on Login Page', (WidgetTester tester) async {
     // Build a MaterialApp with the LoginPage.
     await tester.pumpWidget(MaterialApp(home: LoginPage()));
-
-    // Verify that our counter starts at 0.
-    expect(find.text('garbageValue'), findsNothing);
 
     //Verify login and register buttons exist
     expect(find.text('LOGIN'), findsOneWidget);

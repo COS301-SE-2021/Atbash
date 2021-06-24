@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/User.dart';
 import 'package:mobile/pages/LoginPage.dart';
+import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mockito/mockito.dart';
@@ -21,14 +22,14 @@ class MockUserService extends Mock implements UserService {
       super.noSuchMethod(Invocation.method(#login, [number, password]),
           returnValue: Future<bool>.value(true));
 
-@override
-Future<UnmodifiableListView<Contact>> getContactsWithChats() =>
-    super.noSuchMethod(Invocation.method(#getContactsWithChats, null),
-        returnValue: Future<UnmodifiableListView<Contact>>.value(
-            UnmodifiableListView([
-          Contact("123", "name1", true),
-          Contact("1234", "name2", true)
-        ])));
+  @override
+  Future<UnmodifiableListView<Contact>> getContactsWithChats() =>
+      super.noSuchMethod(Invocation.method(#getContactsWithChats, null),
+          returnValue: Future<UnmodifiableListView<Contact>>.value(
+              UnmodifiableListView([
+            Contact("123", "name1", true),
+            Contact("1234", "name2", true)
+          ])));
 }
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {
@@ -53,20 +54,19 @@ void main() {
     Contact("1234", "name2", true)
   ];
   final UnmodifiableListView<Contact> uList = UnmodifiableListView(cList);
-  when(mockUserService.getContactsWithChats()).thenAnswer((_) =>
-      Future<UnmodifiableListView<Contact>>.value(uList));
+  when(mockUserService.getContactsWithChats())
+      .thenAnswer((_) => Future<UnmodifiableListView<Contact>>.value(uList));
 
   //Test Initializations
   //setUp((){}); Called before every test
   //tearDown((){}); Called after every test
 
   testWidgets(
-      'Check for correct widget functionality for Logining in and Loging out',
+      'Check for correct widget functionality for Logging in and Logging out',
       (WidgetTester tester) async {
     //Build a MaterialApp with the LoginPage.
     final mockObserver = MockNavigatorObserver();
     await tester.pumpWidget(MaterialApp(
-      // home: RegistrationPage(),
       home: LoginPage(),
       navigatorObservers: [mockObserver],
     ));
@@ -78,14 +78,12 @@ void main() {
     verify(mockObserver.didPush(any, any));
 
     //Verify menu button exist and menu buttons aren't visible
-    //expect(find.byType(PopupMenuButton), findsOneWidget);
-    print((find.byKey(ValueKey("2")).first.toString()));
-    expect(find.byKey(ValueKey("2")), findsOneWidget);
+    expect(find.byIcon(Icons.more_vert), findsOneWidget);
     expect(find.text('Logout'), findsNothing);
     expect(find.text('Settings'), findsNothing);
 
     //Click button and verify menu buttons are now visible
-    await tester.tap(find.byIcon(Icons.more_horiz));
+    await tester.tap(find.byIcon(Icons.more_vert));
     await tester.pumpAndSettle();
     expect(find.text('Logout'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);
@@ -94,18 +92,62 @@ void main() {
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
     verify(mockObserver.didPush(any, any));
-
-    // //Verify clicking on REGISTER button results in page navigation
-    // expect(find.text('LOGIN'), findsNothing);
-    // await tester.enterText(find.byType(TextField).at(0), 'name');
-    // await tester.enterText(find.byType(TextField).at(1), 'name');
-    // await tester.enterText(find.byType(TextField).at(2), 'name');
-    // await tester.pumpAndSettle();
-    // await tester.tap(find.text('REGISTER'));
-    // await tester.pumpAndSettle();
-    // expect(find.text('REGISTER'), findsOneWidget);
-    //
-    // /// Verify that a pop event happened
-    // verify(mockObserver.didPop(any, any));
   });
+
+  testWidgets(
+      'Check for correct widget functionality for main screen display',
+      (WidgetTester tester) async {
+    //Build a MaterialApp with the LoginPage.
+    final mockObserver = MockNavigatorObserver();
+    await tester.pumpWidget(MaterialApp(
+      home: LoginPage(),
+      navigatorObservers: [mockObserver],
+    ));
+    final contact = User("number", "test_name", "status", "");
+    mockUserService.setLoggedInUser(contact);
+    await tester.tap(find.text('LOGIN'));
+    await tester.pumpAndSettle();
+
+    /// Verify that a push event happened
+    verify(mockObserver.didPush(any, any));
+
+    //Verify display name
+    expect(find.text(contact.displayName), findsOneWidget);
+
+    //Verify chats
+    expect(find.text(cList[0].displayName), findsOneWidget);
+    expect(find.text(cList[1].displayName), findsOneWidget);
+  });
+
+  testWidgets(
+      'Check for correct widget functionality for main screen navigation to other screens',
+          (WidgetTester tester) async {
+        //Build a MaterialApp with the LoginPage.
+        final mockObserver = MockNavigatorObserver();
+        await tester.pumpWidget(MaterialApp(
+          home: MainPage(),
+          navigatorObservers: [mockObserver],
+        ));
+        final contact = User("number", "test_name", "status", "");
+        mockUserService.setLoggedInUser(contact);
+
+        //Click menu button and verify settings button is now visible
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pumpAndSettle();
+        expect(find.text('Settings'), findsOneWidget);
+
+        //Navigate to settings
+        await tester.tap(find.text('Settings'));
+        await tester.pumpAndSettle();
+
+        /// Verify that a push event happened
+        verify(mockObserver.didPush(any, any));
+
+        //Navigate back
+        tester.pageBack();
+
+        //Verify chats
+        expect(find.text(cList[0].displayName), findsOneWidget);
+        expect(find.text(cList[1].displayName), findsOneWidget);
+      });
 }

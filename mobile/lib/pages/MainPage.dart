@@ -56,6 +56,7 @@ class _MainPageState extends State<MainPage> {
       actions: [
         IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         PopupMenuButton(
+          icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
             return ["Settings", "Logout"].map((menuItem) {
               return PopupMenuItem(

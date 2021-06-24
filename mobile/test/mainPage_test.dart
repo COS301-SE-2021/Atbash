@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +21,14 @@ class MockUserService extends Mock implements UserService {
       super.noSuchMethod(Invocation.method(#login, [number, password]),
           returnValue: Future<bool>.value(true));
 
-  @override
-  Future<UnmodifiableListView<Contact>> getContactsWithChats() =>
-      super.noSuchMethod(Invocation.method(#login, []),
-          returnValue: Future<UnmodifiableListView<Contact>>.value(
-              UnmodifiableListView([
-            Contact("123", "name1", true),
-            Contact("1234", "name2", true)
-          ])));
+@override
+Future<UnmodifiableListView<Contact>> getContactsWithChats() =>
+    super.noSuchMethod(Invocation.method(#getContactsWithChats, null),
+        returnValue: Future<UnmodifiableListView<Contact>>.value(
+            UnmodifiableListView([
+          Contact("123", "name1", true),
+          Contact("1234", "name2", true)
+        ])));
 }
 
 class MockNavigatorObserver extends Mock implements NavigatorObserver {
@@ -47,6 +48,13 @@ void main() {
   //Mock functions
   when(mockUserService.login(any, any))
       .thenAnswer((_) => Future<bool>.value(true));
+  final List<Contact> cList = [
+    Contact("123", "name1", true),
+    Contact("1234", "name2", true)
+  ];
+  final UnmodifiableListView<Contact> uList = UnmodifiableListView(cList);
+  when(mockUserService.getContactsWithChats()).thenAnswer((_) =>
+      Future<UnmodifiableListView<Contact>>.value(uList));
 
   //Test Initializations
   //setUp((){}); Called before every test
@@ -70,12 +78,14 @@ void main() {
     verify(mockObserver.didPush(any, any));
 
     //Verify menu button exist and menu buttons aren't visible
-    expect(find.byType(PopupMenuButton), findsOneWidget);
+    //expect(find.byType(PopupMenuButton), findsOneWidget);
+    print((find.byKey(ValueKey("2")).first.toString()));
+    expect(find.byKey(ValueKey("2")), findsOneWidget);
     expect(find.text('Logout'), findsNothing);
     expect(find.text('Settings'), findsNothing);
 
     //Click button and verify menu buttons are now visible
-    await tester.tap(find.byType(PopupMenuButton));
+    await tester.tap(find.byIcon(Icons.more_horiz));
     await tester.pumpAndSettle();
     expect(find.text('Logout'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);

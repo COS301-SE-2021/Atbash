@@ -50,7 +50,7 @@ class UserServiceIntegrationTest {
     @DisplayName("When user is already registered, registerUser should return false")
     fun registerUserReturnsFalseIfUserAlreadyExists() {
         val success =
-            userService.registerUser(registeredUser.number, registeredUser.password, registeredUser.deviceToken)
+            userService.registerUser(registeredUser.phoneNumber, registeredUser.password, registeredUser.deviceToken)
 
         Assertions.assertFalse(success)
     }
@@ -59,7 +59,7 @@ class UserServiceIntegrationTest {
     @DisplayName("When user is not registered, registerUser should return true")
     fun registerUserReturnsTrueIfUserDoesNotAlreadyExist() {
         val success = userService.registerUser(
-            nonRegisteredUser.number,
+            nonRegisteredUser.phoneNumber,
             nonRegisteredUser.password,
             nonRegisteredUser.deviceToken
         )
@@ -72,7 +72,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("When User with some number does not exist, verifyLogin should return null")
     fun verifyLoginReturnsNullIfUserDoesNotExist() {
-        val jwtToken = userService.verifyLogin(nonRegisteredUser.number, nonRegisteredUser.password)
+        val jwtToken = userService.verifyLogin(nonRegisteredUser.phoneNumber, nonRegisteredUser.password)
 
         Assertions.assertNull(jwtToken)
     }
@@ -80,7 +80,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("When User exists but password is wrong, verifyLogin should return null")
     fun verifyLoginReturnsNullIfPasswordDoesNotMatch() {
-        val jwtToken = userService.verifyLogin(registeredUser.number, "WrongPassword")
+        val jwtToken = userService.verifyLogin(registeredUser.phoneNumber, "WrongPassword")
 
         Assertions.assertNull(jwtToken)
     }
@@ -88,7 +88,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("When User exists but password is correct, verifyLogin should return jwtToken")
     fun verifyLoginReturnsJwtTokenIfPasswordDoesMatch() {
-        val jwtToken = userService.verifyLogin(registeredUser.number, "password1")
+        val jwtToken = userService.verifyLogin(registeredUser.phoneNumber, "password1")
 
         Assertions.assertNotNull(jwtToken)
     }
@@ -96,7 +96,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("When User with some number exists, getUserByNumber should return it if the number matches")
     fun getUserByNumberReturnsMatch() {
-        val user = userService.getUserByNumber(registeredUser.number)
+        val user = userService.getUserByNumber(registeredUser.phoneNumber)
 
         Assertions.assertNotNull(user)
     }
@@ -104,7 +104,7 @@ class UserServiceIntegrationTest {
     @Test
     @DisplayName("When User with some number does not exist, getUserByNumber should return null")
     fun getUserByNumberReturnsNullIfNoMatch() {
-        val user = userService.getUserByNumber(nonRegisteredUser.number)
+        val user = userService.getUserByNumber(nonRegisteredUser.phoneNumber)
 
         Assertions.assertNull(user)
     }

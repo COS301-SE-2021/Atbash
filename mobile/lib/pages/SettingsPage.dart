@@ -127,6 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Align(
               alignment: Alignment.center,
               child: ElevatedButton(
+                key: Key("ElevatedButton"), //Need to remove
                 onPressed: () {
                   final displayName = _displayNameController.text;
                   final status = _statusController.text;

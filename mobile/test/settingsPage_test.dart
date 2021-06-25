@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
+//import 'package:flutter_driver/flutter_driver.dart' as drv;
+
 import 'mockingForPageTests.dart';
 
 import 'package:mobile/pages/MainPage.dart';
@@ -10,13 +12,32 @@ void main() {
   mockingServicesSetup();
   mockFunctionsSetup();
 
-  //Test Initializations
-  //setUp((){}); Called before every test
-  //tearDown((){}); Called after every test
+  // late drv.FlutterDriver driver;
+  //
+  // //Test Initializations
+  // // Connect to the Flutter driver before running any tests.
+  // setUpAll(() async {
+  //   driver = await drv.FlutterDriver.connect();
+  // });
+  //
+  // // Close the connection to the driver after the tests have completed.
+  // tearDownAll(() async {
+  //   await driver.close();
+  // });
+
+  // setUp( () async {
+  //   TestTextInput().register();
+  // });
+  //
+  // tearDown(() async {
+  //   TestTextInput().unregister();
+  // });
 
   testWidgets(
       'Check for correct widget functionality for main screen navigation to other screens',
       (WidgetTester tester) async {
+        tester.binding.window.physicalSizeTestValue = Size(800, 1000);
+        tester.binding.window.devicePixelRatioTestValue = 1.0;
     //Build a MaterialApp with the LoginPage.
     final mockObserver = MockNavigatorObserver();
     await tester.pumpWidget(MaterialApp(
@@ -35,6 +56,8 @@ void main() {
 
     /// Verify that a push event happened
     verify(mockObserver.didPush(any, any));
+    /// Verify that a pop event happened
+    verify(mockObserver.didPop(any, any)); // Not sure why this passes??
 
     //Check for 'Settings' title
     expect(find.text('Settings'), findsOneWidget);
@@ -42,5 +65,41 @@ void main() {
     //Check for text
     expect(find.text('Change profile picture:'), findsOneWidget);
 
+    //Find change name textfield and enter text
+    final Finder cText = find.text("Change display name", skipOffstage: false);
+    final Finder cTextA = find.ancestor(of: cText, matching: find.byType(Column));
+    final Finder textFc = find.descendant(of: cTextA, matching: find.byType(TextField));
+    expect(textFc, findsOneWidget);
+    final String newDisplayName = "new_display_name";
+    await tester.enterText(textFc, newDisplayName);
+    // await tester.pump(); //Needed??
+
+    //Find change status textfield and enter text
+    final Finder sText = find.text("Change status");
+    final Finder sTextA = find.ancestor(of: sText, matching: find.byType(Column));
+    final Finder textFs = find.descendant(of: sTextA, matching: find.byType(TextField));
+    expect(textFs, findsOneWidget);
+    final String newStatus = "new_status";
+    await tester.enterText(textFs, newStatus);
+    // await tester.pump(); //Needed??
+
+    //tester.testTextInput.hide();
+
+    //Find and tap Submit button
+    final eButton = find.descendant(of: find.ancestor(of: find.text("SUBMIT"), matching: find.byType(Align)), matching: find.byType(ElevatedButton));
+    expect(eButton, findsOneWidget);
+    await tester.tap(eButton);
+    await tester.pumpAndSettle();
+
+    /// Verify that a pop event happened
+    verify(mockObserver.didPop(any, any));
+
+    //Check for text
+    expect(find.text('Change profile picture:'), findsNothing);
+
+    //Verified correct methods were called
+    verify(mockUserService.setDisplayName(newDisplayName)).called(1);
+    verify(mockUserService.setStatus(newStatus)).called(1);
+    verify(mockUserService.setProfileImage("")).called(1);
   });
 }

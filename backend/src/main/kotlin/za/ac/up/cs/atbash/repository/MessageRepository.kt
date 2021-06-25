@@ -1,10 +1,10 @@
 package za.ac.up.cs.atbash.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.stereotype.Repository
+import org.socialsignin.spring.data.dynamodb.repository.EnableScan
+import org.springframework.data.repository.CrudRepository
 import za.ac.up.cs.atbash.domain.Message
 
-@Repository
-interface MessageRepository: JpaRepository<Message, String> {
-    fun findAllByToNumber(toNumber: String): List<Message>
+@EnableScan
+interface MessageRepository: CrudRepository<Message, String> {
+    fun findAllByPhoneNumberTo(phoneNumberTo: String): List<Message>
 }

@@ -80,7 +80,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to register already exists, response status should be INTERNAL_SERVER_ERROR")
     fun registerWhenServiceUnsuccessful(){
-        val response = userController.register(RegisterRequestJson(registeredUser.number, "password1", registeredUser.deviceToken))
+        val response = userController.register(RegisterRequestJson(registeredUser.phoneNumber, "password1", registeredUser.deviceToken))
 
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
@@ -88,7 +88,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to register does not exist, response status should be OK")
     fun registerWhenServiceSuccessful(){
-        val response = userController.register(RegisterRequestJson(nonRegisteredUser.number, "password2", nonRegisteredUser.deviceToken))
+        val response = userController.register(RegisterRequestJson(nonRegisteredUser.phoneNumber, "password2", nonRegisteredUser.deviceToken))
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }
@@ -114,7 +114,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to login does not exist, response status should be INTERNAL_SERVER_ERROR")
     fun loginWhenServiceUnsuccessful(){
-        val response = userController.login(LoginRequestJson(nonRegisteredUser.number, "password2"))
+        val response = userController.login(LoginRequestJson(nonRegisteredUser.phoneNumber, "password2"))
 
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
@@ -122,7 +122,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to login does exist, response status should be OK")
     fun loginWhenServiceSuccessful(){
-        val response = userController.login(LoginRequestJson(registeredUser.number, "password1"))
+        val response = userController.login(LoginRequestJson(registeredUser.phoneNumber, "password1"))
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }

@@ -8,8 +8,12 @@ name: Dart
 on:
   push:
     branches: [ development-frontend ]
+    paths:
+    - 'mobile/**'
   pull_request:
     branches: [ development-frontend ]
+    paths:
+    - 'mobile/**'
 
 jobs:
   build:

@@ -4,45 +4,20 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/pages/LoginPage.dart';
-import 'package:mobile/pages/RegistrationPage.dart';
-import 'package:mobile/services/UserService.dart';
 import 'package:mockito/mockito.dart';
-import 'firebaseMessagingMock.dart';
 import 'package:firebase_messaging_platform_interface/firebase_messaging_platform_interface.dart';
 
-class MockUserService extends Mock implements UserService {
-  @override
-  Future<bool> register(
-          String? number, String? deviceToken, String? password) =>
-      super.noSuchMethod(
-          Invocation.method(#register, [number, deviceToken, password]),
-          returnValue: Future<bool>.value(true));
-}
+import 'firebaseMessagingMock.dart';
+import 'mockingForPageTests.dart';
 
-class MockNavigatorObserver extends Mock implements NavigatorObserver {
-  @override
-  void didPop(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
-      super.noSuchMethod(
-          Invocation.method(#didPop, [route, previousRoute]));
-
-  @override
-  void didPush(Route<dynamic>? route, Route<dynamic>? previousRoute) =>
-      super.noSuchMethod(
-          Invocation.method(#didPush, [route, previousRoute]));
-}
-
+import 'package:mobile/pages/LoginPage.dart';
+import 'package:mobile/pages/RegistrationPage.dart';
 
 void main() {
+  mockingServicesSetup();
+  mockFunctionsSetup();
   setupFirebaseMessagingMocks();
-  final MockUserService mockUserService = MockUserService();
-  //final MockFirebaseMessaging mockFirebaseMessaging = MockFirebaseMessaging();
 
-  GetIt.I.registerSingleton<UserService>(mockUserService);
-  when(kMockMessagingPlatform.getToken())
-      .thenAnswer((_) async => Future<String>.value("12345"));
-  when(mockUserService.register(any, any, any))
-      .thenAnswer((_) async => Future<bool>.value(true));
   setUpAll(() async {
     await Firebase.initializeApp();
     FirebaseMessagingPlatform.instance = kMockMessagingPlatform;

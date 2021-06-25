@@ -12,32 +12,14 @@ void main() {
   mockingServicesSetup();
   mockFunctionsSetup();
 
-  // late drv.FlutterDriver driver;
-  //
-  // //Test Initializations
-  // // Connect to the Flutter driver before running any tests.
-  // setUpAll(() async {
-  //   driver = await drv.FlutterDriver.connect();
-  // });
-  //
-  // // Close the connection to the driver after the tests have completed.
-  // tearDownAll(() async {
-  //   await driver.close();
-  // });
-
-  // setUp( () async {
-  //   TestTextInput().register();
-  // });
-  //
-  // tearDown(() async {
-  //   TestTextInput().unregister();
-  // });
-
   testWidgets(
       'Check for correct widget functionality for main screen navigation to other screens',
       (WidgetTester tester) async {
-        tester.binding.window.physicalSizeTestValue = Size(800, 1000);
-        tester.binding.window.devicePixelRatioTestValue = 1.0;
+
+    //Changing testing screen size so all components are on screen
+    tester.binding.window.physicalSizeTestValue = Size(800, 1000);
+    tester.binding.window.devicePixelRatioTestValue = 1.0;
+
     //Build a MaterialApp with the LoginPage.
     final mockObserver = MockNavigatorObserver();
     await tester.pumpWidget(MaterialApp(

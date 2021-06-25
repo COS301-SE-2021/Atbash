@@ -1,7 +1,5 @@
 package za.ac.up.cs.atbash.service
 
-import za.ac.up.cs.atbash.domain.User
-
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -10,6 +8,7 @@ import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import za.ac.up.cs.atbash.domain.User
 
 @Service
 class NotificationService {
@@ -33,7 +32,7 @@ class NotificationService {
         try {
             val postBody = PostBody(
                 userTo.deviceToken,
-                NotificationContents("Atbash", "You have a new message from \"" + userFrom.number + "\"")
+                NotificationContents("Atbash", "You have a new message from \"" + userFrom.phoneNumber + "\"")
             )
             val requestBody: String = Json.encodeToString(postBody)
 

@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                   ),
-                  hintText: "Phone number",
+                  hintText: 'Phone number',
                 ),
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.phone,
@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.all(const Radius.circular(32.0)),
                   ),
-                  hintText: "Password",
+                  hintText: 'Password',
                 ),
                 textAlign: TextAlign.center,
                 obscureText: true,
@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
               margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
               child: ElevatedButton(
                 onPressed: () => _login(context),
-                child: Text("LOGIN"),
+                child: Text('LOGIN'),
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(
@@ -60,7 +60,7 @@ class LoginPage extends StatelessWidget {
               margin: EdgeInsets.fromLTRB(16.0, 0, 16.0, 0),
               child: ElevatedButton(
                 onPressed: () => _register(context),
-                child: Text("REGISTER"),
+                child: Text('REGISTER'),
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(
                     RoundedRectangleBorder(

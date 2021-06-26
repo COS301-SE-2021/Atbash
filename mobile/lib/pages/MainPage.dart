@@ -31,6 +31,7 @@ class _MainPageState extends State<MainPage> {
     _userService.onChangeUserInfo((user) {
       setState(() {
         _displayName = user.displayName;
+        print("Changing Info");
       });
     });
 
@@ -56,6 +57,7 @@ class _MainPageState extends State<MainPage> {
       actions: [
         IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         PopupMenuButton(
+          icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
             return ["Settings", "Logout"].map((menuItem) {
               return PopupMenuItem(

@@ -7,9 +7,13 @@ name: Dart
 
 on:
   push:
-    branches: [ development-frontend ]
+    branches: [ development ]
+    paths:
+    - 'backend/**'
   pull_request:
-    branches: [ development-frontend ]
+    branches: [ development ]
+    paths:
+    - 'backend/**'
 
 jobs:
   build:

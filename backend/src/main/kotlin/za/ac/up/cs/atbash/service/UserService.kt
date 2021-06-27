@@ -14,7 +14,7 @@ class UserService(
 ) {
 
     fun registerUser(number: String, password: String, deviceToken: String): Boolean {
-        return if (userRepository.findByNumber(number) == null) {
+        return if (userRepository.findByPhoneNumber(number) == null) {
             userRepository.save(User(number, passwordEncoder.encode(password), deviceToken))
             true
         } else {
@@ -24,10 +24,10 @@ class UserService(
     }
 
     fun verifyLogin(number: String, password: String): String? {
-        val user = userRepository.findByNumber(number)
+        val user = userRepository.findByPhoneNumber(number)
         return if (user != null) {
             if (passwordEncoder.matches(password, user.password)) {
-                val payload = """{"number": "${user.number}"}"""
+                val payload = "{\"number\": \"${user.phoneNumber}\"}"
                 jwtService.encode(payload)
             } else {
                 null
@@ -38,7 +38,7 @@ class UserService(
     }
 
     fun getUserByNumber(number: String): User? {
-        return userRepository.findByNumber(number)
+        return userRepository.findByPhoneNumber(number)
     }
 
 }

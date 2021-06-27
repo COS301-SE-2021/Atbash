@@ -23,7 +23,7 @@ class MessageService(
         val userFrom = userService.getUserByNumber(fromNumber) ?: return false
         val userTo = userService.getUserByNumber(to) ?: return false
 
-        val message = Message(userFrom, userTo, contents, Date(timestamp))
+        val message = Message(userFrom.phoneNumber, userTo.phoneNumber, contents, Date(timestamp))
 
         return try {
             messageRepository.save(message)
@@ -40,8 +40,8 @@ class MessageService(
         val userNumber = tokenPayload?.get("number").toString()
 
         return try {
-            val messages = messageRepository.findAllByToNumber(userNumber)
-            messages.map { UnreadMessageDto(it.from.number, it.contents, it.timestamp.time) }
+            val messages = messageRepository.findAllByPhoneNumberTo(userNumber)
+            messages.map { UnreadMessageDto(it.phoneNumberFrom, it.contents, it.timestamp.time) }
         } catch (exception: Exception) {
             null
         }

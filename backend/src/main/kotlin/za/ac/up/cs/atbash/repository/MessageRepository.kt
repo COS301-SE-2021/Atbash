@@ -1,10 +1,10 @@
 package za.ac.up.cs.atbash.repository
 
-import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.mongodb.repository.MongoRepository
 import org.springframework.stereotype.Repository
 import za.ac.up.cs.atbash.domain.Message
 
 @Repository
-interface MessageRepository: JpaRepository<Message, String> {
-    fun findAllByToNumber(toNumber: String): List<Message>
+interface MessageRepository: MongoRepository<Message, String> {
+    fun findAllByPhoneNumberTo(toNumber: String): List<Message>
 }

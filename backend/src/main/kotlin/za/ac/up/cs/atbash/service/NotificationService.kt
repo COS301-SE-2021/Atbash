@@ -33,7 +33,7 @@ class NotificationService {
         try {
             val postBody = PostBody(
                 userTo.deviceToken,
-                NotificationContents("Atbash", "You have a new message from \"" + userFrom.number + "\"")
+                NotificationContents("Atbash", "You have a new message from \"" + userFrom.phoneNumber + "\"")
             )
             val requestBody: String = Json.encodeToString(postBody)
 

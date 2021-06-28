@@ -16,7 +16,8 @@ class SecurityConfiguration(@Autowired private val jwtService: JwtService) : Web
 
     private val unprotectedUrls = OrRequestMatcher(
         AntPathRequestMatcher("/rs/v1/login"),
-        AntPathRequestMatcher("/rs/v1/register")
+        AntPathRequestMatcher("/rs/v1/register"),
+        AntPathRequestMatcher("/chat")
     )
 
     override fun configure(http: HttpSecurity?) {

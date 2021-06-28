@@ -89,13 +89,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-json</artifactId>
-            <version>1.2.0</version>
-            <type>pom</type>
-        </dependency>
-
     </dependencies>
 
     <build>

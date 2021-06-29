@@ -15,25 +15,28 @@ import za.ac.up.cs.atbash.service.JwtService
 class ChatWebSocketHandler(@Autowired private val jwtService: JwtService) : TextWebSocketHandler() {
 
     private val sessionMap = mutableMapOf<String, WebSocketSession>()
+    private val phoneNumberMap = mutableMapOf<WebSocketSession, String>()
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         val queryParams = session.uri?.query?.split("&") ?: emptyList()
 
         val accessToken = queryParams.find { it.startsWith("access_token=") }
-        if(accessToken != null) {
+        if (accessToken != null) {
             val accessTokenValue = accessToken.substringAfter("access_token=")
 
             val parsedToken = jwtService.parseToken(accessTokenValue)
             val phoneNumber = parsedToken?.get("number") as String?
 
-            if(phoneNumber != null) {
+            if (phoneNumber != null) {
                 println("Accepting connection from $phoneNumber")
                 val presentSession = sessionMap[phoneNumber]
-                if(presentSession == null) {
+                if (presentSession == null) {
                     sessionMap[phoneNumber] = session
+                    phoneNumberMap[session] = phoneNumber
                 } else {
                     presentSession.close()
                     sessionMap[phoneNumber] = session
+                    phoneNumberMap[session] = phoneNumber
                 }
             } else {
                 println("Not accepting connection: invalid token")
@@ -54,10 +57,9 @@ class ChatWebSocketHandler(@Autowired private val jwtService: JwtService) : Text
     }
 
     override fun afterConnectionClosed(session: WebSocketSession, status: CloseStatus) {
-        sessionMap.forEach { (t, u) ->
-            if(u == session) {
-                sessionMap.remove(t)
-            }
-        }
+        val phoneNumber = phoneNumberMap[session]
+
+        sessionMap.remove(phoneNumber)
+        phoneNumberMap.remove(session)
     }
 }

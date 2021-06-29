@@ -4,42 +4,29 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import za.ac.up.cs.atbash.dto.UnreadMessageDto
+import za.ac.up.cs.atbash.dto.MessageDto
+import za.ac.up.cs.atbash.service.JwtService
 import za.ac.up.cs.atbash.service.MessageService
 
 @RestController
-class MessageController(@Autowired private val messageService: MessageService) {
-
-    @PostMapping(path = ["rs/v1/messages"])
-    fun sendMessage(@RequestHeader("Authorization") auth: String?, to: String?, contents: String?, timestamp: Long?): ResponseEntity<Unit> {
-        if(auth == null) {
-            return ResponseEntity(HttpStatus.UNAUTHORIZED)
-        }
-
-        if (to == null || contents == null || timestamp == null) {
-            return ResponseEntity(HttpStatus.BAD_REQUEST)
-        }
-
-        val bearer = auth.substringAfter("Bearer ")
-
-        val successful = messageService.sendMessage(bearer, to, contents, timestamp)
-        return if (successful) {
-            ResponseEntity(HttpStatus.OK)
-        } else {
-            ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-    }
+class MessageController(
+    @Autowired private val messageService: MessageService,
+    @Autowired private val jwtService: JwtService
+) {
 
     @GetMapping(path = ["rs/v1/messages"])
-    fun getUnreadMessages(@RequestHeader("Authorization") auth: String?): ResponseEntity<List<UnreadMessageDto>> {
-        if (auth == null) {
+    fun getUnreadMessages(@RequestHeader("Authorization") authorization: String?): ResponseEntity<List<MessageDto>> {
+        if (authorization == null) {
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }
 
-        val bearer = auth.substringAfter("Bearer ")
+        val bearer = authorization.substringAfter("Bearer ")
 
-        val messages = messageService.getUnreadMessages(bearer)
-        return if(messages != null) {
+        val parsedToken = jwtService.parseToken(bearer)
+        val phoneNumber = parsedToken?.get("number") as String? ?: return ResponseEntity(HttpStatus.UNAUTHORIZED)
+
+        val messages = messageService.getUnreadMessages(phoneNumber)
+        return if (messages != null) {
             ResponseEntity.status(HttpStatus.OK).body(messages)
         } else {
             ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)

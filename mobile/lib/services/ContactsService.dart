@@ -3,6 +3,7 @@ import 'package:mobile/services/DatabaseService.dart';
 
 class ContactsService {
   final DatabaseService _databaseService;
+  List<void Function()> _onContactsChangedListeners = [];
 
   ContactsService(this._databaseService);
 
@@ -31,7 +32,7 @@ class ContactsService {
 
   /// Adds [fn] as a callback to the callback list
   void onContactsChanged(void Function() fn) {
-    throw UnimplementedError();
+    _onContactsChangedListeners.add(fn);
   }
 
   /// Removes callback [fn] from the callback list.

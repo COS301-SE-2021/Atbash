@@ -1,6 +1,6 @@
 class Contact {
   final String phoneNumber;
-  final String displayName;
+  String displayName;
   bool hasChat;
 
   Contact(this.phoneNumber, this.displayName, this.hasChat);

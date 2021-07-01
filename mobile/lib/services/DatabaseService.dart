@@ -1,7 +1,26 @@
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DatabaseService {
+  Future<Database> _database;
+
+  DatabaseService() : _database = _init();
+
+  static Future<Database> _init() async {
+    final dbPath = await getDatabasesPath();
+    String path = join(dbPath, "atbash.db");
+    return openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) {
+        db.execute(Contact.CREATE_TABLE);
+        db.execute(Message.CREATE_TABLE);
+      },
+    );
+  }
+
   /// Fetches a list of all contacts from the database, ordered by display name.
   Future<List<Contact>> fetchContacts() async {
     throw UnimplementedError();

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -8,6 +10,8 @@ class NewChatPage extends StatefulWidget {
 }
 
 class _NewChatPageState extends State<NewChatPage> {
+  final ContactsService _contactsService = GetIt.I.get();
+
   List<Contact> _contacts = [];
 
   @override

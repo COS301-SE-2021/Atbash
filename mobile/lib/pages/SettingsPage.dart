@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/services/UserService.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -10,6 +12,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final UserService _userService = GetIt.I.get();
+
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
@@ -18,8 +22,21 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    // TODO set display name
-    // TODO set profilePicture
+    _userService.getUserDisplayNameOrNull().then((name) {
+      if (name != null) {
+        setState(() {
+          _displayNameController.text = name;
+        });
+      }
+    });
+
+    _userService.getUserProfilePicture().then((imageData) {
+      if (imageData != null) {
+        setState(() {
+          _selectedProfileImage = imageData;
+        });
+      }
+    });
   }
 
   @override
@@ -121,13 +138,14 @@ class _SettingsPageState extends State<SettingsPage> {
               child: ElevatedButton(
                 key: Key("ElevatedButton"), //Need to remove
                 onPressed: () {
-                  // final displayName = _displayNameController.text;
+                  final displayName = _displayNameController.text;
                   // final status = _statusController.text;
-                  // final profileImage =
-                  //     base64Encode(_selectedProfileImage ?? []);
+                  final profileImage = _selectedProfileImage ?? Uint8List(0);
 
-                  // TODO save name change
-                  // TODO save profileImage change
+                  if (displayName.isNotEmpty) {
+                    _userService.setUserDisplayName(displayName);
+                  }
+                  _userService.setUserProfilePicture(profileImage);
 
                   Navigator.pop(context);
                 },

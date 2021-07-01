@@ -161,13 +161,21 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    // TODO needs implementation
+    final recipientNumber = _contact.phoneNumber;
+    final contents = _inputController.text;
+
+    _appService.sendMessage(recipientNumber, contents).then((message) {
+      setState(() {
+        _messages.add(message);
+      });
+    });
+    _inputController.text = "";
   }
 
-  // void _deleteMessage(index) {
-  //   setState(() {
-  //     _messageService.deleteMessage(_messages.elementAt(index));
-  //     _messages.removeAt(index);
-  //   });
-  // }
+// void _deleteMessage(index) {
+//   setState(() {
+//     _messageService.deleteMessage(_messages.elementAt(index));
+//     _messages.removeAt(index);
+//   });
+// }
 }

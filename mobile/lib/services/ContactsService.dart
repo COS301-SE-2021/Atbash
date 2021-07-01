@@ -29,14 +29,13 @@ class ContactsService {
     throw UnimplementedError();
   }
 
-  /// Adds [fn] as a callback to the callback map. Returns the generated map key
-  /// for this callback.
-  String onContactsChanged(void Function() fn) {
+  /// Adds [fn] as a callback to the callback list
+  void onContactsChanged(void Function() fn) {
     throw UnimplementedError();
   }
 
-  /// Removes callback with id [callbackId] from the callback map.
-  void disposeContactsChangedListener(String callbackId) {
+  /// Removes callback [fn] from the callback list.
+  void disposeContactsChangedListener(void Function() fn) {
     throw UnimplementedError();
   }
 }

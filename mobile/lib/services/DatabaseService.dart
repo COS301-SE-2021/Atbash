@@ -68,7 +68,15 @@ class DatabaseService {
     String displayName,
     bool hasChat,
   ) async {
-    throw UnimplementedError();
+    final db = await _database;
+    final contact = Contact(phoneNumber, displayName, hasChat);
+
+    final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
+    if (response != 0) {
+      return contact;
+    } else {
+      return null;
+    }
   }
 
   /// Flags contact with phone number [phoneNumber] as having a chat.

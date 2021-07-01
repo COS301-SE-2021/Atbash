@@ -13,7 +13,6 @@ class UserService {
   Future<bool> register(
       String phoneNumber, String password, String deviceToken) async {
     final url = Uri.parse("http://10.0.2.2:8080/rs/v1/register");
-    final headers = {"Content-Type": "application/json"};
 
     final data = {
       "number": phoneNumber,
@@ -21,8 +20,7 @@ class UserService {
       "deviceToken": deviceToken,
     };
 
-    final response =
-        await http.post(url, headers: headers, body: jsonEncode(data));
+    final response = await http.post(url, body: data);
     return response.statusCode == 200;
   }
 

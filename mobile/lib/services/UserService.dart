@@ -80,8 +80,13 @@ class UserService {
   /// Get the phone_number of the user from secure storage. If it is not set,
   /// the function throws a [StateError], since the phone_number of a logged-in
   /// user is expected to be saved.
-  Future<String> getUserPhoneNumber() {
-    throw UnimplementedError();
+  Future<String> getUserPhoneNumber() async {
+    final phoneNumber = await _storage.read(key: "phone_number");
+    if (phoneNumber == null) {
+      throw StateError("phone_number is not readable");
+    } else {
+      return phoneNumber;
+    }
   }
 
   void _notifyUserDisplayNameListeners(String displayName) {

@@ -94,7 +94,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        _userService.register(phoneNumber, deviceToken, password).then(
+        _userService.register(phoneNumber, password, deviceToken).then(
           (successful) {
             if (successful) {
               Navigator.pop(context);

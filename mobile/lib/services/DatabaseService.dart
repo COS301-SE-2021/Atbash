@@ -91,7 +91,24 @@ class DatabaseService {
   /// Fetches all messages from a contact with phone number [phoneNumber],
   /// ordered by timestamp.
   Future<List<Message>> fetchMessagesWith(String phoneNumber) async {
-    throw UnimplementedError();
+    final db = await _database;
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where:
+          "${Message.COLUMN_RECIPIENT_PHONE_NUMBER} = ? or ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+      whereArgs: [phoneNumber, phoneNumber],
+    );
+
+    final list = <Message>[];
+
+    response.forEach((element) {
+      final message = Message.fromMap(element);
+      if (message != null) {
+        list.add(message);
+      }
+    });
+
+    return list;
   }
 
   /// Saves a message in the database and returns.

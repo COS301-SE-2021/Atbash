@@ -20,7 +20,7 @@ class ContactsService {
   /// Returns a list of all the user's contacts where there is a chat with the
   /// contact
   Future<List<Contact>> getAllChats() {
-    throw UnimplementedError();
+    return _databaseService.fetchContactsWithChats();
   }
 
   /// Starts a chat with the contact by setting the flag that there is a chat

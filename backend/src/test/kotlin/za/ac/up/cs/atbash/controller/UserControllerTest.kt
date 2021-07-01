@@ -11,15 +11,19 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
 import za.ac.up.cs.atbash.json.user.LoginRequestJson
 import za.ac.up.cs.atbash.json.user.RegisterRequestJson
+import za.ac.up.cs.atbash.service.JwtService
 import za.ac.up.cs.atbash.service.UserService
 
 @ExtendWith(MockitoExtension::class)
 class UserControllerTest {
     @Mock
     private lateinit var userService: UserService
+    @Mock
+    private lateinit var  jwtService: JwtService
 
     @InjectMocks
     private lateinit var userController: UserController
+
 
     //------loginTestCases------//
 
@@ -60,4 +64,16 @@ class UserControllerTest {
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }
+
+    //------heloUseCases------//
+
+    @Test
+    @DisplayName("When Authorization is null")
+    fun heloWhenAuthNull(){
+        val response = userController.helo(null)
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+
 }

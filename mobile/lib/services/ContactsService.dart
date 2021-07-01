@@ -1,6 +1,11 @@
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/services/DatabaseService.dart';
 
 class ContactsService {
+  final DatabaseService _databaseService;
+
+  ContactsService(this._databaseService);
+
   /// Add a contact, saves to the database. Notifies listeners that contacts
   /// have changed.
   void addContact(String phoneNumber, String displayName, bool hasChat) {

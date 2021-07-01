@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:holding_gesture/holding_gesture.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/services/MessageService.dart';
-import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class ChatPage extends StatefulWidget {
@@ -17,30 +14,20 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  bool loading = true;
-  late final MessageService _messageService;
+  final Contact _contact;
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
   List<Message> _messages = [];
 
-  _ChatPageState(Contact contact) {
-    _messageService = MessageService(contact);
+  _ChatPageState(this._contact);
 
-    _messageService.listenForNewMessages((newMessage) {
-      setState(() {
-        _messages.addAll(newMessage);
-        _messages.sort((a, b) =>
-            a.timestamp.millisecondsSinceEpoch -
-            b.timestamp.millisecondsSinceEpoch);
-        _scrollController.animateTo(
-          0.0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      });
-    });
+  @override
+  void initState() {
+    super.initState();
+    // TODO fetch message history
+    // TODO listen for new messages
   }
 
   @override
@@ -159,13 +146,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    final from = GetIt.I.get<UserService>().getUser()?.phoneNumber;
-    final to = widget.contact.phoneNumber;
-    final contents = _inputController.text;
-    if (from != null) {
-      _messageService.sendMessage(from, to, contents);
-    }
-    _inputController.text = "";
+    // TODO needs implementation
   }
 
   // void _deleteMessage(index) {

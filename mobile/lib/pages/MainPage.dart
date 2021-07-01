@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
-import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
@@ -14,32 +12,15 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _userService = GetIt.I.get<UserService>();
-
   String _displayName = "";
   List<Contact> _chatContacts = [];
 
-  _MainPageState() {
-    _displayName = _userService.getUser()?.displayName ?? "";
+  @override
+  void initState() {
+    super.initState();
 
-    _userService.getContactsWithChats().then((contacts) {
-      setState(() {
-        _chatContacts = contacts;
-      });
-    });
-
-    _userService.onChangeUserInfo((user) {
-      setState(() {
-        _displayName = user.displayName;
-        print("Changing Info");
-      });
-    });
-
-    _userService.onChangeChats((chats) {
-      setState(() {
-        _chatContacts = chats;
-      });
-    });
+    // TODO set display name and listen for changes
+    // TODO set chats and listen for changes
   }
 
   @override

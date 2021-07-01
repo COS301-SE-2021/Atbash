@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +7,6 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/User.dart';
 import 'package:mobile/services/DatabaseAccess.dart';
-import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mockito/mockito.dart';
 
@@ -24,33 +22,6 @@ class MockUserService extends Mock implements UserService {
       super.noSuchMethod(
           Invocation.method(#register, [number, deviceToken, password]),
           returnValue: Future<bool>.value(true));
-
-  @override
-  Future<UnmodifiableListView<Contact>> getContactsWithChats() =>
-      super.noSuchMethod(Invocation.method(#getContactsWithChats, null),
-          returnValue: Future<UnmodifiableListView<Contact>>.value(
-              UnmodifiableListView([
-            Contact("123", "name1", true),
-            Contact("1234", "name2", true)
-          ])));
-
-  @override
-  Future<UnmodifiableListView<Contact>> getContacts() =>
-      super.noSuchMethod(Invocation.method(#getContacts, null),
-          returnValue: Future<UnmodifiableListView<Contact>>.value(
-              UnmodifiableListView([])));
-
-  @override
-  Future<Contact?> newChat(String? withContactNumber) =>
-      super.noSuchMethod(Invocation.method(#newChat, [withContactNumber]),
-          returnValue: Future<Contact?>.value(null));
-}
-
-class MockMessageService extends Mock implements MessageService {
-  @override
-  Future<List<Message>> fetchUnreadMessages(String? phoneNumber) =>
-      super.noSuchMethod(Invocation.method(#fetchUnreadMessages, [phoneNumber]),
-          returnValue: Future<List<Message>>.value([]));
 }
 
 class MockDatabaseAccess extends Mock implements DatabaseAccess {
@@ -85,7 +56,6 @@ class MockNavigatorObserver extends Mock implements NavigatorObserver {
 
 final MockUserService mockUserService = MockUserService();
 final MockDatabaseAccess mockDatabaseAccess = MockDatabaseAccess();
-final MockMessageService mockMessageService = MockMessageService();
 
 final loggedInUserContact = User("5678", "name", "status", "");
 final List<Contact> cList = [
@@ -104,13 +74,6 @@ void mockFunctionsSetup() {
   when(mockUserService.register(any, any, any))
       .thenAnswer((_) async => Future<bool>.value(true));
 
-  when(mockUserService.getUser()).thenReturn(loggedInUserContact);
-  when(mockUserService.getContactsWithChats()).thenAnswer((_) async =>
-      Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
-  when(mockUserService.getContacts()).thenAnswer((_) async =>
-      Future<UnmodifiableListView<Contact>>.value(UnmodifiableListView(cList)));
-  when(mockUserService.newChat(any))
-      .thenAnswer((_) async => Future<Contact>.value(cList[0]));
   when(mockDatabaseAccess.getChatWithContact(any))
       .thenAnswer((_) async => Future<List<Message>>.value([
             Message(
@@ -139,6 +102,4 @@ void mockFunctionsSetup() {
             ),
           ]));
 
-  when(mockMessageService.fetchUnreadMessages(any))
-      .thenAnswer((_) async => Future<List<Message>>.value([]));
 }

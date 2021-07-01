@@ -1,6 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -13,12 +12,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final _phoneNumberController = TextEditingController();
   final _displayNameController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  _RegistrationPageState() {
-    // TODO this is mock data
-    _phoneNumberController.text = "12345";
-    _passwordController.text = "password";
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,21 +89,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final userService = GetIt.I.get<UserService>();
 
     final phoneNumber = _phoneNumberController.text.trim();
-    final displayName = _displayNameController.text.trim();
     final password = _passwordController.text.trim();
 
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        userService
-            .register(phoneNumber, deviceToken, password)
-            .then((successful) {
-          if (successful) {
-            Navigator.pop(context);
-            final storage = FlutterSecureStorage();
-            storage.write(key: "display_name", value: displayName);
-          }
-        });
+        userService.register(phoneNumber, deviceToken, password).then(
+          (successful) {
+            if (successful) {
+              Navigator.pop(context);
+            } else {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text("Failed to register")));
+            }
+          },
+        );
       }
     });
   }

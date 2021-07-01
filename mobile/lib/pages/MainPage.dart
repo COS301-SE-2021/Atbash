@@ -27,7 +27,16 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
-    // TODO set display name and listen for changes
+    _userService.onUserDisplayNameChanged((name) {
+      setState(() {
+        _displayName = name;
+      });
+    }).then((name) {
+      setState(() {
+        _displayName = name;
+      });
+    });
+
     // TODO set chats and listen for changes
   }
 

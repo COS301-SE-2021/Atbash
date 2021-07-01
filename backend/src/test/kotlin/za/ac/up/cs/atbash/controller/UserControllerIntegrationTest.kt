@@ -6,17 +6,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import za.ac.up.cs.atbash.domain.User
-import za.ac.up.cs.atbash.json.user.LoginRequestJson
-import za.ac.up.cs.atbash.json.user.RegisterRequestJson
 import za.ac.up.cs.atbash.repository.UserRepository
-import za.ac.up.cs.atbash.service.UserService
 
 @SpringBootTest
 class UserControllerIntegrationTest {
-
-    //Services
-    @Autowired
-    lateinit var userService: UserService
 
     //Controllers
     @Autowired
@@ -56,7 +49,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When RegisterRequest 'number' is null, response status should be BAD_REQUEST")
     fun registerWhenRequestNumberNull(){
-        val response = userController.register(RegisterRequestJson(null, "password", "deviceToken"))
+        val response = userController.register(null, "password", "deviceToken")
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -64,7 +57,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When RegisterRequest 'password' is null, response status should be BAD_REQUEST")
     fun registerWhenRequestPasswordNull(){
-        val response = userController.register(RegisterRequestJson("number", null, "deviceToken"))
+        val response = userController.register("number", null, "deviceToken")
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -72,7 +65,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When RegisterRequest 'deviceToken' is null, response status should be BAD_REQUEST")
     fun registerWhenRequestDeviceTokenNull(){
-        val response = userController.register(RegisterRequestJson("number", "password", null))
+        val response = userController.register("number", "password", null)
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -80,7 +73,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to register already exists, response status should be INTERNAL_SERVER_ERROR")
     fun registerWhenServiceUnsuccessful(){
-        val response = userController.register(RegisterRequestJson(registeredUser.number, "password1", registeredUser.deviceToken))
+        val response = userController.register(registeredUser.number, "password1", registeredUser.deviceToken)
 
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
@@ -88,7 +81,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to register does not exist, response status should be OK")
     fun registerWhenServiceSuccessful(){
-        val response = userController.register(RegisterRequestJson(nonRegisteredUser.number, "password2", nonRegisteredUser.deviceToken))
+        val response = userController.register(nonRegisteredUser.number, "password2", nonRegisteredUser.deviceToken)
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }
@@ -98,7 +91,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When LoginRequest 'number' is null, response status should be BAD_REQUEST")
     fun loginWhenRequestNumberNull(){
-        val response = userController.login(LoginRequestJson(null, "password"))
+        val response = userController.login(null, "password")
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -106,7 +99,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When LoginRequest 'password' is null, response status should be BAD_REQUEST")
     fun loginWhenRequestPasswordNull(){
-        val response = userController.login(LoginRequestJson("number", null))
+        val response = userController.login("number", null)
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
@@ -114,7 +107,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to login does not exist, response status should be INTERNAL_SERVER_ERROR")
     fun loginWhenServiceUnsuccessful(){
-        val response = userController.login(LoginRequestJson(nonRegisteredUser.number, "password2"))
+        val response = userController.login(nonRegisteredUser.number, "password2")
 
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
@@ -122,7 +115,7 @@ class UserControllerIntegrationTest {
     @Test
     @DisplayName("When user requesting to login does exist, response status should be OK")
     fun loginWhenServiceSuccessful(){
-        val response = userController.login(LoginRequestJson(registeredUser.number, "password1"))
+        val response = userController.login(registeredUser.number, "password1")
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
     }

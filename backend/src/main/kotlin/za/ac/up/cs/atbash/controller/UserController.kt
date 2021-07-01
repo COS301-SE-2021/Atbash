@@ -20,12 +20,12 @@ class UserController(
 
 
     @PostMapping(path = ["rs/v1/login"])
-    fun login(@RequestBody json: LoginRequestJson): ResponseEntity<String> {
-        if (json.number == null || json.password == null) {
+    fun login(number: String?, password: String?): ResponseEntity<String> {
+        if (number == null || password == null) {
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        val jwtToken = userService.verifyLogin(json.number, json.password)
+        val jwtToken = userService.verifyLogin(number, password)
         return if (jwtToken != null) {
             ResponseEntity.status(HttpStatus.OK).body(jwtToken)
         } else {
@@ -35,14 +35,14 @@ class UserController(
     }
 
     @PostMapping(path = ["rs/v1/register"])
-    fun register(@RequestBody json: RegisterRequestJson): ResponseEntity<Boolean>{
-        if(json.number == null || json.password == null || json.deviceToken == null){
+    fun register(number: String?, password: String?, deviceToken: String?): ResponseEntity<Boolean> {
+        if (number == null || password == null || deviceToken == null) {
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        return if(userService.registerUser(json.number, json.password, json.deviceToken)){
+        return if (userService.registerUser(number, password, deviceToken)) {
             ResponseEntity(HttpStatus.OK)
-        }else{
+        } else {
             ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }

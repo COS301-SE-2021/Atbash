@@ -1,9 +1,24 @@
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
 class UserService {
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications
   Future<bool> register(
-      String phoneNumber, String password, String deviceToken) {
-    throw UnimplementedError();
+      String phoneNumber, String password, String deviceToken) async {
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/register");
+    final headers = {"Content-Type": "application/json"};
+
+    final data = {
+      "number": phoneNumber,
+      "password": password,
+      "deviceToken": deviceToken,
+    };
+
+    final response =
+        await http.post(url, headers: headers, body: jsonEncode(data));
+    return response.statusCode == 200;
   }
 
   /// Login the user. If successful, access_token and phone_number is saved in

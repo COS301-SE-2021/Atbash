@@ -72,8 +72,9 @@ class UserService {
 
   /// Save [displayName] in secure storage as display_name. The future completes
   /// once the name is saved.
-  Future<void> setUserDisplayName(String displayName) {
-    throw UnimplementedError();
+  Future<void> setUserDisplayName(String displayName) async {
+    await _storage.write(key: "display_name", value: displayName);
+    _notifyUserDisplayNameListeners(displayName);
   }
 
   /// Get the phone_number of the user from secure storage. If it is not set,
@@ -81,5 +82,9 @@ class UserService {
   /// user is expected to be saved.
   Future<String> getUserPhoneNumber() {
     throw UnimplementedError();
+  }
+
+  void _notifyUserDisplayNameListeners(String displayName) {
+    _displayNameCallbacks.forEach((element) => element(displayName));
   }
 }

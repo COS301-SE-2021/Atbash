@@ -10,7 +10,13 @@ class ContactsService {
   /// Add a contact, saves to the database. Notifies listeners that contacts
   /// have changed.
   void addContact(String phoneNumber, String displayName, bool hasChat) {
-    throw UnimplementedError();
+    _databaseService
+        .createContact(phoneNumber, displayName, hasChat)
+        .then((contact) {
+      if (contact != null) {
+        _notifyOnContactsChangedListeners();
+      }
+    });
   }
 
   /// Returns a list of all the user's contacts
@@ -38,5 +44,9 @@ class ContactsService {
   /// Removes callback [fn] from the callback list.
   void disposeContactsChangedListener(void Function() fn) {
     _onContactsChangedListeners.remove(fn);
+  }
+
+  void _notifyOnContactsChangedListeners() {
+    _onContactsChangedListeners.forEach((element) => element());
   }
 }

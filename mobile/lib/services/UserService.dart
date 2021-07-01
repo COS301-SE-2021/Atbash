@@ -67,7 +67,7 @@ class UserService {
 
   /// Removed [fn] from the list of callbacks for changes to user display name.
   void disposeUserDisplayNameListener(void Function(String name) fn) {
-    throw UnimplementedError();
+    _displayNameCallbacks.remove(fn);
   }
 
   /// Save [displayName] in secure storage as display_name. The future completes

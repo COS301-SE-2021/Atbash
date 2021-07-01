@@ -23,7 +23,19 @@ class DatabaseService {
 
   /// Fetches a list of all contacts from the database, ordered by display name.
   Future<List<Contact>> fetchContacts() async {
-    throw UnimplementedError();
+    final db = await _database;
+    final response = await db.query(
+      Contact.TABLE_NAME,
+      orderBy: "${Contact.COLUMN_DISPLAY_NAME} asc",
+    );
+    final list = <Contact>[];
+    response.forEach((element) {
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        list.add(contact);
+      }
+    });
+    return list;
   }
 
   /// Fetches a list of all contacts that are flagged as having a chat from the

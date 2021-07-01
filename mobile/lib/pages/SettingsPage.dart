@@ -142,7 +142,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   // final status = _statusController.text;
                   final profileImage = _selectedProfileImage ?? Uint8List(0);
 
-                  _userService.setUserDisplayName(displayName);
+                  if (displayName.isNotEmpty) {
+                    _userService.setUserDisplayName(displayName);
+                  }
                   _userService.setUserProfilePicture(profileImage);
 
                   Navigator.pop(context);

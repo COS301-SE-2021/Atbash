@@ -75,5 +75,12 @@ class UserControllerTest {
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
     }
 
+    @Test
+    @DisplayName("When Authoriation Succeeds")
+    fun heloWhenAuthSuccessful(){
+        Mockito.`when`(jwtService.verify(Mockito.anyString())).thenReturn(true)
+        val response = userController.helo("CorrectToken")
 
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+    }
 }

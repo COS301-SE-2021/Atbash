@@ -37,6 +37,6 @@ class ContactsService {
 
   /// Removes callback [fn] from the callback list.
   void disposeContactsChangedListener(void Function() fn) {
-    throw UnimplementedError();
+    _onContactsChangedListeners.remove(fn);
   }
 }

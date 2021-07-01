@@ -41,6 +41,8 @@ class _MainPageState extends State<MainPage> {
       _populateChats();
     });
     _populateChats();
+
+    _appService.goOnline();
   }
 
   @override

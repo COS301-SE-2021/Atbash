@@ -29,7 +29,14 @@ class _SettingsPageState extends State<SettingsPage> {
         });
       }
     });
-    // TODO set profilePicture
+
+    _userService.getUserProfilePicture().then((imageData) {
+      if (imageData != null) {
+        setState(() {
+          _selectedProfileImage = imageData;
+        });
+      }
+    });
   }
 
   @override

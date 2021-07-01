@@ -9,6 +9,8 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final UserService _userService = GetIt.I.get();
+
   final _phoneNumberController = TextEditingController();
   final _displayNameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -86,15 +88,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _register(BuildContext context) {
-    final userService = GetIt.I.get<UserService>();
-
     final phoneNumber = _phoneNumberController.text.trim();
     final password = _passwordController.text.trim();
 
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        userService.register(phoneNumber, deviceToken, password).then(
+        _userService.register(phoneNumber, deviceToken, password).then(
           (successful) {
             if (successful) {
               Navigator.pop(context);

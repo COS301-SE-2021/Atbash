@@ -46,6 +46,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+
+    _appService.disconnect();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
@@ -104,6 +105,13 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   void _startChat(BuildContext context, Contact contact) {
-    // TODO needs implementation
+    _contactsService.startChatWithContact(contact.phoneNumber);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(contact),
+      ),
+    );
   }
 }

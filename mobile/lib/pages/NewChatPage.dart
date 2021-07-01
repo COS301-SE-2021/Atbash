@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/pages/ChatPage.dart';
-import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -11,16 +8,13 @@ class NewChatPage extends StatefulWidget {
 }
 
 class _NewChatPageState extends State<NewChatPage> {
-  final _userService = GetIt.I.get<UserService>();
-
   List<Contact> _contacts = [];
 
-  _NewChatPageState() {
-    _userService.getContacts().then((contacts) {
-      setState(() {
-        _contacts = contacts;
-      });
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO set contacts and listen for changes
   }
 
   @override
@@ -67,6 +61,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
   InkWell _buildContact(BuildContext context, Contact contact) {
     return InkWell(
+      onTap: () => _startChat(context, contact),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
@@ -85,16 +80,10 @@ class _NewChatPageState extends State<NewChatPage> {
           ],
         ),
       ),
-      onTap: () {
-        _userService.newChat(contact.phoneNumber).then((contact) {
-          if (contact != null) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => ChatPage(contact)),
-            );
-          }
-        });
-      },
     );
+  }
+
+  void _startChat(BuildContext context, Contact contact) {
+    // TODO needs implementation
   }
 }

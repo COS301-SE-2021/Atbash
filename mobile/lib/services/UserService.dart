@@ -52,8 +52,9 @@ class UserService {
 
   /// Get the display_name of the user from secure storage. If it is not set,
   /// phone_number is returned instead.
-  Future<String> getUserDisplayName() {
-    throw UnimplementedError();
+  Future<String> getUserDisplayName() async {
+    return await _storage.read(key: "display_name") ??
+        await getUserPhoneNumber();
   }
 
   /// Adds [fn] to the list of callbacks for changes to user display name.

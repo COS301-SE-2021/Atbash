@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 class UserService {
   final _storage = FlutterSecureStorage();
+  final _displayNameCallbacks = <void Function(String name)>[];
 
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications
@@ -60,7 +61,8 @@ class UserService {
   /// Adds [fn] to the list of callbacks for changes to user display name.
   /// Returns the current display name.
   Future<String> onUserDisplayNameChanged(void Function(String name) fn) {
-    throw UnimplementedError();
+    _displayNameCallbacks.add(fn);
+    return getUserDisplayName();
   }
 
   /// Removed [fn] from the list of callbacks for changes to user display name.

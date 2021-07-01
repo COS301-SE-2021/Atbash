@@ -31,7 +31,13 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    // TODO fetch message history
+
+    _databaseService.fetchMessagesWith(_contact.phoneNumber).then((messages) {
+      setState(() {
+        _messages.addAll(messages);
+      });
+    });
+
     // TODO listen for new messages
   }
 

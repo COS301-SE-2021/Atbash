@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -17,7 +18,14 @@ class AppService {
 
   /// Connect the application to the server. A web socket connection is made,
   /// and the service will listen to and handle events on the socket.
-  void goOnline(String accessToken) async {
+  void goOnline() async {
+    final storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: "access_token");
+
+    if (accessToken == null) {
+      throw StateError("access_token is not readable");
+    }
+
     _channel = IOWebSocketChannel.connect(
       Uri.parse("ws://10.0.2.2:8080/chat?access_token=$accessToken"),
     );

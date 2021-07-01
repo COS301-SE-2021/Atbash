@@ -64,6 +64,11 @@ class AppService {
     }
   }
 
+  /// Disconnect the user from the server
+  void disconnect() {
+    throw UnimplementedError();
+  }
+
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(String recipientNumber, String contents) async {

@@ -28,15 +28,13 @@ class UserService {
   /// secure storage.
   Future<bool> login(String phoneNumber, String password) async {
     final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
-    final headers = {"Content-Type": "application/json"};
 
     final data = {
       "number": phoneNumber,
       "password": password,
     };
 
-    final response =
-        await http.post(url, headers: headers, body: jsonEncode(data));
+    final response = await http.post(url, body: data);
 
     if (response.statusCode == 200) {
       Future.wait([

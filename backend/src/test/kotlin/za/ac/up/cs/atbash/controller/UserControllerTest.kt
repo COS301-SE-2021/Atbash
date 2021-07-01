@@ -9,12 +9,15 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.HttpStatus
+import za.ac.up.cs.atbash.service.JwtService
 import za.ac.up.cs.atbash.service.UserService
 
 @ExtendWith(MockitoExtension::class)
 class UserControllerTest {
     @Mock
     private lateinit var userService: UserService
+    @Mock
+    private lateinit var  jwtService: JwtService
 
     @InjectMocks
     private lateinit var userController: UserController
@@ -57,5 +60,33 @@ class UserControllerTest {
         val response = userController.register("number", "password", "deviceToken")
 
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
+    //------heloUseCases------//
+
+    @Test
+    @DisplayName("When Authorization is null")
+    fun heloWhenAuthNull(){
+        val response = userController.helo(null)
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
+    }
+
+    @Test
+    @DisplayName("When Authorization Succeeds")
+    fun heloWhenAuthSuccessful(){
+        Mockito.`when`(jwtService.verify(Mockito.anyString())).thenReturn(true)
+        val response = userController.helo("CorrectToken")
+
+        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
+    }
+
+    @Test
+    @DisplayName("When Authorization fails")
+    fun heloWhenAuthFails(){
+        Mockito.`when`(jwtService.verify(Mockito.anyString())).thenReturn(false)
+        val response = userController.helo("CorrectToken")
+
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
     }
 }

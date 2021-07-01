@@ -37,7 +37,10 @@ class _MainPageState extends State<MainPage> {
       });
     });
 
-    // TODO set chats and listen for changes
+    _contactsService.onContactsChanged(() {
+      _populateChats();
+    });
+    _populateChats();
   }
 
   @override
@@ -124,5 +127,13 @@ class _MainPageState extends State<MainPage> {
       },
       child: Icon(Icons.chat),
     );
+  }
+
+  void _populateChats() {
+    _contactsService.getAllChats().then((contacts) {
+      setState(() {
+        _chatContacts = contacts;
+      });
+    });
   }
 }

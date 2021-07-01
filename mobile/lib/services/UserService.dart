@@ -1,150 +1,116 @@
-import 'dart:collection';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/domain/User.dart';
-import 'package:mobile/services/DatabaseAccess.dart';
-import 'package:flutter/foundation.dart';
 
 class UserService {
-  final db = GetIt.I.get<DatabaseAccess>();
+  final _storage = FlutterSecureStorage();
+  final _displayNameCallbacks = <void Function(String name)>[];
 
-  User? _loggedInUser;
-
-  List<void Function(User)> _userInfoListeners = [];
-  List<void Function(UnmodifiableListView<Contact>)> _chatsListeners = [];
-
-  // @visibleForTesting
-  // void setLoggedInUser(User user){
-  //   _loggedInUser = user;
-  // }
-
-  Future<bool> login(String number, String password) async {
-    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
-
-    final bodyMap = {"number": number, "password": password};
-
-    final body = jsonEncode(bodyMap);
-
+  /// Register a user on the server. [deviceToken] is the firebase device token
+  /// for push notifications
+  Future<bool> register(
+      String phoneNumber, String password, String deviceToken) async {
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/register");
     final headers = {"Content-Type": "application/json"};
 
-    final response = await http.post(url, headers: headers, body: body);
-    if (response.statusCode == 200) {
-      final storage = FlutterSecureStorage();
-      storage.write(key: "bearer_token", value: response.body);
-      final displayName = await storage.read(key: "display_name") ?? "";
-      final status = await storage.read(key: "status") ?? "";
-      final imageData = await storage.read(key: "profile_image") ?? "";
-      _loggedInUser = User(number, displayName, status, imageData);
-    }
-    return response.statusCode == 200;
-  }
-
-  Future<bool> register(
-      String number, String deviceToken, String password) async {
-    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/register");
-
-    final bodyMap = {
-      "number": number,
+    final data = {
+      "number": phoneNumber,
+      "password": password,
       "deviceToken": deviceToken,
-      "password": password
-    };
-    final body = jsonEncode(bodyMap);
-
-    final headers = {
-      "Content-Type": "application/json",
     };
 
-    final response = await http.post(url, headers: headers, body: body);
+    final response =
+        await http.post(url, headers: headers, body: jsonEncode(data));
     return response.statusCode == 200;
   }
 
-  void setDisplayName(String displayName) {
-    final user = _loggedInUser;
-    if (user != null) {
-      user.displayName = displayName;
-      final storage = FlutterSecureStorage();
-      storage.write(key: "display_name", value: displayName);
-      _notifyUserInfoListeners();
+  /// Login the user. If successful, access_token and phone_number is saved in
+  /// secure storage.
+  Future<bool> login(String phoneNumber, String password) async {
+    final url = Uri.parse("http://10.0.2.2:8080/rs/v1/login");
+    final headers = {"Content-Type": "application/json"};
+
+    final data = {
+      "number": phoneNumber,
+      "password": password,
+    };
+
+    final response =
+        await http.post(url, headers: headers, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      Future.wait([
+        _storage.write(key: "access_token", value: response.body),
+        _storage.write(key: "phone_number", value: phoneNumber),
+      ]);
+
+      return true;
+    } else {
+      return false;
     }
   }
 
-  void setStatus(String status) {
-    final user = _loggedInUser;
-    if (user != null) {
-      user.status = status;
-      final storage = FlutterSecureStorage();
-      storage.write(key: "status", value: status);
-      _notifyUserInfoListeners();
+  /// Get the display_name of the user from secure storage. If it is not set,
+  /// phone_number is returned instead.
+  Future<String> getUserDisplayName() async {
+    return await _storage.read(key: "display_name") ??
+        await getUserPhoneNumber();
+  }
+
+  /// Get the display_name of the user from secure storage. If it is not set,
+  /// null is returned instead
+  Future<String?> getUserDisplayNameOrNull() async {
+    return await _storage.read(key: "display_name");
+  }
+
+  /// Adds [fn] to the list of callbacks for changes to user display name.
+  /// Returns the current display name.
+  Future<String> onUserDisplayNameChanged(void Function(String name) fn) {
+    _displayNameCallbacks.add(fn);
+    return getUserDisplayName();
+  }
+
+  /// Removed [fn] from the list of callbacks for changes to user display name.
+  void disposeUserDisplayNameListener(void Function(String name) fn) {
+    _displayNameCallbacks.remove(fn);
+  }
+
+  /// Save [displayName] in secure storage as display_name. The future completes
+  /// once the name is saved.
+  Future<void> setUserDisplayName(String displayName) async {
+    await _storage.write(key: "display_name", value: displayName);
+    _notifyUserDisplayNameListeners(displayName);
+  }
+
+  /// Get the profile_image of the user from secure_storage. If it is not set,
+  /// null is returned.
+  Future<Uint8List?> getUserProfilePicture() async {
+    final base64Image = await _storage.read(key: "profile_image") ?? "";
+    return base64Decode(base64Image);
+  }
+
+  /// Save [encodedImage] in secure storage as profile_image. The future
+  /// completes once the image is saved.
+  Future<void> setUserProfilePicture(Uint8List encodedImage) async {
+    final base64Image = base64Encode(encodedImage);
+    await _storage.write(key: "profile_image", value: base64Image);
+  }
+
+  /// Get the phone_number of the user from secure storage. If it is not set,
+  /// the function throws a [StateError], since the phone_number of a logged-in
+  /// user is expected to be saved.
+  Future<String> getUserPhoneNumber() async {
+    final phoneNumber = await _storage.read(key: "phone_number");
+    if (phoneNumber == null) {
+      throw StateError("phone_number is not readable");
+    } else {
+      return phoneNumber;
     }
   }
 
-  void setProfileImage(String imageData) {
-    final user = _loggedInUser;
-    if (user != null) {
-      user.imageData = imageData;
-      final storage = FlutterSecureStorage();
-      storage.write(key: "profile_image", value: imageData);
-      _notifyUserInfoListeners();
-    }
-  }
-
-  Future<Contact?> newChat(String withContactNumber) async {
-    final user = _loggedInUser;
-    if (user != null) {
-      final created = await db.createChatWithContact(withContactNumber);
-      if (created) {
-        _notifyChatsListeners();
-        return await db.fetchContact(withContactNumber);
-      } else {
-        return null;
-      }
-    }
-  }
-
-  void deleteChat(String withContactNumber) {
-    final user = _loggedInUser;
-    if (user != null) {}
-  }
-
-  User? getUser() {
-    return _loggedInUser;
-  }
-
-  Future<UnmodifiableListView<Contact>> getContactsWithChats() async {
-    final contacts = await db.getContactsWithChats();
-    return UnmodifiableListView(contacts);
-  }
-
-  Future<UnmodifiableListView<Contact>> getContacts() async {
-    final contacts = await db.getContacts();
-    return UnmodifiableListView(contacts);
-  }
-
-  void onChangeUserInfo(void Function(User) callback) {
-    this._userInfoListeners.add(callback);
-  }
-
-  void onChangeChats(void Function(UnmodifiableListView<Contact>) callback) {
-    this._chatsListeners.add(callback);
-  }
-
-  void _notifyUserInfoListeners() {
-    final user = this._loggedInUser;
-    if (user != null) {
-      _userInfoListeners.forEach((listener) {
-        listener(user);
-      });
-    }
-  }
-
-  Future<void> _notifyChatsListeners() async {
-    final chats = await getContactsWithChats();
-    _chatsListeners.forEach((listener) {
-      listener(chats);
-    });
+  void _notifyUserDisplayNameListeners(String displayName) {
+    _displayNameCallbacks.forEach((element) => element(displayName));
   }
 }

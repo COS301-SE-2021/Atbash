@@ -5,6 +5,8 @@ import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
@@ -14,32 +16,40 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _userService = GetIt.I.get<UserService>();
+  final UserService _userService = GetIt.I.get();
+  final ContactsService _contactsService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
 
   String _displayName = "";
   List<Contact> _chatContacts = [];
 
-  _MainPageState() {
-    _displayName = _userService.getUser()?.displayName ?? "";
+  @override
+  void initState() {
+    super.initState();
 
-    _userService.getContactsWithChats().then((contacts) {
+    _userService.onUserDisplayNameChanged((name) {
       setState(() {
-        _chatContacts = contacts;
+        _displayName = name;
+      });
+    }).then((name) {
+      setState(() {
+        _displayName = name;
       });
     });
 
-    _userService.onChangeUserInfo((user) {
-      setState(() {
-        _displayName = user.displayName;
-        print("Changing Info");
-      });
+    _contactsService.onContactsChanged(() {
+      _populateChats();
     });
+    _populateChats();
 
-    _userService.onChangeChats((chats) {
-      setState(() {
-        _chatContacts = chats;
-      });
-    });
+    _appService.goOnline();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _appService.disconnect();
   }
 
   @override
@@ -126,5 +136,13 @@ class _MainPageState extends State<MainPage> {
       },
       child: Icon(Icons.chat),
     );
+  }
+
+  void _populateChats() {
+    _contactsService.getAllChats().then((contacts) {
+      setState(() {
+        _chatContacts = contacts;
+      });
+    });
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -13,24 +12,31 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final _userService = GetIt.I.get<UserService>();
+  final UserService _userService = GetIt.I.get();
+
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
   Uint8List? _selectedProfileImage;
 
-  _SettingsPageState() {
-    _displayNameController.text = _userService.getUser()?.displayName ?? "";
-    _statusController.text = _userService.getUser()?.status ?? "";
-    try {
-      _selectedProfileImage =
-          base64Decode(_userService
-              .getUser()
-              ?.imageData ?? "");
-    }
-    on Exception{
-      _selectedProfileImage = null;
-    }
+  @override
+  void initState() {
+    super.initState();
+    _userService.getUserDisplayNameOrNull().then((name) {
+      if (name != null) {
+        setState(() {
+          _displayNameController.text = name;
+        });
+      }
+    });
+
+    _userService.getUserProfilePicture().then((imageData) {
+      if (imageData != null) {
+        setState(() {
+          _selectedProfileImage = imageData;
+        });
+      }
+    });
   }
 
   @override
@@ -56,7 +62,10 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(children: <Widget>[
               CircleAvatar(
                 radius: 80,
-                child: (_selectedProfileImage == null || _selectedProfileImage!.isEmpty) ? Text("Picture") : null,
+                child: (_selectedProfileImage == null ||
+                        _selectedProfileImage!.isEmpty)
+                    ? Text("Picture")
+                    : null,
                 backgroundImage: _buildAvatarImage(),
               ),
               const SizedBox(height: 10.0),
@@ -130,13 +139,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 key: Key("ElevatedButton"), //Need to remove
                 onPressed: () {
                   final displayName = _displayNameController.text;
-                  final status = _statusController.text;
-                  final profileImage =
-                      base64Encode(_selectedProfileImage ?? []);
+                  // final status = _statusController.text;
+                  final profileImage = _selectedProfileImage ?? Uint8List(0);
 
-                  _userService.setDisplayName(displayName);
-                  _userService.setStatus(status);
-                  _userService.setProfileImage(profileImage);
+                  if (displayName.isNotEmpty) {
+                    _userService.setUserDisplayName(displayName);
+                  }
+                  _userService.setUserProfilePicture(profileImage);
 
                   Navigator.pop(context);
                 },
@@ -178,8 +187,6 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future _imgFromCamera(BuildContext context) async {
     try {
-      final pickedFile = await picker.getImage(source: ImageSource.camera);
-
       // setState(() {
       //   if (pickedFile != null) {
       //     _image = File(pickedFile.path);

@@ -2,7 +2,6 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 
 class DatabaseAccess {
   Future<Database> _database;
@@ -15,49 +14,16 @@ class DatabaseAccess {
       path,
       version: 1,
       onCreate: (db, version) {
-        db.execute(
-          """
-          create table message (
-            id text primary key,
-            number_from text not null,
-            number_to text not null,
-            contents text not null,
-            timestamp int not null
-          );   
-          """,
-        );
-
-        db.execute(
-          """
-          create table contact (
-            phone_number text primary key,
-            display_name text not null,
-            has_chat tinyint not null
-          );
-          """,
-        ).then((value) {
-          db.execute(
-            """
-            insert into contact
-            values
-              ('011 123 1234', 'Liam', 1), 
-              ('021 123 4567', 'Connor', 1), 
-              ('031 456 1235', 'Josh', 0), 
-              ('041 456 4567', 'Targo', 0),
-              ('0836005267', 'Michael', 1)
-            ;
-            """,
-          );
-        });
+        db.execute(Message.CREATE_TABLE);
+        db.execute(Contact.CREATE_TABLE);
       },
     );
   }
 
   Message saveMessage(String from, String to, String contents) {
-    Uuid uuid = new Uuid();
-    String randomID = uuid.v4();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    Message message = new Message(randomID, from, to, contents, timestamp);
+    Message message = new Message(
+        from, to, contents, DateTime.fromMillisecondsSinceEpoch(timestamp));
     _database.then((db) {
       db.insert("message", message.toMap());
     });
@@ -78,7 +44,10 @@ class DatabaseAccess {
         whereArgs: [phoneNumber, phoneNumber]);
 
     response.forEach((element) {
-      messages.add(Message.fromMap(element));
+      final message = Message.fromMap(element);
+      if (message != null) {
+        messages.add(message);
+      }
     });
 
     return messages;
@@ -110,7 +79,10 @@ class DatabaseAccess {
     final response = await db.query("contact", distinct: true);
 
     response.forEach((element) {
-      contacts.add(Contact.fromMap(element));
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        contacts.add(contact);
+      }
     });
 
     return contacts;
@@ -123,7 +95,10 @@ class DatabaseAccess {
         distinct: true, where: "has_chat = ?", whereArgs: [1]);
 
     response.forEach((element) {
-      contacts.add(Contact.fromMap(element));
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        contacts.add(contact);
+      }
     });
 
     return contacts;

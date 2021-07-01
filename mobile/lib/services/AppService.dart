@@ -66,7 +66,11 @@ class AppService {
 
   /// Disconnect the user from the server
   void disconnect() {
-    throw UnimplementedError();
+    final channel = this._channel;
+
+    if (channel != null) {
+      channel.sink.close();
+    }
   }
 
   /// Send a message to a [recipientNumber] through the web socket. The message

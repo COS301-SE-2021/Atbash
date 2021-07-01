@@ -131,12 +131,12 @@ class _SettingsPageState extends State<SettingsPage> {
               child: ElevatedButton(
                 key: Key("ElevatedButton"), //Need to remove
                 onPressed: () {
-                  // final displayName = _displayNameController.text;
+                  final displayName = _displayNameController.text;
                   // final status = _statusController.text;
                   // final profileImage =
                   //     base64Encode(_selectedProfileImage ?? []);
 
-                  // TODO save name change
+                  _userService.setUserDisplayName(displayName);
                   // TODO save profileImage change
 
                   Navigator.pop(context);

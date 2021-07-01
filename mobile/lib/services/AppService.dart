@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:web_socket_channel/io.dart';
 
 class AppService {
+  IOWebSocketChannel? _channel;
+
   final UserService _userService;
   final DatabaseService _databaseService;
 
@@ -12,8 +17,41 @@ class AppService {
 
   /// Connect the application to the server. A web socket connection is made,
   /// and the service will listen to and handle events on the socket.
-  void goOnline(String accessToken) {
-    throw UnimplementedError();
+  void goOnline(String accessToken) async {
+    _channel = IOWebSocketChannel.connect(
+      Uri.parse("ws://10.0.2.2:8080/chat?access_token=$accessToken"),
+    );
+
+    final channel = this._channel;
+    final phoneNumber = await _userService.getUserPhoneNumber();
+
+    if (channel != null) {
+      await for (final event in channel.stream) {
+        _handleEvent(phoneNumber, event);
+      }
+    }
+  }
+
+  void _handleEvent(String userPhoneNumber, dynamic event) {
+    final decodedEvent = jsonDecode(event) as Map<String, Object?>;
+    final fromNumber = decodedEvent["fromNumber"] as String?;
+    final contents = decodedEvent["contents"] as String?;
+    final timestamp = decodedEvent["timestamp"] as int?;
+
+    if (fromNumber != null && contents != null && timestamp != null) {
+      final message = _databaseService.saveMessage(
+        fromNumber,
+        userPhoneNumber,
+        contents,
+      );
+
+      final callback = messageReceivedCallbacks[fromNumber];
+      if (callback != null) {
+        callback(message);
+      } else {
+        // TODO handle if not currently in chat
+      }
+    }
   }
 
   /// Send a message to a [recipientNumber] through the web socket. The message

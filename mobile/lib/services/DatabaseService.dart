@@ -41,7 +41,24 @@ class DatabaseService {
   /// Fetches a list of all contacts that are flagged as having a chat from the
   /// database, ordered by display name.
   Future<List<Contact>> fetchContactsWithChats() async {
-    throw UnimplementedError();
+    final db = await _database;
+    final response = await db.query(
+      Contact.TABLE_NAME,
+      where: "${Contact.COLUMN_HAS_CHAT} = ?",
+      whereArgs: [1],
+      orderBy: "${Contact.COLUMN_DISPLAY_NAME} asc",
+    );
+
+    final list = <Contact>[];
+
+    response.forEach((element) {
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        list.add(contact);
+      }
+    });
+
+    return list;
   }
 
   /// Creates and saves a contact in the database. Returns null if attempted

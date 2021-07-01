@@ -38,7 +38,11 @@ class _ChatPageState extends State<ChatPage> {
       });
     });
 
-    // TODO listen for new messages
+    _appService.listenForMessagesFrom(_contact.phoneNumber, (m) {
+      setState(() {
+        _messages.add(m);
+      });
+    });
   }
 
   @override

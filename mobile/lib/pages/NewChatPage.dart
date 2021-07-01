@@ -23,6 +23,13 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+
+    _contactsService.disposeContactsChangedListener(_populateContacts);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),

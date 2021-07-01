@@ -22,7 +22,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    // TODO set display name
+    _userService.getUserDisplayNameOrNull().then((name) {
+      if (name != null) {
+        setState(() {
+          _displayNameController.text = name;
+        });
+      }
+    });
     // TODO set profilePicture
   }
 

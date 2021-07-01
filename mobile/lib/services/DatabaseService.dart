@@ -117,6 +117,17 @@ class DatabaseService {
     String recipientPhoneNumber,
     String contents,
   ) {
-    throw UnimplementedError();
+    final message = Message(
+      senderPhoneNumber,
+      recipientPhoneNumber,
+      contents,
+      DateTime.now(),
+    );
+
+    _database.then((db) {
+      db.insert(Message.TABLE_NAME, message.toMap());
+    });
+
+    return message;
   }
 }

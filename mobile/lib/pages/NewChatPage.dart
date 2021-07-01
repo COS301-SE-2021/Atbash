@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -8,13 +11,23 @@ class NewChatPage extends StatefulWidget {
 }
 
 class _NewChatPageState extends State<NewChatPage> {
+  final ContactsService _contactsService = GetIt.I.get();
+
   List<Contact> _contacts = [];
 
   @override
   void initState() {
     super.initState();
 
-    // TODO set contacts and listen for changes
+    _contactsService.onContactsChanged(_populateContacts);
+    _populateContacts();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _contactsService.disposeContactsChangedListener(_populateContacts);
   }
 
   @override
@@ -83,7 +96,22 @@ class _NewChatPageState extends State<NewChatPage> {
     );
   }
 
+  void _populateContacts() {
+    _contactsService.getAllContacts().then((allContacts) {
+      setState(() {
+        _contacts = allContacts;
+      });
+    });
+  }
+
   void _startChat(BuildContext context, Contact contact) {
-    // TODO needs implementation
+    _contactsService.startChatWithContact(contact.phoneNumber);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatPage(contact),
+      ),
+    );
   }
 }

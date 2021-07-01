@@ -110,7 +110,10 @@ class DatabaseAccess {
     final response = await db.query("contact", distinct: true);
 
     response.forEach((element) {
-      contacts.add(Contact.fromMap(element));
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        contacts.add(contact);
+      }
     });
 
     return contacts;

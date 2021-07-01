@@ -3,13 +3,23 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/LoginPage.dart';
-import 'package:mobile/services/DatabaseAccess.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/ContactsService.dart';
+import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/UserService.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  GetIt.I.registerSingleton(DatabaseAccess());
-  GetIt.I.registerSingleton(UserService());
+
+  final databaseService = DatabaseService();
+  final contactsService = ContactsService(databaseService);
+  final userService = UserService();
+  final appService = AppService(userService, databaseService);
+
+  GetIt.I.registerSingleton(databaseService);
+  GetIt.I.registerSingleton(contactsService);
+  GetIt.I.registerSingleton(userService);
+  GetIt.I.registerSingleton(appService);
 
   runApp(AtbashApp());
 }

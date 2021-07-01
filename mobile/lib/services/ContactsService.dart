@@ -14,7 +14,7 @@ class ContactsService {
 
   /// Returns a list of all the user's contacts
   Future<List<Contact>> getAllContacts() {
-    throw UnimplementedError();
+    return _databaseService.fetchContacts();
   }
 
   /// Returns a list of all the user's contacts where there is a chat with the

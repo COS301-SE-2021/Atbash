@@ -16,18 +16,25 @@ class Message {
     };
   }
 
-  static Message fromMap(Map<String, dynamic> map) {
-    final from = map["number_from"] as String;
-    final to = map["number_to"] as String;
-    final contents = map["contents"] as String;
-    final timestamp = map["timestamp"] as int;
+  static Message? fromMap(Map<String, Object?> map) {
+    final senderPhoneNumber = map[Message.COLUMN_SENDER_PHONE_NUMBER];
+    final recipientPhoneNumber = map[Message.COLUMN_RECIPIENT_PHONE_NUMBER];
+    final contents = map[Message.COLUMN_CONTENTS];
+    final timestamp = map[Message.COLUMN_TIMESTAMP];
 
-    return Message(
-      from,
-      to,
-      contents,
-      DateTime.fromMillisecondsSinceEpoch(timestamp),
-    );
+    if (senderPhoneNumber is String &&
+        recipientPhoneNumber is String &&
+        contents is String &&
+        timestamp is int) {
+      return Message(
+        senderPhoneNumber,
+        recipientPhoneNumber,
+        contents,
+        DateTime.fromMillisecondsSinceEpoch(timestamp),
+      );
+    } else {
+      return null;
+    }
   }
 
   static const String TABLE_NAME = "message";

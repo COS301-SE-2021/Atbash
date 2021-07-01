@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/ContactsService.dart';
+import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
@@ -12,6 +16,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final UserService _userService = GetIt.I.get();
+  final ContactsService _contactsService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+
   String _displayName = "";
   List<Contact> _chatContacts = [];
 

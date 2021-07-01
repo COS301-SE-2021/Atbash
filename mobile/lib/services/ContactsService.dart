@@ -33,7 +33,8 @@ class ContactsService {
   /// Starts a chat with the contact by setting the flag that there is a chat
   /// with the contact. Notifies listeners that contacts have changed.
   void startChatWithContact(String phoneNumber) {
-    throw UnimplementedError();
+    _databaseService.startChatWithContact(phoneNumber);
+    _notifyOnContactsChangedListeners();
   }
 
   /// Adds [fn] as a callback to the callback list

@@ -18,7 +18,8 @@ class _NewChatPageState extends State<NewChatPage> {
   void initState() {
     super.initState();
 
-    // TODO set contacts and listen for changes
+    _contactsService.onContactsChanged(_populateContacts);
+    _populateContacts();
   }
 
   @override
@@ -85,6 +86,14 @@ class _NewChatPageState extends State<NewChatPage> {
         ),
       ),
     );
+  }
+
+  void _populateContacts() {
+    _contactsService.getAllContacts().then((allContacts) {
+      setState(() {
+        _contacts = allContacts;
+      });
+    });
   }
 
   void _startChat(BuildContext context, Contact contact) {

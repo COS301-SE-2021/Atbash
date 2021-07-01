@@ -29,6 +29,6 @@ class AppService {
 
   /// Removed [senderNumber] from the callback map.
   void stopListeningForMessagesFrom(String senderNumber) {
-    throw UnimplementedError();
+    messageReceivedCallbacks.remove(senderNumber);
   }
 }

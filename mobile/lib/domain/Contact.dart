@@ -20,4 +20,12 @@ class Contact {
 
     return Contact(number, displayName, hasChat);
   }
+
+  static const String TABLE_NAME = "contact";
+  static const String COLUMN_PHONE_NUMBER = "phone_number";
+  static const String COLUMN_DISPLAY_NAME = "display_name";
+  static const String COLUMN_HAS_CHAT = "has_chat";
+
+  static const String CREATE_TABLE =
+      "create table $TABLE_NAME ($COLUMN_PHONE_NUMBER text primary key, $COLUMN_DISPLAY_NAME text not null, $COLUMN_HAS_CHAT tinyint not null);";
 }

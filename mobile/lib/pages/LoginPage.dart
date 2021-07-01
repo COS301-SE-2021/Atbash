@@ -5,6 +5,8 @@ import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/UserService.dart';
 
 class LoginPage extends StatelessWidget {
+  final UserService _userService = GetIt.I.get();
+
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -79,10 +81,14 @@ class LoginPage extends StatelessWidget {
   void _login(BuildContext context) {
     final phoneNumber = _phoneNumberController.text.trim();
     final password = _passwordController.text.trim();
-    GetIt.I.get<UserService>().login(phoneNumber, password).then((successful) {
+
+    _userService.login(phoneNumber, password).then((successful) {
       if (successful) {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => MainPage()));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Failed to login")));
       }
     });
   }

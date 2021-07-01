@@ -56,8 +56,23 @@ class AppService {
 
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
-  Future<Message> sendMessage(String recipientNumber, String contents) {
-    throw UnimplementedError();
+  Future<Message> sendMessage(String recipientNumber, String contents) async {
+    final channel = this._channel;
+    if (channel != null) {
+      final data = {
+        "recipientNumber": recipientNumber,
+        "contents": contents,
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+
+    final userPhoneNumber = await _userService.getUserPhoneNumber();
+    return _databaseService.saveMessage(
+      userPhoneNumber,
+      recipientNumber,
+      contents,
+    );
   }
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].

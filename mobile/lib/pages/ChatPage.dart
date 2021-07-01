@@ -31,7 +31,9 @@ class _ChatPageState extends State<ChatPage> {
     _messageService.listenForNewMessages((newMessage) {
       setState(() {
         _messages.addAll(newMessage);
-        _messages.sort((a, b) => a.timestamp - b.timestamp);
+        _messages.sort((a, b) =>
+            a.timestamp.millisecondsSinceEpoch -
+            b.timestamp.millisecondsSinceEpoch);
         _scrollController.animateTo(
           0.0,
           duration: const Duration(milliseconds: 300),
@@ -93,7 +95,7 @@ class _ChatPageState extends State<ChatPage> {
     Alignment alignment = Alignment.centerLeft;
     EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
 
-    if (message.numberTo == widget.contact.phoneNumber) {
+    if (message.recipientPhoneNumber == widget.contact.phoneNumber) {
       alignment = Alignment.centerRight;
       padding = EdgeInsets.only(left: 32.0, right: 16.0);
     }
@@ -109,7 +111,7 @@ class _ChatPageState extends State<ChatPage> {
               child: HoldTimeoutDetector(
                 onTimerInitiated: () {},
                 onTimeout: () {
-                  _deleteMessage(_messages.indexOf(message));
+                  // _deleteMessage(_messages.indexOf(message));
                 },
                 holdTimeout: Duration(milliseconds: 2000),
                 enableHapticFeedback: true,
@@ -166,10 +168,10 @@ class _ChatPageState extends State<ChatPage> {
     _inputController.text = "";
   }
 
-  void _deleteMessage(index) {
-    setState(() {
-      _messageService.deleteMessage(_messages.elementAt(index));
-      _messages.removeAt(index);
-    });
-  }
+  // void _deleteMessage(index) {
+  //   setState(() {
+  //     _messageService.deleteMessage(_messages.elementAt(index));
+  //     _messages.removeAt(index);
+  //   });
+  // }
 }

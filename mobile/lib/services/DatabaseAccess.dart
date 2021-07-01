@@ -2,7 +2,6 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 
 class DatabaseAccess {
   Future<Database> _database;
@@ -54,10 +53,9 @@ class DatabaseAccess {
   }
 
   Message saveMessage(String from, String to, String contents) {
-    Uuid uuid = new Uuid();
-    String randomID = uuid.v4();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    Message message = new Message(randomID, from, to, contents, timestamp);
+    Message message = new Message(
+        from, to, contents, DateTime.fromMillisecondsSinceEpoch(timestamp));
     _database.then((db) {
       db.insert("message", message.toMap());
     });

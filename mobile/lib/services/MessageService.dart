@@ -62,7 +62,7 @@ class MessageService {
       final messages = <Message>[];
       body.forEach((element) {
         final m = _parseUnreadMessageMap(uuid.v4(), userPhoneNumber, element);
-        if (m != null && m.numberFrom == fromNumber) {
+        if (m != null && m.senderPhoneNumber == fromNumber) {
           messages.add(m);
         }
       });
@@ -77,7 +77,8 @@ class MessageService {
     final String from = map["fromNumber"];
     final String contents = map["contents"];
     final int timestamp = map["timestamp"];
-    return Message(id, from, to, contents, timestamp);
+    return Message(
+        from, to, contents, DateTime.fromMillisecondsSinceEpoch(timestamp));
   }
 
   void _addMessage(Message m) {
@@ -85,10 +86,10 @@ class MessageService {
     _notifyNewMessageListeners([m]);
   }
 
-  void deleteMessage(Message m) {
-    _messages.remove(m);
-    db.deleteMessage(m.id);
-  }
+  // void deleteMessage(Message m) {
+  //   _messages.remove(m);
+  //   db.deleteMessage(m.id);
+  // }
 
   void listenForNewMessages(void Function(List<Message>) cb) {
     _newMessageListeners.add(cb);

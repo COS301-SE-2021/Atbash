@@ -1,6 +1,13 @@
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/UserService.dart';
 
 class AppService {
+  final UserService _userService;
+  final DatabaseService _databaseService;
+
+  AppService(this._userService, this._databaseService);
+
   /// Connect the application to the server. A web socket connection is made,
   /// and the service will listen to and handle events on the socket.
   void goOnline(String accessToken) {

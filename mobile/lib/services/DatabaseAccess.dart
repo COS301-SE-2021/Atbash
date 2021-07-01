@@ -76,7 +76,10 @@ class DatabaseAccess {
         whereArgs: [phoneNumber, phoneNumber]);
 
     response.forEach((element) {
-      messages.add(Message.fromMap(element));
+      final message = Message.fromMap(element);
+      if (message != null) {
+        messages.add(message);
+      }
     });
 
     return messages;

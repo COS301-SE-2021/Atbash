@@ -126,7 +126,10 @@ class DatabaseAccess {
         distinct: true, where: "has_chat = ?", whereArgs: [1]);
 
     response.forEach((element) {
-      contacts.add(Contact.fromMap(element));
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        contacts.add(contact);
+      }
     });
 
     return contacts;

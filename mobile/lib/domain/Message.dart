@@ -9,10 +9,10 @@ class Message {
 
   Map<String, dynamic> toMap() {
     return {
-      "number_from": senderPhoneNumber,
-      "number_to": recipientPhoneNumber,
-      "contents": contents,
-      "timestamp": timestamp,
+      COLUMN_SENDER_PHONE_NUMBER: this.senderPhoneNumber,
+      COLUMN_RECIPIENT_PHONE_NUMBER: this.recipientPhoneNumber,
+      COLUMN_CONTENTS: this.contents,
+      COLUMN_TIMESTAMP: this.timestamp.millisecondsSinceEpoch
     };
   }
 

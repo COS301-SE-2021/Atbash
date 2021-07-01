@@ -91,6 +91,13 @@ class UserService {
     return base64Decode(base64Image);
   }
 
+  /// Save [encodedImage] in secure storage as profile_image. The future
+  /// completes once the image is saved.
+  Future<void> setUserProfilePicture(Uint8List encodedImage) async {
+    final base64Image = base64Encode(encodedImage);
+    await _storage.write(key: "profile_image", value: base64Image);
+  }
+
   /// Get the phone_number of the user from secure storage. If it is not set,
   /// the function throws a [StateError], since the phone_number of a logged-in
   /// user is expected to be saved.

@@ -5,13 +5,19 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 import za.ac.up.cs.atbash.json.user.LoginRequestJson
 import za.ac.up.cs.atbash.json.user.RegisterRequestJson
+import za.ac.up.cs.atbash.service.JwtService
 import za.ac.up.cs.atbash.service.UserService
 
 @RestController
-class UserController(@Autowired private val userService: UserService) {
+class UserController(
+    @Autowired private val userService: UserService,
+    @Autowired private val jwtService: JwtService
+) {
+
 
     @PostMapping(path = ["rs/v1/login"])
     fun login(@RequestBody json: LoginRequestJson): ResponseEntity<String> {
@@ -41,5 +47,16 @@ class UserController(@Autowired private val userService: UserService) {
         }
     }
 
+    @PostMapping(path = ["rs/v1/helo"])
+    fun helo(@RequestHeader("Authorization") authorization: String?): ResponseEntity<Unit> {
+        if (authorization == null) {
+            return ResponseEntity(HttpStatus.UNAUTHORIZED)
+        }
 
+        return if (jwtService.verify(authorization)) {
+            ResponseEntity(HttpStatus.OK)
+        } else {
+            ResponseEntity(HttpStatus.UNAUTHORIZED)
+        }
+    }
 }

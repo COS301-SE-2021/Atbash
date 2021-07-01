@@ -17,7 +17,9 @@ class AppService {
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 
   /// Connect the application to the server. A web socket connection is made,
-  /// and the service will listen to and handle events on the socket.
+  /// and the service will listen to and handle events on the socket. The user's
+  /// access_token is used to connect. If this is not set, a [StateError] is
+  /// thrown
   void goOnline() async {
     final storage = FlutterSecureStorage();
     final accessToken = await storage.read(key: "access_token");

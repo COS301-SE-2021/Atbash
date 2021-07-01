@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:holding_gesture/holding_gesture.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class ChatPage extends StatefulWidget {
@@ -14,20 +17,32 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final DatabaseService _databaseService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+
   final Contact _contact;
+  final List<Message> _messages = [];
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
-
-  List<Message> _messages = [];
 
   _ChatPageState(this._contact);
 
   @override
   void initState() {
     super.initState();
-    // TODO fetch message history
-    // TODO listen for new messages
+
+    _databaseService.fetchMessagesWith(_contact.phoneNumber).then((messages) {
+      setState(() {
+        _messages.addAll(messages);
+      });
+    });
+
+    _appService.listenForMessagesFrom(_contact.phoneNumber, (m) {
+      setState(() {
+        _messages.add(m);
+      });
+    });
   }
 
   @override
@@ -146,13 +161,21 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    // TODO needs implementation
+    final recipientNumber = _contact.phoneNumber;
+    final contents = _inputController.text;
+
+    _appService.sendMessage(recipientNumber, contents).then((message) {
+      setState(() {
+        _messages.add(message);
+      });
+    });
+    _inputController.text = "";
   }
 
-  // void _deleteMessage(index) {
-  //   setState(() {
-  //     _messageService.deleteMessage(_messages.elementAt(index));
-  //     _messages.removeAt(index);
-  //   });
-  // }
+// void _deleteMessage(index) {
+//   setState(() {
+//     _messageService.deleteMessage(_messages.elementAt(index));
+//     _messages.removeAt(index);
+//   });
+// }
 }

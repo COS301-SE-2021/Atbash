@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -16,8 +17,17 @@ class AppService {
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 
   /// Connect the application to the server. A web socket connection is made,
-  /// and the service will listen to and handle events on the socket.
-  void goOnline(String accessToken) async {
+  /// and the service will listen to and handle events on the socket. The user's
+  /// access_token is used to connect. If this is not set, a [StateError] is
+  /// thrown
+  void goOnline() async {
+    final storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: "access_token");
+
+    if (accessToken == null) {
+      throw StateError("access_token is not readable");
+    }
+
     _channel = IOWebSocketChannel.connect(
       Uri.parse("ws://10.0.2.2:8080/chat?access_token=$accessToken"),
     );
@@ -51,6 +61,15 @@ class AppService {
       } else {
         // TODO handle if not currently in chat
       }
+    }
+  }
+
+  /// Disconnect the user from the server
+  void disconnect() {
+    final channel = this._channel;
+
+    if (channel != null) {
+      channel.sink.close();
     }
   }
 

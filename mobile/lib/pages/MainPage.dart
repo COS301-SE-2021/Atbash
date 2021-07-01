@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/ContactsService.dart';
+import 'package:mobile/services/UserService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
@@ -12,6 +16,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final UserService _userService = GetIt.I.get();
+  final ContactsService _contactsService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+
   String _displayName = "";
   List<Contact> _chatContacts = [];
 
@@ -19,8 +27,29 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
-    // TODO set display name and listen for changes
-    // TODO set chats and listen for changes
+    _userService.onUserDisplayNameChanged((name) {
+      setState(() {
+        _displayName = name;
+      });
+    }).then((name) {
+      setState(() {
+        _displayName = name;
+      });
+    });
+
+    _contactsService.onContactsChanged(() {
+      _populateChats();
+    });
+    _populateChats();
+
+    _appService.goOnline();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _appService.disconnect();
   }
 
   @override
@@ -107,5 +136,13 @@ class _MainPageState extends State<MainPage> {
       },
       child: Icon(Icons.chat),
     );
+  }
+
+  void _populateChats() {
+    _contactsService.getAllChats().then((contacts) {
+      setState(() {
+        _chatContacts = contacts;
+      });
+    });
   }
 }

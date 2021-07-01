@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:holding_gesture/holding_gesture.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class ChatPage extends StatefulWidget {
@@ -14,12 +17,14 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  final DatabaseService _databaseService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+
   final Contact _contact;
+  final List<Message> _messages = [];
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
-
-  List<Message> _messages = [];
 
   _ChatPageState(this._contact);
 

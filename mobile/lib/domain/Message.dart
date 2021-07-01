@@ -4,8 +4,12 @@ class Message {
   final String contents;
   final DateTime timestamp;
 
-  Message(this.senderPhoneNumber, this.recipientPhoneNumber, this.contents,
-      this.timestamp);
+  Message(
+    this.senderPhoneNumber,
+    this.recipientPhoneNumber,
+    this.contents,
+    this.timestamp,
+  );
 
   Map<String, dynamic> toMap() {
     return {

@@ -7,9 +7,9 @@ class Contact {
 
   Map<String, dynamic> toMap() {
     return {
-      "phone_number": phoneNumber,
-      "display_name": displayName,
-      "has_chat": hasChat,
+      COLUMN_PHONE_NUMBER: this.phoneNumber,
+      COLUMN_DISPLAY_NAME: this.displayName,
+      COLUMN_HAS_CHAT: this.hasChat ? 1 : 0
     };
   }
 

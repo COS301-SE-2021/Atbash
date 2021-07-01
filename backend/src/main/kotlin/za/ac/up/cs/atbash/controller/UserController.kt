@@ -14,12 +14,12 @@ import za.ac.up.cs.atbash.service.UserService
 class UserController(@Autowired private val userService: UserService) {
 
     @PostMapping(path = ["rs/v1/login"])
-    fun login(@RequestBody json: LoginRequestJson): ResponseEntity<String> {
-        if (json.number == null || json.password == null) {
+    fun login(number: String?, password: String?): ResponseEntity<String> {
+        if (number == null || password == null) {
             return ResponseEntity(HttpStatus.BAD_REQUEST)
         }
 
-        val jwtToken = userService.verifyLogin(json.number, json.password)
+        val jwtToken = userService.verifyLogin(number, password)
         return if (jwtToken != null) {
             ResponseEntity.status(HttpStatus.OK).body(jwtToken)
         } else {

@@ -8,6 +8,8 @@ class AppService {
 
   AppService(this._userService, this._databaseService);
 
+  final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
+
   /// Connect the application to the server. A web socket connection is made,
   /// and the service will listen to and handle events on the socket.
   void goOnline(String accessToken) {
@@ -22,7 +24,7 @@ class AppService {
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].
   void listenForMessagesFrom(String senderNumber, void Function(Message m) fn) {
-    throw UnimplementedError();
+    messageReceivedCallbacks[senderNumber] = fn;
   }
 
   /// Removed [senderNumber] from the callback map.

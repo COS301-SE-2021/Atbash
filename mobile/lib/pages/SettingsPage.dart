@@ -140,11 +140,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 onPressed: () {
                   final displayName = _displayNameController.text;
                   // final status = _statusController.text;
-                  // final profileImage =
-                  //     base64Encode(_selectedProfileImage ?? []);
+                  final profileImage = _selectedProfileImage ?? Uint8List(0);
 
                   _userService.setUserDisplayName(displayName);
-                  // TODO save profileImage change
+                  _userService.setUserProfilePicture(profileImage);
 
                   Navigator.pop(context);
                 },

@@ -81,7 +81,11 @@ class DatabaseService {
 
   /// Flags contact with phone number [phoneNumber] as having a chat.
   Future<void> startChatWithContact(String phoneNumber) async {
-    throw UnimplementedError();
+    final db = await _database;
+    db.rawUpdate(
+      "update contact set ${Contact.COLUMN_HAS_CHAT}=1 where ${Contact.COLUMN_PHONE_NUMBER}=?",
+      [phoneNumber],
+    );
   }
 
   /// Fetches all messages from a contact with phone number [phoneNumber],

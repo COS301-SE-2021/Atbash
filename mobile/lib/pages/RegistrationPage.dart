@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -20,6 +21,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Scaffold(
       body: ListView(
         children: [
+          Container(
+            margin: EdgeInsets.fromLTRB(32.0, 16.0, 32.0, 0.0),
+            child: SvgPicture.asset(
+              "assets/atbash.svg",
+              width: MediaQuery.of(context).size.width,
+            ),
+          ),
           Container(
             margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
             child: TextField(

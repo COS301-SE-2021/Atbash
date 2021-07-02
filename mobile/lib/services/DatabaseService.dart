@@ -21,6 +21,22 @@ class DatabaseService {
     );
   }
 
+  /// Fetches the name of the contact with phone number [phoneNumber]. Returns
+  /// null if contact is not in the database.
+  Future<String?> fetchContactNameByPhoneNumber(String phoneNumber) async {
+    final db = await _database;
+    final response = await db.rawQuery(
+      "select ${Contact.COLUMN_DISPLAY_NAME} from ${Contact.TABLE_NAME} where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [phoneNumber],
+    );
+
+    if (response.isNotEmpty) {
+      return response[0][Contact.COLUMN_DISPLAY_NAME] as String;
+    } else {
+      return null;
+    }
+  }
+
   /// Fetches a list of all contacts from the database, ordered by display name.
   Future<List<Contact>> fetchContacts() async {
     final db = await _database;

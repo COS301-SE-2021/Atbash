@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -11,8 +12,13 @@ class AppService {
 
   final UserService _userService;
   final DatabaseService _databaseService;
+  final NotificationService _notificationService;
 
-  AppService(this._userService, this._databaseService);
+  AppService(
+    this._userService,
+    this._databaseService,
+    this._notificationService,
+  );
 
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 

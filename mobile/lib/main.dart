@@ -6,20 +6,30 @@ import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final databaseService = DatabaseService();
   final contactsService = ContactsService(databaseService);
   final userService = UserService();
-  final appService = AppService(userService, databaseService);
+  final notificationService = NotificationService();
+  final appService = AppService(
+    userService,
+    databaseService,
+    notificationService,
+  );
 
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(contactsService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(appService);
+  GetIt.I.registerSingleton(notificationService);
+
+  final permissionGranted = await notificationService.init();
+  print("Notifications permitted: $permissionGranted");
 
   runApp(AtbashApp());
 }

@@ -34,22 +34,24 @@ class NotificationService {
     String title,
     String body,
     String payload,
+    bool withSound,
   ) {
-    const androidNotificationDetails = AndroidNotificationDetails(
+    final androidNotificationDetails = AndroidNotificationDetails(
       "message",
       "Messages",
       "Triggered when receiving a message",
       importance: Importance.high,
       priority: Priority.high,
+      playSound: withSound,
     );
 
-    const iosNotificationDetails = IOSNotificationDetails(
+    final iosNotificationDetails = IOSNotificationDetails(
       presentAlert: true,
       presentBadge: true,
-      presentSound: true,
+      presentSound: withSound,
     );
 
-    const notificationDetails = NotificationDetails(
+    final notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
       iOS: iosNotificationDetails,
     );

@@ -46,6 +46,12 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _appService.stopListeningForMessagesFrom(_contact.phoneNumber);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),

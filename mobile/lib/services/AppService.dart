@@ -65,7 +65,21 @@ class AppService {
       if (callback != null) {
         callback(message);
       } else {
-        // TODO handle if not currently in chat
+        _databaseService.fetchContactNameByPhoneNumber(fromNumber).then(
+          (fromName) {
+            if (fromName == null) {
+              fromName = fromNumber;
+            }
+
+            _notificationService.showNotification(
+              1,
+              "$fromName",
+              "$contents",
+              "",
+              false,
+            );
+          },
+        );
       }
     }
   }

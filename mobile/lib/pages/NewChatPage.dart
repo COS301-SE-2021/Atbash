@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ContactsService.dart';
@@ -73,7 +74,17 @@ class _NewChatPageState extends State<NewChatPage> {
 
   InkWell _buildNewContactItem(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        showNewContactDialog(context).then((nameNumberPair) {
+          if (nameNumberPair != null) {
+            _contactsService.addContact(
+              nameNumberPair.phoneNumber,
+              nameNumberPair.name,
+              false,
+            );
+          }
+        });
+      },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(

@@ -49,9 +49,13 @@ class _NewContactDialog extends StatelessWidget {
             final name = _nameController.text.trim();
             final phoneNumber = _phoneNumberController.text.trim();
 
-            final pair = PhoneNumberNamePair(phoneNumber, name);
-
-            Navigator.of(context).pop(pair);
+            if (name.isNotEmpty && phoneNumber.isNotEmpty) {
+              final pair = PhoneNumberNamePair(phoneNumber, name);
+              Navigator.of(context).pop(pair);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Both name and number are required")));
+            }
           },
           child: Text("ADD"),
         ),

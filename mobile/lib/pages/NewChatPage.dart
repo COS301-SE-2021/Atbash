@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ContactsService.dart';
@@ -64,7 +65,47 @@ class _NewChatPageState extends State<NewChatPage> {
 
   ListView _buildBody(BuildContext context) {
     return ListView(
-      children: _buildContactList(context),
+      children: [
+        _buildNewContactItem(context),
+        ..._buildContactList(context),
+      ],
+    );
+  }
+
+  InkWell _buildNewContactItem(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        showNewContactDialog(context).then((nameNumberPair) {
+          if (nameNumberPair != null) {
+            _contactsService.addContact(
+              nameNumberPair.phoneNumber,
+              nameNumberPair.name,
+              false,
+            );
+          }
+        });
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(Icons.person_add),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  "New contact",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

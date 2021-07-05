@@ -15,8 +15,47 @@ Future<PhoneNumberNamePair?> showNewContactDialog(BuildContext context) {
 }
 
 class _NewContactDialog extends StatelessWidget {
+  final _nameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return AlertDialog(
+      title: Text("Create new contact"),
+      content: Wrap(children: [
+        Column(
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(hintText: "Name"),
+            ),
+            TextField(
+              controller: _phoneNumberController,
+              decoration: InputDecoration(hintText: "Phone number"),
+              keyboardType: TextInputType.phone,
+            ),
+          ],
+        ),
+      ]),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(null);
+          },
+          child: Text("CANCEL"),
+        ),
+        TextButton(
+          onPressed: () {
+            final name = _nameController.text.trim();
+            final phoneNumber = _phoneNumberController.text.trim();
+
+            final pair = PhoneNumberNamePair(phoneNumber, name);
+
+            Navigator.of(context).pop(pair);
+          },
+          child: Text("ADD"),
+        ),
+      ],
+    );
   }
 }

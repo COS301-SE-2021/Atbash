@@ -64,7 +64,37 @@ class _NewChatPageState extends State<NewChatPage> {
 
   ListView _buildBody(BuildContext context) {
     return ListView(
-      children: _buildContactList(context),
+      children: [
+        _buildNewContactItem(context),
+        ..._buildContactList(context),
+      ],
+    );
+  }
+
+  InkWell _buildNewContactItem(BuildContext context) {
+    return InkWell(
+      onTap: () {},
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(4.0),
+              child: Icon(Icons.person_add),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  "New contact",
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

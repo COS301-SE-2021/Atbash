@@ -1,5 +1,7 @@
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/responses/ContactsServiceResponses.dart';
+import 'package:mobile/services/responses/DatabaseServiceResponses.dart';
 
 class ContactsService {
   final DatabaseService _databaseService;
@@ -9,14 +11,40 @@ class ContactsService {
 
   /// Add a contact, saves to the database. Notifies listeners that contacts
   /// have changed.
-  void addContact(String phoneNumber, String displayName, bool hasChat) {
-    _databaseService
-        .createContact(phoneNumber, displayName, hasChat)
-        .then((contact) {
-      if (contact != null) {
-        _notifyOnContactsChangedListeners();
-      }
-    });
+  Future<AddContactResponse> addContact(
+    String phoneNumber,
+    String displayName,
+    bool hasChat,
+  ) async {
+    final response =
+        await _databaseService.createContact(phoneNumber, displayName, hasChat);
+
+    switch (response.status) {
+      case CreateContactResponseStatus.SUCCESS:
+        if (response.contact == null) {
+          throw StateError(
+              "DatabaseService::createContact returned success status with null contact");
+        } else {
+          _notifyOnContactsChangedListeners();
+
+          return AddContactResponse(
+            AddContactResponseStatus.SUCCESS,
+            response.contact,
+          );
+        }
+
+      case CreateContactResponseStatus.DUPLICATE_NUMBER:
+        return AddContactResponse(
+          AddContactResponseStatus.DUPLICATE_NUMBER,
+          null,
+        );
+
+      case CreateContactResponseStatus.GENERAL_ERROR:
+        return AddContactResponse(
+          AddContactResponseStatus.GENERAL_ERROR,
+          null,
+        );
+    }
   }
 
   /// Returns a list of all the user's contacts

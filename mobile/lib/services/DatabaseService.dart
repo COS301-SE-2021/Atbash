@@ -1,5 +1,6 @@
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/responses/DatabaseServiceResponses.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -63,19 +64,41 @@ class DatabaseService {
 
   /// Creates and saves a contact in the database. Returns null if attempted
   /// save caused some key or constraint violation.
-  Future<Contact?> createContact(
+  Future<CreateContactResponse> createContact(
     String phoneNumber,
     String displayName,
     bool hasChat,
   ) async {
     final db = await _database;
-    final contact = Contact(phoneNumber, displayName, hasChat);
 
-    final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
-    if (response != 0) {
-      return contact;
+    final phoneNumberConflict = await _contactWithNumberExists(phoneNumber);
+    if (phoneNumberConflict) {
+      return CreateContactResponse(
+        CreateContactResponseStatus.DUPLICATE_NUMBER,
+        null,
+      );
     } else {
-      return null;
+      final contact = Contact(phoneNumber, displayName, hasChat);
+
+      try {
+        final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
+        if (response == 0) {
+          return CreateContactResponse(
+            CreateContactResponseStatus.SUCCESS,
+            contact,
+          );
+        } else {
+          return CreateContactResponse(
+            CreateContactResponseStatus.GENERAL_ERROR,
+            null,
+          );
+        }
+      } catch (exception) {
+        return CreateContactResponse(
+          CreateContactResponseStatus.GENERAL_ERROR,
+          null,
+        );
+      }
     }
   }
 

@@ -79,6 +79,13 @@ class DatabaseService {
     }
   }
 
+  Future<bool> _contactWithNumberExists(String phoneNumber) async {
+    final db = await _database;
+    final response = await db.query(Contact.TABLE_NAME,
+        where: "${Contact.COLUMN_PHONE_NUMBER}=?", whereArgs: [phoneNumber]);
+    return response.length > 0;
+  }
+
   /// Flags contact with phone number [phoneNumber] as having a chat.
   Future<void> startChatWithContact(String phoneNumber) async {
     final db = await _database;

@@ -82,7 +82,7 @@ class DatabaseService {
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
-        if (response == 0) {
+        if (response != 0) {
           return CreateContactResponse(
             CreateContactResponseStatus.SUCCESS,
             contact,
@@ -94,6 +94,7 @@ class DatabaseService {
           );
         }
       } catch (exception) {
+        print(exception);
         return CreateContactResponse(
           CreateContactResponseStatus.GENERAL_ERROR,
           null,

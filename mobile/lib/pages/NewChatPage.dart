@@ -4,6 +4,7 @@ import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ContactsService.dart';
+import 'package:mobile/services/responses/ContactsServiceResponses.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -74,17 +75,7 @@ class _NewChatPageState extends State<NewChatPage> {
 
   InkWell _buildNewContactItem(BuildContext context) {
     return InkWell(
-      onTap: () {
-        showNewContactDialog(context).then((nameNumberPair) {
-          if (nameNumberPair != null) {
-            _contactsService.addContact(
-              nameNumberPair.phoneNumber,
-              nameNumberPair.name,
-              false,
-            );
-          }
-        });
-      },
+      onTap: () => _addContact(context),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
@@ -106,6 +97,39 @@ class _NewChatPageState extends State<NewChatPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _addContact(BuildContext context) {
+    showNewContactDialog(context).then(
+      (nameNumberPair) {
+        if (nameNumberPair != null) {
+          _contactsService
+              .addContact(
+            nameNumberPair.phoneNumber,
+            nameNumberPair.name,
+            false,
+          )
+              .then((response) {
+            if (response.status == AddContactResponseStatus.DUPLICATE_NUMBER) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    "This number already exists in your contacts",
+                  ),
+                ),
+              );
+            } else if (response.status ==
+                AddContactResponseStatus.GENERAL_ERROR) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("An error occurred"),
+                ),
+              );
+            }
+          });
+        }
+      },
     );
   }
 

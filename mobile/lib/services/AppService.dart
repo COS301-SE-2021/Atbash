@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -13,11 +14,13 @@ class AppService {
   final UserService _userService;
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
+  final ContactsService _contactsService;
 
   AppService(
     this._userService,
     this._databaseService,
     this._notificationService,
+    this._contactsService,
   );
 
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
@@ -65,21 +68,24 @@ class AppService {
       if (callback != null) {
         callback(message);
       } else {
-        _databaseService.fetchContactNameByPhoneNumber(fromNumber).then(
-          (fromName) {
-            if (fromName == null) {
-              fromName = fromNumber;
-            }
+        _databaseService.fetchContactByNumber(fromNumber).then((fromContact) {
+          String title = fromNumber;
 
-            _notificationService.showNotification(
-              1,
-              "$fromName",
-              "$contents",
-              "$fromNumber",
-              false,
-            );
-          },
-        );
+          if (fromContact == null) {
+            _contactsService.addContact(fromNumber, "", true);
+          } else {
+            if (fromContact.displayName.isNotEmpty)
+              title = fromContact.displayName;
+          }
+
+          _notificationService.showNotification(
+            1,
+            title,
+            contents,
+            fromNumber,
+            false,
+          );
+        });
       }
     }
   }

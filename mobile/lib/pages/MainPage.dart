@@ -61,7 +61,7 @@ class _MainPageState extends State<MainPage> {
     return WillPopScope(
       onWillPop: () async {
         if (_searching) {
-         _stopSearching();
+          _stopSearching();
           return false;
         } else {
           return true;
@@ -96,18 +96,17 @@ class _MainPageState extends State<MainPage> {
     return AppBar(
       title: title,
       leading: _searching
-          ? IconButton(
-              onPressed: _stopSearching,
-              icon: Icon(Icons.arrow_back))
+          ? IconButton(onPressed: _stopSearching, icon: Icon(Icons.arrow_back))
           : null,
       actions: [
-        IconButton(
-            onPressed: () {
-              setState(() {
-                _searching = true;
-              });
-            },
-            icon: Icon(Icons.search)),
+        if (!_searching)
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  _searching = true;
+                });
+              },
+              icon: Icon(Icons.search)),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {

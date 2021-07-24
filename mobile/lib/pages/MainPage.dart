@@ -22,7 +22,10 @@ class _MainPageState extends State<MainPage> {
 
   String _displayName = "";
   List<Contact> _chatContacts = [];
+  List<Contact> _filteredContacts = [];
   bool _searching = false;
+
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -58,9 +61,7 @@ class _MainPageState extends State<MainPage> {
     return WillPopScope(
       onWillPop: () async {
         if (_searching) {
-          setState(() {
-            _searching = false;
-          });
+         _stopSearching();
           return false;
         } else {
           return true;
@@ -74,22 +75,29 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  void _stopSearching() {
+    setState(() {
+      _searching = false;
+      _filteredContacts = _chatContacts;
+      _searchController.text = "";
+    });
+  }
+
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Text(_displayName);
 
     if (_searching) {
-      title = TextField();
+      title = TextField(
+        controller: _searchController,
+        onChanged: _filter,
+      );
     }
 
     return AppBar(
       title: title,
       leading: _searching
           ? IconButton(
-              onPressed: () {
-                setState(() {
-                  _searching = false;
-                });
-              },
+              onPressed: _stopSearching,
               icon: Icon(Icons.arrow_back))
           : null,
       actions: [
@@ -128,9 +136,24 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  void _filter(String searchQuery) {
+    if (searchQuery.isNotEmpty) {
+      setState(() {
+        _filteredContacts = _chatContacts
+            .where((c) =>
+                c.displayName.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      });
+    } else {
+      setState(() {
+        _filteredContacts = _chatContacts;
+      });
+    }
+  }
+
   ListView _buildBody() {
     return ListView(
-        children: _chatContacts.map((chat) => _buildChat(chat)).toList());
+        children: _filteredContacts.map((chat) => _buildChat(chat)).toList());
   }
 
   InkWell _buildChat(Contact contact) {
@@ -176,6 +199,7 @@ class _MainPageState extends State<MainPage> {
     _contactsService.getAllChats().then((contacts) {
       setState(() {
         _chatContacts = contacts;
+        _filteredContacts = contacts;
       });
     });
   }

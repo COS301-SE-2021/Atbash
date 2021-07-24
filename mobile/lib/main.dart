@@ -17,11 +17,13 @@ void main() async {
   final databaseService = DatabaseService();
   final contactsService = ContactsService(databaseService);
   final userService = UserService();
-  final notificationService = NotificationService(databaseService, navigatorKey);
+  final notificationService =
+      NotificationService(databaseService, navigatorKey);
   final appService = AppService(
     userService,
     databaseService,
     notificationService,
+    contactsService,
   );
 
   GetIt.I.registerSingleton(databaseService);

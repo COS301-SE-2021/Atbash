@@ -178,7 +178,9 @@ class _MainPageState extends State<MainPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  contact.displayName,
+                  contact.displayName.isNotEmpty
+                      ? contact.displayName
+                      : contact.phoneNumber,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18.0),
                 ),

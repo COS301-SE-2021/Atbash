@@ -203,7 +203,9 @@ class _NewChatPageState extends State<NewChatPage> {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  contact.displayName,
+                  contact.displayName.isNotEmpty
+                      ? contact.displayName
+                      : contact.phoneNumber,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18.0),
                 ),

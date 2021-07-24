@@ -22,10 +22,17 @@ class _MainPageState extends State<MainPage> {
 
   String _displayName = "";
   List<Contact> _chatContacts = [];
+  List<Contact> _filteredContacts = [];
+  bool _searching = false;
+
+  final _searchController = TextEditingController();
+  late final FocusNode _searchFocusNode;
 
   @override
   void initState() {
     super.initState();
+
+    _searchFocusNode = FocusNode();
 
     _userService.onUserDisplayNameChanged((name) {
       setState(() {
@@ -49,23 +56,65 @@ class _MainPageState extends State<MainPage> {
   void dispose() {
     super.dispose();
 
+    _searchFocusNode.dispose();
     _appService.disconnect();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButton(context),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_searching) {
+          _stopSearching();
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        body: _buildBody(),
+        floatingActionButton: _buildFloatingActionButton(context),
+      ),
     );
   }
 
+  void _stopSearching() {
+    setState(() {
+      _searching = false;
+      _filteredContacts = _chatContacts;
+      _searchController.text = "";
+    });
+  }
+
   AppBar _buildAppBar(BuildContext context) {
+    Widget title = Text(_displayName);
+
+    if (_searching) {
+      title = TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        onChanged: _filter,
+        decoration: InputDecoration(border: InputBorder.none),
+      );
+
+      _searchFocusNode.requestFocus();
+    }
+
     return AppBar(
-      title: Text(_displayName),
+      title: title,
+      leading: _searching
+          ? IconButton(onPressed: _stopSearching, icon: Icon(Icons.arrow_back))
+          : null,
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        if (!_searching)
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  _searching = true;
+                });
+              },
+              icon: Icon(Icons.search)),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
@@ -94,9 +143,24 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  void _filter(String searchQuery) {
+    if (searchQuery.isNotEmpty) {
+      setState(() {
+        _filteredContacts = _chatContacts
+            .where((c) =>
+                c.displayName.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      });
+    } else {
+      setState(() {
+        _filteredContacts = _chatContacts;
+      });
+    }
+  }
+
   ListView _buildBody() {
     return ListView(
-        children: _chatContacts.map((chat) => _buildChat(chat)).toList());
+        children: _filteredContacts.map((chat) => _buildChat(chat)).toList());
   }
 
   InkWell _buildChat(Contact contact) {
@@ -142,6 +206,7 @@ class _MainPageState extends State<MainPage> {
     _contactsService.getAllChats().then((contacts) {
       setState(() {
         _chatContacts = contacts;
+        _filteredContacts = contacts;
       });
     });
   }

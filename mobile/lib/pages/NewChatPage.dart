@@ -17,6 +17,9 @@ class _NewChatPageState extends State<NewChatPage> {
 
   bool _searching = false;
   List<Contact> _contacts = [];
+  List<Contact> _filteredContacts = [];
+
+  final _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -40,6 +43,8 @@ class _NewChatPageState extends State<NewChatPage> {
         if (_searching) {
           setState(() {
             _searching = false;
+            _filteredContacts = _contacts;
+            _searchController.text = "";
           });
           return false;
         } else {
@@ -60,7 +65,10 @@ class _NewChatPageState extends State<NewChatPage> {
     );
 
     if (_searching) {
-      title = TextField();
+      title = TextField(
+        controller: _searchController,
+        onChanged: _filter,
+      );
     }
     return AppBar(
       title: Row(
@@ -84,6 +92,21 @@ class _NewChatPageState extends State<NewChatPage> {
         ),
       ],
     );
+  }
+
+  void _filter(String searchQuery) {
+    if (searchQuery.isNotEmpty) {
+      setState(() {
+        _filteredContacts = _contacts
+            .where((c) =>
+                c.displayName.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      });
+    } else {
+      setState(() {
+        _filteredContacts = _contacts;
+      });
+    }
   }
 
   ListView _buildBody(BuildContext context) {
@@ -156,7 +179,7 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   List<InkWell> _buildContactList(BuildContext context) {
-    return _contacts.map((e) => _buildContact(context, e)).toList();
+    return _filteredContacts.map((e) => _buildContact(context, e)).toList();
   }
 
   InkWell _buildContact(BuildContext context, Contact contact) {
@@ -187,6 +210,7 @@ class _NewChatPageState extends State<NewChatPage> {
     _contactsService.getAllContacts().then((allContacts) {
       setState(() {
         _contacts = allContacts;
+        _filteredContacts = allContacts;
       });
     });
   }

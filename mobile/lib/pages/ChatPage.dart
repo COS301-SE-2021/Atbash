@@ -68,7 +68,9 @@ class _ChatPageState extends State<ChatPage> {
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                widget.contact.displayName,
+                widget.contact.displayName.isNotEmpty
+                    ? widget.contact.displayName
+                    : widget.contact.phoneNumber,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

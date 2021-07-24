@@ -26,10 +26,13 @@ class _MainPageState extends State<MainPage> {
   bool _searching = false;
 
   final _searchController = TextEditingController();
+  late final FocusNode _searchFocusNode;
 
   @override
   void initState() {
     super.initState();
+
+    _searchFocusNode = FocusNode();
 
     _userService.onUserDisplayNameChanged((name) {
       setState(() {
@@ -53,6 +56,7 @@ class _MainPageState extends State<MainPage> {
   void dispose() {
     super.dispose();
 
+    _searchFocusNode.dispose();
     _appService.disconnect();
   }
 
@@ -89,8 +93,12 @@ class _MainPageState extends State<MainPage> {
     if (_searching) {
       title = TextField(
         controller: _searchController,
+        focusNode: _searchFocusNode,
         onChanged: _filter,
+        decoration: InputDecoration(border: InputBorder.none),
       );
+
+      _searchFocusNode.requestFocus();
     }
 
     return AppBar(

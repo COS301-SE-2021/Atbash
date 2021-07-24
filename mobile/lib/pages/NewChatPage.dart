@@ -15,6 +15,7 @@ class NewChatPage extends StatefulWidget {
 class _NewChatPageState extends State<NewChatPage> {
   final ContactsService _contactsService = GetIt.I.get();
 
+  bool _searching = false;
   List<Contact> _contacts = [];
 
   @override
@@ -34,30 +35,51 @@ class _NewChatPageState extends State<NewChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(context),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_searching) {
+          setState(() {
+            _searching = false;
+          });
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: _buildBody(context),
+      ),
     );
   }
 
   AppBar _buildAppBar() {
+    Widget title = Text(
+      "Select a Contact",
+      overflow: TextOverflow.ellipsis,
+    );
+
+    if (_searching) {
+      title = TextField();
+    }
     return AppBar(
       title: Row(
         children: [
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                "Select a Contact",
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: title,
             ),
           ),
         ],
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            setState(() {
+              _searching = true;
+            });
+          },
           icon: Icon(Icons.search),
         ),
       ],

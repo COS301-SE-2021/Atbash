@@ -20,10 +20,13 @@ class _NewChatPageState extends State<NewChatPage> {
   List<Contact> _filteredContacts = [];
 
   final _searchController = TextEditingController();
+  late final FocusNode _searchFocusNode;
 
   @override
   void initState() {
     super.initState();
+
+    _searchFocusNode = FocusNode();
 
     _contactsService.onContactsChanged(_populateContacts);
     _populateContacts();
@@ -34,6 +37,7 @@ class _NewChatPageState extends State<NewChatPage> {
     super.dispose();
 
     _contactsService.disposeContactsChangedListener(_populateContacts);
+    _searchFocusNode.dispose();
   }
 
   @override
@@ -67,8 +71,12 @@ class _NewChatPageState extends State<NewChatPage> {
     if (_searching) {
       title = TextField(
         controller: _searchController,
+        focusNode: _searchFocusNode,
         onChanged: _filter,
+        decoration: InputDecoration(border: InputBorder.none),
       );
+
+      _searchFocusNode.requestFocus();
     }
     return AppBar(
       title: Row(

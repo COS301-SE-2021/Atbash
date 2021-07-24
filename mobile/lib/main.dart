@@ -12,10 +12,12 @@ import 'package:mobile/services/UserService.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final navigatorKey = GlobalKey<NavigatorState>();
+
   final databaseService = DatabaseService();
   final contactsService = ContactsService(databaseService);
   final userService = UserService();
-  final notificationService = NotificationService();
+  final notificationService = NotificationService(databaseService, navigatorKey);
   final appService = AppService(
     userService,
     databaseService,
@@ -31,11 +33,15 @@ void main() async {
   final permissionGranted = await notificationService.init();
   print("Notifications permitted: $permissionGranted");
 
-  runApp(AtbashApp());
+  runApp(AtbashApp(navigatorKey));
 }
 
 class AtbashApp extends StatelessWidget {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+  final GlobalKey<NavigatorState> _navigatorKey;
+
+  AtbashApp(this._navigatorKey);
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +54,7 @@ class AtbashApp extends StatelessWidget {
           return MaterialApp(
             title: "Atbash",
             theme: ThemeData(primarySwatch: Colors.orange),
+            navigatorKey: _navigatorKey,
             home: LoginPage(),
           );
         }

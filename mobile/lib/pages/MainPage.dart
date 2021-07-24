@@ -22,6 +22,7 @@ class _MainPageState extends State<MainPage> {
 
   String _displayName = "";
   List<Contact> _chatContacts = [];
+  bool _searching = false;
 
   @override
   void initState() {
@@ -54,18 +55,51 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButton(context),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_searching) {
+          setState(() {
+            _searching = false;
+          });
+          return false;
+        } else {
+          return true;
+        }
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        body: _buildBody(),
+        floatingActionButton: _buildFloatingActionButton(context),
+      ),
     );
   }
 
   AppBar _buildAppBar(BuildContext context) {
+    Widget title = Text(_displayName);
+
+    if (_searching) {
+      title = TextField();
+    }
+
     return AppBar(
-      title: Text(_displayName),
+      title: title,
+      leading: _searching
+          ? IconButton(
+              onPressed: () {
+                setState(() {
+                  _searching = false;
+                });
+              },
+              icon: Icon(Icons.arrow_back))
+          : null,
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        IconButton(
+            onPressed: () {
+              setState(() {
+                _searching = true;
+              });
+            },
+            icon: Icon(Icons.search)),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {

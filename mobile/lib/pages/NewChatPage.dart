@@ -82,14 +82,15 @@ class _NewChatPageState extends State<NewChatPage> {
         ],
       ),
       actions: [
-        IconButton(
-          onPressed: () {
-            setState(() {
-              _searching = true;
-            });
-          },
-          icon: Icon(Icons.search),
-        ),
+        if (!_searching)
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _searching = true;
+              });
+            },
+            icon: Icon(Icons.search),
+          ),
       ],
     );
   }

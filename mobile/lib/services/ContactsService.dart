@@ -15,9 +15,14 @@ class ContactsService {
     String phoneNumber,
     String displayName,
     bool hasChat,
+    bool save,
   ) async {
-    final response =
-        await _databaseService.createContact(phoneNumber, displayName, hasChat);
+    final response = await _databaseService.createContact(
+      phoneNumber,
+      displayName,
+      hasChat,
+      save,
+    );
 
     switch (response.status) {
       case CreateContactResponseStatus.SUCCESS:

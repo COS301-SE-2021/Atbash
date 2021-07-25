@@ -160,10 +160,7 @@ class _NewChatPageState extends State<NewChatPage> {
         if (nameNumberPair != null) {
           _contactsService
               .addContact(
-            nameNumberPair.phoneNumber,
-            nameNumberPair.name,
-            false,
-          )
+                  nameNumberPair.phoneNumber, nameNumberPair.name, false, true)
               .then((response) {
             if (response.status == AddContactResponseStatus.DUPLICATE_NUMBER) {
               ScaffoldMessenger.of(context).showSnackBar(

@@ -72,7 +72,7 @@ class AppService {
           String title = fromNumber;
 
           if (fromContact == null) {
-            _contactsService.addContact(fromNumber, "", true);
+            _contactsService.addContact(fromNumber, "", true, false);
           } else {
             if (fromContact.displayName.isNotEmpty)
               title = fromContact.displayName;

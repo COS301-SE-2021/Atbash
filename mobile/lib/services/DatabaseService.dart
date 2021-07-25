@@ -101,6 +101,7 @@ class DatabaseService {
     String phoneNumber,
     String displayName,
     bool hasChat,
+    bool save,
   ) async {
     final db = await _database;
 
@@ -111,7 +112,7 @@ class DatabaseService {
         null,
       );
     } else {
-      final contact = Contact(phoneNumber, displayName, hasChat);
+      final contact = Contact(phoneNumber, displayName, hasChat, save);
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());

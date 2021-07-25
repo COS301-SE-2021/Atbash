@@ -215,7 +215,7 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   void _populateContacts() {
-    _contactsService.getAllContacts().then((allContacts) {
+    _contactsService.getAllSavedContacts().then((allContacts) {
       setState(() {
         _contacts = allContacts;
         _filteredContacts = allContacts;

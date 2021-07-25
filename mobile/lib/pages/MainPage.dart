@@ -120,8 +120,14 @@ class _MainPageState extends State<MainPage> {
 
     return AppBar(
       title: title,
-      leading: _searching
-          ? IconButton(onPressed: _stopSearching, icon: Icon(Icons.arrow_back))
+      leading: _searching || _selecting
+          ? IconButton(
+              onPressed: () {
+                if (_searching) _stopSearching();
+                if (_selecting) _stopSelecting();
+              },
+              icon: Icon(Icons.arrow_back),
+            )
           : null,
       actions: [
         if (!_selecting && !_searching)

@@ -8,6 +8,7 @@ import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
@@ -21,9 +22,11 @@ class _MainPageState extends State<MainPage> {
   final AppService _appService = GetIt.I.get();
 
   String _displayName = "";
-  List<Contact> _chatContacts = [];
-  List<Contact> _filteredContacts = [];
+  List<Tuple<Contact, bool>> _chatContacts = [];
+  List<Tuple<Contact, bool>> _filteredContacts = [];
   bool _searching = false;
+
+  bool _selecting = false;
 
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
@@ -64,12 +67,18 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        bool shouldPop = true;
+
+        if (_selecting) {
+          _stopSelecting();
+          shouldPop = false;
+        }
+
         if (_searching) {
           _stopSearching();
-          return false;
-        } else {
-          return true;
+          shouldPop = false;
         }
+        return shouldPop;
       },
       child: Scaffold(
         appBar: _buildAppBar(context),
@@ -84,6 +93,14 @@ class _MainPageState extends State<MainPage> {
       _searching = false;
       _filteredContacts = _chatContacts;
       _searchController.text = "";
+    });
+  }
+
+  void _stopSelecting() {
+    setState(() {
+      _selecting = false;
+      _chatContacts.forEach((element) => element.second = false);
+      _filteredContacts.forEach((element) => element.second = false);
     });
   }
 
@@ -107,7 +124,7 @@ class _MainPageState extends State<MainPage> {
           ? IconButton(onPressed: _stopSearching, icon: Icon(Icons.arrow_back))
           : null,
       actions: [
-        if (!_searching)
+        if (!_selecting && !_searching)
           IconButton(
               onPressed: () {
                 setState(() {
@@ -115,6 +132,7 @@ class _MainPageState extends State<MainPage> {
                 });
               },
               icon: Icon(Icons.search)),
+        if (_selecting) IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
@@ -147,8 +165,9 @@ class _MainPageState extends State<MainPage> {
     if (searchQuery.isNotEmpty) {
       setState(() {
         _filteredContacts = _chatContacts
-            .where((c) =>
-                c.displayName.toLowerCase().contains(searchQuery.toLowerCase()))
+            .where((c) => c.first.displayName
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()))
             .toList();
       });
     } else {
@@ -163,11 +182,25 @@ class _MainPageState extends State<MainPage> {
         children: _filteredContacts.map((chat) => _buildChat(chat)).toList());
   }
 
-  InkWell _buildChat(Contact contact) {
+  InkWell _buildChat(Tuple<Contact, bool> contact) {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatPage(contact)));
+        if (_selecting) {
+          setState(() {
+            contact.second = !contact.second;
+          });
+        } else {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ChatPage(contact.first)));
+        }
+      },
+      onLongPress: () {
+        if (!_searching) {
+          setState(() {
+            _selecting = true;
+            contact.second = true;
+          });
+        }
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -178,14 +211,24 @@ class _MainPageState extends State<MainPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  contact.displayName.isNotEmpty
-                      ? contact.displayName
-                      : contact.phoneNumber,
+                  contact.first.displayName.isNotEmpty
+                      ? contact.first.displayName
+                      : contact.first.phoneNumber,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18.0),
                 ),
               ),
             ),
+            if (_selecting)
+              Checkbox(
+                  value: contact.second,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        contact.second = value;
+                      });
+                    }
+                  })
           ],
         ),
       ),
@@ -207,9 +250,13 @@ class _MainPageState extends State<MainPage> {
   void _populateChats() {
     _contactsService.getAllChats().then((contacts) {
       setState(() {
-        _chatContacts = contacts;
-        _filteredContacts = contacts;
+        _chatContacts = _selectableContactsFromContacts(contacts);
+        _filteredContacts = _chatContacts;
       });
     });
+  }
+
+  List<Tuple<Contact, bool>> _selectableContactsFromContacts(List<Contact> l) {
+    return l.map((e) => Tuple(e, false)).toList();
   }
 }

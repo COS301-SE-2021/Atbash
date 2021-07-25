@@ -55,6 +55,24 @@ class DatabaseService {
     return list;
   }
 
+  /// Fetches a list of all contacts with 'saved' being true, ordered by display name.
+  Future<List<Contact>> fetchSavedContacts() async {
+    final db = await _database;
+    final response = await db.query(
+      Contact.TABLE_NAME,
+      orderBy: "${Contact.COLUMN_DISPLAY_NAME} asc",
+      where: "${Contact.COLUMN_SAVED} = 1",
+    );
+    final list = <Contact>[];
+    response.forEach((element) {
+      final contact = Contact.fromMap(element);
+      if (contact != null) {
+        list.add(contact);
+      }
+    });
+    return list;
+  }
+
   /// Fetches a contact by the phone number, or null if does not exist
   Future<Contact?> fetchContactByNumber(String number) async {
     final db = await _database;
@@ -101,6 +119,7 @@ class DatabaseService {
     String phoneNumber,
     String displayName,
     bool hasChat,
+    bool save,
   ) async {
     final db = await _database;
 
@@ -111,7 +130,7 @@ class DatabaseService {
         null,
       );
     } else {
-      final contact = Contact(phoneNumber, displayName, hasChat);
+      final contact = Contact(phoneNumber, displayName, hasChat, save);
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());

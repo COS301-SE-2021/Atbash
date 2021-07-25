@@ -15,9 +15,14 @@ class ContactsService {
     String phoneNumber,
     String displayName,
     bool hasChat,
+    bool save,
   ) async {
-    final response =
-        await _databaseService.createContact(phoneNumber, displayName, hasChat);
+    final response = await _databaseService.createContact(
+      phoneNumber,
+      displayName,
+      hasChat,
+      save,
+    );
 
     switch (response.status) {
       case CreateContactResponseStatus.SUCCESS:
@@ -50,6 +55,11 @@ class ContactsService {
   /// Returns a list of all the user's contacts
   Future<List<Contact>> getAllContacts() {
     return _databaseService.fetchContacts();
+  }
+
+  /// Returns a list of all the user's saved contacts
+  Future<List<Contact>> getAllSavedContacts() {
+    return _databaseService.fetchSavedContacts();
   }
 
   /// Returns a list of all the user's contacts where there is a chat with the

@@ -57,6 +57,11 @@ class ContactsService {
     return _databaseService.fetchContacts();
   }
 
+  /// Returns a list of all the user's saved contacts
+  Future<List<Contact>> getAllSavedContacts() {
+    return _databaseService.fetchSavedContacts();
+  }
+
   /// Returns a list of all the user's contacts where there is a chat with the
   /// contact
   Future<List<Contact>> getAllChats() {

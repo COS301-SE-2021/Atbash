@@ -189,9 +189,11 @@ class _MainPageState extends State<MainPage> {
     if (searchQuery.isNotEmpty) {
       setState(() {
         _filteredContacts = _chatContacts
-            .where((c) => c.first.displayName
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()))
+            .where((c) =>
+                c.first.displayName
+                    .toLowerCase()
+                    .contains(searchQuery.toLowerCase()) ||
+                c.first.phoneNumber.contains(searchQuery))
             .toList();
       });
     } else {

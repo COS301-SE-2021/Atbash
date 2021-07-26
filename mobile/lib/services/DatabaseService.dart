@@ -165,10 +165,18 @@ class DatabaseService {
   /// Flags contact with phone number [phoneNumber] as having a chat.
   Future<void> startChatWithContact(String phoneNumber) async {
     final db = await _database;
-    db.rawUpdate(
-      "update contact set ${Contact.COLUMN_HAS_CHAT}=1 where ${Contact.COLUMN_PHONE_NUMBER}=?",
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT}=1 where ${Contact.COLUMN_PHONE_NUMBER}=?",
       [phoneNumber],
     );
+  }
+
+  /// Marks a contact's [hasChat] as false
+  Future<void> markContactNoChat(String phoneNumber) async {
+    final db = await _database;
+    await db.rawUpdate(
+        "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT} = 0 where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+        [phoneNumber]);
   }
 
   /// Fetches all messages from a contact with phone number [phoneNumber],
@@ -192,6 +200,15 @@ class DatabaseService {
     });
 
     return list;
+  }
+
+  /// Deletes all messages with a contact
+  Future<void> deleteMessagesWithContact(String phoneNumber) async {
+    final db = await _database;
+    await db.delete(Message.TABLE_NAME,
+        where:
+            "${Message.COLUMN_RECIPIENT_PHONE_NUMBER} = ? or ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+        whereArgs: [phoneNumber, phoneNumber]);
   }
 
   /// Saves a message in the database and returns.

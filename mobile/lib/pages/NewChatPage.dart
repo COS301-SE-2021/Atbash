@@ -108,7 +108,10 @@ class _NewChatPageState extends State<NewChatPage> {
       setState(() {
         _filteredContacts = _contacts
             .where((c) =>
-                c.displayName.toLowerCase().contains(searchQuery.toLowerCase()))
+                c.displayName
+                    .toLowerCase()
+                    .contains(searchQuery.toLowerCase()) ||
+                c.phoneNumber.contains(searchQuery))
             .toList();
       });
     } else {

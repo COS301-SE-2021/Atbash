@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/LoginPage.dart';
@@ -138,7 +139,24 @@ class _MainPageState extends State<MainPage> {
                 });
               },
               icon: Icon(Icons.search)),
-        if (_selecting) IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
+        if (_selecting)
+          IconButton(
+            onPressed: () {
+              final selectedChats = _filteredContacts
+                  .where((element) => element.second == true)
+                  .map((e) => e.first.phoneNumber)
+                  .toList();
+
+              showConfirmDialog(context,
+                      "This will delete ${selectedChats.length} chat(s). Are you sure?")
+                  .then((confirmed) {
+                if (confirmed != null && confirmed) {
+                  _contactsService.deleteChatsWithContacts(selectedChats);
+                }
+              });
+            },
+            icon: Icon(Icons.delete),
+          ),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {

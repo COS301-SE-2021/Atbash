@@ -75,6 +75,16 @@ class ContactsService {
     _notifyOnContactsChangedListeners();
   }
 
+  /// Deletes the chat with specified contact. Deletes all messages, and marks contact's [hasChat] as false
+  void deleteChatsWithContacts(List<String> phoneNumbers) {
+    List<Future<dynamic>> futures = [];
+    phoneNumbers.forEach((phoneNumber) {
+      futures.add(_databaseService.markContactNoChat(phoneNumber));
+      futures.add(_databaseService.deleteMessagesWithContact(phoneNumber));
+    });
+    Future.wait(futures).then((value) => _notifyOnContactsChangedListeners());
+  }
+
   /// Adds [fn] as a callback to the callback list
   void onContactsChanged(void Function() fn) {
     _onContactsChangedListeners.add(fn);

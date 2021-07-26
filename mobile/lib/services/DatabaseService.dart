@@ -123,13 +123,9 @@ class DatabaseService {
   ) async {
     final db = await _database;
 
-    final phoneNumberConflict = await _contactWithNumberExists(phoneNumber);
-    if (phoneNumberConflict) {
-      return CreateContactResponse(
-        CreateContactResponseStatus.DUPLICATE_NUMBER,
-        null,
-      );
-    } else {
+    final existingContact = await fetchContactByNumber(phoneNumber);
+
+    if (existingContact == null) {
       final contact = Contact(phoneNumber, displayName, hasChat, save);
 
       try {
@@ -152,14 +148,42 @@ class DatabaseService {
           null,
         );
       }
-    }
-  }
+    } else if (existingContact.saved == false) {
+      existingContact.displayName = displayName;
+      existingContact.saved = save;
 
-  Future<bool> _contactWithNumberExists(String phoneNumber) async {
-    final db = await _database;
-    final response = await db.query(Contact.TABLE_NAME,
-        where: "${Contact.COLUMN_PHONE_NUMBER}=?", whereArgs: [phoneNumber]);
-    return response.length > 0;
+      try {
+        final response = await db.update(
+          Contact.TABLE_NAME,
+          existingContact.toMap(),
+          where: "${Contact.COLUMN_PHONE_NUMBER} = ?",
+          whereArgs: [phoneNumber],
+        );
+
+        if (response != 0) {
+          return CreateContactResponse(
+            CreateContactResponseStatus.SUCCESS,
+            existingContact,
+          );
+        } else {
+          return CreateContactResponse(
+            CreateContactResponseStatus.GENERAL_ERROR,
+            null,
+          );
+        }
+      } catch (exception) {
+        print(exception);
+        return CreateContactResponse(
+          CreateContactResponseStatus.GENERAL_ERROR,
+          null,
+        );
+      }
+    } else {
+      return CreateContactResponse(
+        CreateContactResponseStatus.DUPLICATE_NUMBER,
+        null,
+      );
+    }
   }
 
   /// Flags contact with phone number [phoneNumber] as having a chat.

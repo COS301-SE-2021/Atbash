@@ -201,6 +201,15 @@ class DatabaseService {
     return list;
   }
 
+  /// Deletes all messages with a contact
+  Future<void> deleteMessagesWithContact(String phoneNumber) async {
+    final db = await _database;
+    await db.delete(Message.TABLE_NAME,
+        where:
+            "${Message.COLUMN_RECIPIENT_PHONE_NUMBER} = ? or ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+        whereArgs: [phoneNumber, phoneNumber]);
+  }
+
   /// Saves a message in the database and returns.
   Message saveMessage(
     String senderPhoneNumber,

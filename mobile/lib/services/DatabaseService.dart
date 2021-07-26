@@ -171,6 +171,13 @@ class DatabaseService {
     );
   }
 
+  /// Marks a contact's [hasChat] as false
+  Future<void> markContactNoChat(String phoneNumber) async {
+    final db = await _database;
+    await db.rawUpdate(
+        "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT} = 0");
+  }
+
   /// Fetches all messages from a contact with phone number [phoneNumber],
   /// ordered by timestamp.
   Future<List<Message>> fetchMessagesWith(String phoneNumber) async {

@@ -1,0 +1,14 @@
+{
+  "name": "sendmessage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bit by Bit",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "aws-sdk": "^2.957.0"
+  }
+}

@@ -46,3 +46,19 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'phoneNumber'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'phoneNumber'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableUsers

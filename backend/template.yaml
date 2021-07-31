@@ -78,3 +78,17 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableMessages
+
+  OnConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: onconnect/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableConnections

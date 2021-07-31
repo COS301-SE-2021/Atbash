@@ -141,6 +141,15 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
 
+  RegisterPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref RegisterFunction
+      Principal: apigateway.amazonaws.com
+
   SendMessageFunction:
     Type: AWS::Serverless::Function
     Properties:

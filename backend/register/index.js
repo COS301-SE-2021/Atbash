@@ -5,7 +5,7 @@ const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: pr
 exports.handler = async event => {
     console.log("Event is ", event)
 
-    const {phoneNumber, rsaPublicKey, deviceToken} = event
+    const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)
 
     if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken)) {
         return {statusCode: 400, body: "Invalid request body"}

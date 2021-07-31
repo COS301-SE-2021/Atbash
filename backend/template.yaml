@@ -167,3 +167,26 @@ Resources:
       ApiId: !Ref AtbashWebSocket
       IntegrationType: AWS_PROXY
       IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
+
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    DependsOn:
+      - DisconnectIntegration
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: $disconnect
+      OperationName: DisconnectRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DisconnectIntegration
+  DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - OnDisconnectFunction
+      - AtbashWebSocket
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations

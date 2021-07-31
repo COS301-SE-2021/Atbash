@@ -95,6 +95,15 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableConnections
 
+  OnConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnConnectFunction
+      Principal: apigateway.amazonaws.com
+
   OnDisconnectFunction:
     Type: AWS::Serverless::Function
     Properties:

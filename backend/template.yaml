@@ -167,6 +167,15 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref ConnectionsTable
 
+  SendMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SendMessageFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api

@@ -120,3 +120,20 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
+
+  SendMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sendmessage/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref ConnectionsTable
+          TABLE_MESSAGES: !Ref MessagesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MessagesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ConnectionsTable

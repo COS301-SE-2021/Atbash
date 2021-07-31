@@ -2,4 +2,32 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Atbash SAM template
 
+Parameters:
+  TableConnections:
+    Type: String
+    Default: 'atbash-connections'
+    Description: (Required) The name of the DynamoDB table to store connectionIds for connected clients.
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+  TableUsers:
+    Type: String
+    Default: 'atbash-users'
+    Description: (Required) The name of the DynamoDB table to store registered users.
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+  TableMessages:
+    Type: String
+    Default: 'atbash-messages'
+    Description: (Required) The name of the DyanmoDB table to temporarily store messages to relay
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
 Resources:

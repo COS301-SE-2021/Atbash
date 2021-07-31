@@ -144,3 +144,26 @@ Resources:
       Name: atbash-online
       ProtocolType: WEBSOCKET
       RouteSelectionExpression: '$request.body.action'
+
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    DependsOn:
+      - ConnectIntegration
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: $connect
+      OperationName: ConnectRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref ConnectIntegration
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - OnConnectFunction
+      - AtbashWebSocket
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations

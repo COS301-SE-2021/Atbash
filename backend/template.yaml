@@ -190,3 +190,26 @@ Resources:
       ApiId: !Ref AtbashWebSocket
       IntegrationType: AWS_PROXY
       IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
+
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    DependsOn:
+      - SendMessageIntegration
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: sendmessage
+      OperationName: SendMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SendMessageIntegration
+  SendMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SendMessageFunctionm
+      - AtbashWebSocket
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations

@@ -106,3 +106,17 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableConnections
+
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers

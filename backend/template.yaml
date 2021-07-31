@@ -250,3 +250,17 @@ Resources:
       ApiId: !Ref AtbashREST
       IntegrationType: AWS_PROXY
       IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${RegisterFunction.Arn}/invocations
+
+  AtbashRESTDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - RegisterRoute
+    Properties:
+      ApiId: !Ref AtbashREST
+
+  AtbashRESTStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref AtbashREST
+      StageName: dev
+      DeploymentId: !Ref AtbashRESTDeployment

@@ -223,3 +223,10 @@ Resources:
       ApiId: !Ref AtbashWebSocket
       StageName: dev
       DeploymentId: !Ref AtbashWebSocketDeployment
+
+  # --- REST API --- #
+  AtbashREST:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: atbash-rest
+      ProtocolType: HTTP

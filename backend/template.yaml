@@ -31,3 +31,18 @@ Parameters:
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
 Resources:
+  ConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'connectionId'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'connectionId'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableConnections

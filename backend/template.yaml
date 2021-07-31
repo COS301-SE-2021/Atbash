@@ -150,8 +150,6 @@ Resources:
 
   ConnectRoute:
     Type: AWS::ApiGatewayV2::Route
-    DependsOn:
-      - ConnectIntegration
     Properties:
       ApiId: !Ref AtbashWebSocket
       RouteKey: $connect
@@ -165,7 +163,6 @@ Resources:
     Type: AWS::ApiGatewayV2::Integration
     DependsOn:
       - OnConnectFunction
-      - AtbashWebSocket
     Properties:
       ApiId: !Ref AtbashWebSocket
       IntegrationType: AWS_PROXY
@@ -173,8 +170,6 @@ Resources:
 
   DisconnectRoute:
     Type: AWS::ApiGatewayV2::Route
-    DependsOn:
-      - DisconnectIntegration
     Properties:
       ApiId: !Ref AtbashWebSocket
       RouteKey: $disconnect
@@ -188,7 +183,6 @@ Resources:
     Type: AWS::ApiGatewayV2::Integration
     DependsOn:
       - OnDisconnectFunction
-      - AtbashWebSocket
     Properties:
       ApiId: !Ref AtbashWebSocket
       IntegrationType: AWS_PROXY
@@ -196,8 +190,6 @@ Resources:
 
   SendMessageRoute:
     Type: AWS::ApiGatewayV2::Route
-    DependsOn:
-      - SendMessageIntegration
     Properties:
       ApiId: !Ref AtbashWebSocket
       RouteKey: sendmessage
@@ -211,7 +203,6 @@ Resources:
     Type: AWS::ApiGatewayV2::Integration
     DependsOn:
       - SendMessageFunction
-      - AtbashWebSocket
     Properties:
       ApiId: !Ref AtbashWebSocket
       IntegrationType: AWS_PROXY

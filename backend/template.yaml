@@ -166,6 +166,12 @@ Resources:
             TableName: !Ref MessagesTable
         - DynamoDBReadPolicy:
             TableName: !Ref ConnectionsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'execute-api:ManageConnections'
+              Resource:
+                - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AtbashWebSocket}/*'
 
   SendMessagePermission:
     Type: AWS::Lambda::Permission

@@ -31,6 +31,7 @@ Parameters:
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
 Resources:
+  # --- DynamoDB Tables --- #
   ConnectionsTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -79,6 +80,7 @@ Resources:
         SSEEnabled: true
       TableName: !Ref TableMessages
 
+  # --- Lambda Functions --- #
   OnConnectFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -138,6 +140,7 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref ConnectionsTable
 
+  # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
     Properties:

@@ -210,7 +210,7 @@ Resources:
   SendMessageIntegration:
     Type: AWS::ApiGatewayV2::Integration
     DependsOn:
-      - SendMessageFunctionm
+      - SendMessageFunction
       - AtbashWebSocket
     Properties:
       ApiId: !Ref AtbashWebSocket

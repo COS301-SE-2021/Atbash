@@ -230,3 +230,23 @@ Resources:
     Properties:
       Name: atbash-rest
       ProtocolType: HTTP
+
+  RegisterRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /register'
+      OperationName: RegisterRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref RegisterIntegration
+  RegisterIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - RegisterFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: arn:aws:apigateway:${AWS::REGION}:lambda:path/2015-03-31/functions/${RegisterFunction.Arn}/invocations

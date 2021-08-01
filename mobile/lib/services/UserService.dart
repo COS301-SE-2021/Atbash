@@ -46,6 +46,10 @@ class UserService {
     }
   }
 
+  Future<bool> isRegistered() async {
+    return await _storage.containsKey(key: "phone_number");
+  }
+
   /// Get the display_name of the user from secure storage. If it is not set,
   /// phone_number is returned instead.
   Future<String> getUserDisplayName() async {

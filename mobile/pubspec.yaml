@@ -38,6 +38,7 @@ dependencies:
   web_socket_channel: ^2.1.0
   flutter_svg: ^0.22.0
   flutter_local_notifications: ^6.0.0
+  rsa_encrypt: ^2.0.0
 
 dev_dependencies:
   flutter_test:

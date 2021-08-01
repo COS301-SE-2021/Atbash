@@ -46,11 +46,11 @@ class AppService {
 
   void _handleEvent(String userPhoneNumber, dynamic event) {
     final decodedEvent = jsonDecode(event) as Map<String, Object?>;
-    final fromNumber = decodedEvent["fromNumber"] as String?;
+    final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
     final contents = decodedEvent["contents"] as String?;
-    final timestamp = decodedEvent["timestamp"] as int?;
+    // final timestamp = decodedEvent["timestamp"] as int?;
 
-    if (fromNumber != null && contents != null && timestamp != null) {
+    if (fromNumber != null && contents != null) {
       final message = _databaseService.saveMessage(
         fromNumber,
         userPhoneNumber,

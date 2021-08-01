@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
@@ -30,20 +29,14 @@ class AppService {
   /// access_token is used to connect. If this is not set, a [StateError] is
   /// thrown
   void goOnline() async {
-    final storage = FlutterSecureStorage();
-    final accessToken = await storage.read(key: "access_token");
-
-    if (accessToken == null) {
-      throw StateError("access_token is not readable");
-    }
+    final phoneNumber = await _userService.getUserPhoneNumber();
 
     _channel = IOWebSocketChannel.connect(
-      Uri.parse("ws://10.0.2.2:8080/chat?access_token=$accessToken"),
+      Uri.parse(
+          "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$phoneNumber"),
     );
 
     final channel = this._channel;
-    final phoneNumber = await _userService.getUserPhoneNumber();
-
     if (channel != null) {
       await for (final event in channel.stream) {
         _handleEvent(phoneNumber, event);

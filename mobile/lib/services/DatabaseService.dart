@@ -3,6 +3,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/responses/DatabaseServiceResponses.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   Future<Database> _database;
@@ -242,6 +243,7 @@ class DatabaseService {
     String contents,
   ) {
     final message = Message(
+      Uuid().v4(),
       senderPhoneNumber,
       recipientPhoneNumber,
       contents,

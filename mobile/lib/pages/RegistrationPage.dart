@@ -2,6 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/services/UserService.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -13,8 +14,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
   final UserService _userService = GetIt.I.get();
 
   final _phoneNumberController = TextEditingController();
-  final _displayNameController = TextEditingController();
-  final _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,33 +39,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               textAlign: TextAlign.center,
               keyboardType: TextInputType.phone,
               controller: _phoneNumberController,
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
-                ),
-                hintText: "Display name",
-              ),
-              textAlign: TextAlign.center,
-              controller: _displayNameController,
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
-                ),
-                hintText: "Password",
-              ),
-              textAlign: TextAlign.center,
-              controller: _passwordController,
-              obscureText: true,
             ),
           ),
           Padding(
@@ -97,15 +69,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   void _register(BuildContext context) {
     final phoneNumber = _phoneNumberController.text.trim();
-    final password = _passwordController.text.trim();
 
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        _userService.register(phoneNumber, password, deviceToken).then(
+        _userService.register(phoneNumber, deviceToken).then(
           (successful) {
             if (successful) {
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => MainPage()));
             } else {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text("Failed to register")));

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
@@ -30,20 +29,14 @@ class AppService {
   /// access_token is used to connect. If this is not set, a [StateError] is
   /// thrown
   void goOnline() async {
-    final storage = FlutterSecureStorage();
-    final accessToken = await storage.read(key: "access_token");
-
-    if (accessToken == null) {
-      throw StateError("access_token is not readable");
-    }
+    final phoneNumber = await _userService.getUserPhoneNumber();
 
     _channel = IOWebSocketChannel.connect(
-      Uri.parse("ws://10.0.2.2:8080/chat?access_token=$accessToken"),
+      Uri.parse(
+          "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$phoneNumber"),
     );
 
     final channel = this._channel;
-    final phoneNumber = await _userService.getUserPhoneNumber();
-
     if (channel != null) {
       await for (final event in channel.stream) {
         _handleEvent(phoneNumber, event);
@@ -53,11 +46,11 @@ class AppService {
 
   void _handleEvent(String userPhoneNumber, dynamic event) {
     final decodedEvent = jsonDecode(event) as Map<String, Object?>;
-    final fromNumber = decodedEvent["fromNumber"] as String?;
+    final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
     final contents = decodedEvent["contents"] as String?;
-    final timestamp = decodedEvent["timestamp"] as int?;
+    // final timestamp = decodedEvent["timestamp"] as int?;
 
-    if (fromNumber != null && contents != null && timestamp != null) {
+    if (fromNumber != null && contents != null) {
       final message = _databaseService.saveMessage(
         fromNumber,
         userPhoneNumber,
@@ -102,22 +95,26 @@ class AppService {
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(String recipientNumber, String contents) async {
+    final userPhoneNumber = await _userService.getUserPhoneNumber();
+    final savedMessage = _databaseService.saveMessage(
+      userPhoneNumber,
+      recipientNumber,
+      contents,
+    );
+
     final channel = this._channel;
     if (channel != null) {
       final data = {
-        "recipientNumber": recipientNumber,
+        "action": "sendmessage",
+        "id": savedMessage.id,
+        "recipientPhoneNumber": recipientNumber,
         "contents": contents,
       };
 
       channel.sink.add(jsonEncode(data));
     }
 
-    final userPhoneNumber = await _userService.getUserPhoneNumber();
-    return _databaseService.saveMessage(
-      userPhoneNumber,
-      recipientNumber,
-      contents,
-    );
+    return savedMessage;
   }
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].

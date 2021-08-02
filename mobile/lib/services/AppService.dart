@@ -135,7 +135,9 @@ class AppService {
     }
   }
 
-  void _handleProfileImageEvent(String fromNumber, String imageBase64) {}
+  void _handleProfileImageEvent(String fromNumber, String imageBase64) {
+    _contactsService.setContactProfileImage(fromNumber, imageBase64);
+  }
 
   void _handleRequestStatusEvent(String fromNumber) {}
 

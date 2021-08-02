@@ -205,6 +205,29 @@ Resources:
       FunctionName: !Ref GetUserMessagesFunction
       Principal: apigateway.amazonaws.com
 
+  DeleteMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: deletemessage/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGES: !Ref TableMessages
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessages
+
+  DeleteMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DeleteMessageFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -356,6 +379,35 @@ Resources:
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
 
+  DeleteMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'DELETE /message'
+      OperationName: DeleteMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DeleteMessageIntegration
+  DeleteMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - DeleteMessageFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt DeleteMessageFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
 
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment

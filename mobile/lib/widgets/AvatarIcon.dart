@@ -9,7 +9,13 @@ class AvatarIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final imageData = _imageData;
+    if (imageData != null && imageData.isNotEmpty) {
+      final image = _buildAvatarImage(base64Decode(imageData));
+      return CircleAvatar(radius: 16.0, backgroundImage: image);
+    } else {
+      return CircleAvatar(radius: 16.0, child: Icon(Icons.account_circle));
+    }
   }
 
 }

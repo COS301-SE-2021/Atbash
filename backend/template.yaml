@@ -182,6 +182,29 @@ Resources:
       FunctionName: !Ref SendMessageFunction
       Principal: apigateway.amazonaws.com
 
+  GetUserMessagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getusermessages/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGES: !Ref TableMessages
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableMessages
+
+  GetUserMessagesPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetUserMessagesFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api

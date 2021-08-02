@@ -219,6 +219,14 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessages
 
+  DeleteMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DeleteMessageFunction
+      Principal: apigateway.amazonaws.com
 
   # --- Web Socket API --- #
   AtbashWebSocket:

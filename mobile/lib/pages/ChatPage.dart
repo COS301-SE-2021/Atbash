@@ -32,6 +32,8 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    _appService.requestProfileImage(_contact.phoneNumber);
+
     _databaseService.fetchMessagesWith(_contact.phoneNumber).then((messages) {
       setState(() {
         _messages.addAll(messages);

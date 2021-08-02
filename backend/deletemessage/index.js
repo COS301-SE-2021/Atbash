@@ -30,7 +30,7 @@ exports.handler = async event => {
         await db.delete({
             TableName: process.env.TABLE_MESSAGES,
             Key: {id}
-        })
+        }).promise()
     } catch (error) {
         console.error(error)
         return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}

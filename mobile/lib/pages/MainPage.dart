@@ -11,6 +11,7 @@ import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Tuple.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
@@ -110,8 +111,7 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        CircleAvatar(
-            radius: 16.0, backgroundImage: _buildAvatarImage(_profileImage)),
+        AvatarIcon.fromUIntList(_profileImage),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(_displayName),
@@ -189,10 +189,6 @@ class _MainPageState extends State<MainPage> {
         ),
       ],
     );
-  }
-
-  MemoryImage? _buildAvatarImage(Uint8List? image) {
-    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
   }
 
   void _filter(String searchQuery) {

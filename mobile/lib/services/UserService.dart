@@ -95,6 +95,8 @@ class UserService {
     return await _storage.read(key: "status");
   }
 
+  /// Adds [fn] to the list of callbacks for changes to user status.
+  /// Returns the current status.
   Future<String> onUserStatusChanged(void Function(String status) fn) {
     _statusCallbacks.add(fn);
     return getUserStatus();

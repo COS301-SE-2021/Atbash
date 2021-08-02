@@ -120,6 +120,7 @@ class DatabaseService {
     String phoneNumber,
     String displayName,
     String status,
+    String profileImage,
     bool hasChat,
     bool save,
   ) async {
@@ -128,7 +129,7 @@ class DatabaseService {
     final existingContact = await fetchContactByNumber(phoneNumber);
 
     if (existingContact == null) {
-      final contact = Contact(phoneNumber, displayName, status, hasChat, save);
+      final contact = Contact(phoneNumber, displayName, status, profileImage, hasChat, save);
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());

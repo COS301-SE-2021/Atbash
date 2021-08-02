@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
@@ -22,6 +24,7 @@ class _MainPageState extends State<MainPage> {
   final AppService _appService = GetIt.I.get();
 
   String _displayName = "";
+  Uint8List? _profileImage;
   List<Tuple<Contact, bool>> _chatContacts = [];
   List<Tuple<Contact, bool>> _filteredContacts = [];
   bool _searching = false;
@@ -40,6 +43,12 @@ class _MainPageState extends State<MainPage> {
     _userService
         .onUserDisplayNameChanged(_onDisplayNameChanged)
         .then(_onDisplayNameChanged);
+
+    _userService.getUserProfilePicture().then((value) {
+      setState(() {
+        _profileImage = value;
+      });
+    });
 
     _contactsService.onContactsChanged(() {
       _populateChats();
@@ -99,7 +108,16 @@ class _MainPageState extends State<MainPage> {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    Widget title = Text(_displayName);
+    Widget title = Row(
+      children: [
+        CircleAvatar(
+            radius: 16.0, backgroundImage: _buildAvatarImage(_profileImage)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(_displayName),
+        ),
+      ],
+    );
 
     if (_searching) {
       title = TextField(
@@ -171,6 +189,10 @@ class _MainPageState extends State<MainPage> {
         ),
       ],
     );
+  }
+
+  MemoryImage? _buildAvatarImage(Uint8List? image) {
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
   }
 
   void _filter(String searchQuery) {

@@ -63,6 +63,7 @@ class _MainPageState extends State<MainPage> {
   void dispose() {
     super.dispose();
     _userService.disposeUserDisplayNameListener(_onDisplayNameChanged);
+    _contactsService.disposeContactsChangedListener(_populateChats);
     _searchFocusNode.dispose();
     _appService.disconnect();
   }

@@ -119,6 +119,7 @@ class DatabaseService {
   Future<CreateContactResponse> createContact(
     String phoneNumber,
     String displayName,
+    String status,
     bool hasChat,
     bool save,
   ) async {
@@ -127,7 +128,7 @@ class DatabaseService {
     final existingContact = await fetchContactByNumber(phoneNumber);
 
     if (existingContact == null) {
-      final contact = Contact(phoneNumber, displayName, hasChat, save);
+      final contact = Contact(phoneNumber, displayName, status, hasChat, save);
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());

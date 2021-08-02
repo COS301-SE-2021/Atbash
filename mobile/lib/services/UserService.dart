@@ -100,6 +100,11 @@ class UserService {
     _statusCallbacks.remove(fn);
   }
 
+  Future<void> setUserStatus(String status) async {
+    await _storage.write(key: "status", value: status);
+    _notifyUserStatusListeners(status);
+  }
+
   /// Get the profile_image of the user from secure_storage. If it is not set,
   /// null is returned.
   Future<Uint8List?> getUserProfilePicture() async {

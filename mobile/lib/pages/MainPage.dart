@@ -191,6 +191,10 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
+  MemoryImage? _buildAvatarImage(Uint8List? image) {
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
+  }
+
   void _filter(String searchQuery) {
     if (searchQuery.isNotEmpty) {
       setState(() {

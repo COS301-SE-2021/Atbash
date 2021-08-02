@@ -379,6 +379,18 @@ Resources:
       IntegrationMethod: GET
       PayloadFormatVersion: '2.0'
 
+  DeleteMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'DELETE /message'
+      OperationName: DeleteMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DeleteMessageIntegration
+
 
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment

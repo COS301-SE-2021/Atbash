@@ -89,6 +89,8 @@ class UserService {
     return await _storage.read(key: "status") ?? "";
   }
 
+  /// Get the status of the user from secure storage. If it is not set,
+  /// null is returned instead.
   Future<String?> getUserStatusOrNull() async {
     return await _storage.read(key: "status");
   }

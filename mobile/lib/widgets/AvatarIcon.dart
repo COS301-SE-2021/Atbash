@@ -7,6 +7,9 @@ class AvatarIcon extends StatelessWidget {
 
   AvatarIcon(this._imageData);
 
+  AvatarIcon.fromUIntList(Uint8List? bytes)
+      : this(bytes != null ? base64Encode(bytes) : "");
+
   @override
   Widget build(BuildContext context) {
     final imageData = _imageData;

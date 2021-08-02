@@ -353,7 +353,7 @@ Resources:
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt GetUserMessagesFunction.Arn
           - '/invocations'
-      IntegrationMethod: GET
+      IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
 
 

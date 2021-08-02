@@ -46,42 +46,82 @@ class AppService {
 
   void _handleEvent(String userPhoneNumber, dynamic event) {
     final decodedEvent = jsonDecode(event) as Map<String, Object?>;
+    final id = decodedEvent["id"] as String?;
     final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
-    final contents = decodedEvent["contents"] as String?;
-    // final timestamp = decodedEvent["timestamp"] as int?;
+    final contents = decodedEvent["contents"] as Map<String, Object?>?;
 
-    if (fromNumber != null && contents != null) {
-      final message = _databaseService.saveMessage(
-        fromNumber,
-        userPhoneNumber,
-        contents,
-      );
-
-      final callback = messageReceivedCallbacks[fromNumber];
-      if (callback != null) {
-        callback(message);
-      } else {
-        _databaseService.fetchContactByNumber(fromNumber).then((fromContact) {
-          String title = fromNumber;
-
-          if (fromContact == null) {
-            _contactsService.addContact(fromNumber, "", true, false);
-          } else {
-            if (fromContact.displayName.isNotEmpty)
-              title = fromContact.displayName;
+    if (id != null && fromNumber != null && contents != null) {
+      final eventType = contents["type"] as String?;
+      switch (eventType) {
+        case "message":
+          final text = contents["text"] as String?;
+          if (text != null) {
+            _handleMessageEvent(id, fromNumber, userPhoneNumber, text);
           }
-
-          _notificationService.showNotification(
-            1,
-            title,
-            contents,
-            fromNumber,
-            false,
-          );
-        });
+          break;
+        case "requestProfileImage":
+          _handleRequestProfileImageEvent(fromNumber);
+          break;
+        case "profileImage":
+          final image = contents["imageData"] as String?;
+          if (image != null) {
+            _handleProfileImageEvent(fromNumber, image);
+          }
+          break;
+        case "requestStatus":
+          _handleRequestStatusEvent(fromNumber);
+          break;
+        case "status":
+          final status = contents["status"] as String?;
+          if (status != null) {
+            _handleStatusEvent(fromNumber, status);
+          }
+          break;
       }
     }
   }
+
+  void _handleMessageEvent(
+    String id,
+    String fromNumber,
+    String userPhoneNumber,
+    String text,
+  ) {
+    final message =
+        _databaseService.saveMessage(fromNumber, userPhoneNumber, text, id: id);
+
+    final callback = messageReceivedCallbacks[fromNumber];
+    if (callback != null) {
+      callback(message);
+    } else {
+      _databaseService.fetchContactByNumber(fromNumber).then((fromContact) {
+        String title = fromNumber;
+
+        if (fromContact == null) {
+          _contactsService.addContact(fromNumber, "", true, false);
+        } else {
+          if (fromContact.displayName.isNotEmpty)
+            title = fromContact.displayName;
+        }
+
+        _notificationService.showNotification(
+          1,
+          title,
+          text,
+          fromNumber,
+          false,
+        );
+      });
+    }
+  }
+
+  void _handleRequestProfileImageEvent(String fromNumber) {}
+
+  void _handleProfileImageEvent(String fromNumber, String imageBase64) {}
+
+  void _handleRequestStatusEvent(String fromNumber) {}
+
+  void _handleStatusEvent(String fromNumber, String status) {}
 
   /// Disconnect the user from the server
   void disconnect() {
@@ -94,12 +134,12 @@ class AppService {
 
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
-  Future<Message> sendMessage(String recipientNumber, String contents) async {
+  Future<Message> sendMessage(String recipientNumber, String text) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
       recipientNumber,
-      contents,
+      text,
     );
 
     final channel = this._channel;
@@ -108,7 +148,7 @@ class AppService {
         "action": "sendmessage",
         "id": savedMessage.id,
         "recipientPhoneNumber": recipientNumber,
-        "contents": contents,
+        "contents": {"type": "message", "text": text},
       };
 
       channel.sink.add(jsonEncode(data));

@@ -89,6 +89,10 @@ class UserService {
     return base64Decode(base64Image);
   }
 
+  Future<String?> getUserProfilePictureAsString() async {
+    return await _storage.read(key: "profile_image");
+  }
+
   /// Save [encodedImage] in secure storage as profile_image. The future
   /// completes once the image is saved.
   Future<void> setUserProfilePicture(Uint8List encodedImage) async {

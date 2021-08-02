@@ -238,12 +238,10 @@ class DatabaseService {
 
   /// Saves a message in the database and returns.
   Message saveMessage(
-    String senderPhoneNumber,
-    String recipientPhoneNumber,
-    String contents,
-  ) {
+      String senderPhoneNumber, String recipientPhoneNumber, String contents,
+      {String? id}) {
     final message = Message(
-      Uuid().v4(),
+      id == null ? Uuid().v4() : id,
       senderPhoneNumber,
       recipientPhoneNumber,
       contents,

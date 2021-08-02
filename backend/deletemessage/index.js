@@ -14,7 +14,9 @@ exports.handler = async event => {
     try {
         const response = await db.get({
             TableName: process.env.TABLE_MESSAGES,
-            Key: id
+            Key: {
+                id: {S: id}
+            }
         }).promise()
 
         if (response.Item === undefined) {
@@ -29,7 +31,9 @@ exports.handler = async event => {
     try {
         await db.delete({
             TableName: process.env.TABLE_MESSAGES,
-            Key: id
+            Key: {
+                id: {S: id}
+            }
         })
     } catch (error) {
         console.error(error)

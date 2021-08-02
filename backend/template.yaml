@@ -390,7 +390,24 @@ Resources:
         - '/'
         - - 'integrations'
           - !Ref DeleteMessageIntegration
-
+  DeleteMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - DeleteMessageFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt DeleteMessageFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
 
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment

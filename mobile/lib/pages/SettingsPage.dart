@@ -30,6 +30,14 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     });
 
+    _userService.getUserStatusOrNull().then((status) {
+      if (status != null) {
+        setState(() {
+          _statusController.text = status;
+        });
+      }
+    });
+
     _userService.getUserProfilePicture().then((imageData) {
       if (imageData != null) {
         setState(() {
@@ -139,11 +147,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 key: Key("ElevatedButton"), //Need to remove
                 onPressed: () {
                   final displayName = _displayNameController.text;
-                  // final status = _statusController.text;
+                  final status = _statusController.text;
                   final profileImage = _selectedProfileImage ?? Uint8List(0);
 
                   if (displayName.isNotEmpty) {
                     _userService.setUserDisplayName(displayName);
+                  }
+                  if (status.isNotEmpty) {
+                    _userService.setUserStatus(status);
                   }
                   _userService.setUserProfilePicture(profileImage);
 

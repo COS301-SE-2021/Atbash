@@ -422,4 +422,3 @@ Resources:
       ApiId: !Ref AtbashREST
       StageName: dev
       DeploymentId: !Ref AtbashRESTDeployment
-      AutoDeploy: true

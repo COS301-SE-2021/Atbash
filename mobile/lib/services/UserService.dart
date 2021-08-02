@@ -107,6 +107,8 @@ class UserService {
     _statusCallbacks.remove(fn);
   }
 
+  /// Save [status] in secure storage as status. The future completes
+  /// once the status is saved.
   Future<void> setUserStatus(String status) async {
     await _storage.write(key: "status", value: status);
     _notifyUserStatusListeners(status);

@@ -5,7 +5,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/responses/ContactsServiceResponses.dart';
-import 'package:mobile/widgets/ProfileIcon.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 class NewChatPage extends StatefulWidget {
   @override
@@ -198,7 +198,7 @@ class _NewChatPageState extends State<NewChatPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            EmptyProfileIcon(Colors.black),
+            AvatarIcon.fromString(contact.profileImage),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),

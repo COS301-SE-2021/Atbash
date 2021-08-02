@@ -4,25 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:mobile/widgets/CircledIcon.dart';
 
 class AvatarIcon extends StatelessWidget {
-  final String? _imageData;
+  final Uint8List? _imageData;
 
   AvatarIcon(this._imageData);
 
-  AvatarIcon.fromUIntList(Uint8List? bytes)
-      : this(bytes != null ? base64Encode(bytes) : "");
+  AvatarIcon.fromString(String? base64String)
+      : this(base64String != null ? base64Decode(base64String) : null);
 
   @override
   Widget build(BuildContext context) {
     final imageData = _imageData;
     if (imageData != null && imageData.isNotEmpty) {
-      final image = _buildAvatarImage(base64Decode(imageData));
+      final image = MemoryImage(imageData);
       return CircleAvatar(radius: 16.0, backgroundImage: image);
     } else {
       return CircledIcon(Colors.black, Icons.person);
     }
-  }
-
-  MemoryImage? _buildAvatarImage(Uint8List? image) {
-    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
   }
 }

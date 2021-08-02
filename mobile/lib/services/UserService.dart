@@ -133,4 +133,8 @@ class UserService {
   void _notifyUserDisplayNameListeners(String displayName) {
     _displayNameCallbacks.forEach((element) => element(displayName));
   }
+
+  void _notifyUserStatusListeners(String status) {
+    _statusCallbacks.forEach((element) => element(status));
+  }
 }

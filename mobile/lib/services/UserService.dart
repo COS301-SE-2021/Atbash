@@ -9,6 +9,7 @@ import 'package:pointycastle/asymmetric/api.dart';
 class UserService {
   final _storage = FlutterSecureStorage();
   final _displayNameCallbacks = <void Function(String name)>[];
+  final _statusCallbacks = <void Function(String status)>[];
 
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications

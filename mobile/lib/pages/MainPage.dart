@@ -11,7 +11,7 @@ import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Tuple.dart';
-import 'package:mobile/widgets/ProfileIcon.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -62,6 +62,7 @@ class _MainPageState extends State<MainPage> {
   void dispose() {
     super.dispose();
     _userService.disposeUserDisplayNameListener(_onDisplayNameChanged);
+    _contactsService.disposeContactsChangedListener(_populateChats);
     _searchFocusNode.dispose();
     _appService.disconnect();
   }
@@ -110,8 +111,7 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        CircleAvatar(
-            radius: 16.0, backgroundImage: _buildAvatarImage(_profileImage)),
+        AvatarIcon(_profileImage),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(_displayName),
@@ -191,10 +191,6 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  MemoryImage? _buildAvatarImage(Uint8List? image) {
-    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
-  }
-
   void _filter(String searchQuery) {
     if (searchQuery.isNotEmpty) {
       setState(() {
@@ -242,7 +238,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            EmptyProfileIcon(Colors.black),
+            AvatarIcon.fromString(contact.first.profileImage),
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),

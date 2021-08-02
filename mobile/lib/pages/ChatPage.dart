@@ -5,7 +5,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/DatabaseService.dart';
-import 'package:mobile/widgets/ProfileIcon.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ChatPage extends StatefulWidget {
   final Contact contact;
@@ -63,7 +63,7 @@ class _ChatPageState extends State<ChatPage> {
     return AppBar(
       title: Row(
         children: [
-          EmptyProfileIcon(Colors.black),
+          AvatarIcon.fromString(_contact.profileImage),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),

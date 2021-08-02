@@ -21,6 +21,7 @@ class ContactsService {
       phoneNumber,
       displayName,
       "",
+      "",
       hasChat,
       save,
     );

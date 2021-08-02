@@ -44,6 +44,12 @@ class _MainPageState extends State<MainPage> {
         .onUserDisplayNameChanged(_onDisplayNameChanged)
         .then(_onDisplayNameChanged);
 
+    _userService.getUserProfilePicture().then((value) {
+      setState(() {
+        _profileImage = value;
+      });
+    });
+
     _contactsService.onContactsChanged(() {
       _populateChats();
     });

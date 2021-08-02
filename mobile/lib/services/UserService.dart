@@ -102,6 +102,7 @@ class UserService {
     return getUserStatus();
   }
 
+  /// Removed [fn] from the list of callbacks for changes to user status.
   void disposeUserStatusListener(void Function(String status) fn) {
     _statusCallbacks.remove(fn);
   }

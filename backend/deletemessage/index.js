@@ -6,8 +6,25 @@ exports.handler = async event => {
 
     const id = event.pathParameters.id
 
-    if(id === undefined){
+    if (id === undefined) {
         return {statusCode: 400, body: "Id is not present"}
     }
+
+    try {
+        const response = await db.get({
+            TableName: process.env.TABLE_MESSAGES,
+            Key: id
+        }).promise()
+
+        if (response.Item === undefined) {
+            return {statusCode: 404}
+        }
+
+    } catch (error) {
+        console.error(error)
+        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+    }
+
+
 
 }

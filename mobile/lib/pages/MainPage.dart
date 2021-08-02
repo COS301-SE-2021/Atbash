@@ -108,7 +108,16 @@ class _MainPageState extends State<MainPage> {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    Widget title = Text(_displayName);
+    Widget title = Row(
+      children: [
+        CircleAvatar(
+            radius: 16.0, backgroundImage: _buildAvatarImage(_profileImage)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(_displayName),
+        ),
+      ],
+    );
 
     if (_searching) {
       title = TextField(

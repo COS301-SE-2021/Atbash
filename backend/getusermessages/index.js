@@ -10,6 +10,19 @@ exports.handler = async event => {
         return {statusCode: 400, body: "Phone number not present"}
     }
 
+    try {
+        const response = db.scan({
+            TableName: process.env.TABLE_CONNECTIONS,
+            ProjectionExpression: "contents, senderPhoneNumber",
+            FilterExpression: "recipientPhoneNumber = :n",
+            ExpressionAttributeValues: {
+                ":n": phoneNumber
+            }
+        }).promise()
 
+    } catch (error) {
+        console.error(error)
+        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+    }
 
 }

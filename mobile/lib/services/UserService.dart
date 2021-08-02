@@ -83,6 +83,8 @@ class UserService {
     _notifyUserDisplayNameListeners(displayName);
   }
 
+  /// Get the status of the user from secure storage. If it is not set,
+  /// an empty string is returned instead.
   Future<String> getUserStatus() async {
     return await _storage.read(key: "status") ?? "";
   }

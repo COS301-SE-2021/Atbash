@@ -18,4 +18,7 @@ class AvatarIcon extends StatelessWidget {
     }
   }
 
+  MemoryImage? _buildAvatarImage(Uint8List? image) {
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
+  }
 }

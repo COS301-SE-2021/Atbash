@@ -4,5 +4,10 @@ const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: pr
 
 exports.handler = async event => {
 
+    const id = event.pathParameters.id
+
+    if(id === undefined){
+        return {statusCode: 400, body: "Id is not present"}
+    }
 
 }

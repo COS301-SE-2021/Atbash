@@ -5,6 +5,7 @@ import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 class AppService {
@@ -115,9 +116,28 @@ class AppService {
     }
   }
 
-  void _handleRequestProfileImageEvent(String fromNumber) {}
+  void _handleRequestProfileImageEvent(String fromNumber) async {
+    final channel = this._channel;
+    if (channel != null) {
+      final imageData = await _userService.getUserProfilePictureAsString();
 
-  void _handleProfileImageEvent(String fromNumber, String imageBase64) {}
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": fromNumber,
+        "contents": {
+          "type": "profileImage",
+          "imageData": imageData,
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+  }
+
+  void _handleProfileImageEvent(String fromNumber, String imageBase64) {
+    _contactsService.setContactProfileImage(fromNumber, imageBase64);
+  }
 
   void _handleRequestStatusEvent(String fromNumber) {}
 
@@ -155,6 +175,22 @@ class AppService {
     }
 
     return savedMessage;
+  }
+
+  void requestProfileImage(String recipientNumber) async {
+    final channel = this._channel;
+    if (channel != null) {
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": recipientNumber,
+        "contents": {
+          "type": "requestProfileImage",
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
   }
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].

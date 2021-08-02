@@ -129,7 +129,8 @@ class DatabaseService {
     final existingContact = await fetchContactByNumber(phoneNumber);
 
     if (existingContact == null) {
-      final contact = Contact(phoneNumber, displayName, status, profileImage, hasChat, save);
+      final contact = Contact(
+          phoneNumber, displayName, status, profileImage, hasChat, save);
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
@@ -204,6 +205,17 @@ class DatabaseService {
     await db.rawUpdate(
         "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT} = 0 where ${Contact.COLUMN_PHONE_NUMBER} = ?",
         [phoneNumber]);
+  }
+
+  Future<void> updateContactProfileImage(
+    String phoneNumber,
+    String base64Image,
+  ) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_PROFILE_IMAGE} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [base64Image, phoneNumber],
+    );
   }
 
   /// Fetches all messages from a contact with phone number [phoneNumber],

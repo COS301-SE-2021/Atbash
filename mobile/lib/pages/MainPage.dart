@@ -12,7 +12,6 @@ import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
-import 'package:mobile/widgets/ProfileIcon.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -239,7 +238,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            EmptyProfileIcon(Colors.black),
+            AvatarIcon(contact.first.profileImage),
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),

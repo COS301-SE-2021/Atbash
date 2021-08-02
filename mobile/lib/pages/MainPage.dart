@@ -24,6 +24,7 @@ class _MainPageState extends State<MainPage> {
   final AppService _appService = GetIt.I.get();
 
   String _displayName = "";
+  Uint8List? _profileImage;
   List<Tuple<Contact, bool>> _chatContacts = [];
   List<Tuple<Contact, bool>> _filteredContacts = [];
   bool _searching = false;

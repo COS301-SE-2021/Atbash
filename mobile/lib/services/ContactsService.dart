@@ -87,6 +87,11 @@ class ContactsService {
     Future.wait(futures).then((value) => _notifyOnContactsChangedListeners());
   }
 
+  void setContactProfileImage(String phoneNumber, String base64Image) {
+    _databaseService.updateContactProfileImage(phoneNumber, base64Image);
+    _notifyOnContactsChangedListeners();
+  }
+
   /// Adds [fn] as a callback to the callback list
   void onContactsChanged(void Function() fn) {
     _onContactsChangedListeners.add(fn);

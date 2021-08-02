@@ -111,7 +111,7 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        AvatarIcon.fromUIntList(_profileImage),
+        AvatarIcon(_profileImage),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(_displayName),
@@ -238,7 +238,7 @@ class _MainPageState extends State<MainPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            AvatarIcon(contact.first.profileImage),
+            AvatarIcon.fromString(contact.first.profileImage),
             Expanded(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),

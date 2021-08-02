@@ -205,6 +205,21 @@ Resources:
       FunctionName: !Ref GetUserMessagesFunction
       Principal: apigateway.amazonaws.com
 
+  DeleteMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: deletemessage/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGES: !Ref TableMessages
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessages
+
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api

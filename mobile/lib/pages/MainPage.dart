@@ -37,15 +37,9 @@ class _MainPageState extends State<MainPage> {
 
     _searchFocusNode = FocusNode();
 
-    _userService.onUserDisplayNameChanged((name) {
-      setState(() {
-        _displayName = name;
-      });
-    }).then((name) {
-      setState(() {
-        _displayName = name;
-      });
-    });
+    _userService
+        .onUserDisplayNameChanged(_onDisplayNameChanged)
+        .then(_onDisplayNameChanged);
 
     _contactsService.onContactsChanged(() {
       _populateChats();
@@ -58,7 +52,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-
+    _userService.disposeUserDisplayNameListener(_onDisplayNameChanged);
     _searchFocusNode.dispose();
     _appService.disconnect();
   }
@@ -278,5 +272,11 @@ class _MainPageState extends State<MainPage> {
 
   List<Tuple<Contact, bool>> _selectableContactsFromContacts(List<Contact> l) {
     return l.map((e) => Tuple(e, false)).toList();
+  }
+
+  void _onDisplayNameChanged(String name) {
+    setState(() {
+      _displayName = name;
+    });
   }
 }

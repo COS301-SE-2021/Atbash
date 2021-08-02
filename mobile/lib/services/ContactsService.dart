@@ -20,6 +20,7 @@ class ContactsService {
     final response = await _databaseService.createContact(
       phoneNumber,
       displayName,
+      "",
       hasChat,
       save,
     );

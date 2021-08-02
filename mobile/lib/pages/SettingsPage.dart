@@ -30,6 +30,14 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     });
 
+    _userService.getUserStatusOrNull().then((status) {
+      if (status != null) {
+        setState(() {
+          _statusController.text = status;
+        });
+      }
+    });
+
     _userService.getUserProfilePicture().then((imageData) {
       if (imageData != null) {
         setState(() {

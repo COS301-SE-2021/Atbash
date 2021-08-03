@@ -24,6 +24,21 @@ mixin _$UserModel on UserModelBase, Store {
     });
   }
 
+  final _$displayNameAtom = Atom(name: 'UserModelBase.displayName');
+
+  @override
+  String get displayName {
+    _$displayNameAtom.reportRead();
+    return super.displayName;
+  }
+
+  @override
+  set displayName(String value) {
+    _$displayNameAtom.reportWrite(value, super.displayName, () {
+      super.displayName = value;
+    });
+  }
+
   final _$profileImageAtom = Atom(name: 'UserModelBase.profileImage');
 
   @override
@@ -41,6 +56,17 @@ mixin _$UserModel on UserModelBase, Store {
 
   final _$UserModelBaseActionController =
       ActionController(name: 'UserModelBase');
+
+  @override
+  void setDisplayName(String displayName) {
+    final _$actionInfo = _$UserModelBaseActionController.startAction(
+        name: 'UserModelBase.setDisplayName');
+    try {
+      return super.setDisplayName(displayName);
+    } finally {
+      _$UserModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setProfileImage(Uint8List profileImage) {
@@ -68,6 +94,7 @@ mixin _$UserModel on UserModelBase, Store {
   String toString() {
     return '''
 status: ${status},
+displayName: ${displayName},
 profileImage: ${profileImage}
     ''';
   }

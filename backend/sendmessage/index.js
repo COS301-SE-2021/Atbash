@@ -24,7 +24,7 @@ exports.handler = async event => {
         await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, contents)
     } catch (error) {
         console.log(error)
-        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
     try {

@@ -1,21 +1,18 @@
-const AWS = require("aws-sdk")
-
-const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
+const {removeConnection} = require("db_access")
 
 exports.handler = async event => {
-    console.log("Event is ", event)
+    const {connectionId} = event.requestContext
 
-    try {
-        await db.delete({
-            TableName: process.env.TABLE_CONNECTIONS,
-            Key: {
-                "connectionId": event.requestContext.connectionId.toString()
-            }
-        }).promise()
-    } catch (error) {
-        console.log(error)
-        return {statusCode: 500, body: "Failed to disconnect: " + JSON.stringify(error)}
+    if (connectionId === undefined) {
+        return {statusCode: 500, body: "connectionId not present"}
     }
 
-    return {statusCode: 200, body: "Disconnected"}
+    try {
+        await removeConnection(connectionId)
+    } catch (error) {
+        console.log(error)
+        return {statusCode: 500, body: JSON.stringify(error)}
+    }
+
+    return {statusCode: 200, body: "disconnected"}
 }

@@ -12,12 +12,25 @@ abstract class UserModelBase with Store {
   final _storage = FlutterSecureStorage();
 
   @observable
+  String displayName = "";
+
+  @observable
   Uint8List profileImage = Uint8List(0);
 
   UserModelBase() {
+    _storage.read(key: "display_name").then((value) {
+      if (value != null) setDisplayName(value);
+    });
+
     _storage.read(key: "profile_image").then((value) {
       if (value != null) setProfileImage(base64Decode(value));
     });
+  }
+
+  @action
+  void setDisplayName(String displayName) {
+    this.displayName = displayName;
+    _storage.write(key: "display_name", value: displayName);
   }
 
   @action

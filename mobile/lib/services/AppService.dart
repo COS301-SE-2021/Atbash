@@ -142,7 +142,24 @@ class AppService {
     _contactsService.setContactProfileImage(fromNumber, imageBase64);
   }
 
-  void _handleRequestStatusEvent(String fromNumber) {}
+  void _handleRequestStatusEvent(String fromNumber) {
+    final channel = this._channel;
+    if (channel != null) {
+      final status = _userModel.status;
+
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": fromNumber,
+        "contents": {
+          "type": "status",
+          "status": status,
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+  }
 
   void _handleStatusEvent(String fromNumber, String status) {}
 

@@ -8,7 +8,6 @@ import 'package:pointycastle/asymmetric/api.dart';
 
 class UserService {
   final _storage = FlutterSecureStorage();
-  final _displayNameCallbacks = <void Function(String name)>[];
 
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications
@@ -50,38 +49,6 @@ class UserService {
     return await _storage.containsKey(key: "phone_number");
   }
 
-  /// Get the display_name of the user from secure storage. If it is not set,
-  /// phone_number is returned instead.
-  Future<String> getUserDisplayName() async {
-    return await _storage.read(key: "display_name") ??
-        await getUserPhoneNumber();
-  }
-
-  /// Get the display_name of the user from secure storage. If it is not set,
-  /// null is returned instead
-  Future<String?> getUserDisplayNameOrNull() async {
-    return await _storage.read(key: "display_name");
-  }
-
-  /// Adds [fn] to the list of callbacks for changes to user display name.
-  /// Returns the current display name.
-  Future<String> onUserDisplayNameChanged(void Function(String name) fn) {
-    _displayNameCallbacks.add(fn);
-    return getUserDisplayName();
-  }
-
-  /// Removed [fn] from the list of callbacks for changes to user display name.
-  void disposeUserDisplayNameListener(void Function(String name) fn) {
-    _displayNameCallbacks.remove(fn);
-  }
-
-  /// Save [displayName] in secure storage as display_name. The future completes
-  /// once the name is saved.
-  Future<void> setUserDisplayName(String displayName) async {
-    await _storage.write(key: "display_name", value: displayName);
-    _notifyUserDisplayNameListeners(displayName);
-  }
-
   /// Get the profile_image of the user from secure_storage. If it is not set,
   /// null is returned.
   Future<Uint8List?> getUserProfilePicture() async {
@@ -110,9 +77,5 @@ class UserService {
     } else {
       return phoneNumber;
     }
-  }
-
-  void _notifyUserDisplayNameListeners(String displayName) {
-    _displayNameCallbacks.forEach((element) => element(displayName));
   }
 }

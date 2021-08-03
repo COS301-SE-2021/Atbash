@@ -9,6 +9,21 @@ part of 'UserModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$UserModel on UserModelBase, Store {
+  final _$displayNameAtom = Atom(name: 'UserModelBase.displayName');
+
+  @override
+  String get displayName {
+    _$displayNameAtom.reportRead();
+    return super.displayName;
+  }
+
+  @override
+  set displayName(String value) {
+    _$displayNameAtom.reportWrite(value, super.displayName, () {
+      super.displayName = value;
+    });
+  }
+
   final _$profileImageAtom = Atom(name: 'UserModelBase.profileImage');
 
   @override
@@ -28,6 +43,17 @@ mixin _$UserModel on UserModelBase, Store {
       ActionController(name: 'UserModelBase');
 
   @override
+  void setDisplayName(String displayName) {
+    final _$actionInfo = _$UserModelBaseActionController.startAction(
+        name: 'UserModelBase.setDisplayName');
+    try {
+      return super.setDisplayName(displayName);
+    } finally {
+      _$UserModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setProfileImage(Uint8List profileImage) {
     final _$actionInfo = _$UserModelBaseActionController.startAction(
         name: 'UserModelBase.setProfileImage');
@@ -41,6 +67,7 @@ mixin _$UserModel on UserModelBase, Store {
   @override
   String toString() {
     return '''
+displayName: ${displayName},
 profileImage: ${profileImage}
     ''';
   }

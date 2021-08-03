@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
@@ -12,12 +13,14 @@ class AppService {
   IOWebSocketChannel? _channel;
 
   final UserService _userService;
+  final UserModel _userModel;
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
   final ContactsService _contactsService;
 
   AppService(
     this._userService,
+    this._userModel,
     this._databaseService,
     this._notificationService,
     this._contactsService,

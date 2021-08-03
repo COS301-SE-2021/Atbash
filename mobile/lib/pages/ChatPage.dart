@@ -31,7 +31,6 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
     _appService.requestProfileImage(_contact.phoneNumber);
 
     _databaseService.fetchMessagesWith(_contact.phoneNumber).then((messages) {
@@ -62,6 +61,35 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   AppBar _buildAppBar() {
+    Widget titlebar = Column(
+      children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            widget.contact.displayName.isNotEmpty
+                ? widget.contact.displayName
+                : widget.contact.phoneNumber,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            _contact.status,
+            style: TextStyle(
+                fontSize: 14.0, color: Color.fromRGBO(61, 61, 61, 1.0)),
+          ),
+        ),
+      ],
+    );
+    if (_contact.status.isEmpty) {
+      titlebar = Text(
+        widget.contact.displayName.isNotEmpty
+            ? widget.contact.displayName
+            : widget.contact.phoneNumber,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
     return AppBar(
       title: Row(
         children: [
@@ -69,12 +97,7 @@ class _ChatPageState extends State<ChatPage> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                widget.contact.displayName.isNotEmpty
-                    ? widget.contact.displayName
-                    : widget.contact.phoneNumber,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: titlebar,
             ),
           )
         ],

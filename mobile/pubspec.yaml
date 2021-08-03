@@ -39,6 +39,7 @@ dependencies:
   flutter_svg: ^0.22.0
   flutter_local_notifications: ^6.0.0
   rsa_encrypt: ^2.0.0
+  flutter_mobx: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +48,8 @@ dev_dependencies:
     sdk: flutter
   test: any
   mockito:
+  build_runner: ^2.1.0
+  mobx_codegen: ^2.0.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

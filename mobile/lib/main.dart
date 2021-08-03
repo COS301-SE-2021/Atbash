@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/AppService.dart';
@@ -27,11 +28,14 @@ void main() async {
     contactsService,
   );
 
+  final userModel = UserModel();
+
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(contactsService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(appService);
   GetIt.I.registerSingleton(notificationService);
+  GetIt.I.registerSingleton(userModel);
 
   final permissionGranted = await notificationService.init();
   print("Notifications permitted: $permissionGranted");

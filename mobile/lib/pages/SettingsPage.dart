@@ -26,13 +26,7 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     _displayNameController.text = _userModel.displayName;
 
-    _userService.getUserStatusOrNull().then((status) {
-      if (status != null) {
-        setState(() {
-          _statusController.text = status;
-        });
-      }
-    });
+    _statusController.text = _userModel.status;
 
     _selectedProfileImage = _userModel.profileImage;
   }
@@ -144,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _userModel.setDisplayName(displayName);
                   }
                   if (status.isNotEmpty) {
-                    _userService.setUserStatus(status);
+                    _userModel.setStatus(status);
                   }
                   _userModel.setProfileImage(profileImage);
 

@@ -8,7 +8,6 @@ import 'package:pointycastle/asymmetric/api.dart';
 
 class UserService {
   final _storage = FlutterSecureStorage();
-  final _statusCallbacks = <void Function(String status)>[];
 
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications
@@ -50,37 +49,6 @@ class UserService {
     return await _storage.containsKey(key: "phone_number");
   }
 
-  /// Get the status of the user from secure storage. If it is not set,
-  /// an empty string is returned instead.
-  Future<String> getUserStatus() async {
-    return await _storage.read(key: "status") ?? "";
-  }
-
-  /// Get the status of the user from secure storage. If it is not set,
-  /// null is returned instead.
-  Future<String?> getUserStatusOrNull() async {
-    return await _storage.read(key: "status");
-  }
-
-  /// Adds [fn] to the list of callbacks for changes to user status.
-  /// Returns the current status.
-  Future<String> onUserStatusChanged(void Function(String status) fn) {
-    _statusCallbacks.add(fn);
-    return getUserStatus();
-  }
-
-  /// Removed [fn] from the list of callbacks for changes to user status.
-  void disposeUserStatusListener(void Function(String status) fn) {
-    _statusCallbacks.remove(fn);
-  }
-
-  /// Save [status] in secure storage as status. The future completes
-  /// once the status is saved.
-  Future<void> setUserStatus(String status) async {
-    await _storage.write(key: "status", value: status);
-    _notifyUserStatusListeners(status);
-  }
-
   /// Get the profile_image of the user from secure_storage. If it is not set,
   /// null is returned.
   Future<Uint8List?> getUserProfilePicture() async {
@@ -109,9 +77,5 @@ class UserService {
     } else {
       return phoneNumber;
     }
-  }
-
-  void _notifyUserStatusListeners(String status) {
-    _statusCallbacks.forEach((element) => element(status));
   }
 }

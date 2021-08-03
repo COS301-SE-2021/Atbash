@@ -12,12 +12,19 @@ abstract class UserModelBase with Store {
   final _storage = FlutterSecureStorage();
 
   @observable
+  String status = "";
+
+  @observable
   String displayName = "";
 
   @observable
   Uint8List profileImage = Uint8List(0);
 
   UserModelBase() {
+    _storage.read(key: "status").then((value) {
+      if (value != null) setStatus(value);
+    });
+
     _storage.read(key: "display_name").then((value) {
       if (value != null) setDisplayName(value);
     });
@@ -37,5 +44,11 @@ abstract class UserModelBase with Store {
   void setProfileImage(Uint8List profileImage) {
     this.profileImage = profileImage;
     _storage.write(key: "profile_image", value: base64Encode(profileImage));
+  }
+
+  @action
+  void setStatus(String status) {
+    this.status = status;
+    _storage.write(key: "status", value: status);
   }
 }

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/UserService.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final UserService _userService = GetIt.I.get();
+  final UserModel _userModel = GetIt.I.get();
 
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
@@ -38,13 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     });
 
-    _userService.getUserProfilePicture().then((imageData) {
-      if (imageData != null) {
-        setState(() {
-          _selectedProfileImage = imageData;
-        });
-      }
-    });
+    _selectedProfileImage = _userModel.profileImage;
   }
 
   @override
@@ -156,7 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (status.isNotEmpty) {
                     _userService.setUserStatus(status);
                   }
-                  _userService.setUserProfilePicture(profileImage);
+                  _userModel.setProfileImage(profileImage);
 
                   Navigator.pop(context);
                 },

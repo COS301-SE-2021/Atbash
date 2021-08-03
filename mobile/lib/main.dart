@@ -15,7 +15,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final navigatorKey = GlobalKey<NavigatorState>();
-
+  final userModel = UserModel();
   final databaseService = DatabaseService();
   final contactsService = ContactsService(databaseService);
   final userService = UserService();
@@ -23,12 +23,11 @@ void main() async {
       NotificationService(databaseService, navigatorKey);
   final appService = AppService(
     userService,
+    userModel,
     databaseService,
     notificationService,
     contactsService,
   );
-
-  final userModel = UserModel();
 
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(contactsService);

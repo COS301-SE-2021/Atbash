@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
@@ -12,12 +13,14 @@ class AppService {
   IOWebSocketChannel? _channel;
 
   final UserService _userService;
+  final UserModel _userModel;
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
   final ContactsService _contactsService;
 
   AppService(
     this._userService,
+    this._userModel,
     this._databaseService,
     this._notificationService,
     this._contactsService,
@@ -139,9 +142,28 @@ class AppService {
     _contactsService.setContactProfileImage(fromNumber, imageBase64);
   }
 
-  void _handleRequestStatusEvent(String fromNumber) {}
+  void _handleRequestStatusEvent(String fromNumber) {
+    final channel = this._channel;
+    if (channel != null) {
+      final status = _userModel.status;
 
-  void _handleStatusEvent(String fromNumber, String status) {}
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": fromNumber,
+        "contents": {
+          "type": "status",
+          "status": status,
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+  }
+
+  void _handleStatusEvent(String fromNumber, String status) {
+    _contactsService.setContactStatus(fromNumber, status);
+  }
 
   /// Disconnect the user from the server
   void disconnect() {
@@ -186,6 +208,22 @@ class AppService {
         "recipientPhoneNumber": recipientNumber,
         "contents": {
           "type": "requestProfileImage",
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+  }
+
+  void requestStatus(String recipientNumber) async {
+    final channel = this._channel;
+    if (channel != null) {
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": recipientNumber,
+        "contents": {
+          "type": "requestStatus",
         }
       };
 

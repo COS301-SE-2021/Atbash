@@ -218,6 +218,17 @@ class DatabaseService {
     );
   }
 
+  Future<void> updateContactStatus(
+    String phoneNumber,
+    String status,
+  ) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_STATUS} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [status, phoneNumber],
+    );
+  }
+
   /// Fetches all messages from a contact with phone number [phoneNumber],
   /// ordered by timestamp.
   Future<List<Message>> fetchMessagesWith(String phoneNumber) async {

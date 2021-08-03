@@ -1,43 +1,27 @@
-const AWS = require("aws-sdk")
-
-const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
+const dbAccess = require("./db_access")
 
 exports.handler = async event => {
-
-    console.log("Event is ", event)
     const id = event.pathParameters.id
 
     if (id === undefined) {
-        return {statusCode: 400, body: "Id is not present"}
+        return {statusCode: 400, body: "id is not present"}
     }
 
     try {
-        const response = await db.get({
-            TableName: process.env.TABLE_MESSAGES,
-            Key: {id}
-        }).promise()
+        const exists = await dbAccess.existsMessageById(id)
 
-        if (response.Item === undefined) {
-            return {statusCode: 404}
-        }
-
+        if (exists === false) return {statusCode: 404, body: `Message with id '${id}' does not exist`}
     } catch (error) {
-        console.error(error)
-        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+        console.log(error)
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
     try {
-        await db.delete({
-            TableName: process.env.TABLE_MESSAGES,
-            Key: {id}
-        }).promise()
+        await dbAccess.deleteMessageById(id)
     } catch (error) {
-        console.error(error)
-        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+        console.log(error)
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
-    return {
-        statusCode: 200,
-    }
-
+    return {statusCode: 200}
 }

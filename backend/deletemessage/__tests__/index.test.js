@@ -25,3 +25,11 @@ test('When existsMessageById fails, should return status code 500', async () => 
     const response = await handler({pathParameters: {id: "123"}})
     expect(response.statusCode).toBe(500)
 })
+
+test('When deleteMessageById fails, should return status code 500', async () => {
+    existsMessageById.mockImplementation(() => Promise.resolve(true))
+    deleteMessageById.mockImplementation(() => Promise.reject())
+
+    const response = await handler({pathParameters: {id: "123"}})
+    expect(response.statusCode).toBe(500)
+})

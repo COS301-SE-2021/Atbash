@@ -18,3 +18,10 @@ test('When no element with id exists, should return status code 404', async () =
     const response = await handler({pathParameters: {id: "123"}})
     expect(response.statusCode).toBe(404)
 })
+
+test('When existsMessageById fails, should return status code 500', async () => {
+    existsMessageById.mockImplementation(() => Promise.reject())
+
+    const response = await handler({pathParameters: {id: "123"}})
+    expect(response.statusCode).toBe(500)
+})

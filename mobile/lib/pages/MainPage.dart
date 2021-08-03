@@ -9,7 +9,6 @@ import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/ContactsService.dart';
-import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -19,12 +18,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final UserService _userService = GetIt.I.get();
   final UserModel _userModel = GetIt.I.get();
   final ContactsService _contactsService = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
-  String _displayName = "";
   List<Tuple<Contact, bool>> _chatContacts = [];
   List<Tuple<Contact, bool>> _filteredContacts = [];
   bool _searching = false;
@@ -40,10 +37,6 @@ class _MainPageState extends State<MainPage> {
 
     _searchFocusNode = FocusNode();
 
-    _userService
-        .onUserDisplayNameChanged(_onDisplayNameChanged)
-        .then(_onDisplayNameChanged);
-
     _contactsService.onContactsChanged(() {
       _populateChats();
     });
@@ -55,7 +48,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-    _userService.disposeUserDisplayNameListener(_onDisplayNameChanged);
     _contactsService.disposeContactsChangedListener(_populateChats);
     _searchFocusNode.dispose();
     _appService.disconnect();
@@ -108,7 +100,7 @@ class _MainPageState extends State<MainPage> {
         Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(_displayName),
+          child: Observer(builder: (_) => Text(_userModel.displayName)),
         ),
       ],
     );
@@ -284,11 +276,5 @@ class _MainPageState extends State<MainPage> {
 
   List<Tuple<Contact, bool>> _selectableContactsFromContacts(List<Contact> l) {
     return l.map((e) => Tuple(e, false)).toList();
-  }
-
-  void _onDisplayNameChanged(String name) {
-    setState(() {
-      _displayName = name;
-    });
   }
 }

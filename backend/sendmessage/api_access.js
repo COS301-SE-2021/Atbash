@@ -9,7 +9,7 @@ exports.sendToConnection = async (endpoint, connectionId, data) => {
     try {
         await api.postToConnection({
             ConnectionId: connectionId,
-            Data: data
+            Data: JSON.stringify(data)
         }).promise()
     } catch (error) {
         throw error

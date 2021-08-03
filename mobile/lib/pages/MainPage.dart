@@ -1,9 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
@@ -20,11 +20,11 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final UserService _userService = GetIt.I.get();
+  final UserModel _userModel = GetIt.I.get();
   final ContactsService _contactsService = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
   String _displayName = "";
-  Uint8List? _profileImage;
   List<Tuple<Contact, bool>> _chatContacts = [];
   List<Tuple<Contact, bool>> _filteredContacts = [];
   bool _searching = false;
@@ -43,12 +43,6 @@ class _MainPageState extends State<MainPage> {
     _userService
         .onUserDisplayNameChanged(_onDisplayNameChanged)
         .then(_onDisplayNameChanged);
-
-    _userService.getUserProfilePicture().then((value) {
-      setState(() {
-        _profileImage = value;
-      });
-    });
 
     _contactsService.onContactsChanged(() {
       _populateChats();
@@ -111,7 +105,7 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        AvatarIcon(_profileImage),
+        Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(_displayName),

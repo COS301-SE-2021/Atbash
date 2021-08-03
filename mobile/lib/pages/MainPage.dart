@@ -97,10 +97,29 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Observer(builder: (_) => Text(_userModel.displayName)),
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Observer(builder: (_) => Text(_userModel.displayName)),
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Observer(
+                  builder: (_) => Text(
+                    _userModel.status,
+                    style: TextStyle(
+                        fontSize: 14.0, color: Color.fromRGBO(61, 61, 61, 1.0)),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

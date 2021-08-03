@@ -161,7 +161,9 @@ class AppService {
     }
   }
 
-  void _handleStatusEvent(String fromNumber, String status) {}
+  void _handleStatusEvent(String fromNumber, String status) {
+    _contactsService.setContactStatus(fromNumber, status);
+  }
 
   /// Disconnect the user from the server
   void disconnect() {

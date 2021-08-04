@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
-import 'package:mobile/services/ContactsService.dart';
-import 'package:mobile/services/responses/ContactsServiceResponses.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -13,11 +13,8 @@ class NewChatPage extends StatefulWidget {
 }
 
 class _NewChatPageState extends State<NewChatPage> {
-  final ContactsService _contactsService = GetIt.I.get();
-
   bool _searching = false;
-  List<Contact> _contacts = [];
-  List<Contact> _filteredContacts = [];
+  final ContactsModel _contactsModel = GetIt.I.get();
 
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
@@ -27,16 +24,12 @@ class _NewChatPageState extends State<NewChatPage> {
     super.initState();
 
     _searchFocusNode = FocusNode();
-
-    _contactsService.onContactsChanged(_populateContacts);
-    _populateContacts();
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    _contactsService.disposeContactsChangedListener(_populateContacts);
     _searchFocusNode.dispose();
   }
 
@@ -47,7 +40,6 @@ class _NewChatPageState extends State<NewChatPage> {
         if (_searching) {
           setState(() {
             _searching = false;
-            _filteredContacts = _contacts;
             _searchController.text = "";
           });
           return false;
@@ -104,30 +96,32 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   void _filter(String searchQuery) {
-    if (searchQuery.isNotEmpty) {
-      setState(() {
-        _filteredContacts = _contacts
-            .where((c) =>
-                c.displayName
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()) ||
-                c.phoneNumber.contains(searchQuery))
-            .toList();
-      });
-    } else {
-      setState(() {
-        _filteredContacts = _contacts;
-      });
-    }
+    // if (searchQuery.isNotEmpty) {
+    //   setState(() {
+    //     _filteredContacts = _contacts
+    //         .where((c) =>
+    //             c.displayName
+    //                 .toLowerCase()
+    //                 .contains(searchQuery.toLowerCase()) ||
+    //             c.phoneNumber.contains(searchQuery))
+    //         .toList();
+    //   });
+    // } else {
+    //   setState(() {
+    //     _filteredContacts = _contacts;
+    //   });
+    // }
   }
 
-  ListView _buildBody(BuildContext context) {
-    return ListView(
-      children: [
-        _buildNewContactItem(context),
-        ..._buildContactList(context),
-      ],
-    );
+  Observer _buildBody(BuildContext context) {
+    return Observer(builder: (_) {
+      return ListView(
+        children: [
+          _buildNewContactItem(context),
+          ..._buildContactList(context, _contactsModel.savedContacts),
+        ],
+      );
+    });
   }
 
   InkWell _buildNewContactItem(BuildContext context) {
@@ -161,34 +155,45 @@ class _NewChatPageState extends State<NewChatPage> {
     showNewContactDialog(context).then(
       (nameNumberPair) {
         if (nameNumberPair != null) {
-          _contactsService
-              .addContact(
-                  nameNumberPair.phoneNumber, nameNumberPair.name, false, true)
-              .then((response) {
-            if (response.status == AddContactResponseStatus.DUPLICATE_NUMBER) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "This number already exists in your contacts",
-                  ),
-                ),
-              );
-            } else if (response.status ==
-                AddContactResponseStatus.GENERAL_ERROR) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("An error occurred"),
-                ),
-              );
-            }
-          });
+          // _contactsService
+          //     .addContact(
+          //         nameNumberPair.phoneNumber, nameNumberPair.name, false, true)
+          //     .then((response) {
+          //   if (response.status == AddContactResponseStatus.DUPLICATE_NUMBER) {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(
+          //         content: Text(
+          //           "This number already exists in your contacts",
+          //         ),
+          //       ),
+          //     );
+          //   } else if (response.status ==
+          //       AddContactResponseStatus.GENERAL_ERROR) {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(
+          //         content: Text("An error occurred"),
+          //       ),
+          //     );
+          //   }
+          // });
+          _contactsModel.addContact(Contact(
+            nameNumberPair.phoneNumber,
+            nameNumberPair.name,
+            "",
+            "",
+            false,
+            true,
+          ));
         }
       },
     );
   }
 
-  List<InkWell> _buildContactList(BuildContext context) {
-    return _filteredContacts.map((e) => _buildContact(context, e)).toList();
+  List<InkWell> _buildContactList(
+    BuildContext context,
+    List<Contact> contacts,
+  ) {
+    return contacts.map((e) => _buildContact(context, e)).toList();
   }
 
   InkWell _buildContact(BuildContext context, Contact contact) {
@@ -217,17 +222,8 @@ class _NewChatPageState extends State<NewChatPage> {
     );
   }
 
-  void _populateContacts() {
-    _contactsService.getAllSavedContacts().then((allContacts) {
-      setState(() {
-        _contacts = allContacts;
-        _filteredContacts = allContacts;
-      });
-    });
-  }
-
   void _startChat(BuildContext context, Contact contact) {
-    _contactsService.startChatWithContact(contact.phoneNumber);
+    // _contactsService.startChatWithContact(contact.phoneNumber);
 
     Navigator.pushReplacement(
       context,

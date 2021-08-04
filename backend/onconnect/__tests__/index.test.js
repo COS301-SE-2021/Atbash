@@ -15,4 +15,11 @@ describe("Unit tests for index.handler for onconnect", () => {
         const response = await handler({queryStringParameters: {phoneNumber: "0727654673"}, requestContext: {}})
         expect(response.statusCode).toBe(500)
     })
+
+    test("When addConnection succeeds, should return status code 200", async () =>{
+        addConnection.mockImplementation( () => Promise.resolve({}))
+
+        const response = await handler({queryStringParameters: {phoneNumber: "0727654673"}, requestContext: {connectionId: 123}})
+        expect(response.statusCode).toBe(200)
+    })
 })

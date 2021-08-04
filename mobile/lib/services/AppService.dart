@@ -258,6 +258,23 @@ class AppService {
     }
   }
 
+  void sendProfileImage(String recipientNumber, String base64Image) {
+    final channel = this._channel;
+    if (channel != null) {
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": recipientNumber,
+        "contents": {
+          "type": "profileImage",
+          "imageData": base64Image,
+        }
+      };
+
+      channel.sink.add(jsonEncode(data));
+    }
+  }
+
   /// Adds [fn] as a callback function to new messages from [senderNumber].
   void listenForMessagesFrom(String senderNumber, void Function(Message m) fn) {
     messageReceivedCallbacks[senderNumber] = fn;

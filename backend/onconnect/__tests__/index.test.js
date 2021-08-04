@@ -10,4 +10,9 @@ describe("Unit tests for index.handler for onconnect", () => {
         const response = await handler({queryStringParameters: {}, requestContext: {connectionId: 123}})
         expect(response.statusCode).toBe(400)
     })
+
+    test("When handler is called with an undefined connectionId, should return status code 500", async () =>{
+        const response = await handler({queryStringParameters: {phoneNumber: "0727654673"}, requestContext: {}})
+        expect(response.statusCode).toBe(500)
+    })
 })

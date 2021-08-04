@@ -20,4 +20,11 @@ describe("Unit tests for index.handler for register",  () => {
         const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", rsaPublicKey: "123"})})
         expect(response.statusCode).toBe(400)
     })
+
+    test("When addUser succeeds, should return status code 200", async  () => {
+        addUser.mockImplementation(() => Promise.resolve())
+
+        const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response.statusCode).toBe(200)
+    })
 })

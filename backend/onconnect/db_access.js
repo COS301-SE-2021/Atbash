@@ -8,7 +8,7 @@ exports.addConnection = async (phoneNumber, connectionId) => {
             TableName: process.env.TABLE_CONNECTIONS,
             Item: {
                 phoneNumber,
-                connectionId,
+                connectionId
             }
         }).promise()
     } catch (error) {

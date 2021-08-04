@@ -1,5 +1,5 @@
-const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber} = require("db_access")
-const {sendToConnection} = require("api_access")
+const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber} = require("./db_access")
+const {sendToConnection} = require("./api_access")
 
 exports.handler = async event => {
     const {connectionId} = event.requestContext

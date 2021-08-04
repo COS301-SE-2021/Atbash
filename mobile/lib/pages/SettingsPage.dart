@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -139,15 +140,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (displayName.isNotEmpty) {
                     _userModel.setDisplayName(displayName);
                   }
+
                   if (status.isNotEmpty) {
                     _userModel.setStatus(status);
-                    _contactsService.getAllContacts().then((contacts) {
-                      contacts.forEach((contact) {
-                        _appService.sendStatus(contact.phoneNumber, status);
-                      });
-                    });
                   }
+
                   _userModel.setProfileImage(profileImage);
+
+                  _contactsService.getAllContacts().then((contacts) {
+                    contacts.forEach((contact) {
+                      _appService.sendStatus(contact.phoneNumber, status);
+                      _appService.sendProfileImage(
+                          contact.phoneNumber, base64Encode(profileImage));
+                    });
+                  });
 
                   Navigator.pop(context);
                 },

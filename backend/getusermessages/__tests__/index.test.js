@@ -11,10 +11,17 @@ describe("Unit tests for index.handler for getusermessages", () => {
         expect(response.statusCode).toBe(400)
     })
 
-    test("When db is queried for messages successfully, should return status code 200", async () => {
+    test("When getMessageForPhoneNumber is queried for messages successfully, should return status code 200", async () => {
         getMessageForPhoneNumber.mockImplementation(() => Promise.resolve({}))
 
         const response = await handler({queryStringParameters: {phoneNumber: "0727654673"}})
         expect(response.statusCode).toBe(200)
+    })
+
+    test("When getMessageForPhoneNumber fails, it should return status code 500", async () => {
+        getMessageForPhoneNumber.mockImplementation(() => Promise.reject())
+
+        const response = await handler({queryStringParameters: {phoneNumber: "0727654673"}})
+        expect(response.statusCode).toBe(500)
     })
 })

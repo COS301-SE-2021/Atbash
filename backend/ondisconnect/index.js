@@ -1,4 +1,4 @@
-const {removeConnection} = require("db_access")
+const {removeConnection} = require("./db_access")
 
 exports.handler = async event => {
     const {connectionId} = event.requestContext

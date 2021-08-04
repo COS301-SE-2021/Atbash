@@ -254,7 +254,7 @@ class AppService {
         }
       };
 
-      channel.sink.add(data);
+      channel.sink.add(jsonEncode(data));
     }
   }
 

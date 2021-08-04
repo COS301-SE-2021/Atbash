@@ -10,4 +10,11 @@ describe("Unit tests for index.handler for ondisconnect", () => {
         const response = await handler({requestContext: {}})
         expect(response.statusCode).toBe(500)
     })
+
+    test("When removeConnection succeeds, should return status code 200", async () => {
+        removeConnection.mockImplementation(() => Promise.resolve({}))
+
+        const response = await handler({requestContext: {connectionId: 123}})
+        expect(response.statusCode).toBe(200)
+    })
 })

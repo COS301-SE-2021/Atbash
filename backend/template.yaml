@@ -1,0 +1,424 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Atbash SAM template
+
+Parameters:
+  TableConnections:
+    Type: String
+    Default: 'atbash-connections'
+    Description: (Required) The name of the DynamoDB table to store connectionIds for connected clients.
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+  TableUsers:
+    Type: String
+    Default: 'atbash-users'
+    Description: (Required) The name of the DynamoDB table to store registered users.
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+  TableMessages:
+    Type: String
+    Default: 'atbash-messages'
+    Description: (Required) The name of the DyanmoDB table to temporarily store messages to relay
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+Resources:
+  # --- DynamoDB Tables --- #
+  ConnectionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'connectionId'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'connectionId'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableConnections
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'phoneNumber'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'phoneNumber'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableUsers
+
+  MessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableMessages
+
+  # --- Lambda Functions --- #
+  OnConnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: onconnect/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableConnections
+
+  OnConnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnConnectFunction
+      Principal: apigateway.amazonaws.com
+
+  OnDisconnectFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ondisconnect/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableConnections
+
+  OnDisconnectPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref OnDisconnectFunction
+      Principal: apigateway.amazonaws.com
+
+  RegisterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  RegisterPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref RegisterFunction
+      Principal: apigateway.amazonaws.com
+
+  SendMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sendmessage/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref ConnectionsTable
+          TABLE_MESSAGES: !Ref MessagesTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MessagesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ConnectionsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'execute-api:ManageConnections'
+              Resource:
+                - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AtbashWebSocket}/*'
+
+  SendMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashWebSocket
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SendMessageFunction
+      Principal: apigateway.amazonaws.com
+
+  GetUserMessagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getusermessages/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGES: !Ref TableMessages
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableMessages
+
+  GetUserMessagesPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetUserMessagesFunction
+      Principal: apigateway.amazonaws.com
+
+  DeleteMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: deletemessage/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGES: !Ref TableMessages
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessages
+
+  DeleteMessagePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DeleteMessageFunction
+      Principal: apigateway.amazonaws.com
+
+  # --- Web Socket API --- #
+  AtbashWebSocket:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: atbash-online
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: '$request.body.action'
+
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: $connect
+      OperationName: ConnectRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref ConnectIntegration
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - OnConnectFunction
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnConnectFunction.Arn}/invocations
+
+  DisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: $disconnect
+      OperationName: DisconnectRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DisconnectIntegration
+  DisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - OnDisconnectFunction
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
+
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      RouteKey: sendmessage
+      OperationName: SendMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SendMessageIntegration
+  SendMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SendMessageFunction
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
+
+  AtbashWebSocketDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - ConnectRoute
+      - DisconnectRoute
+      - SendMessageRoute
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+
+  AtbashWebSocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref AtbashWebSocket
+      StageName: dev
+      DeploymentId: !Ref AtbashWebSocketDeployment
+
+  # --- REST API --- #
+  AtbashREST:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: atbash-rest
+      ProtocolType: HTTP
+
+  RegisterRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /register'
+      OperationName: RegisterRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref RegisterIntegration
+  RegisterIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - RegisterFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt RegisterFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetMessagesRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /message'
+      OperationName: GetMessagesRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetMessagesIntegration
+  GetMessagesIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetUserMessagesFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetUserMessagesFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  DeleteMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'DELETE /message/{id}'
+      OperationName: DeleteMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DeleteMessageIntegration
+  DeleteMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - DeleteMessageFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt DeleteMessageFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  AtbashRESTDeployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+      - RegisterRoute
+    Properties:
+      ApiId: !Ref AtbashREST
+
+  AtbashRESTStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref AtbashREST
+      StageName: dev
+      DeploymentId: !Ref AtbashRESTDeployment

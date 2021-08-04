@@ -10,4 +10,11 @@ describe("Unit tests for index.handler for register",  () => {
         const response = await handler({body: JSON.stringify({rsaPublicKey: "123", deviceToken: "123"})})
         expect(response.statusCode).toBe(400)
     })
+
+    test("When handler is called with an undefined rsaPublicKey, should return status code 400", async () => {
+        const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", deviceToken: "123"})})
+        expect(response.statusCode).toBe(400)
+    })
+
+
 })

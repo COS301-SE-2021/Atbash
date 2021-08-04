@@ -98,10 +98,6 @@ class AppService {
             _handleMessageEvent(id, fromNumber, userPhoneNumber, text);
           }
           break;
-        case "requestProfileImage":
-          _handleRequestProfileImageEvent(fromNumber);
-          _deleteMessageFromServer(id);
-          break;
         case "profileImage":
           final image = contents["imageData"] as String?;
           if (image != null) {
@@ -151,25 +147,6 @@ class AppService {
           false,
         );
       });
-    }
-  }
-
-  void _handleRequestProfileImageEvent(String fromNumber) async {
-    final channel = this._channel;
-    if (channel != null) {
-      final imageData = await _userService.getUserProfilePictureAsString();
-
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": fromNumber,
-        "contents": {
-          "type": "profileImage",
-          "imageData": imageData,
-        }
-      };
-
-      channel.sink.add(jsonEncode(data));
     }
   }
 

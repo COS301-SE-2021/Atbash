@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/exceptions/DuplicateContactNumberException.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -140,37 +141,30 @@ class _NewChatPageState extends State<NewChatPage> {
 
   void _addContact(BuildContext context) {
     showNewContactDialog(context).then(
-      (nameNumberPair) {
+      (nameNumberPair) async {
         if (nameNumberPair != null) {
-          // _contactsService
-          //     .addContact(
-          //         nameNumberPair.phoneNumber, nameNumberPair.name, false, true)
-          //     .then((response) {
-          //   if (response.status == AddContactResponseStatus.DUPLICATE_NUMBER) {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(
-          //         content: Text(
-          //           "This number already exists in your contacts",
-          //         ),
-          //       ),
-          //     );
-          //   } else if (response.status ==
-          //       AddContactResponseStatus.GENERAL_ERROR) {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(
-          //         content: Text("An error occurred"),
-          //       ),
-          //     );
-          //   }
-          // });
-          _contactsModel.addContact(Contact(
-            nameNumberPair.phoneNumber,
-            nameNumberPair.name,
-            "",
-            "",
-            false,
-            true,
-          ));
+          try {
+            await _contactsModel.addContact(
+              nameNumberPair.phoneNumber,
+              nameNumberPair.name,
+              false,
+              true,
+            );
+          } on DuplicateContactNumberException {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "This number already exists in your contacts",
+                ),
+              ),
+            );
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("An error occurred"),
+              ),
+            );
+          }
         }
       },
     );

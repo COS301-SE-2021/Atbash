@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -49,22 +48,8 @@ class UserService {
     return await _storage.containsKey(key: "phone_number");
   }
 
-  /// Get the profile_image of the user from secure_storage. If it is not set,
-  /// null is returned.
-  Future<Uint8List?> getUserProfilePicture() async {
-    final base64Image = await _storage.read(key: "profile_image") ?? "";
-    return base64Decode(base64Image);
-  }
-
   Future<String?> getUserProfilePictureAsString() async {
     return await _storage.read(key: "profile_image");
-  }
-
-  /// Save [encodedImage] in secure storage as profile_image. The future
-  /// completes once the image is saved.
-  Future<void> setUserProfilePicture(Uint8List encodedImage) async {
-    final base64Image = base64Encode(encodedImage);
-    await _storage.write(key: "profile_image", value: base64Image);
   }
 
   /// Get the phone_number of the user from secure storage. If it is not set,

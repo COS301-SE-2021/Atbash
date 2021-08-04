@@ -241,22 +241,6 @@ class AppService {
     return savedMessage;
   }
 
-  void requestProfileImage(String recipientNumber) async {
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {
-          "type": "requestProfileImage",
-        }
-      };
-
-      channel.sink.add(jsonEncode(data));
-    }
-  }
-
   void sendStatus(String recipientNumber, String status) {
     final channel = this._channel;
     if (channel != null) {

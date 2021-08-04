@@ -1,10 +1,6 @@
-const AWS = require("aws-sdk")
-
-const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
+const {addUser} = require("./db_access")
 
 exports.handler = async event => {
-    console.log("Event is ", event)
-
     const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)
 
     if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken)) {
@@ -12,17 +8,12 @@ exports.handler = async event => {
     }
 
     try {
-        await db.put({
-            TableName: process.env.TABLE_NAME,
-            Item: {
-                phoneNumber,
-                rsaPublicKey,
-                deviceToken
-            }
-        }).promise()
+        await addUser(phoneNumber, rsaPublicKey, deviceToken)
     } catch (error) {
-        return {statusCode: 500, body: "Database error: " + JSON.stringify(error)}
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
+
+    return {statusCode: 200}
 }
 
 const anyUndefined = (...args) => {

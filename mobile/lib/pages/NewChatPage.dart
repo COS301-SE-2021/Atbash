@@ -40,6 +40,7 @@ class _NewChatPageState extends State<NewChatPage> {
         if (_searching) {
           setState(() {
             _searching = false;
+            _contactsModel.filter = "";
             _searchController.text = "";
           });
           return false;
@@ -96,21 +97,7 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   void _filter(String searchQuery) {
-    // if (searchQuery.isNotEmpty) {
-    //   setState(() {
-    //     _filteredContacts = _contacts
-    //         .where((c) =>
-    //             c.displayName
-    //                 .toLowerCase()
-    //                 .contains(searchQuery.toLowerCase()) ||
-    //             c.phoneNumber.contains(searchQuery))
-    //         .toList();
-    //   });
-    // } else {
-    //   setState(() {
-    //     _filteredContacts = _contacts;
-    //   });
-    // }
+    _contactsModel.filter = searchQuery;
   }
 
   Observer _buildBody(BuildContext context) {
@@ -118,7 +105,7 @@ class _NewChatPageState extends State<NewChatPage> {
       return ListView(
         children: [
           _buildNewContactItem(context),
-          ..._buildContactList(context, _contactsModel.savedContacts),
+          ..._buildContactList(context, _contactsModel.filteredSavedContacts),
         ],
       );
     });

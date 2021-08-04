@@ -60,6 +60,7 @@ abstract class ContactsModelBase with Store {
         throw StateError("Contact was null when status was success");
       } else {
         contacts.add(contact);
+        contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
       }
     } else if (status == CreateContactResponseStatus.DUPLICATE_NUMBER) {
       throw DuplicateContactNumberException();

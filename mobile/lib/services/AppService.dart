@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:http/http.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/ContactsService.dart';
@@ -42,14 +43,51 @@ class AppService {
 
     final channel = this._channel;
     if (channel != null) {
-      await for (final event in channel.stream) {
+      channel.stream.forEach((event) {
         _handleEvent(phoneNumber, event);
+      });
+    }
+
+    _fetchUnreadMessages();
+  }
+
+  void _fetchUnreadMessages() async {
+    final phoneNumber = await _userService.getUserPhoneNumber();
+
+    final url = Uri.parse(
+        "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/message?phoneNumber=$phoneNumber");
+
+    final response = await get(url);
+    if (response.statusCode == 200) {
+      final messages = jsonDecode(response.body);
+      if (messages is List) {
+        messages.forEach((m) {
+          final id = m["id"] as String?;
+          if (id != null) {
+            _databaseService.messageWithIdExists(id).then((exists) {
+              if (exists) {
+                _deleteMessageFromServer(id);
+              } else {
+                _handleEvent(phoneNumber, m);
+              }
+            });
+          }
+        });
       }
+    } else {
+      print("Failed to get messages: ${response.statusCode}: ${response.body}");
     }
   }
 
+  void _deleteMessageFromServer(String id) {
+    final url = Uri.parse(
+        "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/message/$id");
+    delete(url);
+  }
+
   void _handleEvent(String userPhoneNumber, dynamic event) {
-    final decodedEvent = jsonDecode(event) as Map<String, Object?>;
+    final decodedEvent =
+        event is Map ? event : jsonDecode(event) as Map<String, Object?>;
     final id = decodedEvent["id"] as String?;
     final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
     final contents = decodedEvent["contents"] as Map<String, Object?>?;
@@ -65,21 +103,25 @@ class AppService {
           break;
         case "requestProfileImage":
           _handleRequestProfileImageEvent(fromNumber);
+          _deleteMessageFromServer(id);
           break;
         case "profileImage":
           final image = contents["imageData"] as String?;
           if (image != null) {
             _handleProfileImageEvent(fromNumber, image);
           }
+          _deleteMessageFromServer(id);
           break;
         case "requestStatus":
           _handleRequestStatusEvent(fromNumber);
+          _deleteMessageFromServer(id);
           break;
         case "status":
           final status = contents["status"] as String?;
           if (status != null) {
             _handleStatusEvent(fromNumber, status);
           }
+          _deleteMessageFromServer(id);
           break;
       }
     }

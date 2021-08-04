@@ -1,4 +1,4 @@
-const {getMessageForPhoneNumber} = require("db_access")
+const {getMessageForPhoneNumber} = require("./db_access")
 
 exports.handler = async event => {
     const {phoneNumber} = event.queryStringParameters

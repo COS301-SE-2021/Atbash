@@ -1,5 +1,7 @@
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/exceptions/DuplicateContactNumberException.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/responses/DatabaseServiceResponses.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ContactsModel.g.dart';
@@ -35,7 +37,36 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
-  void addContact(Contact c) => this.contacts.add(c);
+  Future<void> addContact(
+    String phoneNumber,
+    String displayName,
+    bool hasChat,
+    bool save,
+  ) async {
+    final response = await _databaseService.createContact(
+      phoneNumber,
+      displayName,
+      "",
+      "",
+      hasChat,
+      save,
+    );
+
+    final status = response.status;
+    final contact = response.contact;
+
+    if (status == CreateContactResponseStatus.SUCCESS) {
+      if (contact == null) {
+        throw StateError("Contact was null when status was success");
+      } else {
+        contacts.add(contact);
+      }
+    } else if (status == CreateContactResponseStatus.DUPLICATE_NUMBER) {
+      throw DuplicateContactNumberException();
+    } else {
+      throw Exception();
+    }
+  }
 
   @action
   Future<void> initialise() async {

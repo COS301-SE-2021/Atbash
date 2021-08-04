@@ -55,25 +55,20 @@ mixin _$ContactsModel on ContactsModelBase, Store {
     });
   }
 
+  final _$addContactAsyncAction = AsyncAction('ContactsModelBase.addContact');
+
+  @override
+  Future<void> addContact(
+      String phoneNumber, String displayName, bool hasChat, bool save) {
+    return _$addContactAsyncAction
+        .run(() => super.addContact(phoneNumber, displayName, hasChat, save));
+  }
+
   final _$initialiseAsyncAction = AsyncAction('ContactsModelBase.initialise');
 
   @override
   Future<void> initialise() {
     return _$initialiseAsyncAction.run(() => super.initialise());
-  }
-
-  final _$ContactsModelBaseActionController =
-      ActionController(name: 'ContactsModelBase');
-
-  @override
-  void addContact(Contact c) {
-    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
-        name: 'ContactsModelBase.addContact');
-    try {
-      return super.addContact(c);
-    } finally {
-      _$ContactsModelBaseActionController.endAction(_$actionInfo);
-    }
   }
 
   @override

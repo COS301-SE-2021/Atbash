@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
@@ -14,14 +13,12 @@ class AppService {
   IOWebSocketChannel? _channel;
 
   final UserService _userService;
-  final UserModel _userModel;
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
   final ContactsService _contactsService;
 
   AppService(
     this._userService,
-    this._userModel,
     this._databaseService,
     this._notificationService,
     this._contactsService,
@@ -101,19 +98,11 @@ class AppService {
             _handleMessageEvent(id, fromNumber, userPhoneNumber, text);
           }
           break;
-        case "requestProfileImage":
-          _handleRequestProfileImageEvent(fromNumber);
-          _deleteMessageFromServer(id);
-          break;
         case "profileImage":
           final image = contents["imageData"] as String?;
           if (image != null) {
             _handleProfileImageEvent(fromNumber, image);
           }
-          _deleteMessageFromServer(id);
-          break;
-        case "requestStatus":
-          _handleRequestStatusEvent(fromNumber);
           _deleteMessageFromServer(id);
           break;
         case "status":
@@ -161,46 +150,8 @@ class AppService {
     }
   }
 
-  void _handleRequestProfileImageEvent(String fromNumber) async {
-    final channel = this._channel;
-    if (channel != null) {
-      final imageData = await _userService.getUserProfilePictureAsString();
-
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": fromNumber,
-        "contents": {
-          "type": "profileImage",
-          "imageData": imageData,
-        }
-      };
-
-      channel.sink.add(jsonEncode(data));
-    }
-  }
-
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
     _contactsService.setContactProfileImage(fromNumber, imageBase64);
-  }
-
-  void _handleRequestStatusEvent(String fromNumber) {
-    final channel = this._channel;
-    if (channel != null) {
-      final status = _userModel.status;
-
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": fromNumber,
-        "contents": {
-          "type": "status",
-          "status": status,
-        }
-      };
-
-      channel.sink.add(jsonEncode(data));
-    }
   }
 
   void _handleStatusEvent(String fromNumber, String status) {
@@ -241,7 +192,7 @@ class AppService {
     return savedMessage;
   }
 
-  void requestProfileImage(String recipientNumber) async {
+  void sendStatus(String recipientNumber, String status) {
     final channel = this._channel;
     if (channel != null) {
       final data = {
@@ -249,7 +200,8 @@ class AppService {
         "id": Uuid().v4(),
         "recipientPhoneNumber": recipientNumber,
         "contents": {
-          "type": "requestProfileImage",
+          "type": "status",
+          "status": status,
         }
       };
 
@@ -257,7 +209,7 @@ class AppService {
     }
   }
 
-  void requestStatus(String recipientNumber) async {
+  void sendProfileImage(String recipientNumber, String base64Image) {
     final channel = this._channel;
     if (channel != null) {
       final data = {
@@ -265,7 +217,8 @@ class AppService {
         "id": Uuid().v4(),
         "recipientPhoneNumber": recipientNumber,
         "contents": {
-          "type": "requestStatus",
+          "type": "profileImage",
+          "imageData": base64Image,
         }
       };
 

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -5,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/services/UserService.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/ContactsService.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -13,7 +15,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final UserService _userService = GetIt.I.get();
+  final ContactsService _contactsService = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
   final UserModel _userModel = GetIt.I.get();
 
   final picker = ImagePicker();
@@ -137,10 +140,20 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (displayName.isNotEmpty) {
                     _userModel.setDisplayName(displayName);
                   }
+
                   if (status.isNotEmpty) {
                     _userModel.setStatus(status);
                   }
+
                   _userModel.setProfileImage(profileImage);
+
+                  _contactsService.getAllContacts().then((contacts) {
+                    contacts.forEach((contact) {
+                      _appService.sendStatus(contact.phoneNumber, status);
+                      _appService.sendProfileImage(
+                          contact.phoneNumber, base64Encode(profileImage));
+                    });
+                  });
 
                   Navigator.pop(context);
                 },

@@ -23,4 +23,8 @@ describe("Unit tests for index.handler for sendmessage", () => {
         expect(response.statusCode).toBe(400)
     })
 
+    test("When handler is called with an undefined contents, should return status code 400", async () => {
+        const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673"})})
+        expect(response.statusCode).toBe(400)
+    })
 })

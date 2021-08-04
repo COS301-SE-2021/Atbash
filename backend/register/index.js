@@ -12,6 +12,8 @@ exports.handler = async event => {
     } catch (error) {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
+
+    return {statusCode: 200}
 }
 
 const anyUndefined = (...args) => {

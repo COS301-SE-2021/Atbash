@@ -94,7 +94,7 @@ class ContactsService {
 
   void setContactStatus(String phoneNumber, String status) {
     _databaseService.updateContactStatus(phoneNumber, status);
-    //_notifyOnContactsChangedListeners();
+    _notifyOnContactsChangedListeners();
   }
 
   /// Adds [fn] as a callback to the callback list

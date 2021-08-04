@@ -1,4 +1,4 @@
-const {addConnection} = require("db_access")
+const {addConnection} = require("./db_access")
 
 exports.handler = async event => {
     const {phoneNumber} = event.queryStringParameters

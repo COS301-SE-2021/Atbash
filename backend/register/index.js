@@ -1,4 +1,4 @@
-const {addUser} = require("db_access")
+const {addUser} = require("./db_access")
 
 exports.handler = async event => {
     const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)

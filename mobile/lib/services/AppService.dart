@@ -257,6 +257,23 @@ class AppService {
     }
   }
 
+  void sendStatus(String recipientNumber, String status) {
+    final channel = this._channel;
+    if (channel != null) {
+      final data = {
+        "action": "sendmessage",
+        "id": Uuid().v4(),
+        "recipientPhoneNumber": recipientNumber,
+        "contents": {
+          "type": "status",
+          "status": status,
+        }
+      };
+
+      channel.sink.add(data);
+    }
+  }
+
   void requestStatus(String recipientNumber) async {
     final channel = this._channel;
     if (channel != null) {

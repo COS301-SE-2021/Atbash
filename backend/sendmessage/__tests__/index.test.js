@@ -27,4 +27,11 @@ describe("Unit tests for index.handler for sendmessage", () => {
         const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673"})})
         expect(response.statusCode).toBe(400)
     })
+
+    test("When getPhoneNumberOfConnection fails, should return status code 500", async () => {
+        getPhoneNumberOfConnection.mockImplementation( () => Promise.reject())
+
+        const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})
+        expect(response.statusCode).toBe(500)
+    })
 })

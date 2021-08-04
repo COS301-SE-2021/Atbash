@@ -229,6 +229,16 @@ class DatabaseService {
     );
   }
 
+  Future<bool> messageWithIdExists(String id) async {
+    final db = await _database;
+    final response = await db.rawQuery(
+      "select ${Message.COLUMN_ID} from ${Message.TABLE_NAME} where ${Message.COLUMN_ID} = ?",
+      [id],
+    );
+
+    return response.length > 0;
+  }
+
   /// Fetches all messages from a contact with phone number [phoneNumber],
   /// ordered by timestamp.
   Future<List<Message>> fetchMessagesWith(String phoneNumber) async {

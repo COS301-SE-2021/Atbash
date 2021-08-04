@@ -14,9 +14,25 @@ abstract class ContactsModelBase with Store {
   @observable
   ObservableList<Contact> contacts = <Contact>[].asObservable();
 
+  @observable
+  String filter = "";
+
   @computed
   ObservableList<Contact> get savedContacts =>
       ObservableList.of(contacts.where((c) => c.saved));
+
+  @computed
+  ObservableList<Contact> get filteredSavedContacts {
+    if (filter.isNotEmpty) {
+      return ObservableList.of(savedContacts.where(
+        (c) =>
+            c.displayName.toLowerCase().contains(filter.toLowerCase()) ||
+            c.phoneNumber.contains(filter),
+      ));
+    } else {
+      return savedContacts;
+    }
+  }
 
   @action
   void addContact(Contact c) => this.contacts.add(c);

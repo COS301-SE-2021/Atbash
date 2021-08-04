@@ -16,6 +16,14 @@ mixin _$ContactsModel on ContactsModelBase, Store {
           Computed<ObservableList<Contact>>(() => super.savedContacts,
               name: 'ContactsModelBase.savedContacts'))
       .value;
+  Computed<ObservableList<Contact>>? _$filteredSavedContactsComputed;
+
+  @override
+  ObservableList<Contact> get filteredSavedContacts =>
+      (_$filteredSavedContactsComputed ??= Computed<ObservableList<Contact>>(
+              () => super.filteredSavedContacts,
+              name: 'ContactsModelBase.filteredSavedContacts'))
+          .value;
 
   final _$contactsAtom = Atom(name: 'ContactsModelBase.contacts');
 
@@ -29,6 +37,21 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   set contacts(ObservableList<Contact> value) {
     _$contactsAtom.reportWrite(value, super.contacts, () {
       super.contacts = value;
+    });
+  }
+
+  final _$filterAtom = Atom(name: 'ContactsModelBase.filter');
+
+  @override
+  String get filter {
+    _$filterAtom.reportRead();
+    return super.filter;
+  }
+
+  @override
+  set filter(String value) {
+    _$filterAtom.reportWrite(value, super.filter, () {
+      super.filter = value;
     });
   }
 
@@ -57,7 +80,9 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   String toString() {
     return '''
 contacts: ${contacts},
-savedContacts: ${savedContacts}
+filter: ${filter},
+savedContacts: ${savedContacts},
+filteredSavedContacts: ${filteredSavedContacts}
     ''';
   }
 }

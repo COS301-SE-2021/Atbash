@@ -70,6 +70,11 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
+  Future<void> startChatWithContact(String phoneNumber) async {
+    await _databaseService.startChatWithContact(phoneNumber);
+  }
+
+  @action
   Future<void> initialise() async {
     final contacts = await _databaseService.fetchContacts();
     this.contacts.addAll(contacts);

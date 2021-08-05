@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/services/ContactsService.dart';
+import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -15,13 +15,13 @@ class AppService {
   final UserService _userService;
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
-  final ContactsService _contactsService;
+  final ContactsModel _contactsModel;
 
   AppService(
     this._userService,
     this._databaseService,
     this._notificationService,
-    this._contactsService,
+    this._contactsModel,
   );
 
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
@@ -133,7 +133,7 @@ class AppService {
         String title = fromNumber;
 
         if (fromContact == null) {
-          _contactsService.addContact(fromNumber, "", true, false);
+          _contactsModel.addContact(fromNumber, "", true, false);
         } else {
           if (fromContact.displayName.isNotEmpty)
             title = fromContact.displayName;
@@ -151,11 +151,11 @@ class AppService {
   }
 
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
-    _contactsService.setContactProfileImage(fromNumber, imageBase64);
+    _contactsModel.setContactProfileImage(fromNumber, imageBase64);
   }
 
   void _handleStatusEvent(String fromNumber, String status) {
-    _contactsService.setContactStatus(fromNumber, status);
+    _contactsModel.setContactStatus(fromNumber, status);
   }
 
   /// Disconnect the user from the server

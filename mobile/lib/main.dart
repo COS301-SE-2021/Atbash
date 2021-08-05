@@ -6,39 +6,36 @@ import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/AppService.dart';
-import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
+
+import 'models/ContactsModel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final navigatorKey = GlobalKey<NavigatorState>();
 
-  final userModel = UserModel();
-
   final databaseService = DatabaseService();
-  final contactsService = ContactsService(databaseService);
+
+  final userModel = UserModel();
+  final contactsModel = ContactsModel(databaseService);
+
   final userService = UserService();
   final notificationService =
       NotificationService(databaseService, navigatorKey);
   final appService = AppService(
-    userService,
-    databaseService,
-    notificationService,
-    contactsService,
-  );
+      userService, databaseService, notificationService, contactsModel);
 
   GetIt.I.registerSingleton(databaseService);
-  GetIt.I.registerSingleton(contactsService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(appService);
   GetIt.I.registerSingleton(notificationService);
   GetIt.I.registerSingleton(userModel);
+  GetIt.I.registerSingleton(contactsModel);
 
-  final permissionGranted = await notificationService.init();
-  print("Notifications permitted: $permissionGranted");
+  await Future.wait([notificationService.init(), contactsModel.initialise()]);
 
   runApp(AtbashApp(navigatorKey));
 }

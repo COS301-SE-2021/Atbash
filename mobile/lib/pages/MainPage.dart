@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
-import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -19,13 +20,13 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final UserModel _userModel = GetIt.I.get();
-  final ContactsService _contactsService = GetIt.I.get();
+  final ContactsModel _contactsModel = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
-  List<Tuple<Contact, bool>> _chatContacts = [];
-  List<Tuple<Contact, bool>> _filteredContacts = [];
-  bool _searching = false;
+  List<Tuple<Contact, bool>> _selectedContacts = [];
+  late final ReactionDisposer _contactsDisposer;
 
+  bool _searching = false;
   bool _selecting = false;
 
   final _searchController = TextEditingController();
@@ -35,12 +36,15 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
 
-    _searchFocusNode = FocusNode();
-
-    _contactsService.onContactsChanged(() {
-      _populateChats();
+    _contactsDisposer = autorun((_) {
+      setState(() {
+        _selectedContacts = _contactsModel.filteredChatContacts
+            .map((each) => Tuple(each, false))
+            .toList();
+      });
     });
-    _populateChats();
+
+    _searchFocusNode = FocusNode();
 
     _appService.goOnline();
   }
@@ -48,7 +52,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-    _contactsService.disposeContactsChangedListener(_populateChats);
+    _contactsDisposer();
     _searchFocusNode.dispose();
     _appService.disconnect();
   }
@@ -79,18 +83,15 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _stopSearching() {
-    setState(() {
-      _searching = false;
-      _filteredContacts = _chatContacts;
-      _searchController.text = "";
-    });
+    _searching = false;
+    _contactsModel.filter = "";
+    _searchController.text = "";
   }
 
   void _stopSelecting() {
     setState(() {
       _selecting = false;
-      _chatContacts.forEach((element) => element.second = false);
-      _filteredContacts.forEach((element) => element.second = false);
+      _selectedContacts.forEach((element) => element.second = false);
     });
   }
 
@@ -158,7 +159,7 @@ class _MainPageState extends State<MainPage> {
         if (_selecting)
           IconButton(
             onPressed: () {
-              final selectedChats = _filteredContacts
+              final selectedChats = _selectedContacts
                   .where((element) => element.second == true)
                   .map((e) => e.first.phoneNumber)
                   .toList();
@@ -167,7 +168,7 @@ class _MainPageState extends State<MainPage> {
                       "This will delete ${selectedChats.length} chat(s). Are you sure?")
                   .then((confirmed) {
                 if (confirmed != null && confirmed) {
-                  _contactsService.deleteChatsWithContacts(selectedChats);
+                  _contactsModel.deleteChatsWithContacts(selectedChats);
                 }
               });
             },
@@ -197,26 +198,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _filter(String searchQuery) {
-    if (searchQuery.isNotEmpty) {
-      setState(() {
-        _filteredContacts = _chatContacts
-            .where((c) =>
-                c.first.displayName
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()) ||
-                c.first.phoneNumber.contains(searchQuery))
-            .toList();
-      });
-    } else {
-      setState(() {
-        _filteredContacts = _chatContacts;
-      });
-    }
+    _contactsModel.filter = searchQuery;
   }
 
   ListView _buildBody() {
     return ListView(
-        children: _filteredContacts.map((chat) => _buildChat(chat)).toList());
+      children: _selectedContacts.map((each) => _buildChat(each)).toList(),
+    );
   }
 
   InkWell _buildChat(Tuple<Contact, bool> contact) {
@@ -282,18 +270,5 @@ class _MainPageState extends State<MainPage> {
       },
       child: Icon(Icons.chat),
     );
-  }
-
-  void _populateChats() {
-    _contactsService.getAllChats().then((contacts) {
-      setState(() {
-        _chatContacts = _selectableContactsFromContacts(contacts);
-        _filteredContacts = _chatContacts;
-      });
-    });
-  }
-
-  List<Tuple<Contact, bool>> _selectableContactsFromContacts(List<Contact> l) {
-    return l.map((e) => Tuple(e, false)).toList();
   }
 }

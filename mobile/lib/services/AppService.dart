@@ -40,9 +40,14 @@ class AppService {
 
     final channel = this._channel;
     if (channel != null) {
-      channel.stream.forEach((event) {
-        _handleEvent(phoneNumber, event);
-      });
+      channel.stream.listen(
+        (event) => _handleEvent(phoneNumber, event),
+        onDone: () {
+          if (channel.closeCode != 1005) {
+            this._channel = null;
+          }
+        },
+      );
     }
 
     _fetchUnreadMessages();

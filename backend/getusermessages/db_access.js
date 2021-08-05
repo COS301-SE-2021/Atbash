@@ -5,9 +5,10 @@ const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: pr
 exports.getMessageForPhoneNumber = (phoneNumber) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const response = await db.scan({
+            const response = await db.query({
                 TableName: process.env.TABLE_MESSAGES,
-                FilterExpression: "recipientPhoneNumber = :n",
+                IndexName: process.env.INDEX_RECIPIENT_PHONE_NUMBER,
+                KeyConditionExpression: "recipientPhoneNumber = :n",
                 ExpressionAttributeValues: {
                     ":n": phoneNumber
                 }

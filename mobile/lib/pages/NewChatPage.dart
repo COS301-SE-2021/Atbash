@@ -204,7 +204,7 @@ class _NewChatPageState extends State<NewChatPage> {
   }
 
   void _startChat(BuildContext context, Contact contact) {
-    // _contactsService.startChatWithContact(contact.phoneNumber);
+    _contactsModel.startChatWithContact(contact.phoneNumber);
 
     Navigator.pushReplacement(
       context,

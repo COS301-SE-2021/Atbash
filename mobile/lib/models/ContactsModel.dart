@@ -108,6 +108,16 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
+  void setContactStatus(String phoneNumber, String status) {
+    final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);
+    final contact = contacts.removeAt(index);
+    contact.status = status;
+    contacts.insert(index, contact);
+
+    _databaseService.updateContactStatus(phoneNumber, status);
+  }
+
+  @action
   void deleteChatsWithContacts(List<String> phoneNumbers) {
     phoneNumbers.forEach((phoneNumber) {
       final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);

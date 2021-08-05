@@ -112,6 +112,17 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   }
 
   @override
+  void setContactStatus(String phoneNumber, String status) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.setContactStatus');
+    try {
+      return super.setContactStatus(phoneNumber, status);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void deleteChatsWithContacts(List<String> phoneNumbers) {
     final _$actionInfo = _$ContactsModelBaseActionController.startAction(
         name: 'ContactsModelBase.deleteChatsWithContacts');

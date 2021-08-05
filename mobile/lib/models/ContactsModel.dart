@@ -98,6 +98,19 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
+  void deleteChatsWithContacts(List<String> phoneNumbers) {
+    phoneNumbers.forEach((phoneNumber) {
+      final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);
+      final contact = contacts.removeAt(index);
+      contact.hasChat = false;
+      contacts.insert(index, contact);
+      _databaseService.markContactNoChat(phoneNumber);
+
+      _databaseService.deleteMessagesWithContact(phoneNumber);
+    });
+  }
+
+  @action
   Future<void> initialise() async {
     final contacts = await _databaseService.fetchContacts();
     this.contacts.addAll(contacts);

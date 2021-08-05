@@ -101,6 +101,17 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   }
 
   @override
+  void deleteChatsWithContacts(List<String> phoneNumbers) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.deleteChatsWithContacts');
+    try {
+      return super.deleteChatsWithContacts(phoneNumbers);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contacts: ${contacts},

@@ -59,3 +59,23 @@ exports.getConnectionOfPhoneNumber = async (phoneNumber) => {
         throw error
     }
 }
+
+exports.getDeviceTokenForPhoneNumber = async (phoneNumber) => {
+    try {
+        const response = await db.query({
+            TableName: process.env.TABLE_USERS,
+            KeyConditionExpression: "phoneNumber = :n",
+            ExpressionAttributeValues: {
+                ":n": phoneNumber
+            }
+        }).promise()
+
+        if (response.Items.length > 0) {
+            return response.Items[0].deviceToken
+        } else {
+            return undefined
+        }
+    } catch (error) {
+        throw error
+    }
+}

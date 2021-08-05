@@ -192,6 +192,19 @@ class AppService {
       };
 
       channel.sink.add(jsonEncode(data));
+    } else {
+      await goOnline();
+      final channel = this._channel;
+      if (channel != null) {
+        final data = {
+          "action": "sendmessage",
+          "id": savedMessage.id,
+          "recipientPhoneNumber": recipientNumber,
+          "contents": {"type": "message", "text": text},
+        };
+
+        channel.sink.add(jsonEncode(data));
+      }
     }
 
     return savedMessage;

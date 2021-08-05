@@ -71,20 +71,25 @@ mixin _$ContactsModel on ContactsModelBase, Store {
         .run(() => super.addContact(phoneNumber, displayName, hasChat, save));
   }
 
-  final _$startChatWithContactAsyncAction =
-      AsyncAction('ContactsModelBase.startChatWithContact');
-
-  @override
-  Future<void> startChatWithContact(String phoneNumber) {
-    return _$startChatWithContactAsyncAction
-        .run(() => super.startChatWithContact(phoneNumber));
-  }
-
   final _$initialiseAsyncAction = AsyncAction('ContactsModelBase.initialise');
 
   @override
   Future<void> initialise() {
     return _$initialiseAsyncAction.run(() => super.initialise());
+  }
+
+  final _$ContactsModelBaseActionController =
+      ActionController(name: 'ContactsModelBase');
+
+  @override
+  void startChatWithContact(String phoneNumber) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.startChatWithContact');
+    try {
+      return super.startChatWithContact(phoneNumber);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
   }
 
   @override

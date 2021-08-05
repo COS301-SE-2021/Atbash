@@ -1,5 +1,10 @@
 [![Dart](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml)
-[![Java CI with Maven](https://github.com/COS301-SE-2021/Atbash/actions/workflows/maven.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/maven.yml)
+[![onconnect CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/onconnect.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/onconnect.yml)
+[![ondisconnect CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/ondisconnect.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/ondisconnect.yml)
+[![register CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/register.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/register.yml)
+[![sendmessage CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/sendmessage.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/sendmessage.yml)
+[![getusermessages CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/getusermessages.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/getusermessages.yml)
+[![deletemessage CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml)
 
 # Bit by Bit - Atbash
 Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.
@@ -8,7 +13,7 @@ Atbash is a messaging application, where the privacy of messages is the top prio
 ## Demo Recordings
 
 - You can see a recoding of our [first demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 
-- You can see a recoding of our [second demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 
+- You can see a recoding of our [second demo here](https://drive.google.com/file/d/18Cx_5pkdIHKp1ZRApT2W2jsCBklKNL1c/view?usp=sharing) 
 
 ---
 ## SRS Document

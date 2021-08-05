@@ -9,6 +9,13 @@ part of 'ContactsModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$ContactsModel on ContactsModelBase, Store {
+  Computed<ObservableList<Contact>>? _$chatContactsComputed;
+
+  @override
+  ObservableList<Contact> get chatContacts => (_$chatContactsComputed ??=
+          Computed<ObservableList<Contact>>(() => super.chatContacts,
+              name: 'ContactsModelBase.chatContacts'))
+      .value;
   Computed<ObservableList<Contact>>? _$savedContactsComputed;
 
   @override
@@ -85,6 +92,7 @@ mixin _$ContactsModel on ContactsModelBase, Store {
     return '''
 contacts: ${contacts},
 filter: ${filter},
+chatContacts: ${chatContacts},
 savedContacts: ${savedContacts},
 filteredSavedContacts: ${filteredSavedContacts}
     ''';

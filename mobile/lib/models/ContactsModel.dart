@@ -20,6 +20,10 @@ abstract class ContactsModelBase with Store {
   String filter = "";
 
   @computed
+  ObservableList<Contact> get chatContacts =>
+      ObservableList.of(contacts.where((c) => c.hasChat));
+
+  @computed
   ObservableList<Contact> get savedContacts =>
       ObservableList.of(contacts.where((c) => c.saved));
 

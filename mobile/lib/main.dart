@@ -6,7 +6,6 @@ import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/AppService.dart';
-import 'package:mobile/services/ContactsService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -19,22 +18,17 @@ void main() async {
   final navigatorKey = GlobalKey<NavigatorState>();
 
   final databaseService = DatabaseService();
-  final contactsService = ContactsService(databaseService);
-  final userService = UserService();
-  final notificationService =
-      NotificationService(databaseService, navigatorKey);
-  final appService = AppService(
-    userService,
-    databaseService,
-    notificationService,
-    contactsService,
-  );
 
   final userModel = UserModel();
   final contactsModel = ContactsModel(databaseService);
 
+  final userService = UserService();
+  final notificationService =
+      NotificationService(databaseService, navigatorKey);
+  final appService = AppService(
+      userService, databaseService, notificationService, contactsModel);
+
   GetIt.I.registerSingleton(databaseService);
-  GetIt.I.registerSingleton(contactsService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(appService);
   GetIt.I.registerSingleton(notificationService);

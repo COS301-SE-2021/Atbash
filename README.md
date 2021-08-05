@@ -1,5 +1,10 @@
 [![Dart](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/flutter.yml)
 [![onconnect CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/onconnect.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/onconnect.yml)
+[![ondisconnect CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/ondisconnect.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/ondisconnect.yml)
+[![register CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/register.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/register.yml)
+[![sendmessage CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/sendmessage.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/sendmessage.yml)
+[![getusermessages CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/getusermessages.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/getusermessages.yml)
+[![deletemessage CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml)
 
 # Bit by Bit - Atbash
 Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.

@@ -1,0 +1,22 @@
+name: register CI
+
+on:
+  pull_request:
+    branches: [ development ]
+    paths:
+    - 'backend/register/**'
+    
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+      - run: npm ci
+        working-directory: backend/register
+      - run: npm test
+        working-directory: backend/register

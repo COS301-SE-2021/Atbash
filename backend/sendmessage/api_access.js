@@ -1,4 +1,5 @@
 const AWS = require("aws-sdk")
+const axios = require("axios")
 
 exports.sendToConnection = async (endpoint, connectionId, data) => {
     const api = new AWS.ApiGatewayManagementApi({
@@ -14,4 +15,20 @@ exports.sendToConnection = async (endpoint, connectionId, data) => {
     } catch (error) {
         throw error
     }
+}
+
+exports.notifyDevice = async (deviceToken) => {
+
+    try {
+        await axios.post("https://fcm.googleapis.com/fcm/send", {
+            to: deviceToken,
+            notification: {
+                title: "Atbash",
+                body: "You have new messages"
+            },
+        })
+    } catch (error) {
+        throw error
+    }
+
 }

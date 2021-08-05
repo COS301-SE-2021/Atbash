@@ -188,6 +188,8 @@ Resources:
             TableName: !Ref TableMessages
         - DynamoDBReadPolicy:
             TableName: !Ref TableConnections
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
         - Statement:
             - Effect: Allow
               Action:

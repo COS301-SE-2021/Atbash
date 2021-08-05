@@ -1,5 +1,6 @@
 const {addConnection} = require("./db_access")
 
+
 exports.handler = async event => {
     const {phoneNumber} = event.queryStringParameters
     const {connectionId} = event.requestContext

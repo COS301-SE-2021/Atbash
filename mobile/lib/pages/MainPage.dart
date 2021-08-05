@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
@@ -19,6 +20,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final UserModel _userModel = GetIt.I.get();
+  final ContactsModel _contactsModel = GetIt.I.get();
   final ContactsService _contactsService = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
@@ -214,9 +216,14 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  ListView _buildBody() {
-    return ListView(
-        children: _filteredContacts.map((chat) => _buildChat(chat)).toList());
+  Observer _buildBody() {
+    return Observer(builder: (_) {
+      return ListView(
+        children: _contactsModel.chatContacts
+            .map((chat) => _buildChat(Tuple(chat, false)))
+            .toList(),
+      );
+    });
   }
 
   InkWell _buildChat(Tuple<Contact, bool> contact) {

@@ -98,6 +98,16 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
+  void setContactProfileImage(String phoneNumber, String base64Image) {
+    final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);
+    final contact = contacts.removeAt(index);
+    contact.profileImage = base64Image;
+    contacts.insert(index, contact);
+
+    _databaseService.updateContactProfileImage(phoneNumber, base64Image);
+  }
+
+  @action
   void deleteChatsWithContacts(List<String> phoneNumbers) {
     phoneNumbers.forEach((phoneNumber) {
       final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);

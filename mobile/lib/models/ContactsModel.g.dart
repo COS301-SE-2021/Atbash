@@ -101,6 +101,17 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   }
 
   @override
+  void setContactProfileImage(String phoneNumber, String base64Image) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.setContactProfileImage');
+    try {
+      return super.setContactProfileImage(phoneNumber, base64Image);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void deleteChatsWithContacts(List<String> phoneNumbers) {
     final _$actionInfo = _$ContactsModelBaseActionController.startAction(
         name: 'ContactsModelBase.deleteChatsWithContacts');

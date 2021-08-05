@@ -23,6 +23,14 @@ mixin _$ContactsModel on ContactsModelBase, Store {
           Computed<ObservableList<Contact>>(() => super.savedContacts,
               name: 'ContactsModelBase.savedContacts'))
       .value;
+  Computed<ObservableList<Contact>>? _$filteredChatContactsComputed;
+
+  @override
+  ObservableList<Contact> get filteredChatContacts =>
+      (_$filteredChatContactsComputed ??= Computed<ObservableList<Contact>>(
+              () => super.filteredChatContacts,
+              name: 'ContactsModelBase.filteredChatContacts'))
+          .value;
   Computed<ObservableList<Contact>>? _$filteredSavedContactsComputed;
 
   @override
@@ -99,6 +107,7 @@ contacts: ${contacts},
 filter: ${filter},
 chatContacts: ${chatContacts},
 savedContacts: ${savedContacts},
+filteredChatContacts: ${filteredChatContacts},
 filteredSavedContacts: ${filteredSavedContacts}
     ''';
   }

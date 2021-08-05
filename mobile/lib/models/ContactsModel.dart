@@ -28,6 +28,19 @@ abstract class ContactsModelBase with Store {
       ObservableList.of(contacts.where((c) => c.saved));
 
   @computed
+  ObservableList<Contact> get filteredChatContacts {
+    if (filter.isNotEmpty) {
+      return ObservableList.of(
+        chatContacts.where((c) =>
+            c.displayName.toLowerCase().contains(filter.toLowerCase()) ||
+            c.phoneNumber.contains(filter)),
+      );
+    } else {
+      return chatContacts;
+    }
+  }
+
+  @computed
   ObservableList<Contact> get filteredSavedContacts {
     if (filter.isNotEmpty) {
       return ObservableList.of(savedContacts.where(

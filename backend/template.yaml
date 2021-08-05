@@ -79,6 +79,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'id'
           AttributeType: 'S'
+        - AttributeName: 'recipientPhoneNumber'
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: 'id'
           KeyType: 'HASH'
@@ -88,6 +90,16 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableMessages
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref RecipientPhoneNumberIndex
+          KeySchema:
+            - AttributeName: 'recipientPhoneNumber'
+              KeyType: 'HASH'
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+          Projection:
+            ProjectionType: ALL
 
   # --- Lambda Functions --- #
   OnConnectFunction:

@@ -30,7 +30,7 @@ class AppService {
   /// and the service will listen to and handle events on the socket. The user's
   /// access_token is used to connect. If this is not set, a [StateError] is
   /// thrown
-  void goOnline() async {
+  Future<void> goOnline() async {
     final phoneNumber = await _userService.getUserPhoneNumber();
 
     _channel = IOWebSocketChannel.connect(

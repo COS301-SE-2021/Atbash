@@ -180,13 +180,14 @@ Resources:
       MemorySize: 128
       Environment:
         Variables:
-          TABLE_CONNECTIONS: !Ref ConnectionsTable
-          TABLE_MESSAGES: !Ref MessagesTable
+          TABLE_CONNECTIONS: !Ref TableConnections
+          TABLE_MESSAGES: !Ref TableMessages
+          TABLE_USERS: !Ref TableUsers
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref MessagesTable
+            TableName: !Ref TableMessages
         - DynamoDBReadPolicy:
-            TableName: !Ref ConnectionsTable
+            TableName: !Ref TableConnections
         - Statement:
             - Effect: Allow
               Action:

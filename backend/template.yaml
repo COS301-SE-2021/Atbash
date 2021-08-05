@@ -39,6 +39,10 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  FCMKey:
+    Type: String
+    Description: Firebase Cloud Messaging key for authorizing fcm requests
+
 Resources:
   # --- DynamoDB Tables --- #
   ConnectionsTable:
@@ -188,6 +192,8 @@ Resources:
             TableName: !Ref TableMessages
         - DynamoDBReadPolicy:
             TableName: !Ref TableConnections
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
         - Statement:
             - Effect: Allow
               Action:

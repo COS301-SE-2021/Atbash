@@ -18,7 +18,6 @@ exports.sendToConnection = async (endpoint, connectionId, data) => {
 }
 
 exports.notifyDevice = async (deviceToken) => {
-
     try {
         await axios.post("https://fcm.googleapis.com/fcm/send", {
             to: deviceToken,
@@ -26,9 +25,12 @@ exports.notifyDevice = async (deviceToken) => {
                 title: "Atbash",
                 body: "You have new messages"
             },
+        }, {
+            headers: {
+                "Authorization": `Bearer ${process.env.FCMKey}`
+            }
         })
     } catch (error) {
         throw error
     }
-
 }

@@ -30,6 +30,15 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  RecipientPhoneNumberIndex:
+    Type: String
+    Default: 'recipientPhoneNumber-index'
+    Description: (Required) The name of the DyanmoDB global index for recipientPhoneNumber on the messages table
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
 Resources:
   # --- DynamoDB Tables --- #
   ConnectionsTable:

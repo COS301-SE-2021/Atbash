@@ -1,8 +1,11 @@
 name: onconnect CI
 
 on:
-  workflow_dispatch:
-
+  pull_request:
+    branches: [ development ]
+    paths:
+    - 'backend/onconnect/**'
+    
 jobs:
   build:
 

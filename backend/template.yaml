@@ -187,6 +187,7 @@ Resources:
           TABLE_CONNECTIONS: !Ref TableConnections
           TABLE_MESSAGES: !Ref TableMessages
           TABLE_USERS: !Ref TableUsers
+          FCMKey: !Ref FCMKey
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessages

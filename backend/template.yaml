@@ -213,6 +213,7 @@ Resources:
       Environment:
         Variables:
           TABLE_MESSAGES: !Ref TableMessages
+          INDEX_RECIPIENT_PHONE_NUMBER: !Ref RecipientPhoneNumberIndex
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref TableMessages

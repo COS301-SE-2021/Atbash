@@ -83,7 +83,7 @@ class _MainPageState extends State<MainPage> {
   void _stopSearching() {
     setState(() {
       _searching = false;
-      _filteredContacts = _chatContacts;
+      _contactsModel.filter = "";
       _searchController.text = "";
     });
   }
@@ -199,27 +199,13 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _filter(String searchQuery) {
-    if (searchQuery.isNotEmpty) {
-      setState(() {
-        _filteredContacts = _chatContacts
-            .where((c) =>
-                c.first.displayName
-                    .toLowerCase()
-                    .contains(searchQuery.toLowerCase()) ||
-                c.first.phoneNumber.contains(searchQuery))
-            .toList();
-      });
-    } else {
-      setState(() {
-        _filteredContacts = _chatContacts;
-      });
-    }
+    _contactsModel.filter = searchQuery;
   }
 
   Observer _buildBody() {
     return Observer(builder: (_) {
       return ListView(
-        children: _contactsModel.chatContacts
+        children: _contactsModel.filteredChatContacts
             .map((chat) => _buildChat(Tuple(chat, false)))
             .toList(),
       );

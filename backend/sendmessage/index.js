@@ -1,5 +1,10 @@
-const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber} = require("./db_access")
-const {sendToConnection} = require("./api_access")
+const {
+    getPhoneNumberOfConnection,
+    saveMessage,
+    getConnectionOfPhoneNumber,
+    getDeviceTokenForPhoneNumber
+} = require("./db_access")
+const {sendToConnection, notifyDevice} = require("./api_access")
 
 exports.handler = async event => {
     const {connectionId} = event.requestContext
@@ -36,6 +41,11 @@ exports.handler = async event => {
                 recipientPhoneNumber,
                 contents
             })
+        } else {
+            const deviceToken = await getDeviceTokenForPhoneNumber(recipientPhoneNumber)
+            if (deviceToken !== undefined) {
+                await notifyDevice(deviceToken)
+            }
         }
     } catch (error) {
         console.log(error)

@@ -1,16 +1,18 @@
 jest.mock("../db_access", () => ({
     getPhoneNumberOfConnection: jest.fn(),
     saveMessage: jest.fn(),
-    getConnectionOfPhoneNumber: jest.fn()
+    getConnectionOfPhoneNumber: jest.fn(),
+    getDeviceTokenForPhoneNumber: jest.fn()
 }))
 
 jest.mock("../api_access", () => ({
-    sendToConnection: jest.fn()
+    sendToConnection: jest.fn(),
+    notifyDevice: jest.fn()
 }))
 
 const {handler} = require("../index")
-const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber} = require("../db_access")
-const {sendToConnection} = require("../api_access")
+const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber, getDeviceTokenForPhoneNumber} = require("../db_access")
+const {sendToConnection, notifyDevice} = require("../api_access")
 
 describe("Unit tests for index.handler for sendmessage", () => {
     test("When handler is called with an undefined id, should return status code 400", async () => {
@@ -60,6 +62,17 @@ describe("Unit tests for index.handler for sendmessage", () => {
 
         const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})
         expect(response.statusCode).toBe(500)
+    })
+
+    test("When getDeviceToken returns a value, notifyDevice should be called", async () => {
+        getPhoneNumberOfConnection.mockImplementation( () => Promise.resolve({}))
+        saveMessage.mockImplementation(() => Promise.resolve({}))
+        getConnectionOfPhoneNumber.mockImplementation(() => Promise.resolve(undefined))
+        getDeviceTokenForPhoneNumber.mockImplementation(() => Promise.resolve("123"))
+        notifyDevice.mockImplementation(() => undefined)
+
+        await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})
+        expect(notifyDevice).toBeCalled()
     })
 
     test("When getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber & sendToConnection succeeds, should return status code 200", async () => {

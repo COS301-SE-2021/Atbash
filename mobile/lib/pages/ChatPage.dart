@@ -100,13 +100,22 @@ class _ChatPageState extends State<ChatPage> {
 
   Observer _buildMessages() {
     return Observer(builder: (_) {
-      return ListView.builder(
-        itemCount: _appService.chatModel.chatMessages.length,
-        itemBuilder: (context, index) {
-          return _buildMessage(_appService.chatModel.chatMessages[index]);
+      return NotificationListener<ScrollEndNotification>(
+        onNotification: (scrollEnd) {
+          final metrics = scrollEnd.metrics;
+          if (metrics.pixels.floor() == metrics.maxScrollExtent.floor()) {
+            _appService.chatModel.fetchNextMessagesPage();
+          }
+          return true;
         },
-        controller: _scrollController,
-        reverse: true,
+        child: ListView.builder(
+          itemCount: _appService.chatModel.chatMessages.length,
+          itemBuilder: (context, index) {
+            return _buildMessage(_appService.chatModel.chatMessages[index]);
+          },
+          controller: _scrollController,
+          reverse: true,
+        ),
       );
     });
   }
@@ -186,6 +195,11 @@ class _ChatPageState extends State<ChatPage> {
 
     _appService.sendMessage(recipientNumber, contents).then((message) {
       _appService.chatModel.addMessage(message);
+      _scrollController.animateTo(
+        0,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeIn,
+      );
     });
     _inputController.text = "";
   }

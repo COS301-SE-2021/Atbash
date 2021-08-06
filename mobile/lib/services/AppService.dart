@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -17,12 +18,28 @@ class AppService {
   final NotificationService _notificationService;
   final ContactsModel _contactsModel;
 
+  final _messageQueue = StreamController<String>();
+
   AppService(
     this._userService,
     this._databaseService,
     this._notificationService,
     this._contactsModel,
-  );
+  ) {
+    _messageQueue.stream.listen((event) async {
+      final channel = _channel;
+      if (channel != null) {
+        channel.sink.add(event);
+      } else {
+        await goOnline();
+
+        final channel = _channel;
+        if (channel != null) {
+          channel.sink.add(event);
+        }
+      }
+    });
+  }
 
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 
@@ -30,19 +47,25 @@ class AppService {
   /// and the service will listen to and handle events on the socket. The user's
   /// access_token is used to connect. If this is not set, a [StateError] is
   /// thrown
-  void goOnline() async {
+  Future<void> goOnline() async {
     final phoneNumber = await _userService.getUserPhoneNumber();
 
     _channel = IOWebSocketChannel.connect(
       Uri.parse(
           "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$phoneNumber"),
+      pingInterval: Duration(minutes: 3),
     );
 
     final channel = this._channel;
     if (channel != null) {
-      channel.stream.forEach((event) {
-        _handleEvent(phoneNumber, event);
-      });
+      channel.stream.listen(
+        (event) => _handleEvent(phoneNumber, event),
+        onDone: () {
+          if (channel.closeCode != 1005) {
+            this._channel = null;
+          }
+        },
+      );
     }
 
     _fetchUnreadMessages();
@@ -177,53 +200,44 @@ class AppService {
       text,
     );
 
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": savedMessage.id,
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {"type": "message", "text": text},
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": savedMessage.id,
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {"type": "message", "text": text},
+    };
 
-      channel.sink.add(jsonEncode(data));
-    }
+    _messageQueue.add(jsonEncode(data));
 
     return savedMessage;
   }
 
   void sendStatus(String recipientNumber, String status) {
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {
-          "type": "status",
-          "status": status,
-        }
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "status",
+        "status": status,
+      }
+    };
 
-      channel.sink.add(jsonEncode(data));
-    }
+    _messageQueue.add(jsonEncode(data));
   }
 
   void sendProfileImage(String recipientNumber, String base64Image) {
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {
-          "type": "profileImage",
-          "imageData": base64Image,
-        }
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "profileImage",
+        "imageData": base64Image,
+      }
+    };
 
-      channel.sink.add(jsonEncode(data));
-    }
+    _messageQueue.add(jsonEncode(data));
   }
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].

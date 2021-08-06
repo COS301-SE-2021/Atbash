@@ -10,6 +10,7 @@ import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
 
+import 'models/ChatModel.dart';
 import 'models/ContactsModel.dart';
 
 void main() async {
@@ -21,12 +22,18 @@ void main() async {
 
   final userModel = UserModel();
   final contactsModel = ContactsModel(databaseService);
+  final chatModel = ChatModel(databaseService);
 
   final userService = UserService();
   final notificationService =
       NotificationService(databaseService, navigatorKey);
   final appService = AppService(
-      userService, databaseService, notificationService, contactsModel);
+    userService,
+    databaseService,
+    notificationService,
+    contactsModel,
+    chatModel,
+  );
 
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(userService);
@@ -34,6 +41,7 @@ void main() async {
   GetIt.I.registerSingleton(notificationService);
   GetIt.I.registerSingleton(userModel);
   GetIt.I.registerSingleton(contactsModel);
+  GetIt.I.registerSingleton(chatModel);
 
   await Future.wait([notificationService.init(), contactsModel.initialise()]);
 

@@ -154,6 +154,8 @@ class AppService {
     final message =
         _databaseService.saveMessage(fromNumber, userPhoneNumber, text, id: id);
 
+    sendAcknowledgement(fromNumber, message.id);
+
     final callback = messageReceivedCallbacks[fromNumber];
     if (callback != null) {
       callback(message);

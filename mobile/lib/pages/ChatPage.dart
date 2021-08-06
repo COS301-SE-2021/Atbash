@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
-import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ChatPage extends StatefulWidget {
@@ -16,11 +16,9 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final DatabaseService _databaseService = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
   final Contact _contact;
-  final List<Message> _messages = [];
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
@@ -31,23 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    _databaseService.fetchMessagesWith(_contact.phoneNumber).then((messages) {
-      setState(() {
-        _messages.addAll(messages);
-      });
-    });
-
-    _appService.listenForMessagesFrom(_contact.phoneNumber, (m) {
-      setState(() {
-        _messages.add(m);
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _appService.stopListeningForMessagesFrom(_contact.phoneNumber);
+    _appService.chatModel.initContact(_contact.phoneNumber);
   }
 
   @override
@@ -108,11 +90,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Column(
         children: [
           Flexible(
-            child: ListView(
-              children: _buildMessages(),
-              controller: _scrollController,
-              reverse: true,
-            ),
+            child: _buildMessages(),
           ),
           _buildInput()
         ],
@@ -120,8 +98,17 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  List<Align> _buildMessages() {
-    return _messages.reversed.map((m) => _buildMessage(m)).toList();
+  Observer _buildMessages() {
+    return Observer(builder: (_) {
+      return ListView.builder(
+        itemCount: _appService.chatModel.chatMessages.length,
+        itemBuilder: (context, index) {
+          return _buildMessage(_appService.chatModel.chatMessages[index]);
+        },
+        controller: _scrollController,
+        reverse: true,
+      );
+    });
   }
 
   Align _buildMessage(Message message) {
@@ -198,17 +185,8 @@ class _ChatPageState extends State<ChatPage> {
     final contents = _inputController.text;
 
     _appService.sendMessage(recipientNumber, contents).then((message) {
-      setState(() {
-        _messages.add(message);
-      });
+      _appService.chatModel.addMessage(message);
     });
     _inputController.text = "";
   }
-
-// void _deleteMessage(index) {
-//   setState(() {
-//     _messageService.deleteMessage(_messages.elementAt(index));
-//     _messages.removeAt(index);
-//   });
-// }
 }

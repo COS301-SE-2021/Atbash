@@ -240,6 +240,20 @@ class AppService {
     _messageQueue.add(jsonEncode(data));
   }
 
+  void sendAcknowledgement(String recipientNumber, String messageId) {
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "ack",
+        "id": messageId,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
+  }
+
   /// Adds [fn] as a callback function to new messages from [senderNumber].
   void listenForMessagesFrom(String senderNumber, void Function(Message m) fn) {
     messageReceivedCallbacks[senderNumber] = fn;

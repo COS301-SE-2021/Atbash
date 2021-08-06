@@ -22,7 +22,7 @@ class Message {
       COLUMN_RECIPIENT_PHONE_NUMBER: this.recipientPhoneNumber,
       COLUMN_CONTENTS: this.contents,
       COLUMN_TIMESTAMP: this.timestamp.millisecondsSinceEpoch,
-      COLUMN_SEEN: this.seen
+      COLUMN_SEEN: this.seen ? 1 : 0
     };
   }
 

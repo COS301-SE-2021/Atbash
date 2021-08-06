@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:holding_gesture/holding_gesture.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
@@ -141,22 +140,14 @@ class _ChatPageState extends State<ChatPage> {
         child: Wrap(
           children: [
             InkWell(
-              focusColor: Colors.red,
-              child: HoldTimeoutDetector(
-                onTimerInitiated: () {},
-                onTimeout: () {
-                  // _deleteMessage(_messages.indexOf(message));
-                },
-                holdTimeout: Duration(milliseconds: 2000),
-                enableHapticFeedback: true,
-                child: Card(
-                  color: Colors.orange,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      message.contents,
-                      style: TextStyle(fontSize: 18.0),
-                    ),
+              onLongPress: () {},
+              child: Card(
+                color: _messageColor(message),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    message.contents,
+                    style: TextStyle(fontSize: 18.0),
                   ),
                 ),
               ),
@@ -165,6 +156,16 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
     );
+  }
+
+  Color _messageColor(Message m) {
+    if (m.senderPhoneNumber == widget.contact.phoneNumber) {
+      return Colors.orange;
+    } else if (m.seen) {
+      return Colors.orange;
+    } else {
+      return Colors.orangeAccent;
+    }
   }
 
   Container _buildInput() {

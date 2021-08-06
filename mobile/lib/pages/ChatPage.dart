@@ -195,6 +195,11 @@ class _ChatPageState extends State<ChatPage> {
 
     _appService.sendMessage(recipientNumber, contents).then((message) {
       _appService.chatModel.addMessage(message);
+      _scrollController.animateTo(
+        0,
+        duration: Duration(milliseconds: 150),
+        curve: Curves.easeIn,
+      );
     });
     _inputController.text = "";
   }

@@ -135,6 +135,12 @@ class AppService {
           }
           _deleteMessageFromServer(id);
           break;
+        case "ack":
+          final messageId = contents["id"] as String?;
+          if (messageId != null) {
+            _handleAckEvent(messageId);
+          }
+          break;
       }
     }
   }
@@ -147,6 +153,8 @@ class AppService {
   ) {
     final message =
         _databaseService.saveMessage(fromNumber, userPhoneNumber, text, id: id);
+
+    sendAcknowledgement(fromNumber, message.id);
 
     final callback = messageReceivedCallbacks[fromNumber];
     if (callback != null) {
@@ -179,6 +187,10 @@ class AppService {
 
   void _handleStatusEvent(String fromNumber, String status) {
     _contactsModel.setContactStatus(fromNumber, status);
+  }
+
+  void _handleAckEvent(String messageId) {
+    _databaseService.markMessageSeen(messageId);
   }
 
   /// Disconnect the user from the server
@@ -234,6 +246,20 @@ class AppService {
       "contents": {
         "type": "profileImage",
         "imageData": base64Image,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
+  }
+
+  void sendAcknowledgement(String recipientNumber, String messageId) {
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "ack",
+        "id": messageId,
       }
     };
 

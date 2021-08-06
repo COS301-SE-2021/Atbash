@@ -15,10 +15,22 @@ class DatabaseService {
     String path = join(dbPath, "atbash.db");
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: (db, version) {
         db.execute(Contact.CREATE_TABLE);
         db.execute(Message.CREATE_TABLE);
+      },
+      onUpgrade: (db, oldVersion, newVersion) {
+        if (oldVersion == 1 && newVersion == 2) {
+          db.transaction((txn) async {
+            await txn.execute(
+                "alter table ${Message.TABLE_NAME} rename to ${Message.TABLE_NAME}_old;");
+            await txn.execute(Message.CREATE_TABLE);
+            await txn.execute(
+                "insert into ${Message.TABLE_NAME} select *, 0 from ${Message.TABLE_NAME}_old;");
+            await txn.execute("drop table ${Message.TABLE_NAME}_old;");
+          });
+        }
       },
     );
   }
@@ -275,18 +287,21 @@ class DatabaseService {
   Message saveMessage(
       String senderPhoneNumber, String recipientPhoneNumber, String contents,
       {String? id}) {
-    final message = Message(
-      id == null ? Uuid().v4() : id,
-      senderPhoneNumber,
-      recipientPhoneNumber,
-      contents,
-      DateTime.now(),
-    );
+    final message = Message(id == null ? Uuid().v4() : id, senderPhoneNumber,
+        recipientPhoneNumber, contents, DateTime.now(), false);
 
     _database.then((db) {
       db.insert(Message.TABLE_NAME, message.toMap());
     });
 
     return message;
+  }
+
+  void markMessageSeen(String id) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_SEEN} = 1 where ${Message.COLUMN_ID} = ?",
+      [id],
+    );
   }
 }

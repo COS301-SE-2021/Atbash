@@ -199,66 +199,44 @@ class AppService {
       text,
     );
 
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": savedMessage.id,
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {"type": "message", "text": text},
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": savedMessage.id,
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {"type": "message", "text": text},
+    };
 
-      channel.sink.add(jsonEncode(data));
-    } else {
-      await goOnline();
-      final channel = this._channel;
-      if (channel != null) {
-        final data = {
-          "action": "sendmessage",
-          "id": savedMessage.id,
-          "recipientPhoneNumber": recipientNumber,
-          "contents": {"type": "message", "text": text},
-        };
-
-        channel.sink.add(jsonEncode(data));
-      }
-    }
+    _messageQueue.add(jsonEncode(data));
 
     return savedMessage;
   }
 
   void sendStatus(String recipientNumber, String status) {
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {
-          "type": "status",
-          "status": status,
-        }
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "status",
+        "status": status,
+      }
+    };
 
-      channel.sink.add(jsonEncode(data));
-    }
+    _messageQueue.add(jsonEncode(data));
   }
 
   void sendProfileImage(String recipientNumber, String base64Image) {
-    final channel = this._channel;
-    if (channel != null) {
-      final data = {
-        "action": "sendmessage",
-        "id": Uuid().v4(),
-        "recipientPhoneNumber": recipientNumber,
-        "contents": {
-          "type": "profileImage",
-          "imageData": base64Image,
-        }
-      };
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "profileImage",
+        "imageData": base64Image,
+      }
+    };
 
-      channel.sink.add(jsonEncode(data));
-    }
+    _messageQueue.add(jsonEncode(data));
   }
 
   /// Adds [fn] as a callback function to new messages from [senderNumber].

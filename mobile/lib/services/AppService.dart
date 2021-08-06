@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -17,12 +18,28 @@ class AppService {
   final NotificationService _notificationService;
   final ContactsModel _contactsModel;
 
+  final _messageQueue = StreamController<String>();
+
   AppService(
     this._userService,
     this._databaseService,
     this._notificationService,
     this._contactsModel,
-  );
+  ) {
+    _messageQueue.stream.listen((event) async {
+      final channel = _channel;
+      if (channel != null) {
+        channel.sink.add(event);
+      } else {
+        await goOnline();
+
+        final channel = _channel;
+        if (channel != null) {
+          channel.sink.add(event);
+        }
+      }
+    });
+  }
 
   final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 

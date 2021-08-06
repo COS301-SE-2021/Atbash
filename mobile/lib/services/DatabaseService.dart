@@ -254,7 +254,7 @@ class DatabaseService {
   /// Fetches all messages from a contact with phone number [phoneNumber],
   /// ordered by timestamp.
   Future<List<Message>> fetchMessagesWith(String phoneNumber, int page) async {
-    const pageSize = 50;
+    const pageSize = 25;
 
     final db = await _database;
     final response = await db.query(Message.TABLE_NAME,

@@ -140,6 +140,7 @@ class AppService {
           if (messageId != null) {
             _handleAckEvent(messageId);
           }
+          _deleteMessageFromServer(id);
           break;
       }
     }

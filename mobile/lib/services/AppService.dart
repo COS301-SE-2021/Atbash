@@ -135,6 +135,12 @@ class AppService {
           }
           _deleteMessageFromServer(id);
           break;
+        case "ack":
+          final messageId = contents["id"] as String?;
+          if (messageId != null) {
+            _handleAckEvent(messageId);
+          }
+          break;
       }
     }
   }
@@ -179,6 +185,10 @@ class AppService {
 
   void _handleStatusEvent(String fromNumber, String status) {
     _contactsModel.setContactStatus(fromNumber, status);
+  }
+
+  void _handleAckEvent(String messageId) {
+    _databaseService.markMessageSeen(messageId);
   }
 
   /// Disconnect the user from the server

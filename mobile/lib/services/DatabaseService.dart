@@ -296,4 +296,12 @@ class DatabaseService {
 
     return message;
   }
+
+  void markMessageSeen(String id) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_SEEN} = 1 where ${Message.COLUMN_ID} = ?",
+      [id],
+    );
+  }
 }

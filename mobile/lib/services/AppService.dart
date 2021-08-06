@@ -53,6 +53,7 @@ class AppService {
     _channel = IOWebSocketChannel.connect(
       Uri.parse(
           "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$phoneNumber"),
+      pingInterval: Duration(minutes: 3),
     );
 
     final channel = this._channel;

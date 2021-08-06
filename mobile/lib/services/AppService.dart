@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/models/ChatModel.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/NotificationService.dart';
@@ -17,6 +18,7 @@ class AppService {
   final DatabaseService _databaseService;
   final NotificationService _notificationService;
   final ContactsModel _contactsModel;
+  final ChatModel chatModel;
 
   final _messageQueue = StreamController<String>();
 
@@ -25,6 +27,7 @@ class AppService {
     this._databaseService,
     this._notificationService,
     this._contactsModel,
+    this.chatModel,
   ) {
     _messageQueue.stream.listen((event) async {
       final channel = _channel;
@@ -40,8 +43,6 @@ class AppService {
       }
     });
   }
-
-  final Map<String, void Function(Message m)> messageReceivedCallbacks = {};
 
   /// Connect the application to the server. A web socket connection is made,
   /// and the service will listen to and handle events on the socket. The user's
@@ -157,9 +158,8 @@ class AppService {
 
     sendAcknowledgement(fromNumber, message.id);
 
-    final callback = messageReceivedCallbacks[fromNumber];
-    if (callback != null) {
-      callback(message);
+    if (chatModel.contactPhoneNumber == fromNumber) {
+      chatModel.addMessage(message);
     } else {
       _databaseService.fetchContactByNumber(fromNumber).then((fromContact) {
         String title = fromNumber;
@@ -265,15 +265,5 @@ class AppService {
     };
 
     _messageQueue.add(jsonEncode(data));
-  }
-
-  /// Adds [fn] as a callback function to new messages from [senderNumber].
-  void listenForMessagesFrom(String senderNumber, void Function(Message m) fn) {
-    messageReceivedCallbacks[senderNumber] = fn;
-  }
-
-  /// Removed [senderNumber] from the callback map.
-  void stopListeningForMessagesFrom(String senderNumber) {
-    messageReceivedCallbacks.remove(senderNumber);
   }
 }

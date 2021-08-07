@@ -44,3 +44,5 @@ const anyBlank = (...args) => {
 String.prototype.isBlank = function() {
     return /^\s*$/.test(this)
 }
+
+exports.exportedForTests = {anyUndefined, anyBlank}

@@ -18,7 +18,7 @@ exports.handler = async event => {
 
     try {
         if ((await existsNumber(formattedNumber)) === true) {
-            return {statusCode: 209, body: "Phone number already in use"}
+            return {statusCode: 409, body: "Phone number already in use"}
         }
     } catch (error) {
         return {statusCode: 500, body: JSON.stringify(error)}

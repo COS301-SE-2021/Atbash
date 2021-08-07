@@ -40,21 +40,29 @@ exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, conten
     }
 }
 
-exports.getConnectionOfPhoneNumber = async (phoneNumber) => {
+exports.getConnectionsOfPhoneNumber = async (phoneNumber) => {
     try {
-        const response = await db.scan({
+        const response = await db.query({
             TableName: process.env.TABLE_CONNECTIONS,
-            FilterExpression: "phoneNumber = :n",
+            IndexName: process.env.INDEX_PHONE_NUMBER,
+            KeyConditionExpression: "phoneNumber = :n",
             ExpressionAttributeValues: {
                 ":n": phoneNumber
             }
         }).promise()
 
-        if (response.Items.length > 0) {
-            return response.Items[0].connectionId
-        } else {
-            return undefined
-        }
+        return response.Items.map(each => each.connectionId)
+    } catch (error) {
+        throw error
+    }
+}
+
+exports.removeConnection = async (connectionId) => {
+    try {
+        await db.delete({
+            TableName: process.env.TABLE_CONNECTIONS,
+            Key: {connectionId}
+        }).promise()
     } catch (error) {
         throw error
     }

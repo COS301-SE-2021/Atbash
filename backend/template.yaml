@@ -39,6 +39,15 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  PhoneNumberIndex:
+    Type: String
+    Default: 'phoneNumber-index'
+    Description: (Required) The name of the DynamoDB global index for phoneNumber on the connections table
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
   FCMKey:
     Type: String
     Description: Firebase Cloud Messaging key for authorizing fcm requests
@@ -51,6 +60,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'connectionId'
           AttributeType: 'S'
+        - AttributeName: 'phoneNumber'
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: 'connectionId'
           KeyType: 'HASH'
@@ -60,6 +71,16 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref PhoneNumberIndex
+          KeySchema:
+            - AttributeName: 'phoneNumber'
+              KeyType: 'HASH'
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+          Projection:
+            ProjectionType: ALL
 
   UsersTable:
     Type: AWS::DynamoDB::Table
@@ -187,6 +208,7 @@ Resources:
           TABLE_CONNECTIONS: !Ref TableConnections
           TABLE_MESSAGES: !Ref TableMessages
           TABLE_USERS: !Ref TableUsers
+          INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
           FCMKey: !Ref FCMKey
       Policies:
         - DynamoDBCrudPolicy:

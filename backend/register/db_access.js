@@ -16,3 +16,19 @@ exports.addUser = async (phoneNumber, rsaPublicKey, deviceToken) => {
         throw error
     }
 }
+
+exports.existsNumber = async (phoneNumber) => {
+    try {
+        const response = await db.query({
+            TableName: process.env.TABLE_NAME,
+            KeyConditionExpression: "phoneNumber = :n",
+            ExpressionAttributeValues: {
+                ":n": phoneNumber
+            }
+        }).promise()
+
+        return response.Items.length > 0
+    } catch (error) {
+        throw error
+    }
+}

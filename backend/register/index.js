@@ -1,10 +1,33 @@
-const {addUser} = require("./db_access")
+const {addUser, existsNumber} = require("./db_access")
+const PNF = require("google-libphonenumber").PhoneNumberFormat
+const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 
 exports.handler = async event => {
     const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)
 
-    if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken)) {
+    if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken) || anyBlank(phoneNumber, rsaPublicKey, deviceToken)) {
         return {statusCode: 400, body: "Invalid request body"}
+    }
+
+    let parsedNumber
+
+    try {
+        parsedNumber = phoneUtil.parse(phoneNumber)
+        if (!phoneUtil.isValidNumber(parsedNumber)) {
+            return {statusCode: 400, body: "Invalid phone number"}
+        }
+    } catch (error) {
+        return {statusCode: 400, body: "Invalid phone number"}
+    }
+
+    const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
+
+    try {
+        if ((await existsNumber(formattedNumber)) === true) {
+            return {statusCode: 409, body: "Phone number already in use"}
+        }
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
     try {
@@ -19,3 +42,13 @@ exports.handler = async event => {
 const anyUndefined = (...args) => {
     return args.some(arg => arg === undefined)
 }
+
+const anyBlank = (...args) => {
+    return args.some(arg => typeof arg === "string" && arg.isBlank())
+}
+
+String.prototype.isBlank = function() {
+    return /^\s*$/.test(this)
+}
+
+exports.exportedForTests = {anyUndefined, anyBlank}

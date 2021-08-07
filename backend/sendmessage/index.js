@@ -2,7 +2,8 @@ const {
     getPhoneNumberOfConnection,
     saveMessage,
     getConnectionsOfPhoneNumber,
-    getDeviceTokenForPhoneNumber
+    getDeviceTokenForPhoneNumber,
+    removeConnection
 } = require("./db_access")
 const {sendToConnection, notifyDevice} = require("./api_access")
 
@@ -33,15 +34,26 @@ exports.handler = async event => {
     }
 
     try {
-        const recipientConnection = await getConnectionsOfPhoneNumber(recipientPhoneNumber)
-        if (recipientConnection !== undefined) {
-            await sendToConnection(event.requestContext.domainName + "/" + event.requestContext.stage, recipientConnection, {
-                id,
-                senderPhoneNumber,
-                recipientPhoneNumber,
-                contents
-            })
-        } else {
+        const recipientConnections = await getConnectionsOfPhoneNumber(recipientPhoneNumber)
+        let sent = false
+
+        await Promise.all(recipientConnections.map(async connection => {
+            try {
+                await sendToConnection(event.requestContext.domainName + "/" + event.requestContext.stage, connection, {
+                    id,
+                    senderPhoneNumber,
+                    recipientPhoneNumber,
+                    contents
+                })
+                sent = true
+            } catch (error) {
+                if (error.statusCode ===  410) {
+                    await removeConnection(connection)
+                }
+            }
+        }))
+
+        if (sent === false) {
             const deviceToken = await getDeviceTokenForPhoneNumber(recipientPhoneNumber)
             if (deviceToken !== undefined) {
                 await notifyDevice(deviceToken)

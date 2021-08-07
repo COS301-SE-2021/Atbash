@@ -3,7 +3,7 @@ const {addUser} = require("./db_access")
 exports.handler = async event => {
     const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)
 
-    if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken)) {
+    if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken) || anyBlank(phoneNumber, rsaPublicKey, deviceToken)) {
         return {statusCode: 400, body: "Invalid request body"}
     }
 

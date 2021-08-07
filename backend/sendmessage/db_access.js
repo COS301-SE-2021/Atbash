@@ -51,11 +51,7 @@ exports.getConnectionsOfPhoneNumber = async (phoneNumber) => {
             }
         }).promise()
 
-        if (response.Items.length > 0) {
-            return response.Items[0].connectionId
-        } else {
-            return undefined
-        }
+        return response.Items.map(each => each.connectionId)
     } catch (error) {
         throw error
     }

@@ -60,6 +60,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: 'connectionId'
           AttributeType: 'S'
+        - AttributeName: 'phoneNumber'
+          AttributeType: 'S'
       KeySchema:
         - AttributeName: 'connectionId'
           KeyType: 'HASH'
@@ -69,6 +71,16 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
+      GlobalSecondaryIndexes:
+        - IndexName: !Ref PhoneNumberIndex
+          KeySchema:
+            - AttributeName: 'phoneNumber'
+              KeyType: 'HASH'
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+          Projection:
+            ProjectionType: ALL
 
   UsersTable:
     Type: AWS::DynamoDB::Table

@@ -9,9 +9,11 @@
   "author": "Bit by Bit",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@types/google-libphonenumber": "^7.4.21",
     "jest": "^27.0.6"
   },
   "dependencies": {
-    "aws-sdk": "^2.956.0"
+    "aws-sdk": "^2.956.0",
+    "google-libphonenumber": "^3.2.22"
   }
 }

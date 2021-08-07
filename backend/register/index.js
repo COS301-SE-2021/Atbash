@@ -9,8 +9,14 @@ exports.handler = async event => {
         return {statusCode: 400, body: "Invalid request body"}
     }
 
-    const parsedNumber = phoneUtil.parse(phoneNumber)
-    if (!phoneUtil.isValidNumber(parsedNumber)) {
+    let parsedNumber
+
+    try {
+        parsedNumber = phoneUtil.parse(phoneNumber)
+        if (!phoneUtil.isValidNumber(parsedNumber)) {
+            return {statusCode: 400, body: "Invalid phone number"}
+        }
+    } catch (error) {
         return {statusCode: 400, body: "Invalid phone number"}
     }
 

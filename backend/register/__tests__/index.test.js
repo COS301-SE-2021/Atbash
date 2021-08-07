@@ -36,6 +36,20 @@ describe("Unit tests for index.handler for register",  () => {
     })
 })
 
+describe("Unit tests for anyUndefined", () => {
+    test("No arguments should return false", () => {
+        expect(exportedForTests.anyUndefined()).toBe(false)
+    })
+
+    test("All defined arguments should return false", () => {
+        expect(exportedForTests.anyUndefined("", null, 123)).toBe(false)
+    })
+
+    test("Any undefined arguments should return true", () => {
+        expect(exportedForTests.anyUndefined(undefined, 123, "abc")).toBe(true)
+    })
+})
+
 describe("Unit tests for String.prototype.isBlank helper function", () => {
     test("Empty string should return true", () => {
         expect("".isBlank()).toBe(true)

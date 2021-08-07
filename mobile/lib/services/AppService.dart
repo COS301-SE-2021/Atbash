@@ -51,9 +51,11 @@ class AppService {
   Future<void> goOnline() async {
     final phoneNumber = await _userService.getUserPhoneNumber();
 
+    final encodedPhoneNumber = Uri.encodeQueryComponent("$phoneNumber");
+
     _channel = IOWebSocketChannel.connect(
       Uri.parse(
-          "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$phoneNumber"),
+          "wss://8tnhyjrehg.execute-api.af-south-1.amazonaws.com/dev/?phoneNumber=$encodedPhoneNumber"),
       pingInterval: Duration(minutes: 3),
     );
 
@@ -74,9 +76,10 @@ class AppService {
 
   void _fetchUnreadMessages() async {
     final phoneNumber = await _userService.getUserPhoneNumber();
+    final encodedPhoneNumber = Uri.encodeQueryComponent("$phoneNumber");
 
     final url = Uri.parse(
-        "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/message?phoneNumber=$phoneNumber");
+        "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/message?phoneNumber=$encodedPhoneNumber");
 
     final response = await get(url);
     if (response.statusCode == 200) {
@@ -207,6 +210,7 @@ class AppService {
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(String recipientNumber, String text) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
+    print(userPhoneNumber);
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
       recipientNumber,

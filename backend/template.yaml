@@ -213,7 +213,7 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessages
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref TableConnections
         - DynamoDBReadPolicy:
             TableName: !Ref TableUsers

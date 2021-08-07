@@ -48,7 +48,13 @@ exports.handler = async event => {
                 sent = true
             } catch (error) {
                 if (error.statusCode ===  410) {
-                    await removeConnection(connection)
+                    try {
+                        await removeConnection(connection)
+                    } catch (error) {
+                        return {statusCode: 500, body: JSON.stringify(error)}
+                    }
+                } else {
+                    console.log("Found status code ${error.statusCode}")
                 }
             }
         }))

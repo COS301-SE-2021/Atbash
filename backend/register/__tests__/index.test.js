@@ -2,7 +2,7 @@ jest.mock("../db_access", () => ({
     addUser: jest.fn()
 }))
 
-const {handler} = require("../index")
+const {handler, exportedForTests} = require("../index")
 const {addUser} = require("../db_access")
 
 describe("Unit tests for index.handler for register",  () => {

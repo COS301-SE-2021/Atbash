@@ -208,6 +208,7 @@ Resources:
           TABLE_CONNECTIONS: !Ref TableConnections
           TABLE_MESSAGES: !Ref TableMessages
           TABLE_USERS: !Ref TableUsers
+          INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
           FCMKey: !Ref FCMKey
       Policies:
         - DynamoDBCrudPolicy:

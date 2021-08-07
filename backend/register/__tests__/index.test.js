@@ -1,9 +1,10 @@
 jest.mock("../db_access", () => ({
-    addUser: jest.fn()
+    addUser: jest.fn(),
+    existsNumber: jest.fn()
 }))
 
 const {handler, exportedForTests} = require("../index")
-const {addUser} = require("../db_access")
+const {addUser, existsNumber} = require("../db_access")
 
 describe("Unit tests for index.handler for register",  () => {
     test("When handler is called with an undefined phoneNumber, should return status code 400", async () => {
@@ -21,17 +22,56 @@ describe("Unit tests for index.handler for register",  () => {
         expect(response.statusCode).toBe(400)
     })
 
+    test("When handler is called with blank phoneNumber, should return status code 400", async () => {
+        const response = await handler({body: JSON.stringify({phoneNumber: "", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response.statusCode).toBe(400)
+    })
+
+    test("When handler is called with blank rsaPublicKey, should return status code 400", async () => {
+        const response = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "", deviceToken: "123"})})
+        expect(response.statusCode).toBe(400)
+    })
+
+    test("When handler is called with blank deviceToken, should return status code 400", async () => {
+        const response = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "123", deviceToken: ""})})
+        expect(response.statusCode).toBe(400)
+    })
+
+    test("When handler is called with invalid phone number, should return status code 400", async () => {
+        const response = await handler({body: JSON.stringify({phoneNumber: "+27", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response.statusCode).toBe(400)
+
+        const response2 = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response2.statusCode).toBe(400)
+    })
+
+    test("When number exists already, should return status code 409", async () => {
+        existsNumber.mockImplementation(() => Promise.resolve(true))
+
+        const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response.statusCode).toBe(409)
+    })
+
+    test("When existsNumber failed, should return status code 500", async () => {
+        existsNumber.mockImplementation(() => Promise.reject())
+
+        const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
+        expect(response.statusCode).toBe(500)
+    })
+
     test("When addUser succeeds, should return status code 200", async  () => {
+        existsNumber.mockImplementation(() => Promise.resolve(false))
         addUser.mockImplementation(() => Promise.resolve())
 
-        const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", rsaPublicKey: "123", deviceToken: "123"})})
+        const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
         expect(response.statusCode).toBe(200)
     })
 
     test("When addUser fails, should return status code 500", async () => {
+        existsNumber.mockImplementation(() => Promise.resolve(false))
         addUser.mockImplementation(() => Promise.reject())
 
-        const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", rsaPublicKey: "123", deviceToken: "123"})})
+        const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
         expect(response.statusCode).toBe(500)
     })
 })

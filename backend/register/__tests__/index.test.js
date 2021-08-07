@@ -50,6 +50,24 @@ describe("Unit tests for anyUndefined", () => {
     })
 })
 
+describe("Unit tests for anyBlank", () => {
+    test("No arguments should return false", () => {
+        expect(exportedForTests.anyBlank()).toBe(false)
+    })
+
+    test("All non-blank arguments should return false", () => {
+        expect(exportedForTests.anyBlank("   a   ", "\n\nabc\n\n", "123")).toBe(false)
+    })
+
+    test("Any empty strings should return true", () => {
+        expect(exportedForTests.anyBlank("", "123", "\n\n\r\ra")).toBe(true)
+    })
+
+    test("Any blank strings should return true", () => {
+        expect(exportedForTests.anyBlank("   ", "123", "a")).toBe(true)
+    })
+})
+
 describe("Unit tests for String.prototype.isBlank helper function", () => {
     test("Empty string should return true", () => {
         expect("".isBlank()).toBe(true)

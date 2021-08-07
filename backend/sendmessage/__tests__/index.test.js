@@ -1,7 +1,7 @@
 jest.mock("../db_access", () => ({
     getPhoneNumberOfConnection: jest.fn(),
     saveMessage: jest.fn(),
-    getConnectionOfPhoneNumber: jest.fn(),
+    getConnectionsOfPhoneNumber: jest.fn(),
     getDeviceTokenForPhoneNumber: jest.fn()
 }))
 
@@ -11,7 +11,7 @@ jest.mock("../api_access", () => ({
 }))
 
 const {handler} = require("../index")
-const {getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber, getDeviceTokenForPhoneNumber} = require("../db_access")
+const {getPhoneNumberOfConnection, saveMessage, getConnectionsOfPhoneNumber, getDeviceTokenForPhoneNumber} = require("../db_access")
 const {sendToConnection, notifyDevice} = require("../api_access")
 
 describe("Unit tests for index.handler for sendmessage", () => {
@@ -48,7 +48,7 @@ describe("Unit tests for index.handler for sendmessage", () => {
     test("When getPhoneNumberOfConnection & saveMessage succeeds but getConnectionOfPhoneNumber fails, should return status code 500", async () => {
         getPhoneNumberOfConnection.mockImplementation( () => Promise.resolve({}))
         saveMessage.mockImplementation(() => Promise.resolve({}))
-        getConnectionOfPhoneNumber.mockImplementation(() => Promise.reject())
+        getConnectionsOfPhoneNumber.mockImplementation(() => Promise.reject())
 
         const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})
         expect(response.statusCode).toBe(500)
@@ -57,7 +57,7 @@ describe("Unit tests for index.handler for sendmessage", () => {
     test("When getPhoneNumberOfConnection, saveMessage & getConnectionOfPhoneNumber succeeds but sendToConnection fails, should return status code 500", async () => {
         getPhoneNumberOfConnection.mockImplementation( () => Promise.resolve({}))
         saveMessage.mockImplementation(() => Promise.resolve({}))
-        getConnectionOfPhoneNumber.mockImplementation(() => Promise.resolve({recipientConnection: "123"}))
+        getConnectionsOfPhoneNumber.mockImplementation(() => Promise.resolve("123"))
         sendToConnection.mockImplementation(() => Promise.reject())
 
         const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})
@@ -67,7 +67,7 @@ describe("Unit tests for index.handler for sendmessage", () => {
     test("When getDeviceToken returns a value, notifyDevice should be called", async () => {
         getPhoneNumberOfConnection.mockImplementation( () => Promise.resolve({}))
         saveMessage.mockImplementation(() => Promise.resolve({}))
-        getConnectionOfPhoneNumber.mockImplementation(() => Promise.resolve(undefined))
+        getConnectionsOfPhoneNumber.mockImplementation(() => Promise.resolve(undefined))
         getDeviceTokenForPhoneNumber.mockImplementation(() => Promise.resolve("123"))
         notifyDevice.mockImplementation(() => undefined)
 
@@ -78,7 +78,7 @@ describe("Unit tests for index.handler for sendmessage", () => {
     test("When getPhoneNumberOfConnection, saveMessage, getConnectionOfPhoneNumber & sendToConnection succeeds, should return status code 200", async () => {
         getPhoneNumberOfConnection.mockImplementation( () => Promise.resolve({}))
         saveMessage.mockImplementation(() => Promise.resolve({}))
-        getConnectionOfPhoneNumber.mockImplementation(() => Promise.resolve({recipientConnection: "123"}))
+        getConnectionsOfPhoneNumber.mockImplementation(() => Promise.resolve("123"))
         sendToConnection.mockImplementation(() => Promise.resolve({}))
 
         const response = await handler({requestContext: {connectionId: "123"}, body: JSON.stringify({id: "123", recipientPhoneNumber: "0727654673", contents: "Hello"})})

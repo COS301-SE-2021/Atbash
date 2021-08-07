@@ -40,7 +40,7 @@ exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, conten
     }
 }
 
-exports.getConnectionOfPhoneNumber = async (phoneNumber) => {
+exports.getConnectionsOfPhoneNumber = async (phoneNumber) => {
     try {
         const response = await db.query({
             TableName: process.env.TABLE_CONNECTIONS,

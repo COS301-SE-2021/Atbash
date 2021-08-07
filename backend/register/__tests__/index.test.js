@@ -35,3 +35,17 @@ describe("Unit tests for index.handler for register",  () => {
         expect(response.statusCode).toBe(500)
     })
 })
+
+describe("Unit tests for String.prototype.isBlank helper function", () => {
+    test("Empty string should return true", () => {
+        expect("".isBlank()).toBe(true)
+    })
+
+    test("Blank string should return true", () => {
+        expect("  \n".isBlank()).toBe(true)
+    })
+
+    test("Any non-whitespace should return false", () => {
+        expect("   b   \n\r".isBlank()).toBe(false)
+    })
+})

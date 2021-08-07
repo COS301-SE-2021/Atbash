@@ -1,4 +1,5 @@
-const {addUser} = require("./db_access")
+const {addUser, existsNumber} = require("./db_access")
+const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 
 exports.handler = async event => {
@@ -11,6 +12,16 @@ exports.handler = async event => {
     const parsedNumber = phoneUtil.parse(phoneNumber)
     if (!phoneUtil.isValidNumber(parsedNumber)) {
         return {statusCode: 400, body: "Invalid phone number"}
+    }
+
+    const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
+
+    try {
+        if ((await existsNumber(formattedNumber)) === true) {
+            return {statusCode: 209, body: "Phone number already in use"}
+        }
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
     try {

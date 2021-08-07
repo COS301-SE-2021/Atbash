@@ -57,6 +57,17 @@ exports.getConnectionsOfPhoneNumber = async (phoneNumber) => {
     }
 }
 
+exports.removeConnection = async (connectionId) => {
+    try {
+        await db.delete({
+            TableName: process.env.TABLE_CONNECTIONS,
+            Key: {connectionId}
+        }).promise()
+    } catch (error) {
+        throw error
+    }
+}
+
 exports.getDeviceTokenForPhoneNumber = async (phoneNumber) => {
     try {
         const response = await db.query({

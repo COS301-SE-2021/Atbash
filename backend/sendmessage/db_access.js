@@ -42,9 +42,10 @@ exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, conten
 
 exports.getConnectionOfPhoneNumber = async (phoneNumber) => {
     try {
-        const response = await db.scan({
+        const response = await db.query({
             TableName: process.env.TABLE_CONNECTIONS,
-            FilterExpression: "phoneNumber = :n",
+            IndexName: process.env.INDEX_PHONE_NUMBER,
+            KeyConditionExpression: "phoneNumber = :n",
             ExpressionAttributeValues: {
                 ":n": phoneNumber
             }

@@ -1,10 +1,16 @@
 const {addUser} = require("./db_access")
+const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 
 exports.handler = async event => {
     const {phoneNumber, rsaPublicKey, deviceToken} = JSON.parse(event.body)
 
     if (anyUndefined(phoneNumber, rsaPublicKey, deviceToken) || anyBlank(phoneNumber, rsaPublicKey, deviceToken)) {
         return {statusCode: 400, body: "Invalid request body"}
+    }
+
+    const parsedNumber = phoneUtil.parse(phoneNumber)
+    if (!phoneUtil.isValidNumber(parsedNumber)) {
+        return {statusCode: 400, body: "Invalid phone number"}
     }
 
     try {

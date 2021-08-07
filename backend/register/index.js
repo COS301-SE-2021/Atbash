@@ -19,3 +19,11 @@ exports.handler = async event => {
 const anyUndefined = (...args) => {
     return args.some(arg => arg === undefined)
 }
+
+const anyBlank = (...args) => {
+    return args.some(arg => typeof arg === "string" && arg.isBlank())
+}
+
+String.prototype.isBlank = function() {
+    return /^\s*$/.test(this)
+}

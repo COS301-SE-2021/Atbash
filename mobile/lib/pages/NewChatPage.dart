@@ -53,16 +53,19 @@ class _NewChatPageState extends State<NewChatPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        bool shouldPop = true;
+
         if (_searching) {
-          setState(() {
-            _searching = false;
-            _contactsModel.filter = "";
-            _searchController.text = "";
-          });
-          return false;
-        } else {
-          return true;
+          _stopSearching();
+          shouldPop = false;
         }
+
+        if (_selecting) {
+          _stopSelecting();
+          shouldPop = false;
+        }
+
+        return shouldPop;
       },
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -118,6 +121,21 @@ class _NewChatPageState extends State<NewChatPage> {
 
   void _filter(String searchQuery) {
     _contactsModel.filter = searchQuery;
+  }
+
+  void _stopSearching() {
+    setState(() {
+      _searching = false;
+      _contactsModel.filter = "";
+      _searchController.text = "";
+    });
+  }
+
+  void _stopSelecting() {
+    setState(() {
+      _selecting = false;
+      _selectedContacts.forEach((element) => element.second = false);
+    });
   }
 
   Widget _buildBody(BuildContext context) {

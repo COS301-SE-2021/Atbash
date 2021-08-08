@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/util/Utils.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -100,8 +101,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
       loading = true;
     });
 
-    final phoneNumber = selectedDialCode +
-        _phoneNumberController.text.replaceAll(RegExp("(\s|[^0-9]|^0*)"), "");
+    final phoneNumber =
+        selectedDialCode + cullToE164(_phoneNumberController.text);
 
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;

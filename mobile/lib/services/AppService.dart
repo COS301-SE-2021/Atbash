@@ -115,13 +115,13 @@ class AppService {
     final id = decodedEvent["id"] as String?;
     final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
     final contents = decodedEvent["contents"] as Map<String, Object?>?;
+    final timestamp = decodedEvent["timestamp"] as int?;
 
     if (id != null && fromNumber != null && contents != null) {
       final eventType = contents["type"] as String?;
       switch (eventType) {
         case "message":
           final text = contents["text"] as String?;
-          final timestamp = contents["timestamp"] as int?;
           if (text != null) {
             _handleMessageEvent(
                 id, fromNumber, userPhoneNumber, text, timestamp);
@@ -232,7 +232,6 @@ class AppService {
       "contents": {
         "type": "message",
         "text": text,
-        "timestamp": savedMessage.timestamp,
       },
     };
 

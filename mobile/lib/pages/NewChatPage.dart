@@ -191,12 +191,20 @@ class _NewChatPageState extends State<NewChatPage> {
     BuildContext context,
     List<Tuple<Contact, bool>> contacts,
   ) {
-    return contacts.map((e) => _buildContact(context, e.first)).toList();
+    return contacts.map((e) => _buildContact(context, e)).toList();
   }
 
-  InkWell _buildContact(BuildContext context, Contact contact) {
+  InkWell _buildContact(BuildContext context, Tuple<Contact, bool> contact) {
     return InkWell(
-      onTap: () => _startChat(context, contact),
+      onTap: () {
+        if (_selecting) {
+          setState(() {
+            contact.second = !contact.second;
+          });
+        } else {
+          _startChat(context, contact.first);
+        }
+      },
       onLongPress: () {
         setState(() {
           print("now selecting");
@@ -207,19 +215,30 @@ class _NewChatPageState extends State<NewChatPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
           children: [
-            AvatarIcon.fromString(contact.profileImage),
+            AvatarIcon.fromString(contact.first.profileImage),
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Text(
-                  contact.displayName.isNotEmpty
-                      ? contact.displayName
-                      : contact.phoneNumber,
+                  contact.first.displayName.isNotEmpty
+                      ? contact.first.displayName
+                      : contact.first.phoneNumber,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 18.0),
                 ),
               ),
             ),
+            if (_selecting)
+              Checkbox(
+                value: contact.second,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      contact.second = value;
+                    });
+                  }
+                },
+              )
           ],
         ),
       ),

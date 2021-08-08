@@ -229,7 +229,11 @@ class AppService {
       "action": "sendmessage",
       "id": savedMessage.id,
       "recipientPhoneNumber": recipientNumber,
-      "contents": {"type": "message", "text": text},
+      "contents": {
+        "type": "message",
+        "text": text,
+        "timestamp": savedMessage.timestamp,
+      },
     };
 
     _messageQueue.add(jsonEncode(data));

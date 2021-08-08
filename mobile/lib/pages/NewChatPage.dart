@@ -99,15 +99,19 @@ class _NewChatPageState extends State<NewChatPage> {
         ],
       ),
       actions: [
-        if (!_searching)
+        if (!_selecting && !_searching)
           IconButton(
-            onPressed: () {
-              setState(() {
-                _searching = true;
-              });
-            },
-            icon: Icon(Icons.search),
-          ),
+              onPressed: () {
+                setState(() {
+                  _searching = true;
+                });
+              },
+              icon: Icon(Icons.search)),
+        if (_selecting)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.delete),
+          )
       ],
     );
   }
@@ -193,6 +197,12 @@ class _NewChatPageState extends State<NewChatPage> {
   InkWell _buildContact(BuildContext context, Contact contact) {
     return InkWell(
       onTap: () => _startChat(context, contact),
+      onLongPress: () {
+        setState(() {
+          print("now selecting");
+          _selecting = true;
+        });
+      },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(

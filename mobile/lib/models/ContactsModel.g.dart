@@ -134,6 +134,17 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   }
 
   @override
+  void deleteContacts(List<String> phoneNumbers) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.deleteContacts');
+    try {
+      return super.deleteContacts(phoneNumbers);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contacts: ${contacts},

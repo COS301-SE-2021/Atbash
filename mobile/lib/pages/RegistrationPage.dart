@@ -1,5 +1,7 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/MainPage.dart';
@@ -15,6 +17,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   final _phoneNumberController = TextEditingController();
 
+  bool loading = false;
+  String selectedDialCode = "+27";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,17 +33,29 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
+            margin: const EdgeInsets.fromLTRB(0.0, 16.0, 16.0, 0.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CountryCodePicker(
+                  showFlag: false,
+                  initialSelection: selectedDialCode,
+                  onChanged: (countryCode) {
+                    final dialCode = countryCode.dialCode;
+                    if (dialCode != null) {
+                      this.selectedDialCode = dialCode;
+                    }
+                  },
                 ),
-                hintText: "Phone number",
-              ),
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.phone,
-              controller: _phoneNumberController,
+                Container(
+                  width: 160,
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    keyboardType: TextInputType.phone,
+                    controller: _phoneNumberController,
+                  ),
+                )
+              ],
             ),
           ),
           Padding(
@@ -47,17 +64,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  child: ElevatedButton(
-                    onPressed: () => _register(context),
-                    child: Text("REGISTER"),
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32.0),
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: _buildRegisterButton(context),
                 ),
               ],
             ),
@@ -67,8 +74,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  Widget _buildRegisterButton(BuildContext context) {
+    if (loading) {
+      return SpinKitThreeBounce(
+        color: Colors.orange,
+        size: 24.0,
+      );
+    } else {
+      return ElevatedButton(
+        onPressed: () => _register(context),
+        child: Text("REGISTER"),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(32.0),
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   void _register(BuildContext context) {
-    final phoneNumber = _phoneNumberController.text.trim();
+    setState(() {
+      loading = true;
+    });
+
+    final phoneNumber = selectedDialCode +
+        _phoneNumberController.text.replaceAll(RegExp("(\s|[^0-9]|^0*)"), "");
 
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;

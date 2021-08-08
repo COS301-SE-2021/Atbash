@@ -143,6 +143,16 @@ abstract class ContactsModelBase with Store {
   }
 
   @action
+  void deleteContacts(List<String> phoneNumbers) {
+    phoneNumbers.forEach((phoneNumber) {
+      contacts.removeWhere((c) => c.phoneNumber == phoneNumber);
+
+      _databaseService.deleteMessagesWithContact(phoneNumber);
+      _databaseService.deleteContact(phoneNumber);
+    });
+  }
+
+  @action
   Future<void> initialise() async {
     final contacts = await _databaseService.fetchContacts();
     this.contacts.addAll(contacts);

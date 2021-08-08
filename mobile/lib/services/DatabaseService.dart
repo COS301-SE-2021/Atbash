@@ -289,9 +289,17 @@ class DatabaseService {
   /// Saves a message in the database and returns.
   Message saveMessage(
       String senderPhoneNumber, String recipientPhoneNumber, String contents,
-      {String? id}) {
-    final message = Message(id == null ? Uuid().v4() : id, senderPhoneNumber,
-        recipientPhoneNumber, contents, DateTime.now(), false);
+      {String? id, int? timestamp}) {
+    final message = Message(
+      id == null ? Uuid().v4() : id,
+      senderPhoneNumber,
+      recipientPhoneNumber,
+      contents,
+      timestamp == null
+          ? DateTime.now()
+          : DateTime.fromMillisecondsSinceEpoch(timestamp),
+      false,
+    );
 
     _database.then((db) {
       db.insert(Message.TABLE_NAME, message.toMap());

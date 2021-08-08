@@ -18,6 +18,7 @@ exports.getMessageForPhoneNumber = (phoneNumber) => {
                 id: each.id,
                 senderPhoneNumber: each.senderPhoneNumber,
                 recipientPhoneNumber: each.recipientPhoneNumber,
+                timestamp: each.timestamp,
                 contents: each.contents
             }))
 

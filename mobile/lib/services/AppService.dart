@@ -115,6 +115,7 @@ class AppService {
     final id = decodedEvent["id"] as String?;
     final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
     final contents = decodedEvent["contents"] as Map<String, Object?>?;
+    final timestamp = decodedEvent["timestamp"] as int?;
 
     if (id != null && fromNumber != null && contents != null) {
       final eventType = contents["type"] as String?;
@@ -122,7 +123,8 @@ class AppService {
         case "message":
           final text = contents["text"] as String?;
           if (text != null) {
-            _handleMessageEvent(id, fromNumber, userPhoneNumber, text);
+            _handleMessageEvent(
+                id, fromNumber, userPhoneNumber, text, timestamp);
           }
           break;
         case "profileImage":
@@ -155,9 +157,15 @@ class AppService {
     String fromNumber,
     String userPhoneNumber,
     String text,
+    int? timestamp,
   ) {
-    final message =
-        _databaseService.saveMessage(fromNumber, userPhoneNumber, text, id: id);
+    final message = _databaseService.saveMessage(
+      fromNumber,
+      userPhoneNumber,
+      text,
+      id: id,
+      timestamp: timestamp,
+    );
 
     sendAcknowledgement(fromNumber, message.id);
 
@@ -221,7 +229,10 @@ class AppService {
       "action": "sendmessage",
       "id": savedMessage.id,
       "recipientPhoneNumber": recipientNumber,
-      "contents": {"type": "message", "text": text},
+      "contents": {
+        "type": "message",
+        "text": text,
+      },
     };
 
     _messageQueue.add(jsonEncode(data));

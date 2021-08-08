@@ -39,9 +39,11 @@ abstract class ChatModelBase with Store {
   @action
   void markMessageSeen(String messageId) {
     final index = chatMessages.indexWhere((m) => m.id == messageId);
-    final message = chatMessages.removeAt(index);
-    message.seen = true;
-    chatMessages.insert(index, message);
+    if (index >= 0) {
+      final message = chatMessages.removeAt(index);
+      message.seen = true;
+      chatMessages.insert(index, message);
+    }
 
     _databaseService.markMessageSeen(messageId);
   }

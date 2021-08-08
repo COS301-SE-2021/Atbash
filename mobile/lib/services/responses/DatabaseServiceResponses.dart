@@ -7,4 +7,9 @@ class CreateContactResponse {
   CreateContactResponse(this.status, this.contact);
 }
 
-enum CreateContactResponseStatus { SUCCESS, DUPLICATE_NUMBER, GENERAL_ERROR }
+enum CreateContactResponseStatus {
+  SUCCESS,
+  UPDATED,
+  DUPLICATE_NUMBER,
+  GENERAL_ERROR
+}

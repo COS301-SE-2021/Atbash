@@ -178,7 +178,7 @@ class DatabaseService {
 
         if (response != 0) {
           return CreateContactResponse(
-            CreateContactResponseStatus.SUCCESS,
+            CreateContactResponseStatus.UPDATED,
             existingContact,
           );
         } else {

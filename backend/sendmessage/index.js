@@ -26,8 +26,10 @@ exports.handler = async event => {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
 
+    const timestamp = new Date().getTime();
+
     try {
-        await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, contents)
+        await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents)
     } catch (error) {
         console.log(error)
         return {statusCode: 500, body: JSON.stringify(error)}

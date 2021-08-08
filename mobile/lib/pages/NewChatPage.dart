@@ -207,8 +207,8 @@ class _NewChatPageState extends State<NewChatPage> {
       },
       onLongPress: () {
         setState(() {
-          print("now selecting");
           _selecting = true;
+          contact.second = true;
         });
       },
       child: Padding(

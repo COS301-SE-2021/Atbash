@@ -1,4 +1,6 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/util/Utils.dart';
 
 class PhoneNumberNamePair {
   final String phoneNumber;
@@ -14,9 +16,16 @@ Future<PhoneNumberNamePair?> showNewContactDialog(BuildContext context) {
       builder: (BuildContext context) => _NewContactDialog());
 }
 
-class _NewContactDialog extends StatelessWidget {
+class _NewContactDialog extends StatefulWidget {
+  @override
+  __NewContactDialogState createState() => __NewContactDialogState();
+}
+
+class __NewContactDialogState extends State<_NewContactDialog> {
   final _nameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+
+  String selectedDialCode = "+27";
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +38,26 @@ class _NewContactDialog extends StatelessWidget {
               controller: _nameController,
               decoration: InputDecoration(hintText: "Name"),
             ),
-            TextField(
-              controller: _phoneNumberController,
-              decoration: InputDecoration(hintText: "Phone number"),
-              keyboardType: TextInputType.phone,
+            Row(
+              children: [
+                CountryCodePicker(
+                  initialSelection: selectedDialCode,
+                  showFlag: false,
+                  onChanged: (countryCode) {
+                    final dialCode = countryCode.dialCode;
+                    if (dialCode != null) {
+                      selectedDialCode = dialCode;
+                    }
+                  },
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _phoneNumberController,
+                    decoration: InputDecoration(hintText: "Phone number"),
+                    keyboardType: TextInputType.phone,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -47,7 +72,8 @@ class _NewContactDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             final name = _nameController.text.trim();
-            final phoneNumber = _phoneNumberController.text.trim();
+            final phoneNumber =
+                selectedDialCode + cullToE164(_phoneNumberController.text);
 
             if (name.isNotEmpty && phoneNumber.isNotEmpty) {
               final pair = PhoneNumberNamePair(phoneNumber, name);

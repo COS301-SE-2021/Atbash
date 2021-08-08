@@ -83,9 +83,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _stopSearching() {
-    _searching = false;
-    _contactsModel.filter = "";
-    _searchController.text = "";
+    setState(() {
+      _searching = false;
+      _contactsModel.filter = "";
+      _searchController.text = "";
+    });
   }
 
   void _stopSelecting() {

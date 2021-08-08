@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/exceptions/DuplicateContactNumberException.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -17,6 +18,10 @@ class _NewChatPageState extends State<NewChatPage> {
   bool _searching = false;
   final ContactsModel _contactsModel = GetIt.I.get();
 
+  List<Tuple<Contact, bool>> _selectedContacts = [];
+  late final ReactionDisposer _contactsDisposer;
+  bool _selecting = false;
+
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
 
@@ -24,12 +29,22 @@ class _NewChatPageState extends State<NewChatPage> {
   void initState() {
     super.initState();
 
+    _contactsDisposer = autorun((_) {
+      setState(() {
+        _selectedContacts = _contactsModel.filteredSavedContacts
+            .map((c) => Tuple(c, false))
+            .toList();
+      });
+    });
+
     _searchFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     super.dispose();
+
+    _contactsDisposer();
 
     _searchFocusNode.dispose();
   }
@@ -101,15 +116,13 @@ class _NewChatPageState extends State<NewChatPage> {
     _contactsModel.filter = searchQuery;
   }
 
-  Observer _buildBody(BuildContext context) {
-    return Observer(builder: (_) {
-      return ListView(
-        children: [
-          _buildNewContactItem(context),
-          ..._buildContactList(context, _contactsModel.filteredSavedContacts),
-        ],
-      );
-    });
+  Widget _buildBody(BuildContext context) {
+    return ListView(
+      children: [
+        _buildNewContactItem(context),
+        ..._buildContactList(context, _selectedContacts),
+      ],
+    );
   }
 
   InkWell _buildNewContactItem(BuildContext context) {
@@ -172,9 +185,9 @@ class _NewChatPageState extends State<NewChatPage> {
 
   List<InkWell> _buildContactList(
     BuildContext context,
-    List<Contact> contacts,
+    List<Tuple<Contact, bool>> contacts,
   ) {
-    return contacts.map((e) => _buildContact(context, e)).toList();
+    return contacts.map((e) => _buildContact(context, e.first)).toList();
   }
 
   InkWell _buildContact(BuildContext context, Contact contact) {

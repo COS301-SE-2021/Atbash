@@ -121,8 +121,10 @@ class AppService {
       switch (eventType) {
         case "message":
           final text = contents["text"] as String?;
+          final timestamp = contents["timestamp"] as int?;
           if (text != null) {
-            _handleMessageEvent(id, fromNumber, userPhoneNumber, text);
+            _handleMessageEvent(
+                id, fromNumber, userPhoneNumber, text, timestamp);
           }
           break;
         case "profileImage":
@@ -155,9 +157,15 @@ class AppService {
     String fromNumber,
     String userPhoneNumber,
     String text,
+    int? timestamp,
   ) {
-    final message =
-        _databaseService.saveMessage(fromNumber, userPhoneNumber, text, id: id);
+    final message = _databaseService.saveMessage(
+      fromNumber,
+      userPhoneNumber,
+      text,
+      id: id,
+      timestamp: timestamp,
+    );
 
     sendAcknowledgement(fromNumber, message.id);
 

@@ -79,6 +79,18 @@ abstract class ContactsModelBase with Store {
         contacts.add(contact);
         contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
       }
+    } else if (status == CreateContactResponseStatus.UPDATED) {
+      if (contact == null) {
+        throw StateError("Contact was null when status was updated");
+      } else {
+        final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);
+        final listContact = contacts.removeAt(index);
+        listContact.displayName = contact.displayName;
+        listContact.saved = true;
+        contacts.insert(index, listContact);
+
+        contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
+      }
     } else if (status == CreateContactResponseStatus.DUPLICATE_NUMBER) {
       throw DuplicateContactNumberException();
     } else {

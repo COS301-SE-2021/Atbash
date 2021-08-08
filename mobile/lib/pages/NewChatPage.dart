@@ -224,10 +224,12 @@ class _NewChatPageState extends State<NewChatPage> {
         }
       },
       onLongPress: () {
-        setState(() {
-          _selecting = true;
-          contact.second = true;
-        });
+        if (!_searching) {
+          setState(() {
+            _selecting = true;
+            contact.second = true;
+          });
+        }
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

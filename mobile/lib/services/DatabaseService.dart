@@ -277,6 +277,15 @@ class DatabaseService {
     return list;
   }
 
+  Future<void> deleteContact(String phoneNumber) async {
+    final db = await _database;
+    await db.delete(
+      Contact.TABLE_NAME,
+      where: "${Contact.COLUMN_PHONE_NUMBER} = ?",
+      whereArgs: [phoneNumber],
+    );
+  }
+
   /// Deletes all messages with a contact
   Future<void> deleteMessagesWithContact(String phoneNumber) async {
     final db = await _database;

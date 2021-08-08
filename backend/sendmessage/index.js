@@ -45,6 +45,7 @@ exports.handler = async event => {
                     id,
                     senderPhoneNumber,
                     recipientPhoneNumber,
+                    timestamp,
                     contents
                 })
                 sent = true

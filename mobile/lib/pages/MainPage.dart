@@ -109,16 +109,18 @@ class _MainPageState extends State<MainPage> {
                 alignment: Alignment.centerLeft,
                 child: Observer(builder: (_) => Text(_userModel.displayName)),
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Observer(
-                  builder: (_) => Text(
-                    _userModel.status,
-                    style: TextStyle(
-                        fontSize: 14.0, color: Color.fromRGBO(61, 61, 61, 1.0)),
+              if (_userModel.status.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Observer(
+                    builder: (_) => Text(
+                      _userModel.status,
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          color: Color.fromRGBO(61, 61, 61, 1.0)),
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

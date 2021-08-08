@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
@@ -68,13 +69,13 @@ class _NewChatPageState extends State<NewChatPage> {
         return shouldPop;
       },
       child: Scaffold(
-        appBar: _buildAppBar(),
+        appBar: _buildAppBar(context),
         body: _buildBody(context),
       ),
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     Widget title = Text(
       "Select a Contact",
       overflow: TextOverflow.ellipsis,
@@ -112,7 +113,20 @@ class _NewChatPageState extends State<NewChatPage> {
               icon: Icon(Icons.search)),
         if (_selecting)
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              final selectedContacts = _selectedContacts
+                  .where((element) => element.second == true)
+                  .map((e) => e.first.phoneNumber)
+                  .toList();
+
+              showConfirmDialog(context,
+                      "This will delete ${selectedContacts.length} contact(s). Are you sure?")
+                  .then((confirmed) {
+                if (confirmed != null && confirmed) {
+                  _contactsModel.deleteContacts(selectedContacts);
+                }
+              });
+            },
             icon: Icon(Icons.delete),
           )
       ],

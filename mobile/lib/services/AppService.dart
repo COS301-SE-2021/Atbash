@@ -195,6 +195,11 @@ class AppService {
     }
   }
 
+  void _handleDeleteEvent(String fromNumber, List<String> ids) {
+    chatModel.removeMessages(ids);
+    _databaseService.deleteMessagesConstrainContact(fromNumber, ids);
+  }
+
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
     _contactsModel.setContactProfileImage(fromNumber, imageBase64);
   }

@@ -237,8 +237,14 @@ class _ChatPageState extends State<ChatPage> {
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    message.first.contents,
-                    style: TextStyle(fontSize: 18.0),
+                    message.first.deleted
+                        ? "This message was deleted."
+                        : message.first.contents,
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontStyle:
+                          message.first.deleted ? FontStyle.italic : null,
+                    ),
                   ),
                 ),
               ),

@@ -136,7 +136,7 @@ abstract class ContactsModelBase with Store {
       final contact = contacts.removeAt(index);
       contact.hasChat = false;
       contacts.insert(index, contact);
-      _databaseService.markContactNoChat(phoneNumber);
+      _databaseService.setContactHasChat(phoneNumber, false);
 
       _databaseService.deleteMessagesWithContact(phoneNumber);
     });

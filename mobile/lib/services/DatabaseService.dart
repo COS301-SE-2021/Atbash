@@ -212,11 +212,11 @@ class DatabaseService {
   }
 
   /// Marks a contact's [hasChat] as false
-  Future<void> markContactNoChat(String phoneNumber) async {
+  Future<void> setContactHasChat(String phoneNumber, bool hasChat) async {
     final db = await _database;
     await db.rawUpdate(
-        "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT} = 0 where ${Contact.COLUMN_PHONE_NUMBER} = ?",
-        [phoneNumber]);
+        "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_HAS_CHAT} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+        [hasChat ? 1 : 0, phoneNumber]);
   }
 
   Future<void> updateContactProfileImage(

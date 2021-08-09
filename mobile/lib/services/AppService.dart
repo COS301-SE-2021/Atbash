@@ -127,6 +127,12 @@ class AppService {
                 id, fromNumber, userPhoneNumber, text, timestamp);
           }
           break;
+        case "delete":
+          final ids = contents["ids"] as List<String>?;
+          if (ids != null) {
+            _handleDeleteEvent(fromNumber, ids);
+          }
+          break;
         case "profileImage":
           final image = contents["imageData"] as String?;
           if (image != null) {

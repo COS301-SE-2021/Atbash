@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
@@ -125,14 +125,25 @@ class _ChatPageState extends State<ChatPage> {
                   .map((e) => e.first.id)
                   .toList();
 
-              showConfirmDialog(
+              showConfirmDeleteDialog(
                 context,
                 "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-              ).then((confirmed) {
-                _appService.chatModel.deleteMessages(selectedMessagesIds);
-                setState(() {
-                  _selecting = false;
-                });
+              ).then((response) {
+                if (response != null) {
+                  if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+                    _appService.requestDeleteMessages(
+                      _contact.phoneNumber,
+                      selectedMessagesIds,
+                    );
+                  }
+
+                  if (response != DeleteMessagesResponse.CANCEL) {
+                    _appService.chatModel.deleteMessages(selectedMessagesIds);
+                    setState(() {
+                      _selecting = false;
+                    });
+                  }
+                }
               });
             },
             icon: Icon(Icons.delete),

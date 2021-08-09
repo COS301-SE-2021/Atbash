@@ -23,13 +23,13 @@ class _ConfirmDeleteDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () =>
-              Navigator.of(context).pop(DeleteMessagesResponse.CANCEL),
-          child: Text("CANCEL"),
+              Navigator.of(context).pop(DeleteMessagesResponse.DELETE_FOR_ME),
+          child: Text("DELETE FOR ME"),
         ),
         TextButton(
           onPressed: () =>
-              Navigator.of(context).pop(DeleteMessagesResponse.DELETE_FOR_ME),
-          child: Text("DELETE FOR ME"),
+              Navigator.of(context).pop(DeleteMessagesResponse.CANCEL),
+          child: Text("CANCEL"),
         ),
         TextButton(
           onPressed: () => Navigator.of(context)

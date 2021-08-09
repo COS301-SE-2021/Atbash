@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
@@ -67,13 +68,13 @@ class _ChatPageState extends State<ChatPage> {
         return true;
       },
       child: Scaffold(
-        appBar: _buildAppBar(),
+        appBar: _buildAppBar(context),
         body: _buildBody(),
       ),
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     Widget titlebar = Column(
       children: [
         Align(
@@ -118,7 +119,17 @@ class _ChatPageState extends State<ChatPage> {
       actions: [
         if (_selecting)
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              final selectedMessages = _selectedMessages.where((m) => m.second);
+
+              showConfirmDialog(
+                context,
+                "You are about to delete ${selectedMessages.length} message(s). Are you sure?",
+              ).then((confirmed) {
+                _appService.chatModel.deleteMessages(
+                    selectedMessages.map((e) => e.first.id).toList());
+              });
+            },
             icon: Icon(Icons.delete),
           )
       ],

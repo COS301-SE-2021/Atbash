@@ -242,6 +242,20 @@ class AppService {
     return savedMessage;
   }
 
+  void requestDeleteMessages(String recipientNumber, List<String> ids) async {
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "delete",
+        "ids": ids,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
+  }
+
   void sendStatus(String recipientNumber, String status) {
     final data = {
       "action": "sendmessage",

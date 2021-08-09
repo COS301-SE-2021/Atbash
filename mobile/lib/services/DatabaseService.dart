@@ -305,6 +305,20 @@ class DatabaseService {
     );
   }
 
+  Future<void> deleteMessagesConstrainContact(
+    String contactPhoneNumber,
+    List<String> ids,
+  ) async {
+    final db = await _database;
+    String where = "(" + ids.map((e) => "?").join(", ") + ")";
+    await db.delete(
+      Message.TABLE_NAME,
+      where:
+          "${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
+      whereArgs: [contactPhoneNumber, ...ids],
+    );
+  }
+
   /// Saves a message in the database and returns.
   Message saveMessage(
       String senderPhoneNumber, String recipientPhoneNumber, String contents,

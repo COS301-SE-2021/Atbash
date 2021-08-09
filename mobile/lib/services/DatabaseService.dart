@@ -323,17 +323,16 @@ class DatabaseService {
     );
   }
 
-  Future<void> deleteMessagesConstrainContact(
+  Future<void> markMessagesDeleted(
     String contactPhoneNumber,
     List<String> ids,
   ) async {
     final db = await _database;
     String where = "(" + ids.map((e) => "?").join(", ") + ")";
-    await db.delete(
-      Message.TABLE_NAME,
-      where:
-          "${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
-      whereArgs: [contactPhoneNumber, ...ids],
+
+    await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
+      [contactPhoneNumber, ...ids],
     );
   }
 

@@ -23,6 +23,7 @@ class _ChatPageState extends State<ChatPage> {
 
   List<Tuple<Message, bool>> _selectedMessages = [];
   late final ReactionDisposer _messagesDisposer;
+  bool _selecting = false;
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
@@ -137,7 +138,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Align _buildMessage(Tuple<Message, bool> message) {
+  Container _buildMessage(Tuple<Message, bool> message) {
     Alignment alignment = Alignment.centerLeft;
     EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
 
@@ -146,14 +147,27 @@ class _ChatPageState extends State<ChatPage> {
       padding = EdgeInsets.only(left: 32.0, right: 16.0);
     }
 
-    return Align(
+    return Container(
       alignment: alignment,
+      color: message.second ? Color.fromRGBO(116, 152, 214, 0.3) : null,
       child: Padding(
         padding: padding,
         child: Wrap(
           children: [
             InkWell(
-              onLongPress: () {},
+              onTap: () {
+                if (_selecting) {
+                  setState(() {
+                    message.second = true;
+                  });
+                }
+              },
+              onLongPress: () {
+                setState(() {
+                  _selecting = true;
+                  message.second = true;
+                });
+              },
               child: Card(
                 color: _messageColor(message.first),
                 child: Padding(

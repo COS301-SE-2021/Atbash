@@ -119,37 +119,39 @@ class _ChatPageState extends State<ChatPage> {
       actions: [
         if (_selecting)
           IconButton(
-            onPressed: () {
-              final selectedMessagesIds = _selectedMessages
-                  .where((m) => m.second)
-                  .map((e) => e.first.id)
-                  .toList();
-
-              showConfirmDeleteDialog(
-                context,
-                "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-              ).then((response) {
-                if (response != null) {
-                  if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-                    _appService.requestDeleteMessages(
-                      _contact.phoneNumber,
-                      selectedMessagesIds,
-                    );
-                  }
-
-                  if (response != DeleteMessagesResponse.CANCEL) {
-                    _appService.chatModel.deleteMessages(selectedMessagesIds);
-                    setState(() {
-                      _selecting = false;
-                    });
-                  }
-                }
-              });
-            },
+            onPressed: _deleteMessages,
             icon: Icon(Icons.delete),
           )
       ],
     );
+  }
+
+  void _deleteMessages() {
+    final selectedMessagesIds = _selectedMessages
+        .where((m) => m.second)
+        .map((e) => e.first.id)
+        .toList();
+
+    showConfirmDeleteDialog(
+      context,
+      "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+    ).then((response) {
+      if (response != null) {
+        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+          _appService.requestDeleteMessages(
+            _contact.phoneNumber,
+            selectedMessagesIds,
+          );
+        }
+
+        if (response != DeleteMessagesResponse.CANCEL) {
+          _appService.chatModel.deleteMessages(selectedMessagesIds);
+          setState(() {
+            _selecting = false;
+          });
+        }
+      }
+    });
   }
 
   SafeArea _buildBody() {

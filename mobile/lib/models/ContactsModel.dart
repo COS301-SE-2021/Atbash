@@ -100,7 +100,6 @@ abstract class ContactsModelBase with Store {
 
   @action
   void startChatWithContact(String phoneNumber) {
-    // TODO Should just be one line
     final index = contacts.indexWhere((c) => c.phoneNumber == phoneNumber);
     final contact = contacts.removeAt(index);
     contact.hasChat = true;
@@ -136,7 +135,7 @@ abstract class ContactsModelBase with Store {
       final contact = contacts.removeAt(index);
       contact.hasChat = false;
       contacts.insert(index, contact);
-      _databaseService.markContactNoChat(phoneNumber);
+      _databaseService.setContactHasChat(phoneNumber, false);
 
       _databaseService.deleteMessagesWithContact(phoneNumber);
     });

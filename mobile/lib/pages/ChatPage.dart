@@ -128,6 +128,9 @@ class _ChatPageState extends State<ChatPage> {
               ).then((confirmed) {
                 _appService.chatModel.deleteMessages(
                     selectedMessages.map((e) => e.first.id).toList());
+                setState(() {
+                  _selecting = false;
+                });
               });
             },
             icon: Icon(Icons.delete),

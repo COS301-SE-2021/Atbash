@@ -295,6 +295,16 @@ class DatabaseService {
         whereArgs: [phoneNumber, phoneNumber]);
   }
 
+  Future<void> deleteMessages(List<String> ids) async {
+    final db = await _database;
+    String where = "(" + ids.map((e) => "?").join(", ") + ")";
+    await db.delete(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_ID} in $where",
+      whereArgs: ids,
+    );
+  }
+
   /// Saves a message in the database and returns.
   Message saveMessage(
       String senderPhoneNumber, String recipientPhoneNumber, String contents,

@@ -98,6 +98,17 @@ mixin _$ChatModel on ChatModelBase, Store {
   }
 
   @override
+  void deleteMessages(List<String> ids) {
+    final _$actionInfo = _$ChatModelBaseActionController.startAction(
+        name: 'ChatModelBase.deleteMessages');
+    try {
+      return super.deleteMessages(ids);
+    } finally {
+      _$ChatModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contactPhoneNumber: ${contactPhoneNumber},

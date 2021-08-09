@@ -52,4 +52,13 @@ abstract class ChatModelBase with Store {
   void addMessage(Message m) {
     chatMessages.insert(0, m);
   }
+
+  @action
+  void deleteMessages(List<String> ids) {
+    ids.forEach((id) {
+      chatMessages.removeWhere((m) => m.id == id);
+    });
+
+    _databaseService.deleteMessages(ids);
+  }
 }

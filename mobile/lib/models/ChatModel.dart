@@ -54,11 +54,15 @@ abstract class ChatModelBase with Store {
   }
 
   @action
-  void deleteMessages(List<String> ids) {
+  void removeMessages(List<String> ids) {
     ids.forEach((id) {
       chatMessages.removeWhere((m) => m.id == id);
     });
+  }
 
+  @action
+  void deleteMessages(List<String> ids) {
+    removeMessages(ids);
     _databaseService.deleteMessages(ids);
   }
 }

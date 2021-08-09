@@ -178,7 +178,7 @@ class _ChatPageState extends State<ChatPage> {
               onTap: () {
                 if (_selecting) {
                   setState(() {
-                    message.second = true;
+                    message.second = !message.second;
                   });
                 }
               },

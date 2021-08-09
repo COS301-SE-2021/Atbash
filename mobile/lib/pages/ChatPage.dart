@@ -54,9 +54,22 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_selecting) {
+          setState(() {
+            _selecting = false;
+            _selectedMessages.forEach((m) => m.second = false);
+          });
+          return false;
+        }
+
+        return true;
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      ),
     );
   }
 

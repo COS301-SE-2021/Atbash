@@ -132,6 +132,7 @@ class AppService {
           if (ids != null) {
             _handleDeleteEvent(fromNumber, ids);
           }
+          _deleteMessageFromServer(id);
           break;
         case "profileImage":
           final image = contents["imageData"] as String?;

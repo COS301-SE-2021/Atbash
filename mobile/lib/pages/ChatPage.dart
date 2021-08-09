@@ -102,6 +102,13 @@ class _ChatPageState extends State<ChatPage> {
           )
         ],
       ),
+      actions: [
+        if (_selecting)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.delete),
+          )
+      ],
     );
   }
 

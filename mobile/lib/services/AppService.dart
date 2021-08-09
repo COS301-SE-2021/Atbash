@@ -177,6 +177,8 @@ class AppService {
 
         if (fromContact == null) {
           _contactsModel.addContact(fromNumber, "", true, false);
+        } else if (fromContact.hasChat == false) {
+          _contactsModel.startChatWithContact(fromNumber);
         } else {
           if (fromContact.displayName.isNotEmpty)
             title = fromContact.displayName;

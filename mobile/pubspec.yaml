@@ -36,7 +36,9 @@ dependencies:
   web_socket_channel: ^2.1.0
   flutter_svg: ^0.22.0
   flutter_local_notifications: ^6.0.0
+  pointycastle: ^3.2.0
   rsa_encrypt: ^2.0.0
+  mobx: ^2.0.4
   flutter_mobx: ^2.0.1
   country_code_picker: ^2.0.2
   flutter_spinkit: ^5.0.0

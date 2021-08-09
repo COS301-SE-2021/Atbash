@@ -120,14 +120,16 @@ class _ChatPageState extends State<ChatPage> {
         if (_selecting)
           IconButton(
             onPressed: () {
-              final selectedMessages = _selectedMessages.where((m) => m.second);
+              final selectedMessagesIds = _selectedMessages
+                  .where((m) => m.second)
+                  .map((e) => e.first.id)
+                  .toList();
 
               showConfirmDialog(
                 context,
-                "You are about to delete ${selectedMessages.length} message(s). Are you sure?",
+                "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
               ).then((confirmed) {
-                _appService.chatModel.deleteMessages(
-                    selectedMessages.map((e) => e.first.id).toList());
+                _appService.chatModel.deleteMessages(selectedMessagesIds);
                 setState(() {
                   _selecting = false;
                 });

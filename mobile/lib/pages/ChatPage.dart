@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/AppService.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobx/mobx.dart';
 
 class ChatPage extends StatefulWidget {
   final Contact contact;
@@ -20,6 +21,9 @@ class _ChatPageState extends State<ChatPage> {
 
   final Contact _contact;
 
+  List<Tuple<Message, bool>> _selectedMessages = [];
+  late final ReactionDisposer _messagesDisposer;
+
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
@@ -29,7 +33,22 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    _messagesDisposer = autorun((_) {
+      setState(() {
+        _selectedMessages = _appService.chatModel.chatMessages
+            .map((m) => Tuple(m, false))
+            .toList();
+      });
+    });
+
     _appService.chatModel.initContact(_contact.phoneNumber);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _messagesDisposer();
   }
 
   @override
@@ -98,33 +117,31 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Observer _buildMessages() {
-    return Observer(builder: (_) {
-      return NotificationListener<ScrollEndNotification>(
-        onNotification: (scrollEnd) {
-          final metrics = scrollEnd.metrics;
-          if (metrics.pixels.floor() == metrics.maxScrollExtent.floor()) {
-            _appService.chatModel.fetchNextMessagesPage();
-          }
-          return true;
+  Widget _buildMessages() {
+    return NotificationListener<ScrollEndNotification>(
+      onNotification: (scrollEnd) {
+        final metrics = scrollEnd.metrics;
+        if (metrics.pixels.floor() == metrics.maxScrollExtent.floor()) {
+          _appService.chatModel.fetchNextMessagesPage();
+        }
+        return true;
+      },
+      child: ListView.builder(
+        itemCount: _selectedMessages.length,
+        itemBuilder: (context, index) {
+          return _buildMessage(_selectedMessages[index]);
         },
-        child: ListView.builder(
-          itemCount: _appService.chatModel.chatMessages.length,
-          itemBuilder: (context, index) {
-            return _buildMessage(_appService.chatModel.chatMessages[index]);
-          },
-          controller: _scrollController,
-          reverse: true,
-        ),
-      );
-    });
+        controller: _scrollController,
+        reverse: true,
+      ),
+    );
   }
 
-  Align _buildMessage(Message message) {
+  Align _buildMessage(Tuple<Message, bool> message) {
     Alignment alignment = Alignment.centerLeft;
     EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
 
-    if (message.recipientPhoneNumber == widget.contact.phoneNumber) {
+    if (message.first.recipientPhoneNumber == widget.contact.phoneNumber) {
       alignment = Alignment.centerRight;
       padding = EdgeInsets.only(left: 32.0, right: 16.0);
     }
@@ -138,11 +155,11 @@ class _ChatPageState extends State<ChatPage> {
             InkWell(
               onLongPress: () {},
               child: Card(
-                color: _messageColor(message),
+                color: _messageColor(message.first),
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
-                    message.contents,
+                    message.first.contents,
                     style: TextStyle(fontSize: 18.0),
                   ),
                 ),

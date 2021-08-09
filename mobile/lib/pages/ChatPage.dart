@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -119,39 +120,53 @@ class _ChatPageState extends State<ChatPage> {
       actions: [
         if (_selecting)
           IconButton(
-            onPressed: _deleteMessages,
+            onPressed: () => _deleteMessages(context),
             icon: Icon(Icons.delete),
           )
       ],
     );
   }
 
-  void _deleteMessages() {
-    final selectedMessagesIds = _selectedMessages
-        .where((m) => m.second)
-        .map((e) => e.first.id)
-        .toList();
+  void _deleteMessages(BuildContext context) {
+    final selectedMessages = _selectedMessages.where((m) => m.second);
+    final selectedMessagesIds =
+        selectedMessages.map((e) => e.first.id).toList();
 
-    showConfirmDeleteDialog(
-      context,
-      "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-    ).then((response) {
-      if (response != null) {
-        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          _appService.requestDeleteMessages(
-            _contact.phoneNumber,
-            selectedMessagesIds,
-          );
-        }
-
-        if (response != DeleteMessagesResponse.CANCEL) {
+    if (selectedMessages
+        .any((m) => m.first.senderPhoneNumber == _contact.phoneNumber)) {
+      showConfirmDialog(
+        context,
+        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+      ).then((confirmed) {
+        if (confirmed != null && confirmed) {
           _appService.chatModel.deleteMessages(selectedMessagesIds);
           setState(() {
             _selecting = false;
           });
         }
-      }
-    });
+      });
+    } else {
+      showConfirmDeleteDialog(
+        context,
+        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+      ).then((response) {
+        if (response != null) {
+          if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+            _appService.requestDeleteMessages(
+              _contact.phoneNumber,
+              selectedMessagesIds,
+            );
+          }
+
+          if (response != DeleteMessagesResponse.CANCEL) {
+            _appService.chatModel.deleteMessages(selectedMessagesIds);
+            setState(() {
+              _selecting = false;
+            });
+          }
+        }
+      });
+    }
   }
 
   SafeArea _buildBody() {

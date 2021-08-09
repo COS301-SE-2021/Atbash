@@ -128,7 +128,8 @@ class AppService {
           }
           break;
         case "delete":
-          final ids = contents["ids"] as List<String>?;
+          final ids =
+              (contents["ids"] as List?)?.map((e) => e as String).toList();
           if (ids != null) {
             _handleDeleteEvent(fromNumber, ids);
           }

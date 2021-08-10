@@ -1,5 +1,4 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/UserModel.dart';
@@ -62,8 +61,6 @@ class AtbashApp extends StatelessWidget {
       future: Future.wait([_firebaseInitialization, _registered]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          FirebaseMessaging.instance.getToken().then((value) => print(value));
-
           if (!(snapshot.data is List)) {
             throw StateError(
                 "Failed to build. FutureBuilder did not return list");

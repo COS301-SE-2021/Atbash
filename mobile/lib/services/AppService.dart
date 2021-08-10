@@ -233,7 +233,6 @@ class AppService {
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(String recipientNumber, String text) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
-    print(userPhoneNumber);
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
       recipientNumber,

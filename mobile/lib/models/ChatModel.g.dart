@@ -120,6 +120,17 @@ mixin _$ChatModel on ChatModelBase, Store {
   }
 
   @override
+  void markMessagesDeleted(List<String> ids) {
+    final _$actionInfo = _$ChatModelBaseActionController.startAction(
+        name: 'ChatModelBase.markMessagesDeleted');
+    try {
+      return super.markMessagesDeleted(ids);
+    } finally {
+      _$ChatModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contactPhoneNumber: ${contactPhoneNumber},

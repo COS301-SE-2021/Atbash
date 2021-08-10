@@ -1,10 +1,6 @@
 import 'package:mobile/util/Utils.dart';
 
-enum ReadReceipt {
-  delivered,
-  undelivered,
-  seen
-}
+enum ReadReceipt { delivered, undelivered, seen }
 
 class Message {
   final String id;

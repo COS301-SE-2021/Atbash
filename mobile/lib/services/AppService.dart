@@ -157,8 +157,9 @@ class AppService {
           _deleteMessageFromServer(id);
           break;
         case "ackSeen":
-          final ids = (contents["ids"] as List?)?.map((e) => e as String).toList();
-          if(ids != null){
+          final ids =
+              (contents["ids"] as List?)?.map((e) => e as String).toList();
+          if (ids != null) {
             _handleAckSeenEvent(ids);
           }
           _deleteMessageFromServer(id);
@@ -227,7 +228,7 @@ class AppService {
     chatModel.markMessageDelivered(messageId);
   }
 
-  void _handleAckSeenEvent(List<String> messageIds){
+  void _handleAckSeenEvent(List<String> messageIds) {
     chatModel.markMessagesSeen(messageIds);
   }
 
@@ -322,13 +323,14 @@ class AppService {
   }
 
   void sendSeenAcknowledgementForContact(String recipientNumber) async {
-    final unseenMessages = await _databaseService.fetchUnseenMessagesWith(recipientNumber);
-    
+    final unseenMessages =
+        await _databaseService.fetchUnseenMessagesWith(recipientNumber);
+
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
       "recipientPhoneNumber": recipientNumber,
-      "contents":{
+      "contents": {
         "type": "ackSeen",
         "ids": unseenMessages.map((e) => e.id),
       }

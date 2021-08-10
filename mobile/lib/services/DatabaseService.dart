@@ -114,11 +114,13 @@ class DatabaseService {
     return list;
   }
 
-  Future<List<Message>> fetchUnseenMessagesWith(String senderPhoneNumber) async {
+  Future<List<Message>> fetchUnseenMessagesWith(
+      String senderPhoneNumber) async {
     final db = await _database;
     final response = await db.query(
       Message.TABLE_NAME,
-      where: "${Message.COLUMN_READ_RECEIPT} = ? and ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+      where:
+          "${Message.COLUMN_READ_RECEIPT} = ? and ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
       whereArgs: [ReadReceipt.seen.toString(), senderPhoneNumber],
     );
 
@@ -357,7 +359,7 @@ class DatabaseService {
     );
   }
 
-  void markMessagesSeen(List<String> ids) async{
+  void markMessagesSeen(List<String> ids) async {
     final db = await _database;
     String where = "(" + ids.map((e) => "?").join(", ") + ")";
     await db.rawUpdate(

@@ -49,7 +49,7 @@ abstract class ChatModelBase with Store {
   }
 
   @action
-  void markMessagesSeen(List<String> messageIds){
+  void markMessagesSeen(List<String> messageIds) {
     messageIds.forEach((id) {
       final index = chatMessages.indexWhere((m) => m.id == id);
       final message = chatMessages.removeAt(index);

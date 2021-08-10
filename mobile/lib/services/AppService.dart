@@ -127,6 +127,14 @@ class AppService {
                 id, fromNumber, userPhoneNumber, text, timestamp);
           }
           break;
+        case "delete":
+          final ids =
+              (contents["ids"] as List?)?.map((e) => e as String).toList();
+          if (ids != null) {
+            _handleDeleteEvent(fromNumber, ids);
+          }
+          _deleteMessageFromServer(id);
+          break;
         case "profileImage":
           final image = contents["imageData"] as String?;
           if (image != null) {
@@ -195,6 +203,11 @@ class AppService {
     }
   }
 
+  void _handleDeleteEvent(String fromNumber, List<String> ids) {
+    chatModel.markMessagesDeleted(ids);
+    _databaseService.markMessagesDeleted(fromNumber, ids);
+  }
+
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
     _contactsModel.setContactProfileImage(fromNumber, imageBase64);
   }
@@ -220,7 +233,6 @@ class AppService {
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(String recipientNumber, String text) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
-    print(userPhoneNumber);
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
       recipientNumber,
@@ -240,6 +252,20 @@ class AppService {
     _messageQueue.add(jsonEncode(data));
 
     return savedMessage;
+  }
+
+  void requestDeleteMessages(String recipientNumber, List<String> ids) async {
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "delete",
+        "ids": ids,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
   }
 
   void sendStatus(String recipientNumber, String status) {

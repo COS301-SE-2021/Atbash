@@ -5,6 +5,7 @@ class Message {
   final String contents;
   final DateTime timestamp;
   bool seen;
+  bool deleted;
 
   Message(
     this.id,
@@ -13,6 +14,7 @@ class Message {
     this.contents,
     this.timestamp,
     this.seen,
+    this.deleted,
   );
 
   Map<String, dynamic> toMap() {
@@ -22,7 +24,8 @@ class Message {
       COLUMN_RECIPIENT_PHONE_NUMBER: this.recipientPhoneNumber,
       COLUMN_CONTENTS: this.contents,
       COLUMN_TIMESTAMP: this.timestamp.millisecondsSinceEpoch,
-      COLUMN_SEEN: this.seen ? 1 : 0
+      COLUMN_SEEN: this.seen ? 1 : 0,
+      COLUMN_DELETED: this.deleted ? 1 : 0,
     };
   }
 
@@ -33,15 +36,23 @@ class Message {
     final contents = map[Message.COLUMN_CONTENTS];
     final timestamp = map[Message.COLUMN_TIMESTAMP];
     final seen = map[Message.COLUMN_SEEN];
+    final deleted = map[Message.COLUMN_DELETED];
 
     if (id is String &&
         senderPhoneNumber is String &&
         recipientPhoneNumber is String &&
         contents is String &&
         timestamp is int &&
-        seen is int) {
-      return Message(id, senderPhoneNumber, recipientPhoneNumber, contents,
-          DateTime.fromMillisecondsSinceEpoch(timestamp), seen == 1);
+        seen is int &&
+        deleted is int) {
+      return Message(
+          id,
+          senderPhoneNumber,
+          recipientPhoneNumber,
+          contents,
+          DateTime.fromMillisecondsSinceEpoch(timestamp),
+          seen == 1,
+          deleted == 1);
     } else {
       return null;
     }
@@ -54,7 +65,8 @@ class Message {
   static const String COLUMN_CONTENTS = "contents";
   static const String COLUMN_TIMESTAMP = "timestamp";
   static const String COLUMN_SEEN = "seen";
+  static const String COLUMN_DELETED = "deleted";
 
   static const String CREATE_TABLE =
-      "create table $TABLE_NAME ($COLUMN_ID text primary key, $COLUMN_SENDER_PHONE_NUMBER text not null, $COLUMN_RECIPIENT_PHONE_NUMBER text not null, $COLUMN_CONTENTS text not null, $COLUMN_TIMESTAMP int not null, $COLUMN_SEEN tinyint not null);";
+      "create table $TABLE_NAME ($COLUMN_ID text primary key, $COLUMN_SENDER_PHONE_NUMBER text not null, $COLUMN_RECIPIENT_PHONE_NUMBER text not null, $COLUMN_CONTENTS text not null, $COLUMN_TIMESTAMP int not null, $COLUMN_SEEN tinyint not null, $COLUMN_DELETED tinyint not null);";
 }

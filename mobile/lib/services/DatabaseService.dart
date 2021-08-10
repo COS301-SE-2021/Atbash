@@ -336,4 +336,13 @@ class DatabaseService {
       [ReadReceipt.delivered.toString(), id],
     );
   }
+
+  void markMessagesSeen(List<String> ids) async{
+    final db = await _database;
+    String where = "(" + ids.map((e) => "?").join(", ") + ")";
+    await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} in $where",
+      [ReadReceipt.seen.toString(), ...ids],
+    );
+  }
 }

@@ -156,6 +156,13 @@ class AppService {
           }
           _deleteMessageFromServer(id);
           break;
+        case "ackSeen":
+          final ids = (contents["ids"] as List?)?.map((e) => e as String).toList();
+          if(ids != null){
+            _handleAckSeenEvent(ids);
+          }
+          _deleteMessageFromServer(id);
+          break;
       }
     }
   }

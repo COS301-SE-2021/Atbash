@@ -14,7 +14,11 @@ exports.handler = async event => {
     }
 
     try {
-        const signedURL = s3Client.getSignedUrl("putObject", {
+        let operation
+        if (method === "GET") operation = "getObject"
+        else if (method === "PUT") operation = "putObject"
+
+        const signedURL = s3Client.getSignedUrl(operation, {
             Bucket: process.env.MEDIA_BUCKET,
             Key: mediaId
         })

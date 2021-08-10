@@ -204,7 +204,7 @@ class AppService {
   }
 
   void _handleDeleteEvent(String fromNumber, List<String> ids) {
-    chatModel.removeMessages(ids);
+    chatModel.markMessagesDeleted(ids);
     _databaseService.markMessagesDeleted(fromNumber, ids);
   }
 

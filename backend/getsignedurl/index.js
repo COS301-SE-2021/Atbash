@@ -3,7 +3,7 @@ const AWS = require("aws-sdk")
 const s3Client = new AWS.S3({apiVersion: "2006-03-01", region: process.env.AWS_REGION})
 
 exports.handler = async event => {
-    const {mediaId, method} = JSON.parse(event.requestContext.body)
+    const {mediaId, method} = JSON.parse(event.body)
 
     if (anyUndefined(mediaId, method)) {
         return {statusCode: 400, body: "Missing mediaId or method body parameter"}

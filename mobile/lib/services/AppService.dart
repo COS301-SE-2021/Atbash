@@ -321,14 +321,16 @@ class AppService {
     _messageQueue.add(jsonEncode(data));
   }
 
-  void sendSeenAcknowledgement(String recipientNumber, List<String> messageIds){
+  void sendSeenAcknowledgementForContact(String recipientNumber) async {
+    final unseenMessages = await _databaseService.fetchUnseenMessagesWith(recipientNumber);
+    
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
       "recipientPhoneNumber": recipientNumber,
       "contents":{
         "type": "ackSeen",
-        "ids": messageIds,
+        "ids": unseenMessages.map((e) => e.id),
       }
     };
 

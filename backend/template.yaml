@@ -294,10 +294,10 @@ Resources:
       FunctionName: !Ref DeleteMessageFunction
       Principal: apigateway.amazonaws.com
 
-  GetSignedURLFunction:
+  CreateSignedURLFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: getsignedurl/
+      CodeUri: createsignedurl/
       Handler: index.handler
       Runtime: nodejs14.x
       MemorySize: 128
@@ -308,13 +308,13 @@ Resources:
         - S3CrudPolicy:
             BucketName: !Ref MediaBucket
 
-  GetSignedURLPermission:
+  CreateSignedURLPermission:
     Type: AWS::Lambda::Permission
     DependsOn:
       - AtbashREST
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref GetSignedURLFunction
+      FunctionName: !Ref CreateSignedURLFunction
       Principal: apigateway.amazonaws.com
 
   # --- Web Socket API --- #

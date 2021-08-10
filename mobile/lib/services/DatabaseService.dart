@@ -120,8 +120,11 @@ class DatabaseService {
     final response = await db.query(
       Message.TABLE_NAME,
       where:
-          "${Message.COLUMN_READ_RECEIPT} = ? and ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
-      whereArgs: [ReadReceipt.seen.toString(), senderPhoneNumber],
+          "${Message.COLUMN_READ_RECEIPT} != ? and ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+      whereArgs: [
+        ReadReceipt.seen.toString(),
+        senderPhoneNumber,
+      ],
     );
 
     final list = <Message>[];

@@ -156,6 +156,14 @@ class AppService {
           }
           _deleteMessageFromServer(id);
           break;
+        case "ackSeen":
+          final ids =
+              (contents["ids"] as List?)?.map((e) => e as String).toList();
+          if (ids != null) {
+            _handleAckSeenEvent(ids);
+          }
+          _deleteMessageFromServer(id);
+          break;
       }
     }
   }
@@ -175,7 +183,7 @@ class AppService {
       timestamp: timestamp,
     );
 
-    sendAcknowledgement(fromNumber, message.id);
+    sendDeliveredAcknowledgement(fromNumber, message.id);
 
     if (chatModel.contactPhoneNumber == fromNumber) {
       chatModel.addMessage(message);
@@ -217,7 +225,11 @@ class AppService {
   }
 
   void _handleAckEvent(String messageId) {
-    chatModel.markMessageSeen(messageId);
+    chatModel.markMessageDelivered(messageId);
+  }
+
+  void _handleAckSeenEvent(List<String> messageIds) {
+    chatModel.markMessagesSeen(messageIds);
   }
 
   /// Disconnect the user from the server
@@ -296,7 +308,7 @@ class AppService {
     _messageQueue.add(jsonEncode(data));
   }
 
-  void sendAcknowledgement(String recipientNumber, String messageId) {
+  void sendDeliveredAcknowledgement(String recipientNumber, String messageId) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -304,6 +316,27 @@ class AppService {
       "contents": {
         "type": "ack",
         "id": messageId,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
+  }
+
+  void sendSeenAcknowledgementForContact(String recipientNumber) async {
+    final unseenMessageIds =
+        (await _databaseService.fetchUnseenMessagesWith(recipientNumber))
+            .map((e) => e.id)
+            .toList();
+
+    _databaseService.markMessagesSeen(unseenMessageIds);
+
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "ackSeen",
+        "ids": unseenMessageIds,
       }
     };
 

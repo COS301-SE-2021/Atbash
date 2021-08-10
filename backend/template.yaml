@@ -498,6 +498,36 @@ Resources:
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
 
+  CreateSignedURLRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /upload'
+      OperationName: CreateSignedURLRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateSignedURLIntegration
+  CreateSignedURLIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateSignedURLFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateSignedURLFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:

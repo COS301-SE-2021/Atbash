@@ -309,4 +309,18 @@ class AppService {
 
     _messageQueue.add(jsonEncode(data));
   }
+
+  void sendSeenAcknowledgement(String recipientNumber, List<String> messageIds){
+    final data = {
+      "action": "sendmessage",
+      "id": Uuid().v4(),
+      "recipientPhoneNumber": recipientNumber,
+      "contents":{
+        "type": "ackSeen",
+        "ids": messageIds,
+      }
+    };
+
+    _messageQueue.add(jsonEncode(data));
+  }
 }

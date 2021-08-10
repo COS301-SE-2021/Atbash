@@ -6,6 +6,21 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class KeyGenService {
   final _storage = FlutterSecureStorage();
 
+  Future<String> generateSharedSecret(String base64RemotePublicKey) async {
+    final remotePublicKey = SimplePublicKey(
+      base64Decode(base64RemotePublicKey),
+      type: KeyPairType.x25519,
+    );
+
+    final algorithm = Cryptography.instance.x25519();
+    final sharedSecretKey = await algorithm.sharedSecretKey(
+      keyPair: await _getLocalKeyPair(),
+      remotePublicKey: remotePublicKey,
+    );
+
+    return base64Encode(await sharedSecretKey.extractBytes());
+  }
+
   void generateAndSaveKeyPair() async {
     final algorithm = Cryptography.instance.x25519();
     final keyPair = await algorithm.newKeyPair();

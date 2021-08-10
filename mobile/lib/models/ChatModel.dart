@@ -49,6 +49,18 @@ abstract class ChatModelBase with Store {
   }
 
   @action
+  void markMessagesSeen(List<String> messageIds){
+    messageIds.forEach((id) {
+      final index = chatMessages.indexWhere((m) => m.id == id);
+      final message = chatMessages.removeAt(index);
+      message.readReceipt = ReadReceipt.seen;
+      chatMessages.insert(index, message);
+    });
+
+    _databaseService.markMessagesSeen(messageIds);
+  }
+
+  @action
   void addMessage(Message m) {
     chatMessages.insert(0, m);
   }

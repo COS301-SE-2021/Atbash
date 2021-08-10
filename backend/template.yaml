@@ -484,6 +484,36 @@ Resources:
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
 
+  GetRSAPublicKeyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /user/{phoneNumber}/rsa-public-key'
+      OperationName: GetRSAPublicKeyRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetRSAPublicKeyIntegration
+  GetRSAPublicKeyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetRSAPublicKeyFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetRSAPublicKeyFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:

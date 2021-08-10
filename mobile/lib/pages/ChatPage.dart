@@ -37,6 +37,8 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     _messagesDisposer = autorun((_) {
+      _appService.sendSeenAcknowledgementForContact(_contact.phoneNumber);
+
       setState(() {
         _selectedMessages = _appService.chatModel.chatMessages
             .map((m) => Tuple(m, false))

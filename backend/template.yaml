@@ -135,6 +135,11 @@ Resources:
           Projection:
             ProjectionType: ALL
 
+  MediaStorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref MediaBucket
+
   # --- Lambda Functions --- #
   OnConnectFunction:
     Type: AWS::Serverless::Function

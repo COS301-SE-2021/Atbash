@@ -323,8 +323,12 @@ class AppService {
   }
 
   void sendSeenAcknowledgementForContact(String recipientNumber) async {
-    final unseenMessages =
-        await _databaseService.fetchUnseenMessagesWith(recipientNumber);
+    final unseenMessageIds =
+        (await _databaseService.fetchUnseenMessagesWith(recipientNumber))
+            .map((e) => e.id)
+            .toList();
+
+    _databaseService.markMessagesSeen(unseenMessageIds);
 
     final data = {
       "action": "sendmessage",
@@ -332,7 +336,7 @@ class AppService {
       "recipientPhoneNumber": recipientNumber,
       "contents": {
         "type": "ackSeen",
-        "ids": unseenMessages.map((e) => e.id),
+        "ids": unseenMessageIds,
       }
     };
 

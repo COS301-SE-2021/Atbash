@@ -21,6 +21,31 @@ class KeyGenService {
     ]);
   }
 
+  Future<SimpleKeyPair> _getLocalKeyPair() async {
+    final keys = await Future.wait([
+      _storage.read(key: "public_key"),
+      _storage.read(key: "keyPair"),
+    ]);
+
+    final base64PublicKey = keys[0];
+    final base64KeyPair = keys[1];
+
+    if (base64PublicKey == null || base64KeyPair == null) {
+      throw StateError("_getLocalKeyPair called when local keys not saved");
+    }
+
+    final publicKey = SimplePublicKey(
+      base64Decode(base64PublicKey),
+      type: KeyPairType.x25519,
+    );
+
+    return SimpleKeyPairData(
+      base64Decode(base64KeyPair),
+      publicKey: publicKey,
+      type: KeyPairType.x25519,
+    );
+  }
+
   Future<String> _getPublicKeyString(SimpleKeyPair keyPair) async {
     return base64Encode((await keyPair.extractPublicKey()).bytes);
   }

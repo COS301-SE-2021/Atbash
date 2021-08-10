@@ -261,7 +261,7 @@ class _ChatPageState extends State<ChatPage> {
   Color _messageColor(Message m) {
     if (m.senderPhoneNumber == widget.contact.phoneNumber) {
       return Colors.orange;
-    } else if (m.seen) {
+    } else if (m.readReceipt == ReadReceipt.delivered) {
       return Colors.orange;
     } else {
       return Colors.orangeAccent;

@@ -217,7 +217,7 @@ class AppService {
   }
 
   void _handleAckEvent(String messageId) {
-    chatModel.markMessageSeen(messageId);
+    chatModel.markMessageDelivered(messageId);
   }
 
   /// Disconnect the user from the server

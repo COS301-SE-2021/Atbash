@@ -1,10 +1,18 @@
+import 'package:mobile/util/Utils.dart';
+
+enum ReadReceipt {
+  delivered,
+  undelivered,
+  seen
+}
+
 class Message {
   final String id;
   final String senderPhoneNumber;
   final String recipientPhoneNumber;
   final String contents;
   final DateTime timestamp;
-  bool seen;
+  ReadReceipt readReceipt;
   bool deleted;
 
   Message(
@@ -13,7 +21,7 @@ class Message {
     this.recipientPhoneNumber,
     this.contents,
     this.timestamp,
-    this.seen,
+    this.readReceipt,
     this.deleted,
   );
 
@@ -24,7 +32,7 @@ class Message {
       COLUMN_RECIPIENT_PHONE_NUMBER: this.recipientPhoneNumber,
       COLUMN_CONTENTS: this.contents,
       COLUMN_TIMESTAMP: this.timestamp.millisecondsSinceEpoch,
-      COLUMN_SEEN: this.seen ? 1 : 0,
+      COLUMN_READ_RECEIPT: this.readReceipt.toString(),
       COLUMN_DELETED: this.deleted ? 1 : 0,
     };
   }
@@ -35,7 +43,7 @@ class Message {
     final recipientPhoneNumber = map[Message.COLUMN_RECIPIENT_PHONE_NUMBER];
     final contents = map[Message.COLUMN_CONTENTS];
     final timestamp = map[Message.COLUMN_TIMESTAMP];
-    final seen = map[Message.COLUMN_SEEN];
+    final readReceipt = parseReadReceipt(map[Message.COLUMN_READ_RECEIPT]);
     final deleted = map[Message.COLUMN_DELETED];
 
     if (id is String &&
@@ -43,7 +51,7 @@ class Message {
         recipientPhoneNumber is String &&
         contents is String &&
         timestamp is int &&
-        seen is int &&
+        readReceipt is ReadReceipt &&
         deleted is int) {
       return Message(
           id,
@@ -51,7 +59,7 @@ class Message {
           recipientPhoneNumber,
           contents,
           DateTime.fromMillisecondsSinceEpoch(timestamp),
-          seen == 1,
+          readReceipt,
           deleted == 1);
     } else {
       return null;
@@ -64,9 +72,9 @@ class Message {
   static const String COLUMN_RECIPIENT_PHONE_NUMBER = "recipient_number";
   static const String COLUMN_CONTENTS = "contents";
   static const String COLUMN_TIMESTAMP = "timestamp";
-  static const String COLUMN_SEEN = "seen";
+  static const String COLUMN_READ_RECEIPT = "read_receipt";
   static const String COLUMN_DELETED = "deleted";
 
   static const String CREATE_TABLE =
-      "create table $TABLE_NAME ($COLUMN_ID text primary key, $COLUMN_SENDER_PHONE_NUMBER text not null, $COLUMN_RECIPIENT_PHONE_NUMBER text not null, $COLUMN_CONTENTS text not null, $COLUMN_TIMESTAMP int not null, $COLUMN_SEEN tinyint not null, $COLUMN_DELETED tinyint not null);";
+      "create table $TABLE_NAME ($COLUMN_ID text primary key, $COLUMN_SENDER_PHONE_NUMBER text not null, $COLUMN_RECIPIENT_PHONE_NUMBER text not null, $COLUMN_CONTENTS text not null, $COLUMN_TIMESTAMP int not null, $COLUMN_READ_RECEIPT text not null, $COLUMN_DELETED tinyint not null);";
 }

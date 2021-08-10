@@ -15,40 +15,10 @@ class DatabaseService {
     String path = join(dbPath, "atbash.db");
     return openDatabase(
       path,
-      version: 3,
+      version: 1,
       onCreate: (db, version) {
         db.execute(Contact.CREATE_TABLE);
         db.execute(Message.CREATE_TABLE);
-      },
-      onUpgrade: (db, oldVersion, newVersion) {
-        if (oldVersion == 1 && newVersion == 2) {
-          db.transaction((txn) async {
-            await txn.execute(
-                "alter table ${Message.TABLE_NAME} rename to ${Message.TABLE_NAME}_old;");
-            await txn.execute(Message.CREATE_TABLE);
-            await txn.execute(
-                "insert into ${Message.TABLE_NAME} select *, 0 from ${Message.TABLE_NAME}_old;");
-            await txn.execute("drop table ${Message.TABLE_NAME}_old;");
-          });
-        } else if (oldVersion == 1 && newVersion == 3) {
-          db.transaction((txn) async {
-            await txn.execute(
-                "alter table ${Message.TABLE_NAME} rename to ${Message.TABLE_NAME}_old;");
-            await txn.execute(Message.CREATE_TABLE);
-            await txn.execute(
-                "insert into ${Message.TABLE_NAME} select *, 0, 0 from ${Message.TABLE_NAME}_old;");
-            await txn.execute("drop table ${Message.TABLE_NAME}_old;");
-          });
-        } else if (oldVersion == 2 && newVersion == 3) {
-          db.transaction((txn) async {
-            await txn.execute(
-                "alter table ${Message.TABLE_NAME} rename to ${Message.TABLE_NAME}_old;");
-            await txn.execute(Message.CREATE_TABLE);
-            await txn.execute(
-                "insert into ${Message.TABLE_NAME} select *, 0 from ${Message.TABLE_NAME}_old;");
-            await txn.execute("drop table ${Message.TABLE_NAME}_old;");
-          });
-        }
       },
     );
   }
@@ -348,7 +318,7 @@ class DatabaseService {
       timestamp == null
           ? DateTime.now()
           : DateTime.fromMillisecondsSinceEpoch(timestamp),
-      false,
+      ReadReceipt.undelivered,
       false,
     );
 
@@ -359,11 +329,11 @@ class DatabaseService {
     return message;
   }
 
-  void markMessageSeen(String id) async {
+  void markMessageDelivered(String id) async {
     final db = await _database;
     await db.rawUpdate(
-      "update ${Message.TABLE_NAME} set ${Message.COLUMN_SEEN} = 1 where ${Message.COLUMN_ID} = ?",
-      [id],
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ?",
+      [ReadReceipt.delivered.toString(), id],
     );
   }
 }

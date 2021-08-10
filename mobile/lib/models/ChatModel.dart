@@ -37,15 +37,15 @@ abstract class ChatModelBase with Store {
   }
 
   @action
-  void markMessageSeen(String messageId) {
+  void markMessageDelivered(String messageId) {
     final index = chatMessages.indexWhere((m) => m.id == messageId);
     if (index >= 0) {
       final message = chatMessages.removeAt(index);
-      message.seen = true;
+      message.readReceipt = ReadReceipt.delivered;
       chatMessages.insert(index, message);
     }
 
-    _databaseService.markMessageSeen(messageId);
+    _databaseService.markMessageDelivered(messageId);
   }
 
   @action

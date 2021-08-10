@@ -37,6 +37,8 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     _messagesDisposer = autorun((_) {
+      _appService.sendSeenAcknowledgementForContact(_contact.phoneNumber);
+
       setState(() {
         _selectedMessages = _appService.chatModel.chatMessages
             .map((m) => Tuple(m, false))
@@ -261,7 +263,7 @@ class _ChatPageState extends State<ChatPage> {
   Color _messageColor(Message m) {
     if (m.senderPhoneNumber == widget.contact.phoneNumber) {
       return Colors.orange;
-    } else if (m.seen) {
+    } else if (m.readReceipt == ReadReceipt.delivered) {
       return Colors.orange;
     } else {
       return Colors.orangeAccent;

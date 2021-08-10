@@ -317,6 +317,29 @@ Resources:
       FunctionName: !Ref CreateSignedURLFunction
       Principal: apigateway.amazonaws.com
 
+  GetRSAPublicKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: getrsapublickey/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
+
+  GetRSAPublicKeyPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetRSAPublicKeyFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -524,6 +547,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt CreateSignedURLFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetRSAPublicKeyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /user/{phoneNumber}/rsa-public-key'
+      OperationName: GetRSAPublicKeyRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetRSAPublicKeyIntegration
+  GetRSAPublicKeyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetRSAPublicKeyFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetRSAPublicKeyFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

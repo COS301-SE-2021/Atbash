@@ -76,11 +76,11 @@ mixin _$ChatModel on ChatModelBase, Store {
       ActionController(name: 'ChatModelBase');
 
   @override
-  void markMessageSeen(String messageId) {
+  void markMessageDelivered(String messageId) {
     final _$actionInfo = _$ChatModelBaseActionController.startAction(
-        name: 'ChatModelBase.markMessageSeen');
+        name: 'ChatModelBase.markMessageDelivered');
     try {
-      return super.markMessageSeen(messageId);
+      return super.markMessageDelivered(messageId);
     } finally {
       _$ChatModelBaseActionController.endAction(_$actionInfo);
     }

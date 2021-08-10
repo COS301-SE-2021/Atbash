@@ -156,10 +156,13 @@ class _ChatPageState extends State<ChatPage> {
               _contact.phoneNumber,
               selectedMessagesIds,
             );
+
+            _appService.chatModel.markMessagesDeleted(selectedMessagesIds);
+          } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+            _appService.chatModel.deleteMessages(selectedMessagesIds);
           }
 
           if (response != DeleteMessagesResponse.CANCEL) {
-            _appService.chatModel.deleteMessages(selectedMessagesIds);
             setState(() {
               _selecting = false;
             });

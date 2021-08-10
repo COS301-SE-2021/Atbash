@@ -175,7 +175,7 @@ class AppService {
       timestamp: timestamp,
     );
 
-    sendAcknowledgement(fromNumber, message.id);
+    sendDeliveredAcknowledgement(fromNumber, message.id);
 
     if (chatModel.contactPhoneNumber == fromNumber) {
       chatModel.addMessage(message);
@@ -296,7 +296,7 @@ class AppService {
     _messageQueue.add(jsonEncode(data));
   }
 
-  void sendAcknowledgement(String recipientNumber, String messageId) {
+  void sendDeliveredAcknowledgement(String recipientNumber, String messageId) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),

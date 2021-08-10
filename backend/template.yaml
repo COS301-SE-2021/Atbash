@@ -304,6 +304,9 @@ Resources:
       Environment:
         Variables:
           MEDIA_BUCKET: !Ref MediaBucket
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref MediaBucket
 
   GetSignedURLPermission:
     Type: AWS::Lambda::Permission

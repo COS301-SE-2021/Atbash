@@ -155,7 +155,7 @@ class DatabaseService {
 
     if (existingContact == null) {
       final contact = Contact(
-          phoneNumber, displayName, status, profileImage, hasChat, save);
+          phoneNumber, displayName, status, profileImage, hasChat, save, "");
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());

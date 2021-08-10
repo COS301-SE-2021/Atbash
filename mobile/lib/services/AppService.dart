@@ -220,6 +220,10 @@ class AppService {
     chatModel.markMessageDelivered(messageId);
   }
 
+  void _handleAckSeenEvent(List<String> messageIds){
+    chatModel.markMessagesSeen(messageIds);
+  }
+
   /// Disconnect the user from the server
   void disconnect() {
     final channel = this._channel;

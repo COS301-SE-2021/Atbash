@@ -1,0 +1,17 @@
+{
+  "name": "getsignedurl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Bit by Bit",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "jest": "^27.0.6"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.957.0"
+  }
+}

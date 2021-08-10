@@ -114,6 +114,26 @@ class DatabaseService {
     return list;
   }
 
+  Future<List<Message>> fetchUnseenMessagesWith(String senderPhoneNumber) async {
+    final db = await _database;
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_READ_RECEIPT} = ? and ${Message.COLUMN_SENDER_PHONE_NUMBER} = ?",
+      whereArgs: [ReadReceipt.seen.toString(), senderPhoneNumber],
+    );
+
+    final list = <Message>[];
+
+    response.forEach((element) {
+      final message = Message.fromMap(element);
+      if (message != null) {
+        list.add(message);
+      }
+    });
+
+    return list;
+  }
+
   /// Creates and saves a contact in the database. Returns null if attempted
   /// save caused some key or constraint violation.
   Future<CreateContactResponse> createContact(

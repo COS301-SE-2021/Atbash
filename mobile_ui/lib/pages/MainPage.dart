@@ -10,6 +10,20 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      appBar: AppBar(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) => Container(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

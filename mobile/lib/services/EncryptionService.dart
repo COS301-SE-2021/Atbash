@@ -11,6 +11,6 @@ class EncryptionService {
     final encrypted =
         await algorithm.encrypt(message.codeUnits, secretKey: sharedSecret);
 
-    return String.fromCharCodes(encrypted.cipherText);
+    return String.fromCharCodes(encrypted.concatenation());
   }
 }

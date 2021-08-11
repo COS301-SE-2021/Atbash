@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:cryptography/cryptography.dart';
 
 class EncryptionService {
-  Future<String> encrypt(String message, String base64SharedSecret) async {
-    final algorithm = Cryptography.instance.aesCtr(macAlgorithm: Hmac.sha256());
+  final algorithm = Cryptography.instance.aesCtr(macAlgorithm: Hmac.sha256());
 
+  Future<String> encrypt(String message, String base64SharedSecret) async {
     final sharedSecret = SecretKeyData(base64Decode(base64SharedSecret));
 
     final encrypted =

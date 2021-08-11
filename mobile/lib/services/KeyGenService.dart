@@ -39,7 +39,7 @@ class KeyGenService {
   Future<SimpleKeyPair> _getLocalKeyPair() async {
     final keys = await Future.wait([
       _storage.read(key: "public_key"),
-      _storage.read(key: "keyPair"),
+      _storage.read(key: "key_pair"),
     ]);
 
     final base64PublicKey = keys[0];

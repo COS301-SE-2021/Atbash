@@ -145,14 +145,14 @@ class ChatElement extends StatelessWidget {
                   Icons.circle,
                   color: Constants.orangeColor,
                 ),
-                Divider(
-                  thickness: 1,
-                  height: 6,
-                ),
               ],
             ),
           ],
         ),
+        Divider(
+          thickness: 1,
+          height: 6,
+        )
       ],
     );
   }

@@ -274,24 +274,33 @@ class _ChatPageState extends State<ChatPage> {
   Container _buildInput() {
     return Container(
       color: Colors.orange,
-      child: Row(
-        children: [
-          Expanded(
-            child: Card(
-              color: Colors.white54,
-              child: TextField(
-                maxLines: 4,
-                minLines: 1,
-                controller: _inputController,
-                style: TextStyle(fontSize: 18.0),
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.add_circle_outline),
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(),
+                child: TextField(
+                  maxLines: 4,
+                  minLines: 1,
+                  controller: _inputController,
+                  style: TextStyle(fontSize: 18.0),
+                ),
               ),
             ),
-          ),
-          IconButton(
-            onPressed: _sendMessage,
-            icon: Icon(Icons.send),
-          )
-        ],
+            IconButton(
+              onPressed: _sendMessage,
+              icon: Icon(Icons.send),
+            )
+          ],
+        ),
       ),
     );
   }

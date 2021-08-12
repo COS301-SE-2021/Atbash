@@ -77,22 +77,23 @@ class _ChatPageState extends State<ChatPage> {
 
   AppBar _buildAppBar(BuildContext context) {
     Widget titlebar = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            widget.contact.displayName.isNotEmpty
-                ? widget.contact.displayName
-                : widget.contact.phoneNumber,
-            overflow: TextOverflow.ellipsis,
+        Text(
+          widget.contact.displayName.isNotEmpty
+              ? widget.contact.displayName
+              : widget.contact.phoneNumber,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
           ),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            _contact.status,
-            style: TextStyle(
-                fontSize: 14.0, color: Color.fromRGBO(61, 61, 61, 1.0)),
+        Text(
+          _contact.status,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white,
           ),
         ),
       ],
@@ -105,16 +106,18 @@ class _ChatPageState extends State<ChatPage> {
         overflow: TextOverflow.ellipsis,
       );
     }
+
     return AppBar(
+      titleSpacing: 0,
       title: Row(
         children: [
           AvatarIcon.fromString(_contact.profileImage),
+          SizedBox(
+            width: 3,
+          ),
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: titlebar,
-            ),
-          )
+            child: titlebar,
+          ),
         ],
       ),
       actions: [

@@ -63,6 +63,49 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
+          Container(
+            //color: Color.fromARGB(255, 55, 71, 90),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.add_circle_outline),
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: 35,
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "Type message",
+                            border: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            errorBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                          ),
+                          cursorColor: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.send),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

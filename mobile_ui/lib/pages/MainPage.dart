@@ -85,9 +85,10 @@ class _MainPageState extends State<MainPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemBuilder: (context, index) => Container(),
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                itemCount: 20,
+                itemBuilder: (context, index) => ChatElement(),
               ),
-            ),
           ],
         ),
       ),

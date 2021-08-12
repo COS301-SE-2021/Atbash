@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ui/Domain/Message.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -50,7 +51,20 @@ class _ChatPageState extends State<ChatPage> {
           ],
         ),
       ),
-      body: Column(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: messages.length,
+              itemBuilder: (BuildContext context, int index) {
+                return ChatCard(
+                  message: messages[index],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

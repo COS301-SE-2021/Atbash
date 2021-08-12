@@ -247,7 +247,7 @@ class _ChatPageState extends State<ChatPage> {
                         ? "This message was deleted."
                         : message.first.contents,
                     style: TextStyle(
-                      fontSize: 18.0,
+                      fontSize: 16.0,
                       fontStyle:
                           message.first.deleted ? FontStyle.italic : null,
                     ),
@@ -273,11 +273,15 @@ class _ChatPageState extends State<ChatPage> {
 
   Container _buildInput() {
     return Container(
-      color: Colors.orange,
       child: SafeArea(
         child: Row(
           children: [
             IconButton(
+              padding: EdgeInsets.only(
+                top: 10,
+                left: 5,
+              ),
+              iconSize: 35,
               onPressed: () {},
               icon: Icon(Icons.add_circle_outline),
             ),
@@ -285,17 +289,40 @@ class _ChatPageState extends State<ChatPage> {
               width: 5,
             ),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(),
-                child: TextField(
-                  maxLines: 4,
-                  minLines: 1,
-                  controller: _inputController,
-                  style: TextStyle(fontSize: 18.0),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 2, 0, 0),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 0,
+                        ),
+                        hintText: "Type message",
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                      ),
+                      maxLines: 4,
+                      minLines: 1,
+                      controller: _inputController,
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                  ),
                 ),
               ),
             ),
             IconButton(
+              iconSize: 30,
+              padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
               icon: Icon(Icons.send),
             )
@@ -308,6 +335,8 @@ class _ChatPageState extends State<ChatPage> {
   void _sendMessage() {
     final recipientNumber = _contact.phoneNumber;
     final contents = _inputController.text;
+
+    if (contents.isEmpty) return;
 
     _appService.sendMessage(recipientNumber, contents).then((message) {
       _appService.chatModel.addMessage(message);

@@ -35,6 +35,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 "Please provide a name as well as an optional profile picture and status.",
                 textAlign: TextAlign.center,
               ),
+              SizedBox(
+                height: 30,
+              ),
               IconButton(
                 iconSize: 128,
                 splashRadius: 56,
@@ -45,7 +48,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 20,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -79,7 +82,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 60,
               ),
               MaterialButton(
                 shape: RoundedRectangleBorder(

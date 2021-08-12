@@ -65,7 +65,6 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
-            //color: Color.fromARGB(255, 55, 71, 90),
             child: SafeArea(
               child: Row(
                 children: [

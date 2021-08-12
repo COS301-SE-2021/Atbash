@@ -68,3 +68,19 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 }
+
+class ChatCard extends StatefulWidget {
+  const ChatCard({Key? key, required this.message}) : super(key: key);
+
+  final Message message;
+
+  @override
+  _ChatCardState createState() => _ChatCardState();
+}
+
+class _ChatCardState extends State<ChatCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}

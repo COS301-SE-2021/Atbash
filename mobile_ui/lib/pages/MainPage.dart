@@ -89,9 +89,24 @@ class _MainPageState extends State<MainPage> {
                 itemCount: 20,
                 itemBuilder: (context, index) => ChatElement(),
               ),
+            ),
           ],
         ),
       ),
     );
+  }
+}
+
+class ChatElement extends StatefulWidget {
+  const ChatElement({Key? key}) : super(key: key);
+
+  @override
+  _ChatElementState createState() => _ChatElementState();
+}
+
+class _ChatElementState extends State<ChatElement> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

@@ -38,17 +38,31 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
               SizedBox(
                 height: 30,
               ),
-              IconButton(
-                iconSize: 128,
-                splashRadius: 56,
-                padding: EdgeInsets.zero,
-                onPressed: () {},
-                icon: Icon(
-                  Icons.account_circle,
-                ),
+              CircleAvatar(
+                backgroundColor: Constants.orangeColor,
+                radius: 64,
               ),
-              SizedBox(
-                height: 20,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    splashRadius: 24,
+                    color: Colors.black.withOpacity(0.7),
+                    iconSize: 32,
+                    onPressed: () {},
+                    icon: Icon(Icons.photo_library),
+                  ),
+                  SizedBox(
+                    width: 32,
+                  ),
+                  IconButton(
+                    splashRadius: 24,
+                    color: Colors.black.withOpacity(0.7),
+                    iconSize: 32,
+                    onPressed: () {},
+                    icon: Icon(Icons.photo_camera),
+                  ),
+                ],
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(

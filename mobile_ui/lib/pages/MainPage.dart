@@ -150,6 +150,10 @@ class _ChatElementState extends State<ChatElement> {
                   Icons.circle,
                   color: Constants.orangeColor,
                 ),
+                Divider(
+                  thickness: 1,
+                  height: 6,
+                ),
               ],
             ),
           ],

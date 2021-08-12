@@ -36,12 +36,26 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 textAlign: TextAlign.center,
               ),
               IconButton(
+                iconSize: 128,
+                splashRadius: 56,
+                padding: EdgeInsets.zero,
                 onPressed: () {},
                 icon: Icon(
                   Icons.account_circle,
-                  size: 64,
                 ),
               ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 40,
+                ),
+                child: Container(
+                  child: TextField(),
+                ),
+              )
             ],
           ),
         ),

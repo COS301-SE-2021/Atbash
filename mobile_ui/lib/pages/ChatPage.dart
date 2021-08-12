@@ -123,6 +123,51 @@ class ChatCard extends StatelessWidget {
     EdgeInsets padding;
     Color color;
 
-    return Container();
+    return Container(
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: padding,
+          child: Card(
+            color: color.withOpacity(0.8),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+                  child: Text(
+                    message.contents,
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "11:11",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
+                    child: Icon(
+                      Icons.bookmark_border,
+                      size: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

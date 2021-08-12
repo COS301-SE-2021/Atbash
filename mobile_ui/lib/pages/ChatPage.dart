@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ui/Domain/Message.dart';
+import 'package:mobile_ui/Domain/constants.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -122,6 +123,16 @@ class ChatCard extends StatelessWidget {
     Alignment alignment;
     EdgeInsets padding;
     Color color;
+
+    if (message.isSender) {
+      alignment = Alignment.centerRight;
+      padding = EdgeInsets.only(left: 100, right: 20);
+      color = Constants.orangeColor;
+    } else {
+      alignment = Alignment.centerLeft;
+      padding = EdgeInsets.only(left: 20, right: 100);
+      color = Constants.darkGreyColor;
+    }
 
     return Container(
       child: Align(

@@ -100,29 +100,32 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
-        ),
+        Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child:
+                Observer(builder: (_) => AvatarIcon(_userModel.profileImage))),
         Expanded(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Observer(builder: (_) => Text(_userModel.displayName)),
+              Text(
+                _userModel.displayName,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 2,
               ),
               if (_userModel.status.isNotEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Observer(
-                    builder: (_) => Text(
-                      _userModel.status,
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          color: Color.fromRGBO(61, 61, 61, 1.0)),
+                Observer(
+                  builder: (_) => Text(
+                    _userModel.status,
+                    style: TextStyle(
+                      fontSize: 10,
                     ),
                   ),
-                ),
+                )
             ],
           ),
         ),
@@ -179,7 +182,7 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.delete),
           ),
         PopupMenuButton(
-          icon: new Icon(Icons.more_vert),
+          icon: new Icon(Icons.settings),
           itemBuilder: (context) {
             return ["Settings"].map((menuItem) {
               return PopupMenuItem(

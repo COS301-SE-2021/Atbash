@@ -53,9 +53,42 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   horizontal: 40,
                 ),
                 child: Container(
-                  child: TextField(),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Display Name",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              )
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 80,
+                ),
+                child: Container(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Status",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              MaterialButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                color: Constants.orangeColor,
+                onPressed: () {},
+                child: Text("Next"),
+              ),
             ],
           ),
         ),

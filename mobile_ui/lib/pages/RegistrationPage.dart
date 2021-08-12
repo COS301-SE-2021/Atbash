@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_ui/Domain/constants.dart';
 
 class RegistrationPage extends StatefulWidget {
@@ -30,8 +31,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
             child: Container(
               padding: EdgeInsets.symmetric(),
               child: TextField(
+                cursorColor: Constants.darkGreyColor.withOpacity(0.6),
+                cursorHeight: 20,
+                textAlign: TextAlign.center,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
+                  hintText: "Phone Number",
+                  hintStyle: TextStyle(
+                    color: Constants.darkGreyColor.withOpacity(0.6),
+                  ),
                   focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
                       color: Constants.orangeColor,
@@ -42,6 +50,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       color: Colors.black,
                     ),
                   ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
                 ),
               ),
             ),

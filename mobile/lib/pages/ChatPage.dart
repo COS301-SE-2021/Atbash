@@ -239,47 +239,37 @@ class _ChatPageState extends State<ChatPage> {
                 top: 10,
                 left: 5,
               ),
-              iconSize: 35,
               onPressed: () {},
               icon: Icon(Icons.add_circle_outline),
             ),
-            SizedBox(
-              width: 5,
-            ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 20, 5, 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 2, 0, 0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 0,
-                        ),
-                        hintText: "Type message",
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                      ),
-                      maxLines: 4,
-                      minLines: 1,
-                      controller: _inputController,
-                      style: TextStyle(fontSize: 16.0),
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "Type message",
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
                     ),
+                    maxLines: 4,
+                    minLines: 1,
+                    controller: _inputController,
+                    style: TextStyle(fontSize: 16.0),
                   ),
                 ),
               ),
             ),
             IconButton(
-              iconSize: 30,
               padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
               icon: Icon(Icons.send),

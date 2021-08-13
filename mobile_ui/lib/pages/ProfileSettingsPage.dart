@@ -14,6 +14,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     return Scaffold(
       body: SafeArea(
         child: Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(15),
           child: Column(
             children: [
               Text(

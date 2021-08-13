@@ -53,7 +53,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     icon: Icon(Icons.photo_library),
                   ),
                   SizedBox(
-                    width: 32,
+                    width: 48,
                   ),
                   IconButton(
                     splashRadius: 24,
@@ -63,6 +63,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     icon: Icon(Icons.photo_camera),
                   ),
                 ],
+              ),
+              SizedBox(
+                height: 20,
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(

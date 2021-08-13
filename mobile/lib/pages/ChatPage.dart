@@ -331,7 +331,7 @@ class ChatCard extends StatelessWidget {
     var padding = EdgeInsets.only(left: 100, right: 20);
     var color = Constants.orangeColor;
 
-    if (_message.senderPhoneNumber == contact.phoneNumber) {
+    if (_contactIsSender) {
       alignment = Alignment.centerLeft;
       padding = padding.flipped;
       color = Constants.darkGreyColor;
@@ -386,4 +386,7 @@ class ChatCard extends StatelessWidget {
       ),
     );
   }
+
+  bool get _contactIsSender =>
+      _message.senderPhoneNumber == contact.phoneNumber;
 }

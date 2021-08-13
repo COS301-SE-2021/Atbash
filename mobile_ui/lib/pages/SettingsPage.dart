@@ -64,28 +64,38 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                    ),
                   ],
                 ),
               ),
             ),
             SizedBox(
-              height: 30,
-            ),
-            SettingsElement(icon: Icons.vpn_key, text: "Account"),
-            SettingsElement(icon: Icons.privacy_tip, text: "Privacy"),
-            SizedBox(
-              height: 30,
+              height: 20,
             ),
             SettingsElement(
-                icon: Icons.notification_important, text: "notifications"),
-            SettingsElement(icon: Icons.storage, text: "Storage"),
-            SizedBox(
-              height: 30,
+              icon: Icons.vpn_key,
+              heading: "Account",
+              description: "Number, Deletion, Setup.",
             ),
-            SettingsElement(icon: Icons.help, text: "Help"),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.privacy_tip,
+                heading: "Privacy",
+                description: "Security, Safe Search."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.notification_important,
+                heading: "Notifications",
+                description: "Messages, Tones."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.storage,
+                heading: "Storage",
+                description: "Auto-Download."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.help,
+                heading: "Help",
+                description: "Help, Safety."),
           ],
         ),
       ),
@@ -94,29 +104,54 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class SettingsElement extends StatelessWidget {
-  const SettingsElement({Key? key, required this.icon, required this.text})
+  const SettingsElement(
+      {Key? key,
+      required this.icon,
+      required this.heading,
+      required this.description})
       : super(key: key);
 
   final IconData icon;
-  final String text;
+  final String heading;
+  final String description;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Constants.orangeColor.withOpacity(0.8),
       padding: EdgeInsets.all(5),
-      child: InkWell(
-        onTap: () {},
+      child: MaterialButton(
+        onPressed: () {},
         child: Row(
           children: [
             Icon(icon),
+            SizedBox(
+              width: 12,
+            ),
             Expanded(
-              child: Text(
-                text,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    heading,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 2,
+                  ),
+                  Container(
+                    child: Text(
+                      description,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
               ),
             ),
             Icon(
-              Icons.arrow_forward_ios,
+              Icons.arrow_forward,
             ),
           ],
         ),

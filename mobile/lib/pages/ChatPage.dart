@@ -210,67 +210,8 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Container _buildMessage(Tuple<Message, bool> message) {
-    Alignment alignment = Alignment.centerLeft;
-    EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
-
-    if (message.first.recipientPhoneNumber == widget.contact.phoneNumber) {
-      alignment = Alignment.centerRight;
-      padding = EdgeInsets.only(left: 32.0, right: 16.0);
-    }
-
-    return Container(
-      alignment: alignment,
-      color: message.second ? Color.fromRGBO(116, 152, 214, 0.3) : null,
-      child: Padding(
-        padding: padding,
-        child: Wrap(
-          children: [
-            InkWell(
-              onTap: () {
-                if (_selecting) {
-                  setState(() {
-                    message.second = !message.second;
-                  });
-                }
-              },
-              onLongPress: () {
-                setState(() {
-                  _selecting = true;
-                  message.second = true;
-                });
-              },
-              child: Card(
-                color: _messageColor(message.first),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    message.first.deleted
-                        ? "This message was deleted."
-                        : message.first.contents,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontStyle:
-                          message.first.deleted ? FontStyle.italic : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Color _messageColor(Message m) {
-    if (m.senderPhoneNumber == widget.contact.phoneNumber) {
-      return Colors.orange;
-    } else if (m.seen) {
-      return Colors.orange;
-    } else {
-      return Colors.orangeAccent;
-    }
+  ChatCard _buildMessage(Tuple<Message, bool> message) {
+    return ChatCard(_contact, message.first, message.second);
   }
 
   Container _buildInput() {

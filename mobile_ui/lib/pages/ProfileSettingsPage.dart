@@ -33,6 +33,28 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 backgroundColor: Constants.orangeColor,
                 radius: 64,
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    splashRadius: 24,
+                    color: Colors.black.withOpacity(0.7),
+                    iconSize: 32,
+                    onPressed: () {},
+                    icon: Icon(Icons.photo_library),
+                  ),
+                  SizedBox(
+                    width: 48,
+                  ),
+                  IconButton(
+                    splashRadius: 24,
+                    color: Colors.black.withOpacity(0.7),
+                    iconSize: 32,
+                    onPressed: () {},
+                    icon: Icon(Icons.photo_camera),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

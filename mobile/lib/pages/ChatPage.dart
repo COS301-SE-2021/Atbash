@@ -239,47 +239,37 @@ class _ChatPageState extends State<ChatPage> {
                 top: 10,
                 left: 5,
               ),
-              iconSize: 35,
               onPressed: () {},
               icon: Icon(Icons.add_circle_outline),
             ),
-            SizedBox(
-              width: 5,
-            ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(5, 20, 5, 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 2, 0, 0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 0,
-                        ),
-                        hintText: "Type message",
-                        border: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        errorBorder: InputBorder.none,
-                        disabledBorder: InputBorder.none,
-                      ),
-                      maxLines: 4,
-                      minLines: 1,
-                      controller: _inputController,
-                      style: TextStyle(fontSize: 16.0),
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "Type message",
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
                     ),
+                    maxLines: 4,
+                    minLines: 1,
+                    controller: _inputController,
+                    style: TextStyle(fontSize: 16.0),
                   ),
                 ),
               ),
             ),
             IconButton(
-              iconSize: 30,
               padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
               icon: Icon(Icons.send),
@@ -331,7 +321,7 @@ class ChatCard extends StatelessWidget {
     var padding = EdgeInsets.only(left: 100, right: 20);
     var color = Constants.orangeColor;
 
-    if (_message.senderPhoneNumber == contact.phoneNumber) {
+    if (_contactIsSender) {
       alignment = Alignment.centerLeft;
       padding = padding.flipped;
       color = Constants.darkGreyColor;
@@ -371,11 +361,7 @@ class ChatCard extends StatelessWidget {
                   Positioned(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
-                      child: Icon(
-                        Icons.bookmark_border,
-                        size: 15,
-                        color: Colors.white,
-                      ),
+                      child: _readReceipt(),
                     ),
                   ),
                 ],
@@ -384,6 +370,23 @@ class ChatCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  bool get _contactIsSender =>
+      _message.senderPhoneNumber == contact.phoneNumber;
+
+  Icon? _readReceipt() {
+    if (_contactIsSender) {
+      return null;
+    }
+
+    var icon = Icons.bookmark_border;
+    // TODO read receipt logic
+    return Icon(
+      icon,
+      size: 15,
+      color: Colors.white,
     );
   }
 }

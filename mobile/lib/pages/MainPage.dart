@@ -109,10 +109,12 @@ class _MainPageState extends State<MainPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _userModel.displayName,
-                style: TextStyle(
-                  fontSize: 18,
+              Observer(
+                builder: (_) => Text(
+                  _userModel.displayName,
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
                 ),
               ),
               SizedBox(

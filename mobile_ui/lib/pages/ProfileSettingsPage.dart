@@ -75,6 +75,23 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               SizedBox(
                 height: 10,
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 80,
+                ),
+                child: Container(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Status",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 60,
+              ),
             ],
           ),
         ),

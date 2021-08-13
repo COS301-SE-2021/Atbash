@@ -29,6 +29,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               SizedBox(
                 height: 15,
               ),
+              CircleAvatar(
+                backgroundColor: Constants.orangeColor,
+                radius: 64,
+              ),
             ],
           ),
         ),

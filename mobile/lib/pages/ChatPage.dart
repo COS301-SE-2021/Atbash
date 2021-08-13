@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
-import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
@@ -39,6 +37,8 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     _messagesDisposer = autorun((_) {
+      _appService.sendSeenAcknowledgementForContact(_contact.phoneNumber);
+
       setState(() {
         _selectedMessages = _appService.chatModel.chatMessages
             .map((m) => Tuple(m, false))

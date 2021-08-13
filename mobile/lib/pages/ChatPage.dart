@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
@@ -347,5 +349,70 @@ class _ChatPageState extends State<ChatPage> {
       );
     });
     _inputController.text = "";
+  }
+}
+
+class ChatCard extends StatelessWidget {
+  final Contact _contact;
+  final Message _message;
+  final bool _selected;
+
+  ChatCard(this._contact, this._message, this._selected);
+
+  final dateFormatter = DateFormat("Hm");
+
+  @override
+  Widget build(BuildContext context) {
+    var alignment = Alignment.centerRight;
+    var padding = EdgeInsets.only(left: 100, right: 20);
+    var color = Constants.orangeColor;
+
+    if (_message.senderPhoneNumber == _contact.phoneNumber) {
+      alignment = Alignment.centerLeft;
+      padding = padding.flipped;
+      color = Constants.darkGreyColor;
+    }
+
+    return Container(
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: padding,
+          child: Card(
+            color: color.withOpacity(0.8),
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+                  child: Text(
+                    _message.contents,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                Positioned(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      dateFormatter.format(_message.timestamp),
+                      style: TextStyle(fontSize: 11, color: Colors.white),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
+                    child: Icon(
+                      Icons.bookmark_border,
+                      size: 15,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -55,6 +55,26 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ),
                 ],
               ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 40,
+                ),
+                child: Container(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Display Name",
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
             ],
           ),
         ),

@@ -117,11 +117,11 @@ class SettingsElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Constants.orangeColor.withOpacity(0.8),
-      padding: EdgeInsets.all(5),
-      child: MaterialButton(
-        onPressed: () {},
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        color: Constants.orangeColor.withOpacity(0.8),
+        padding: EdgeInsets.all(5),
         child: Row(
           children: [
             Icon(icon),

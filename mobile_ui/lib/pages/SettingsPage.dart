@@ -77,3 +77,35 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
+
+class SettingsElement extends StatelessWidget {
+  const SettingsElement({Key? key, required this.icon, required this.text})
+      : super(key: key);
+
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Constants.orangeColor.withOpacity(0.8),
+      padding: EdgeInsets.all(5),
+      child: InkWell(
+        onTap: () {},
+        child: Row(
+          children: [
+            Icon(icon),
+            Expanded(
+              child: Text(
+                text,
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

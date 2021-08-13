@@ -211,7 +211,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   ChatCard _buildMessage(Tuple<Message, bool> message) {
-    return ChatCard(_contact, message.first, message.second);
+    return ChatCard(
+      message.first,
+      contact: _contact,
+      selected: message.second,
+    );
   }
 
   Container _buildInput() {
@@ -294,11 +298,15 @@ class _ChatPageState extends State<ChatPage> {
 }
 
 class ChatCard extends StatelessWidget {
-  final Contact _contact;
+  final Contact contact;
   final Message _message;
-  final bool _selected;
+  final bool? selected;
 
-  ChatCard(this._contact, this._message, this._selected);
+  ChatCard(
+    this._message, {
+    required this.contact,
+    this.selected,
+  });
 
   final dateFormatter = DateFormat("Hm");
 
@@ -308,7 +316,7 @@ class ChatCard extends StatelessWidget {
     var padding = EdgeInsets.only(left: 100, right: 20);
     var color = Constants.orangeColor;
 
-    if (_message.senderPhoneNumber == _contact.phoneNumber) {
+    if (_message.senderPhoneNumber == contact.phoneNumber) {
       alignment = Alignment.centerLeft;
       padding = padding.flipped;
       color = Constants.darkGreyColor;

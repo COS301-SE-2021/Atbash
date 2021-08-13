@@ -214,6 +214,8 @@ class _ChatPageState extends State<ChatPage> {
     return ChatCard(
       message.first,
       contact: _contact,
+      onTap: () {},
+      onLongPress: () {},
       selected: message.second,
     );
   }
@@ -300,11 +302,15 @@ class _ChatPageState extends State<ChatPage> {
 class ChatCard extends StatelessWidget {
   final Contact contact;
   final Message _message;
+  final void Function() onTap;
+  final void Function() onLongPress;
   final bool? selected;
 
   ChatCard(
     this._message, {
     required this.contact,
+    required this.onTap,
+    required this.onLongPress,
     this.selected,
   });
 
@@ -328,7 +334,8 @@ class ChatCard extends StatelessWidget {
         child: Padding(
           padding: padding,
           child: InkWell(
-            onLongPress: () {},
+            onTap: onTap,
+            onLongPress: onLongPress,
             child: Card(
               color: color.withOpacity(0.8),
               child: Stack(

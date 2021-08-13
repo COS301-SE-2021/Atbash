@@ -71,6 +71,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
+            SizedBox(
+              height: 30,
+            ),
+            SettingsElement(icon: Icons.vpn_key, text: "Account"),
+            SettingsElement(icon: Icons.privacy_tip, text: "Privacy"),
+            SizedBox(
+              height: 30,
+            ),
+            SettingsElement(
+                icon: Icons.notification_important, text: "notifications"),
+            SettingsElement(icon: Icons.storage, text: "Storage"),
+            SizedBox(
+              height: 30,
+            ),
+            SettingsElement(icon: Icons.help, text: "Help"),
           ],
         ),
       ),

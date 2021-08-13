@@ -214,9 +214,18 @@ class _ChatPageState extends State<ChatPage> {
     return ChatCard(
       message.first,
       contact: _contact,
-      onTap: () {},
-      onLongPress: () {},
-      selected: message.second,
+      onTap: () {
+        setState(() {
+          message.second = !message.second;
+        });
+      },
+      onLongPress: () {
+        setState(() {
+          _selecting = true;
+          message.second = true;
+        });
+      },
+      selected: _selecting ? message.second : null,
     );
   }
 
@@ -329,6 +338,9 @@ class ChatCard extends StatelessWidget {
     }
 
     return Container(
+      color: selected != null && selected == true
+          ? Color.fromRGBO(116, 152, 214, 0.3)
+          : null,
       child: Align(
         alignment: alignment,
         child: Padding(

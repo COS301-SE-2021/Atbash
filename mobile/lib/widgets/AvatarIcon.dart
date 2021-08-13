@@ -16,7 +16,7 @@ class AvatarIcon extends StatelessWidget {
     final imageData = _imageData;
     if (imageData != null && imageData.isNotEmpty) {
       final image = MemoryImage(imageData);
-      return CircleAvatar(radius: 16.0, backgroundImage: image);
+      return CircleAvatar(radius: 18.0, backgroundImage: image);
     } else {
       return CircledIcon(Colors.black, Icons.person);
     }

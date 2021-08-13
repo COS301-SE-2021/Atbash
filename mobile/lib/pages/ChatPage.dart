@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
@@ -8,6 +9,8 @@ import 'package:mobile/services/AppService.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
+
+import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
   final Contact contact;
@@ -79,22 +82,23 @@ class _ChatPageState extends State<ChatPage> {
 
   AppBar _buildAppBar(BuildContext context) {
     Widget titlebar = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            widget.contact.displayName.isNotEmpty
-                ? widget.contact.displayName
-                : widget.contact.phoneNumber,
-            overflow: TextOverflow.ellipsis,
+        Text(
+          widget.contact.displayName.isNotEmpty
+              ? widget.contact.displayName
+              : widget.contact.phoneNumber,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
           ),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            _contact.status,
-            style: TextStyle(
-                fontSize: 14.0, color: Color.fromRGBO(61, 61, 61, 1.0)),
+        Text(
+          _contact.status,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white,
           ),
         ),
       ],
@@ -107,16 +111,18 @@ class _ChatPageState extends State<ChatPage> {
         overflow: TextOverflow.ellipsis,
       );
     }
+
     return AppBar(
+      titleSpacing: 0,
       title: Row(
         children: [
           AvatarIcon.fromString(_contact.profileImage),
+          SizedBox(
+            width: 3,
+          ),
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: titlebar,
-            ),
-          )
+            child: titlebar,
+          ),
         ],
       ),
       actions: [
@@ -207,90 +213,72 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Container _buildMessage(Tuple<Message, bool> message) {
-    Alignment alignment = Alignment.centerLeft;
-    EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
-
-    if (message.first.recipientPhoneNumber == widget.contact.phoneNumber) {
-      alignment = Alignment.centerRight;
-      padding = EdgeInsets.only(left: 32.0, right: 16.0);
-    }
-
-    return Container(
-      alignment: alignment,
-      color: message.second ? Color.fromRGBO(116, 152, 214, 0.3) : null,
-      child: Padding(
-        padding: padding,
-        child: Wrap(
-          children: [
-            InkWell(
-              onTap: () {
-                if (_selecting) {
-                  setState(() {
-                    message.second = !message.second;
-                  });
-                }
-              },
-              onLongPress: () {
-                setState(() {
-                  _selecting = true;
-                  message.second = true;
-                });
-              },
-              child: Card(
-                color: _messageColor(message.first),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    message.first.deleted
-                        ? "This message was deleted."
-                        : message.first.contents,
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontStyle:
-                          message.first.deleted ? FontStyle.italic : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  ChatCard _buildMessage(Tuple<Message, bool> message) {
+    return ChatCard(
+      message.first,
+      contact: _contact,
+      onTap: () {
+        setState(() {
+          message.second = !message.second;
+        });
+      },
+      onLongPress: () {
+        setState(() {
+          _selecting = true;
+          message.second = true;
+        });
+      },
+      selected: _selecting ? message.second : null,
     );
-  }
-
-  Color _messageColor(Message m) {
-    if (m.senderPhoneNumber == widget.contact.phoneNumber) {
-      return Colors.orange;
-    } else if (m.readReceipt == ReadReceipt.delivered) {
-      return Colors.orange;
-    } else {
-      return Colors.orangeAccent;
-    }
   }
 
   Container _buildInput() {
     return Container(
-      color: Colors.orange,
-      child: Row(
-        children: [
-          Expanded(
-            child: Card(
-              color: Colors.white54,
-              child: TextField(
-                maxLines: 4,
-                minLines: 1,
-                controller: _inputController,
-                style: TextStyle(fontSize: 18.0),
+      child: SafeArea(
+        child: Row(
+          children: [
+            IconButton(
+              padding: EdgeInsets.only(
+                top: 10,
+                left: 5,
+              ),
+              onPressed: () {},
+              icon: Icon(Icons.add_circle_outline),
+            ),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "Type message",
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      errorBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                    ),
+                    maxLines: 4,
+                    minLines: 1,
+                    controller: _inputController,
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                ),
               ),
             ),
-          ),
-          IconButton(
-            onPressed: _sendMessage,
-            icon: Icon(Icons.send),
-          )
-        ],
+            IconButton(
+              padding: EdgeInsets.only(top: 10),
+              onPressed: _sendMessage,
+              icon: Icon(Icons.send),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -298,6 +286,8 @@ class _ChatPageState extends State<ChatPage> {
   void _sendMessage() {
     final recipientNumber = _contact.phoneNumber;
     final contents = _inputController.text;
+
+    if (contents.isEmpty) return;
 
     _appService.sendMessage(recipientNumber, contents).then((message) {
       _appService.chatModel.addMessage(message);
@@ -308,5 +298,102 @@ class _ChatPageState extends State<ChatPage> {
       );
     });
     _inputController.text = "";
+  }
+}
+
+class ChatCard extends StatelessWidget {
+  final Contact contact;
+  final Message _message;
+  final void Function() onTap;
+  final void Function() onLongPress;
+  final bool? selected;
+
+  ChatCard(
+    this._message, {
+    required this.contact,
+    required this.onTap,
+    required this.onLongPress,
+    this.selected,
+  });
+
+  final dateFormatter = DateFormat("Hm");
+
+  @override
+  Widget build(BuildContext context) {
+    var alignment = Alignment.centerRight;
+    var padding = EdgeInsets.only(left: 100, right: 20);
+    var color = Constants.orangeColor;
+
+    if (_contactIsSender) {
+      alignment = Alignment.centerLeft;
+      padding = padding.flipped;
+      color = Constants.darkGreyColor;
+    }
+
+    return Container(
+      color: selected != null && selected == true
+          ? Color.fromRGBO(116, 152, 214, 0.3)
+          : null,
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: padding,
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            child: Card(
+              color: color.withOpacity(0.8),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+                    child: Text(
+                      _message.contents,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Positioned(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        dateFormatter.format(_message.timestamp),
+                        style: TextStyle(fontSize: 11, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
+                      child: _readReceipt(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  bool get _contactIsSender =>
+      _message.senderPhoneNumber == contact.phoneNumber;
+
+  Icon? _readReceipt() {
+    if (_contactIsSender) {
+      return null;
+    }
+
+    var icon = Icons.clear;
+    if (_message.readReceipt == ReadReceipt.delivered) {
+      icon = Icons.done;
+    } else if (_message.readReceipt == ReadReceipt.seen) {
+      icon = Icons.done_all;
+    }
+    return Icon(
+      icon,
+      size: 15,
+      color: Colors.white,
+    );
   }
 }

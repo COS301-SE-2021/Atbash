@@ -363,7 +363,7 @@ class ChatCard extends StatelessWidget {
                   ),
                   Positioned(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
+                      padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
                       child: _readReceipt(),
                     ),
                   ),
@@ -384,8 +384,12 @@ class ChatCard extends StatelessWidget {
       return null;
     }
 
-    var icon = Icons.bookmark_border;
-    // TODO read receipt logic
+    var icon = Icons.clear;
+    if (_message.readReceipt == ReadReceipt.delivered) {
+      icon = Icons.done;
+    } else if (_message.readReceipt == ReadReceipt.seen) {
+      icon = Icons.done_all;
+    }
     return Icon(
       icon,
       size: 15,

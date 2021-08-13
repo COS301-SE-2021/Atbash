@@ -371,11 +371,7 @@ class ChatCard extends StatelessWidget {
                   Positioned(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
-                      child: Icon(
-                        Icons.bookmark_border,
-                        size: 15,
-                        color: Colors.white,
-                      ),
+                      child: _readReceipt(),
                     ),
                   ),
                 ],
@@ -389,4 +385,18 @@ class ChatCard extends StatelessWidget {
 
   bool get _contactIsSender =>
       _message.senderPhoneNumber == contact.phoneNumber;
+
+  Icon? _readReceipt() {
+    if (_contactIsSender) {
+      return null;
+    }
+
+    var icon = Icons.bookmark_border;
+    // TODO read receipt logic
+    return Icon(
+      icon,
+      size: 15,
+      color: Colors.white,
+    );
+  }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Contact.dart';
@@ -208,67 +210,23 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Container _buildMessage(Tuple<Message, bool> message) {
-    Alignment alignment = Alignment.centerLeft;
-    EdgeInsets padding = EdgeInsets.only(left: 16.0, right: 32.0);
-
-    if (message.first.recipientPhoneNumber == widget.contact.phoneNumber) {
-      alignment = Alignment.centerRight;
-      padding = EdgeInsets.only(left: 32.0, right: 16.0);
-    }
-
-    return Container(
-      alignment: alignment,
-      color: message.second ? Color.fromRGBO(116, 152, 214, 0.3) : null,
-      child: Padding(
-        padding: padding,
-        child: Wrap(
-          children: [
-            InkWell(
-              onTap: () {
-                if (_selecting) {
-                  setState(() {
-                    message.second = !message.second;
-                  });
-                }
-              },
-              onLongPress: () {
-                setState(() {
-                  _selecting = true;
-                  message.second = true;
-                });
-              },
-              child: Card(
-                color: _messageColor(message.first),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    message.first.deleted
-                        ? "This message was deleted."
-                        : message.first.contents,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontStyle:
-                          message.first.deleted ? FontStyle.italic : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  ChatCard _buildMessage(Tuple<Message, bool> message) {
+    return ChatCard(
+      message.first,
+      contact: _contact,
+      onTap: () {
+        setState(() {
+          message.second = !message.second;
+        });
+      },
+      onLongPress: () {
+        setState(() {
+          _selecting = true;
+          message.second = true;
+        });
+      },
+      selected: _selecting ? message.second : null,
     );
-  }
-
-  Color _messageColor(Message m) {
-    if (m.senderPhoneNumber == widget.contact.phoneNumber) {
-      return Colors.orange;
-    } else if (m.seen) {
-      return Colors.orange;
-    } else {
-      return Colors.orangeAccent;
-    }
   }
 
   Container _buildInput() {
@@ -347,5 +305,85 @@ class _ChatPageState extends State<ChatPage> {
       );
     });
     _inputController.text = "";
+  }
+}
+
+class ChatCard extends StatelessWidget {
+  final Contact contact;
+  final Message _message;
+  final void Function() onTap;
+  final void Function() onLongPress;
+  final bool? selected;
+
+  ChatCard(
+    this._message, {
+    required this.contact,
+    required this.onTap,
+    required this.onLongPress,
+    this.selected,
+  });
+
+  final dateFormatter = DateFormat("Hm");
+
+  @override
+  Widget build(BuildContext context) {
+    var alignment = Alignment.centerRight;
+    var padding = EdgeInsets.only(left: 100, right: 20);
+    var color = Constants.orangeColor;
+
+    if (_message.senderPhoneNumber == contact.phoneNumber) {
+      alignment = Alignment.centerLeft;
+      padding = padding.flipped;
+      color = Constants.darkGreyColor;
+    }
+
+    return Container(
+      color: selected != null && selected == true
+          ? Color.fromRGBO(116, 152, 214, 0.3)
+          : null,
+      child: Align(
+        alignment: alignment,
+        child: Padding(
+          padding: padding,
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            child: Card(
+              color: color.withOpacity(0.8),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+                    child: Text(
+                      _message.contents,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Positioned(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        dateFormatter.format(_message.timestamp),
+                        style: TextStyle(fontSize: 11, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
+                      child: Icon(
+                        Icons.bookmark_border,
+                        size: 15,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

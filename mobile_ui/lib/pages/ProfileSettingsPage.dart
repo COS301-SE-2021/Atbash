@@ -92,6 +92,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               SizedBox(
                 height: 60,
               ),
+              MaterialButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                color: Constants.orangeColor,
+                onPressed: () {},
+                child: Text("Save"),
+              ),
             ],
           ),
         ),

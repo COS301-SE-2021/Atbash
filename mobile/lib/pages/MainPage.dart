@@ -12,6 +12,7 @@ import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobile/constants.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -100,29 +101,32 @@ class _MainPageState extends State<MainPage> {
   AppBar _buildAppBar(BuildContext context) {
     Widget title = Row(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Observer(builder: (_) => AvatarIcon(_userModel.profileImage)),
-        ),
+        Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child:
+                Observer(builder: (_) => AvatarIcon(_userModel.profileImage))),
         Expanded(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Observer(builder: (_) => Text(_userModel.displayName)),
+              Text(
+                _userModel.displayName,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              SizedBox(
+                height: 2,
               ),
               if (_userModel.status.isNotEmpty)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Observer(
-                    builder: (_) => Text(
-                      _userModel.status,
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          color: Color.fromRGBO(61, 61, 61, 1.0)),
+                Observer(
+                  builder: (_) => Text(
+                    _userModel.status,
+                    style: TextStyle(
+                      fontSize: 10,
                     ),
                   ),
-                ),
+                )
             ],
           ),
         ),
@@ -205,9 +209,47 @@ class _MainPageState extends State<MainPage> {
     _contactsModel.filter = searchQuery;
   }
 
-  ListView _buildBody() {
-    return ListView(
-      children: _selectedContacts.map((each) => _buildChat(each)).toList(),
+  SafeArea _buildBody() {
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            color: Colors.orange,
+            child: Row(
+              children: [
+                Container(
+                  //TODO Add functionality for chats button
+                  child: Text("Chats"),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(
+                  width: 12,
+                ),
+                Container(
+                  //TODO Add functionality for private chats button
+                  child: Text("Private Chats"),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              children:
+                  _selectedContacts.map((each) => _buildChat(each)).toList(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -231,35 +273,77 @@ class _MainPageState extends State<MainPage> {
           });
         }
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          children: [
-            AvatarIcon.fromString(contact.first.profileImage),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  contact.first.displayName.isNotEmpty
-                      ? contact.first.displayName
-                      : contact.first.phoneNumber,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                child: AvatarIcon.fromString(contact.first.profileImage),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      contact.first.displayName.isNotEmpty
+                          ? contact.first.displayName
+                          : contact.first.phoneNumber,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                    Text(
+                      //TODO Create preview message logic here
+                      "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Constants.darkGreyColor,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            if (_selecting)
-              Checkbox(
-                  value: contact.second,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        contact.second = value;
-                      });
-                    }
-                  })
-          ],
-        ),
+              if (_selecting)
+                Checkbox(
+                    value: contact.second,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          contact.second = value;
+                        });
+                      }
+                    }),
+              Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    //TODO Create timestamp logic here
+                    Text("10:00"),
+                    Icon(
+                      Icons.circle,
+                      //TODO Create read receipts logic here
+                      color: Constants.orangeColor,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Divider(
+            thickness: 1,
+            height: 6,
+          ),
+        ],
       ),
     );
   }

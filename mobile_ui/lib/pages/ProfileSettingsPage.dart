@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ui/Domain/constants.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
   const ProfileSettingsPage({Key? key}) : super(key: key);
@@ -13,7 +14,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          child: Column(),
+          child: Column(
+            children: [
+              Text(
+                "Profile info",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Constants.orangeColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+            ],
+          ),
         ),
       ),
     );

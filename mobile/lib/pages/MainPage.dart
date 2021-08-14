@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
@@ -275,77 +276,89 @@ class _MainPageState extends State<MainPage> {
           });
         }
       },
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                child: AvatarIcon.fromString(contact.first.profileImage),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      contact.first.displayName.isNotEmpty
-                          ? contact.first.displayName
-                          : contact.first.phoneNumber,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      //TODO Create preview message logic here
-                      "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Constants.darkGreyColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (_selecting)
-                Checkbox(
-                    value: contact.second,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          contact.second = value;
-                        });
-                      }
-                    }),
-              Container(
-                margin: const EdgeInsets.only(right: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    //TODO Create timestamp logic here
-                    Text("10:00"),
-                    Icon(
-                      Icons.circle,
-                      //TODO Create read receipts logic here
-                      color: Constants.orangeColor,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Divider(
-            thickness: 1,
-            height: 6,
+      child: Slidable(
+        actionPane: SlidableScrollActionPane(),
+        secondaryActions: [
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            //TODO add functionality to delete button
+            onTap: () => {},
           ),
         ],
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: AvatarIcon.fromString(contact.first.profileImage),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        contact.first.displayName.isNotEmpty
+                            ? contact.first.displayName
+                            : contact.first.phoneNumber,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        //TODO Create preview message logic here
+                        "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Constants.darkGreyColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_selecting)
+                  Checkbox(
+                      value: contact.second,
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            contact.second = value;
+                          });
+                        }
+                      }),
+                Container(
+                  margin: const EdgeInsets.only(right: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      //TODO Create timestamp logic here
+                      Text("10:00"),
+                      Icon(
+                        Icons.circle,
+                        //TODO Create read receipts logic here
+                        color: Constants.orangeColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              thickness: 1,
+              height: 6,
+            ),
+          ],
+        ),
       ),
     );
   }

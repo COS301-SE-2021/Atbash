@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
@@ -246,34 +247,56 @@ class _NewChatPageState extends State<NewChatPage> {
         }
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          children: [
-            AvatarIcon.fromString(contact.first.profileImage),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  contact.first.displayName.isNotEmpty
-                      ? contact.first.displayName
-                      : contact.first.phoneNumber,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          height: 50,
+          child: Slidable(
+            actionPane: SlidableScrollActionPane(),
+            child: Row(
+              children: [
+                AvatarIcon.fromString(contact.first.profileImage),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      contact.first.displayName.isNotEmpty
+                          ? contact.first.displayName
+                          : contact.first.phoneNumber,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ),
                 ),
-              ),
+                if (_selecting)
+                  Checkbox(
+                    value: contact.second,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          contact.second = value;
+                        });
+                      }
+                    },
+                  ),
+              ],
             ),
-            if (_selecting)
-              Checkbox(
-                value: contact.second,
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      contact.second = value;
-                    });
-                  }
-                },
+            secondaryActions: <Widget>[
+              IconSlideAction(
+                caption: 'Edit',
+                color: Colors.blue,
+                icon: Icons.edit,
+                //TODO add functionality to edit button
+                onTap: () => {},
+              ),
+              IconSlideAction(
+                caption: 'Delete',
+                color: Colors.red,
+                icon: Icons.delete,
+                //TODO add functionality to delete button
+                onTap: () => {},
               )
-          ],
+            ],
+          ),
         ),
       ),
     );

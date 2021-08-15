@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
@@ -10,7 +9,6 @@ import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
-import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 
@@ -24,11 +22,7 @@ class _MainPageState extends State<MainPage> {
   final ContactsModel _contactsModel = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
 
-  List<Tuple<Contact, bool>> _selectedContacts = [];
-  late final ReactionDisposer _contactsDisposer;
-
   bool _searching = false;
-  bool _selecting = false;
 
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
@@ -36,14 +30,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-
-    _contactsDisposer = autorun((_) {
-      setState(() {
-        _selectedContacts = _contactsModel.filteredChatContacts
-            .map((each) => Tuple(each, false))
-            .toList();
-      });
-    });
 
     _searchFocusNode = FocusNode();
 
@@ -53,7 +39,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() {
     super.dispose();
-    _contactsDisposer();
     _searchFocusNode.dispose();
     _appService.disconnect();
   }
@@ -63,11 +48,6 @@ class _MainPageState extends State<MainPage> {
     return WillPopScope(
       onWillPop: () async {
         bool shouldPop = true;
-
-        if (_selecting) {
-          _stopSelecting();
-          shouldPop = false;
-        }
 
         if (_searching) {
           _stopSearching();
@@ -88,13 +68,6 @@ class _MainPageState extends State<MainPage> {
       _searching = false;
       _contactsModel.filter = "";
       _searchController.text = "";
-    });
-  }
-
-  void _stopSelecting() {
-    setState(() {
-      _selecting = false;
-      _selectedContacts.forEach((element) => element.second = false);
     });
   }
 
@@ -148,17 +121,16 @@ class _MainPageState extends State<MainPage> {
 
     return AppBar(
       title: title,
-      leading: _searching || _selecting
+      leading: _searching
           ? IconButton(
               onPressed: () {
                 if (_searching) _stopSearching();
-                if (_selecting) _stopSelecting();
               },
               icon: Icon(Icons.arrow_back),
             )
           : null,
       actions: [
-        if (!_selecting && !_searching)
+        if (!_searching)
           IconButton(
               onPressed: () {
                 setState(() {
@@ -166,24 +138,6 @@ class _MainPageState extends State<MainPage> {
                 });
               },
               icon: Icon(Icons.search)),
-        if (_selecting)
-          IconButton(
-            onPressed: () {
-              final selectedChats = _selectedContacts
-                  .where((element) => element.second == true)
-                  .map((e) => e.first.phoneNumber)
-                  .toList();
-
-              showConfirmDialog(context,
-                      "This will delete ${selectedChats.length} chat(s). Are you sure?")
-                  .then((confirmed) {
-                if (confirmed != null && confirmed) {
-                  _contactsModel.deleteChatsWithContacts(selectedChats);
-                }
-              });
-            },
-            icon: Icon(Icons.delete),
-          ),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
@@ -244,108 +198,100 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
           ),
-          Expanded(
-            child: ListView(
-              children:
-                  _selectedContacts.map((each) => _buildChat(each)).toList(),
-            ),
-          ),
+          Expanded(child: Observer(
+            builder: (context) {
+              return ListView(
+                children: _contactsModel.filteredChatContacts
+                    .map((each) => _buildChat(each))
+                    .toList(),
+              );
+            },
+          )),
         ],
       ),
     );
   }
 
-  InkWell _buildChat(Tuple<Contact, bool> contact) {
+  InkWell _buildChat(Contact contact) {
     return InkWell(
       onTap: () {
-        if (_selecting) {
-          setState(() {
-            contact.second = !contact.second;
-          });
-        } else {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ChatPage(contact.first)));
-        }
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => ChatPage(contact)));
       },
-      onLongPress: () {
-        if (!_searching) {
-          setState(() {
-            _selecting = true;
-            contact.second = true;
-          });
-        }
-      },
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                child: AvatarIcon.fromString(contact.first.profileImage),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      contact.first.displayName.isNotEmpty
-                          ? contact.first.displayName
-                          : contact.first.phoneNumber,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      //TODO Create preview message logic here
-                      "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Constants.darkGreyColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (_selecting)
-                Checkbox(
-                    value: contact.second,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          contact.second = value;
-                        });
-                      }
-                    }),
-              Container(
-                margin: const EdgeInsets.only(right: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    //TODO Create timestamp logic here
-                    Text("10:00"),
-                    Icon(
-                      Icons.circle,
-                      //TODO Create read receipts logic here
-                      color: Constants.orangeColor,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          Divider(
-            thickness: 1,
-            height: 6,
+      child: Slidable(
+        actionPane: SlidableScrollActionPane(),
+        secondaryActions: [
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () {
+              _contactsModel.deleteChatsWithContacts([contact.phoneNumber]);
+            },
           ),
         ],
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: AvatarIcon.fromString(contact.profileImage),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        contact.displayName.isNotEmpty
+                            ? contact.displayName
+                            : contact.phoneNumber,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        //TODO Create preview message logic here
+                        "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Constants.darkGreyColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(right: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      //TODO Create timestamp logic here
+                      Text("10:00"),
+                      Icon(
+                        Icons.circle,
+                        //TODO Create read receipts logic here
+                        color: Constants.orangeColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              thickness: 1,
+              height: 6,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/util/Extensions.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -93,15 +94,20 @@ class _MainPageState extends State<MainPage> {
               SizedBox(
                 height: 2,
               ),
-              if (_userModel.status.isNotEmpty)
-                Observer(
-                  builder: (_) => Text(
-                    _userModel.status,
-                    style: TextStyle(
-                      fontSize: 10,
-                    ),
-                  ),
-                )
+              Observer(
+                builder: (_) {
+                  if (_userModel.status.isBlank) {
+                    return SizedBox.shrink();
+                  } else {
+                    return Text(
+                      _userModel.status,
+                      style: TextStyle(
+                        fontSize: 10,
+                      ),
+                    );
+                  }
+                },
+              )
             ],
           ),
         ),

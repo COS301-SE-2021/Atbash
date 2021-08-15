@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
-import 'package:mobx/mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/exceptions/DuplicateContactNumberException.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
-import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class NewChatPage extends StatefulWidget {
@@ -20,10 +18,6 @@ class _NewChatPageState extends State<NewChatPage> {
   bool _searching = false;
   final ContactsModel _contactsModel = GetIt.I.get();
 
-  List<Tuple<Contact, bool>> _selectedContacts = [];
-  late final ReactionDisposer _contactsDisposer;
-  bool _selecting = false;
-
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
 
@@ -31,22 +25,12 @@ class _NewChatPageState extends State<NewChatPage> {
   void initState() {
     super.initState();
 
-    _contactsDisposer = autorun((_) {
-      setState(() {
-        _selectedContacts = _contactsModel.filteredSavedContacts
-            .map((c) => Tuple(c, false))
-            .toList();
-      });
-    });
-
     _searchFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    _contactsDisposer();
 
     _searchFocusNode.dispose();
   }
@@ -62,16 +46,11 @@ class _NewChatPageState extends State<NewChatPage> {
           shouldPop = false;
         }
 
-        if (_selecting) {
-          _stopSelecting();
-          shouldPop = false;
-        }
-
         return shouldPop;
       },
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: _buildBody(context),
+        body: _buildBody(),
       ),
     );
   }
@@ -104,7 +83,7 @@ class _NewChatPageState extends State<NewChatPage> {
         ],
       ),
       actions: [
-        if (!_selecting && !_searching)
+        if (!_searching)
           IconButton(
               onPressed: () {
                 setState(() {
@@ -112,24 +91,6 @@ class _NewChatPageState extends State<NewChatPage> {
                 });
               },
               icon: Icon(Icons.search)),
-        if (_selecting)
-          IconButton(
-            onPressed: () {
-              final selectedContacts = _selectedContacts
-                  .where((element) => element.second == true)
-                  .map((e) => e.first.phoneNumber)
-                  .toList();
-
-              showConfirmDialog(context,
-                      "This will delete ${selectedContacts.length} contact(s). Are you sure?")
-                  .then((confirmed) {
-                if (confirmed != null && confirmed) {
-                  _contactsModel.deleteContacts(selectedContacts);
-                }
-              });
-            },
-            icon: Icon(Icons.delete),
-          )
       ],
     );
   }
@@ -146,19 +107,16 @@ class _NewChatPageState extends State<NewChatPage> {
     });
   }
 
-  void _stopSelecting() {
-    setState(() {
-      _selecting = false;
-      _selectedContacts.forEach((element) => element.second = false);
-    });
-  }
-
-  Widget _buildBody(BuildContext context) {
-    return ListView(
-      children: [
-        _buildNewContactItem(context),
-        ..._buildContactList(context, _selectedContacts),
-      ],
+  Widget _buildBody() {
+    return Observer(
+      builder: (context) {
+        return ListView(
+          children: [
+            _buildNewContactItem(context),
+            ..._buildContactList(context, _contactsModel.filteredSavedContacts),
+          ],
+        );
+      },
     );
   }
 
@@ -222,29 +180,15 @@ class _NewChatPageState extends State<NewChatPage> {
 
   List<InkWell> _buildContactList(
     BuildContext context,
-    List<Tuple<Contact, bool>> contacts,
+    List<Contact> contacts,
   ) {
     return contacts.map((e) => _buildContact(context, e)).toList();
   }
 
-  InkWell _buildContact(BuildContext context, Tuple<Contact, bool> contact) {
+  InkWell _buildContact(BuildContext context, Contact contact) {
     return InkWell(
       onTap: () {
-        if (_selecting) {
-          setState(() {
-            contact.second = !contact.second;
-          });
-        } else {
-          _startChat(context, contact.first);
-        }
-      },
-      onLongPress: () {
-        if (!_searching) {
-          setState(() {
-            _selecting = true;
-            contact.second = true;
-          });
-        }
+        _startChat(context, contact);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -254,30 +198,19 @@ class _NewChatPageState extends State<NewChatPage> {
             actionPane: SlidableScrollActionPane(),
             child: Row(
               children: [
-                AvatarIcon.fromString(contact.first.profileImage),
+                AvatarIcon.fromString(contact.profileImage),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      contact.first.displayName.isNotEmpty
-                          ? contact.first.displayName
-                          : contact.first.phoneNumber,
+                      contact.displayName.isNotEmpty
+                          ? contact.displayName
+                          : contact.phoneNumber,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 18.0),
                     ),
                   ),
                 ),
-                if (_selecting)
-                  Checkbox(
-                    value: contact.second,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          contact.second = value;
-                        });
-                      }
-                    },
-                  ),
               ],
             ),
             secondaryActions: <Widget>[

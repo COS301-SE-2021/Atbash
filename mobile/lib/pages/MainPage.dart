@@ -93,15 +93,14 @@ class _MainPageState extends State<MainPage> {
               SizedBox(
                 height: 2,
               ),
-              if (_userModel.status.isNotEmpty)
-                Observer(
-                  builder: (_) => Text(
-                    _userModel.status,
-                    style: TextStyle(
-                      fontSize: 10,
-                    ),
+              Observer(
+                builder: (_) => Text(
+                  _userModel.status,
+                  style: TextStyle(
+                    fontSize: 10,
                   ),
-                )
+                ),
+              )
             ],
           ),
         ),

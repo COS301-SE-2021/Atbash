@@ -91,14 +91,14 @@ class _ChatPageState extends State<ChatPage> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 16,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
         Text(
           _contact.status,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
       ],

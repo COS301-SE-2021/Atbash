@@ -1,229 +1,169 @@
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:mobile/models/ContactsModel.dart';
-import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/services/AppService.dart';
+import 'package:mobile/pages/ProfileSetupPage.dart';
+
+import '../constants.dart';
+import 'ProfileSettingsPage.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({Key? key}) : super(key: key);
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final ContactsModel _contactsModel = GetIt.I.get();
-  final AppService _appService = GetIt.I.get();
-  final UserModel _userModel = GetIt.I.get();
-
-  final picker = ImagePicker();
-  final _displayNameController = TextEditingController();
-  final _statusController = TextEditingController();
-  Uint8List? _selectedProfileImage;
-
-  @override
-  void initState() {
-    super.initState();
-    _displayNameController.text = _userModel.displayName;
-
-    _statusController.text = _userModel.status;
-
-    _selectedProfileImage = _userModel.profileImage;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: _buildBody(context),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      title: Text("Settings"),
-    );
-  }
-
-  Container _buildBody(BuildContext context) {
-    return Container(
-      child: ListView(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-            child: Column(children: <Widget>[
-              CircleAvatar(
-                radius: 80,
-                child: (_selectedProfileImage == null ||
-                        _selectedProfileImage!.isEmpty)
-                    ? Text("Picture")
-                    : null,
-                backgroundImage: _buildAvatarImage(),
-              ),
-              const SizedBox(height: 10.0),
-            ]),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-            child: Column(children: [
-              Text(
-                "Change profile picture:",
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    iconSize: 50,
-                    icon: Icon(Icons.photo_library),
-                    onPressed: () {
-                      _loadPicker(ImageSource.gallery);
-                    },
-                    tooltip: "Add image using your gallery.",
-                  ),
-                  IconButton(
-                    iconSize: 50,
-                    icon: Icon(Icons.photo_camera),
-                    onPressed: () {
-                      _imgFromCamera(context);
-                    },
-                    tooltip: "Add image using your camera.",
-                  ),
-                ],
-              ),
-            ]),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-            child: Column(
-              children: [
-                Text(
-                  "Change display name",
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Settings",
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
                 ),
-                TextField(
-                  controller: _displayNameController,
-                  textAlign: TextAlign.center,
-                )
-              ],
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-            child: Column(
-              children: [
-                Text(
-                  "Change status",
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-                ),
-                TextField(
-                  controller: _statusController,
-                  textAlign: TextAlign.center,
-                )
-              ],
+            SizedBox(
+              height: 2,
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-            child: Align(
-              alignment: Alignment.center,
-              child: ElevatedButton(
-                key: Key("ElevatedButton"), //Need to remove
-                onPressed: () {
-                  final displayName = _displayNameController.text;
-                  final status = _statusController.text;
-                  final profileImage = _selectedProfileImage ?? Uint8List(0);
-
-                  if (displayName.isNotEmpty) {
-                    _userModel.setDisplayName(displayName);
-                  }
-
-                  _userModel.setStatus(status);
-
-                  _userModel.setProfileImage(profileImage);
-
-                  _contactsModel.contacts.forEach((contact) {
-                    _appService.sendStatus(contact.phoneNumber, status);
-                    _appService.sendProfileImage(
-                        contact.phoneNumber, base64Encode(profileImage));
-                  });
-
-                  Navigator.pop(context);
+            Container(
+              padding: EdgeInsets.all(5),
+              color: Constants.orangeColor.withOpacity(0.8),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfileSettingsPage()));
                 },
-                child: Text("SUBMIT"),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Liam",
+                            style: TextStyle(
+                              fontSize: 22,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 2,
+                          ),
+                          Text(
+                            "Just vibing",
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          )
-        ],
+            SizedBox(
+              height: 20,
+            ),
+            SettingsElement(
+              icon: Icons.vpn_key,
+              heading: "Account",
+              description: "Number, Deletion, Setup.",
+            ),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.privacy_tip,
+                heading: "Privacy",
+                description: "Security, Safe Search."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.notification_important,
+                heading: "Notifications",
+                description: "Messages, Tones."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.storage,
+                heading: "Storage",
+                description: "Auto-Download."),
+            Divider(height: 2),
+            SettingsElement(
+                icon: Icons.help,
+                heading: "Help",
+                description: "Help, Safety."),
+          ],
+        ),
       ),
     );
   }
+}
 
-  MemoryImage? _buildAvatarImage() {
-    final image = _selectedProfileImage;
-    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
-  }
+class SettingsElement extends StatelessWidget {
+  const SettingsElement(
+      {Key? key,
+      required this.icon,
+      required this.heading,
+      required this.description})
+      : super(key: key);
 
-  Future _loadPicker(ImageSource source) async {
-    final pickedFile = await picker.getImage(source: source);
-    if (pickedFile != null) {
-      final File file = File(pickedFile.path);
-      final imageBytes = await file.readAsBytes();
-      setState(() {
-        _selectedProfileImage = imageBytes;
-      });
-    }
-  }
+  final IconData icon;
+  final String heading;
+  final String description;
 
-  // Future _imgFromGallery() async {
-  //   final pickedFile = await picker.getImage(source: ImageSource.gallery);
-  //   // setState(() {
-  //   //   if (pickedFile != null) {
-  //   //     _image = File(pickedFile.path);
-  //   //   } else {
-  //   //     print('No image selected.');
-  //   //   }
-  //   // });
-  // }
-
-  Future _imgFromCamera(BuildContext context) async {
-    try {
-      // setState(() {
-      //   if (pickedFile != null) {
-      //     _image = File(pickedFile.path);
-      //   } else {
-      //     print('No image selected.');
-      //   }
-      // });
-    } catch (e) {
-      showAlertDialog(context);
-    }
-  }
-
-  showAlertDialog(BuildContext context) {
-    // Create button
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          Widget okButton = TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          );
-
-          AlertDialog alert = AlertDialog(
-            title: Text("ALERT"),
-            content: Text("Your device does not have a functional camera."),
-            actions: [
-              okButton,
-            ],
-          );
-          return alert;
-        });
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        color: Constants.orangeColor.withOpacity(0.8),
+        padding: EdgeInsets.all(5),
+        child: Row(
+          children: [
+            Icon(icon),
+            SizedBox(
+              width: 12,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    heading,
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 2,
+                  ),
+                  Container(
+                    child: Text(
+                      description,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

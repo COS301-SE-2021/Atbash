@@ -1,4 +1,5 @@
-import 'dart:html';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -73,6 +74,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                             _selectedProfileImage!.isEmpty)
                         ? Text("Picture")
                         : null,
+                    backgroundImage: _buildAvatarImage(),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -81,7 +83,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _loadPicker(ImageSource.gallery);
+                        },
                         icon: Icon(Icons.photo_library),
                       ),
                       SizedBox(
@@ -91,7 +95,9 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _imgFromCamera(context);
+                        },
                         icon: Icon(Icons.photo_camera),
                       ),
                     ],
@@ -106,6 +112,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _displayNameController,
                         decoration: InputDecoration(
                           hintText: "Display Name",
                         ),
@@ -123,6 +130,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _statusController,
                         decoration: InputDecoration(
                           hintText: "Status",
                         ),
@@ -138,7 +146,30 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     color: Constants.orangeColor,
-                    onPressed: () {},
+                    onPressed: () {
+                      final displayName = _displayNameController.text;
+                      final status = _statusController.text;
+                      final profileImage =
+                          _selectedProfileImage ?? Uint8List(0);
+
+                      if (displayName.isNotEmpty) {
+                        _userModel.setDisplayName(displayName);
+                      }
+
+                      if (status.isNotEmpty) {
+                        _userModel.setStatus(status);
+                      }
+
+                      _userModel.setProfileImage(profileImage);
+
+                      _contactsModel.contacts.forEach((contact) {
+                        _appService.sendStatus(contact.phoneNumber, status);
+                        _appService.sendProfileImage(
+                            contact.phoneNumber, base64Encode(profileImage));
+                      });
+
+                      Navigator.pop(context);
+                    },
                     child: Text("Next"),
                   ),
                 ],

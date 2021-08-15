@@ -225,9 +225,8 @@ class _MainPageState extends State<MainPage> {
             caption: 'Delete',
             color: Colors.red,
             icon: Icons.delete,
-            //TODO add functionality to delete button
             onTap: () {
-              print(contact.phoneNumber);
+              _contactsModel.deleteChatsWithContacts([contact.phoneNumber]);
             },
           ),
         ],

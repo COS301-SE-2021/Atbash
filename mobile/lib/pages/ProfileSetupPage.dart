@@ -1,4 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mobile/models/ContactsModel.dart';
+import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/services/AppService.dart';
 import '../constants.dart';
 
 class ProfileSetupPage extends StatefulWidget {
@@ -9,6 +16,25 @@ class ProfileSetupPage extends StatefulWidget {
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
+  final ContactsModel _contactsModel = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+  final UserModel _userModel = GetIt.I.get();
+
+  final picker = ImagePicker();
+  final _displayNameController = TextEditingController();
+  final _statusController = TextEditingController();
+  Uint8List? _selectedProfileImage;
+
+  @override
+  void initState() {
+    super.initState();
+    _displayNameController.text = _userModel.displayName;
+
+    _statusController.text = _userModel.status;
+
+    _selectedProfileImage = _userModel.profileImage;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

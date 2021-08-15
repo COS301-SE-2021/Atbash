@@ -191,7 +191,7 @@ class _NewChatPageState extends State<NewChatPage> {
         _startChat(context, contact);
       },
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        padding: EdgeInsets.only(left: 16.0),
         child: Container(
           height: 50,
           child: Slidable(
@@ -219,14 +219,15 @@ class _NewChatPageState extends State<NewChatPage> {
                 color: Colors.blue,
                 icon: Icons.edit,
                 //TODO add functionality to edit button
-                onTap: () => {},
+                onTap: () {},
               ),
               IconSlideAction(
                 caption: 'Delete',
                 color: Colors.red,
                 icon: Icons.delete,
-                //TODO add functionality to delete button
-                onTap: () => {},
+                onTap: () {
+                  _contactsModel.deleteContacts([contact.phoneNumber]);
+                },
               )
             ],
           ),

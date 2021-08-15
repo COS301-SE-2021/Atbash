@@ -1,3 +1,4 @@
+import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -68,6 +69,10 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                   CircleAvatar(
                     backgroundColor: Constants.orangeColor,
                     radius: 64,
+                    child: (_selectedProfileImage == null ||
+                            _selectedProfileImage!.isEmpty)
+                        ? Text("Picture")
+                        : null,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -143,5 +148,59 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
         ),
       ),
     );
+  }
+
+  MemoryImage? _buildAvatarImage() {
+    final image = _selectedProfileImage;
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
+  }
+
+  Future _loadPicker(ImageSource source) async {
+    final pickedFile = await picker.getImage(source: source);
+    if (pickedFile != null) {
+      final File file = File(pickedFile.path);
+      final imageBytes = await file.readAsBytes();
+      setState(() {
+        _selectedProfileImage = imageBytes;
+      });
+    }
+  }
+
+  Future _imgFromCamera(BuildContext context) async {
+    try {
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
+    } catch (e) {
+      showAlertDialog(context);
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    // Create button
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Widget okButton = TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+
+          AlertDialog alert = AlertDialog(
+            title: Text("ALERT"),
+            content: Text("Your device does not have a functional camera."),
+            actions: [
+              okButton,
+            ],
+          );
+          return alert;
+        });
   }
 }

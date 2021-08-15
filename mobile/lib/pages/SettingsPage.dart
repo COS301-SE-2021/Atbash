@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/pages/ProfileSetupPage.dart';
 
 import '../constants.dart';
+import 'ProfileSettingsPage.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -33,7 +35,12 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: EdgeInsets.all(5),
               color: Constants.orangeColor.withOpacity(0.8),
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfileSettingsPage()));
+                },
                 child: Row(
                   children: [
                     CircleAvatar(

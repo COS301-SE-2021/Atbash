@@ -3,12 +3,14 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
 import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/util/Extensions.dart';
@@ -22,6 +24,7 @@ class _MainPageState extends State<MainPage> {
   final UserModel _userModel = GetIt.I.get();
   final ContactsModel _contactsModel = GetIt.I.get();
   final AppService _appService = GetIt.I.get();
+  final DatabaseService _databaseService = GetIt.I.get();
 
   bool _searching = false;
 
@@ -219,6 +222,9 @@ class _MainPageState extends State<MainPage> {
   }
 
   InkWell _buildChat(Contact contact) {
+    final mostRecentMessage =
+        _databaseService.mostRecentMessageWithContact(contact.phoneNumber);
+
     return InkWell(
       onTap: () {
         Navigator.push(context,
@@ -262,15 +268,25 @@ class _MainPageState extends State<MainPage> {
                       SizedBox(
                         height: 2,
                       ),
-                      Text(
-                        //TODO Create preview message logic here
-                        "This is a preview of the message. It can get really long but that's ok! Our app is built for these kinds of problems.",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Constants.darkGreyColor,
-                        ),
+                      // TODO temporary solution
+                      FutureBuilder(
+                        future: mostRecentMessage,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return Text(
+                              (snapshot.data as Message).contents,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Constants.darkGreyColor,
+                              ),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
                       ),
                     ],
                   ),

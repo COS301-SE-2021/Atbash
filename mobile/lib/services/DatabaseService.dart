@@ -331,6 +331,28 @@ class DatabaseService {
     );
   }
 
+  Future<Message?> mostRecentMessageWithContact(
+    String contactPhoneNumber,
+  ) async {
+    final db = await _database;
+
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where:
+          "${Message.COLUMN_SENDER_PHONE_NUMBER} = ? or ${Message.COLUMN_RECIPIENT_PHONE_NUMBER} = ?",
+      whereArgs: [contactPhoneNumber, contactPhoneNumber],
+      orderBy: "${Message.COLUMN_TIMESTAMP} desc",
+      limit: 1,
+      offset: 0,
+    );
+
+    if (response.isEmpty) {
+      return null;
+    } else {
+      return Message.fromMap(response.first);
+    }
+  }
+
   /// Saves a message in the database and returns.
   Message saveMessage(
       String senderPhoneNumber, String recipientPhoneNumber, String contents,

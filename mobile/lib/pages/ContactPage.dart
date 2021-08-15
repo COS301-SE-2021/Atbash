@@ -1,11 +1,5 @@
-import 'dart:convert';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/models/ContactsModel.dart';
-import 'package:mobile/util/Extensions.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -19,7 +13,6 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
-  final ContactsModel _contactsModel = GetIt.I.get();
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +25,6 @@ class _ContactPageState extends State<ContactPage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      //TODO Change isEmpty to isBlank
       title: Text("Contact Info"),
       actions: [
         Padding(

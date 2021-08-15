@@ -9,6 +9,7 @@ import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/services/AppService.dart';
 import '../constants.dart';
+import 'MainPage.dart';
 
 class ProfileSetupPage extends StatefulWidget {
   const ProfileSetupPage({Key? key}) : super(key: key);
@@ -168,7 +169,8 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                             contact.phoneNumber, base64Encode(profileImage));
                       });
 
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => MainPage()));
                     },
                     child: Text("Next"),
                   ),

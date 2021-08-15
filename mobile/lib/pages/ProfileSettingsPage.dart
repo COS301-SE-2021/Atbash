@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -62,6 +64,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   CircleAvatar(
                     backgroundColor: Constants.orangeColor,
                     radius: 64,
+                    child: (_selectedProfileImage == null ||
+                            _selectedProfileImage!.isEmpty)
+                        ? Text("Picture")
+                        : null,
+                    backgroundImage: _buildAvatarImage(),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -70,7 +77,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _loadPicker(ImageSource.gallery);
+                        },
                         icon: Icon(Icons.photo_library),
                       ),
                       SizedBox(
@@ -80,7 +89,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _imgFromCamera(context);
+                        },
                         icon: Icon(Icons.photo_camera),
                       ),
                     ],
@@ -95,6 +106,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _displayNameController,
                         decoration: InputDecoration(
                           hintText: "Display Name",
                         ),
@@ -112,6 +124,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _statusController,
                         decoration: InputDecoration(
                           hintText: "Status",
                         ),
@@ -127,7 +140,30 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     color: Constants.orangeColor,
-                    onPressed: () {},
+                    onPressed: () {
+                      final displayName = _displayNameController.text;
+                      final status = _statusController.text;
+                      final profileImage =
+                          _selectedProfileImage ?? Uint8List(0);
+
+                      if (displayName.isNotEmpty) {
+                        _userModel.setDisplayName(displayName);
+                      }
+
+                      if (status.isNotEmpty) {
+                        _userModel.setStatus(status);
+                      }
+
+                      _userModel.setProfileImage(profileImage);
+
+                      _contactsModel.contacts.forEach((contact) {
+                        _appService.sendStatus(contact.phoneNumber, status);
+                        _appService.sendProfileImage(
+                            contact.phoneNumber, base64Encode(profileImage));
+                      });
+
+                      Navigator.pop(context);
+                    },
                     child: Text("Save"),
                   ),
                 ],
@@ -137,5 +173,59 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         ),
       ),
     );
+  }
+
+  MemoryImage? _buildAvatarImage() {
+    final image = _selectedProfileImage;
+    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
+  }
+
+  Future _loadPicker(ImageSource source) async {
+    final pickedFile = await picker.getImage(source: source);
+    if (pickedFile != null) {
+      final File file = File(pickedFile.path);
+      final imageBytes = await file.readAsBytes();
+      setState(() {
+        _selectedProfileImage = imageBytes;
+      });
+    }
+  }
+
+  Future _imgFromCamera(BuildContext context) async {
+    try {
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
+    } catch (e) {
+      showAlertDialog(context);
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    // Create button
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Widget okButton = TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+
+          AlertDialog alert = AlertDialog(
+            title: Text("ALERT"),
+            content: Text("Your device does not have a functional camera."),
+            actions: [
+              okButton,
+            ],
+          );
+          return alert;
+        });
   }
 }

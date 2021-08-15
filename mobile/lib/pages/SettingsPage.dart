@@ -141,9 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _userModel.setDisplayName(displayName);
                   }
 
-                  if (status.isNotEmpty) {
-                    _userModel.setStatus(status);
-                  }
+                  _userModel.setStatus(status);
 
                   _userModel.setProfileImage(profileImage);
 

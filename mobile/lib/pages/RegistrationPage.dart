@@ -5,6 +5,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/MainPage.dart';
+import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/constants.dart';
@@ -138,8 +139,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _userService.register(phoneNumber, deviceToken).then(
           (successful) {
             if (successful) {
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => MainPage()));
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => ProfileSetupPage()));
             } else {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text("Failed to register")));

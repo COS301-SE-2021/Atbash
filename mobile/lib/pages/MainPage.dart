@@ -105,7 +105,7 @@ class _MainPageState extends State<MainPage> {
                     return Text(
                       _userModel.status,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 12,
                       ),
                     );
                   }

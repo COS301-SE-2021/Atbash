@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/ProfileSetupPage.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
 import 'ProfileSettingsPage.dart';
@@ -12,21 +14,19 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final UserModel _userModel = GetIt.I.get();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: ListView(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
+            AppBar(
+              title: Text(
                 "Settings",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
+              centerTitle: true,
             ),
             SizedBox(
               height: 2,
@@ -43,10 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.white,
-                    ),
+                    AvatarIcon(_userModel.profileImage),
                     SizedBox(
                       width: 5,
                     ),
@@ -55,7 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Liam",
+                            _userModel.displayName,
                             style: TextStyle(
                               fontSize: 22,
                             ),
@@ -64,7 +61,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             height: 2,
                           ),
                           Text(
-                            "Just vibing",
+                            _userModel.status,
                             style: TextStyle(
                               fontSize: 14,
                             ),

@@ -23,15 +23,12 @@ class _ContactPageState extends State<ContactPage> {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
-      centerTitle: true,
-      title: Text("Contact Info"),
       actions: [
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
             "Edit",
             style: TextStyle(
-              color: Colors.white,
               fontSize: 20.0,
             ),
           ),
@@ -59,7 +56,24 @@ class _ContactPageState extends State<ContactPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          "Available",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 18),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          "0728977004",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+          ),
+        ),
       ],
     );
   }

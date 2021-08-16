@@ -41,6 +41,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Profile Info"),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
@@ -50,14 +54,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Text(
-                    "Profile info",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Constants.orangeColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   SizedBox(
                     height: 15,
                   ),

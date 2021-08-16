@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactPage extends StatefulWidget {
@@ -49,7 +51,7 @@ class _ContactPageState extends State<ContactPage> {
           ),
         ),
         Text(
-          "Liam Mayston",
+          widget.contact.displayName,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 35,
@@ -60,7 +62,7 @@ class _ContactPageState extends State<ContactPage> {
           height: 10,
         ),
         Text(
-          "Available",
+          widget.contact.status,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 18),
         ),
@@ -68,7 +70,7 @@ class _ContactPageState extends State<ContactPage> {
           height: 10,
         ),
         Text(
-          "0728977004",
+          widget.contact.phoneNumber,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,

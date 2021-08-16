@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ContactsModel.dart';
-import 'package:mobile/models/UserModel.dart';
 
 import '../constants.dart';
 
 class ContactEditPage extends StatefulWidget {
-  const ContactEditPage({Key? key}) : super(key: key);
+  final Contact contact;
+
+  ContactEditPage(this.contact);
 
   @override
   _ContactEditPageState createState() => _ContactEditPageState();
@@ -15,11 +17,12 @@ class ContactEditPage extends StatefulWidget {
 class _ContactEditPageState extends State<ContactEditPage> {
   ContactsModel _contactsModel = GetIt.I.get();
 
-  TextEditingController _displayNameController =
-      TextEditingController(text: "Liam Mayston");
+  TextEditingController _displayNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    _displayNameController.text = widget.contact.displayName;
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -56,7 +59,8 @@ class _ContactEditPageState extends State<ContactEditPage> {
                 onPressed: () {
                   final displayName = _displayNameController.text;
                   if (displayName.isNotEmpty) {
-                    //change contact name
+                    _contactsModel.setContactDisplayName(
+                        widget.contact.phoneNumber, displayName);
                   }
 
                   Navigator.pop(context);

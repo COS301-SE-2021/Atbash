@@ -13,7 +13,6 @@ class ContactPage extends StatefulWidget {
 }
 
 class _ContactPageState extends State<ContactPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,54 +41,25 @@ class _ContactPageState extends State<ContactPage> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return Column(
+    return ListView(
       children: [
-        //Base64Decoder().convert(widget.contact.profileImage),
         Container(
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(vertical: 16.0),
           child: AvatarIcon.fromString(
             widget.contact.profileImage,
-            radius: MediaQuery.of(context).size.width * 0.65,
+            radius: MediaQuery.of(context).size.width * 0.35,
           ),
         ),
-        Divider(
-          thickness: 5.0,
-          color: Colors.black,
-          height: 5.0,
+        Text(
+          "Liam Mayston",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 35,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        Row(children: [
-          Text("Display Name:"),
-          Text(widget.contact.displayName),
-        ]),
-        Divider(
-          thickness: 5.0,
-          color: Colors.black,
-          height: 5.0,
-        ),
-        Container(
-          padding: EdgeInsets.zero,
-          color: Constants.orangeColor,
-          child: Row(children: [
-            Expanded(
-              child: Text("Number:"),
-              flex: 1,
-            ),
-            Expanded(
-              child: Text(widget.contact.phoneNumber),
-              flex: 2,
-            ),
-          ]),
-        ),
-        Divider(
-          thickness: 5.0,
-          color: Colors.black,
-          height: 5.0,
-        ),
-        Row(children: [
-          Text("Status:"),
-          Text(widget.contact.status),
-        ]),
+
       ],
     );
   }

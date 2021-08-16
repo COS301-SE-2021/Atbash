@@ -254,6 +254,17 @@ class DatabaseService {
     );
   }
 
+  Future<void> updateContactDisplayName(
+    String phoneNumber,
+    String displayName,
+  ) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_DISPLAY_NAME} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [displayName, phoneNumber],
+    );
+  }
+
   Future<bool> messageWithIdExists(String id) async {
     final db = await _database;
     final response = await db.rawQuery(

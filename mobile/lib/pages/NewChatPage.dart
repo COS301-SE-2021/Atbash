@@ -9,6 +9,8 @@ import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
+import 'ContactPage.dart';
+
 class NewChatPage extends StatefulWidget {
   @override
   _NewChatPageState createState() => _NewChatPageState();
@@ -219,7 +221,14 @@ class _NewChatPageState extends State<NewChatPage> {
                 color: Colors.blue,
                 icon: Icons.edit,
                 //TODO add functionality to edit button
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactPage(contact),
+                    ),
+                  );
+                },
               ),
               IconSlideAction(
                 caption: 'Delete',

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/constants.dart';
-import 'package:mobile/models/ContactsModel.dart';
+import 'package:mobile/pages/ContactEditPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactPage extends StatefulWidget {
@@ -28,10 +26,19 @@ class _ContactPageState extends State<ContactPage> {
       actions: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(
-            "Edit",
-            style: TextStyle(
-              fontSize: 20.0,
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactEditPage(widget.contact)),
+              );
+            },
+            child: Text(
+              "Edit",
+              style: TextStyle(
+                fontSize: 20.0,
+              ),
             ),
           ),
         )

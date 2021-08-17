@@ -215,6 +215,14 @@ class DatabaseService {
     }
   }
 
+  Future<void> setContactSymmetricKey(String contactPhone, String key) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_SYMMETRIC_KEY} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [key, contactPhone],
+    );
+  }
+
   /// Flags contact with phone number [phoneNumber] as having a chat.
   Future<void> startChatWithContact(String phoneNumber) async {
     final db = await _database;

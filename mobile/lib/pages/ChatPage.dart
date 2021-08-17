@@ -299,7 +299,9 @@ class _ChatPageState extends State<ChatPage> {
     final recipientNumber = _contact.phoneNumber;
     final contents = _inputController.text;
 
-    _appService.sendMessage(recipientNumber, contents).then((message) {
+    _appService
+        .sendMessage(recipientNumber, contents, _contact.symmetricKey)
+        .then((message) {
       _appService.chatModel.addMessage(message);
       _scrollController.animateTo(
         0,

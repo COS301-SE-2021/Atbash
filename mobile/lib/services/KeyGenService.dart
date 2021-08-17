@@ -21,7 +21,8 @@ class KeyGenService {
     return base64Encode(await sharedSecretKey.extractBytes());
   }
 
-  void generateAndSaveKeyPair() async {
+  /// Generates and saves an x25519 key pair. Returns the public key
+  Future<String> generateAndSaveKeyPair() async {
     final algorithm = Cryptography.instance.x25519();
     final keyPair = await algorithm.newKeyPair();
 
@@ -34,6 +35,8 @@ class KeyGenService {
       _storage.write(key: "public_key", value: keys[0]),
       _storage.write(key: "key_pair", value: keys[1])
     ]);
+
+    return keys[0];
   }
 
   Future<SimpleKeyPair> _getLocalKeyPair() async {

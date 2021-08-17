@@ -2,10 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:rsa_encrypt/rsa_encrypt.dart';
-import 'package:pointycastle/asymmetric/api.dart';
+import 'package:mobile/services/KeyGenService.dart';
 
 class UserService {
+  final KeyGenService _keyGenService;
+
+  UserService(this._keyGenService);
+
   final _storage = FlutterSecureStorage();
 
   /// Register a user on the server. [deviceToken] is the firebase device token
@@ -14,14 +17,7 @@ class UserService {
     final url = Uri.parse(
         "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/register");
 
-    final rsaHelper = RsaKeyHelper();
-    final keyPair =
-        await rsaHelper.computeRSAKeyPair(rsaHelper.getSecureRandom());
-
-    final publicKeyStr =
-        rsaHelper.encodePublicKeyToPemPKCS1(keyPair.publicKey as RSAPublicKey);
-    final privateKeyStr = rsaHelper
-        .encodePrivateKeyToPemPKCS1(keyPair.privateKey as RSAPrivateKey);
+    final publicKeyStr = await _keyGenService.generateAndSaveKeyPair();
 
     final data = {
       "phoneNumber": phoneNumber,
@@ -34,8 +30,6 @@ class UserService {
     if (response.statusCode == 200) {
       await Future.wait([
         _storage.write(key: "phone_number", value: phoneNumber),
-        _storage.write(key: "rsa_public_key", value: publicKeyStr),
-        _storage.write(key: "rsa_private_key", value: privateKeyStr),
       ]);
 
       return true;

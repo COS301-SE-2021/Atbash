@@ -1,13 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/services/AppService.dart';
 import '../constants.dart';
 import 'MainPage.dart';
 
@@ -19,8 +16,6 @@ class ProfileSetupPage extends StatefulWidget {
 }
 
 class _ProfileSetupPageState extends State<ProfileSetupPage> {
-  final ContactsModel _contactsModel = GetIt.I.get();
-  final AppService _appService = GetIt.I.get();
   final UserModel _userModel = GetIt.I.get();
 
   final picker = ImagePicker();
@@ -162,12 +157,6 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                       }
 
                       _userModel.setProfileImage(profileImage);
-
-                      _contactsModel.contacts.forEach((contact) {
-                        _appService.sendStatus(contact.phoneNumber, status);
-                        _appService.sendProfileImage(
-                            contact.phoneNumber, base64Encode(profileImage));
-                      });
 
                       Navigator.pushReplacement(context,
                           MaterialPageRoute(builder: (context) => MainPage()));

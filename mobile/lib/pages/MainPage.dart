@@ -89,6 +89,7 @@ class _MainPageState extends State<MainPage> {
               Observer(
                 builder: (_) => Text(
                   _userModel.displayName,
+                  key: Key("displayName"),
                   style: TextStyle(
                     fontSize: 18,
                   ),
@@ -104,6 +105,7 @@ class _MainPageState extends State<MainPage> {
                   } else {
                     return Text(
                       _userModel.status,
+                      key: Key("status"),
                       style: TextStyle(
                         fontSize: 12,
                       ),
@@ -123,6 +125,7 @@ class _MainPageState extends State<MainPage> {
         focusNode: _searchFocusNode,
         onChanged: _filter,
         decoration: InputDecoration(border: InputBorder.none),
+        key: Key("searchField"),
       );
 
       _searchFocusNode.requestFocus();
@@ -141,12 +144,14 @@ class _MainPageState extends State<MainPage> {
       actions: [
         if (!_searching)
           IconButton(
-              onPressed: () {
-                setState(() {
-                  _searching = true;
-                });
-              },
-              icon: Icon(Icons.search)),
+            onPressed: () {
+              setState(() {
+                _searching = true;
+              });
+            },
+            icon: Icon(Icons.search),
+            key: Key("searchButton"),
+          ),
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {

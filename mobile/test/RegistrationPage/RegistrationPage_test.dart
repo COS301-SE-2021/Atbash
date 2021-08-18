@@ -46,6 +46,11 @@ void main() {
   testWidgets(
       "clicking 'REGISTER' shows loading icon and succeeds, displaying ProfileSetupPage",
       (WidgetTester tester) async {
+    when(userService.register(any)).thenAnswer((_) => Future.value(true));
+    when(userModel.displayName).thenReturn("");
+    when(userModel.status).thenReturn("");
+    when(userModel.profileImage).thenReturn(Uint8List(0));
+
     await tester.pumpWidget(
       MaterialApp(
         home: RegistrationPage(
@@ -53,11 +58,6 @@ void main() {
         ),
       ),
     );
-
-    when(userService.register(any)).thenAnswer((_) => Future.value(true));
-    when(userModel.displayName).thenReturn("");
-    when(userModel.status).thenReturn("");
-    when(userModel.profileImage).thenReturn(Uint8List(0));
 
     final buttonFinder = find.byType(MaterialButton);
     final loadingIconFinder = find.byType(SpinKitThreeBounce);
@@ -79,6 +79,7 @@ void main() {
   testWidgets(
       "clicking 'REGISTER' shows loading icon and fails, showing 'REGISTER' button again",
       (WidgetTester tester) async {
+    when(userService.register(any)).thenAnswer((_) => Future.value(false));
     await tester.pumpWidget(
       MaterialApp(
         home: RegistrationPage(
@@ -86,8 +87,6 @@ void main() {
         ),
       ),
     );
-
-    when(userService.register(any)).thenAnswer((_) => Future.value(false));
 
     final buttonFinder = find.byType(MaterialButton);
     final loadingIconFinder = find.byType(SpinKitThreeBounce);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -26,7 +27,6 @@ class _SettingsPageState extends State<SettingsPage> {
               title: Text(
                 "Settings",
               ),
-              centerTitle: true,
             ),
             SizedBox(
               height: 2,
@@ -43,7 +43,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 child: Row(
                   children: [
-                    AvatarIcon(_userModel.profileImage),
+                    Observer(builder: (context) {
+                      return AvatarIcon(
+                        _userModel.profileImage,
+                        radius: 24,
+                      );
+                    }),
                     SizedBox(
                       width: 5,
                     ),
@@ -51,21 +56,25 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _userModel.displayName,
-                            style: TextStyle(
-                              fontSize: 22,
-                            ),
-                          ),
+                          Observer(builder: (context) {
+                            return Text(
+                              _userModel.displayName,
+                              style: TextStyle(
+                                fontSize: 22,
+                              ),
+                            );
+                          }),
                           SizedBox(
                             height: 2,
                           ),
-                          Text(
-                            _userModel.status,
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
+                          Observer(builder: (context) {
+                            return Text(
+                              _userModel.status,
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),

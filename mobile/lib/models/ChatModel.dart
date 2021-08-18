@@ -80,11 +80,13 @@ abstract class ChatModelBase with Store {
 
   @action
   void markMessagesDeleted(List<String> ids) {
+    _databaseService.markMessagesDeleted(ids);
     ids.forEach((id) {
       final index = chatMessages.indexWhere((m) => m.id == id);
       if (index >= 0) {
         final message = chatMessages.removeAt(index);
         message.deleted = true;
+        message.contents = "";
         chatMessages.insert(index, message);
       }
     });

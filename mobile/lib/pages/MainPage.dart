@@ -278,7 +278,9 @@ class _MainPageState extends State<MainPage> {
 
                             if (message != null) {
                               return Text(
-                                message.contents,
+                                message.deleted
+                                    ? "This message was deleted"
+                                    : message.contents,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

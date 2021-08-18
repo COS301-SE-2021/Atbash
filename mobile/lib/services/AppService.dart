@@ -6,6 +6,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatModel.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
@@ -16,6 +17,7 @@ class AppService {
 
   final UserService _userService;
   final DatabaseService _databaseService;
+  final EncryptionService _encryptionService;
   final NotificationService _notificationService;
   final ContactsModel _contactsModel;
   final ChatModel chatModel;
@@ -25,6 +27,7 @@ class AppService {
   AppService(
     this._userService,
     this._databaseService,
+    this._encryptionService,
     this._notificationService,
     this._contactsModel,
     this.chatModel,
@@ -109,56 +112,69 @@ class AppService {
     delete(url);
   }
 
-  void _handleEvent(String userPhoneNumber, dynamic event) {
+  void _handleEvent(String userPhoneNumber, dynamic event) async {
     final decodedEvent =
         event is Map ? event : jsonDecode(event) as Map<String, Object?>;
     final id = decodedEvent["id"] as String?;
     final fromNumber = decodedEvent["senderPhoneNumber"] as String?;
-    final contents = decodedEvent["contents"] as Map<String, Object?>?;
+    final contents = decodedEvent["contents"] as String?;
     final timestamp = decodedEvent["timestamp"] as int?;
 
     if (id != null && fromNumber != null && contents != null) {
-      final eventType = contents["type"] as String?;
+      final contact = await _databaseService.fetchContactByNumber(fromNumber);
+      final decryptedContents =
+          await _encryptionService.decrypt(contents, contact!.symmetricKey);
+      final decryptedContentsMap = jsonDecode(decryptedContents);
+
+      final eventType = decryptedContentsMap["type"] as String?;
       switch (eventType) {
         case "message":
-          final text = contents["text"] as String?;
+          final text = decryptedContentsMap["text"] as String?;
           if (text != null) {
             _handleMessageEvent(
-                id, fromNumber, userPhoneNumber, text, timestamp);
+              id,
+              fromNumber,
+              userPhoneNumber,
+              text,
+              timestamp,
+              contact.symmetricKey,
+            );
           }
           break;
         case "delete":
-          final ids =
-              (contents["ids"] as List?)?.map((e) => e as String).toList();
+          final ids = (decryptedContentsMap["ids"] as List?)
+              ?.map((e) => e as String)
+              .toList();
           if (ids != null) {
             _handleDeleteEvent(fromNumber, ids);
           }
           _deleteMessageFromServer(id);
           break;
         case "profileImage":
-          final image = contents["imageData"] as String?;
+          final image = decryptedContentsMap["imageData"] as String?;
           if (image != null) {
             _handleProfileImageEvent(fromNumber, image);
           }
           _deleteMessageFromServer(id);
           break;
         case "status":
-          final status = contents["status"] as String?;
+          final status = decryptedContentsMap["status"] as String?;
           if (status != null) {
             _handleStatusEvent(fromNumber, status);
           }
           _deleteMessageFromServer(id);
           break;
         case "ack":
-          final messageId = contents["id"] as String?;
+          final messageId = decryptedContentsMap["id"] as String?;
           if (messageId != null) {
             _handleAckEvent(messageId);
           }
           _deleteMessageFromServer(id);
           break;
         case "ackSeen":
-          final ids =
-              (contents["ids"] as List?)?.map((e) => e as String).toList();
+          final ids = (decryptedContentsMap["ids"] as List?)
+              ?.map((e) => e as String)
+              .toList();
           if (ids != null) {
             _handleAckSeenEvent(ids);
           }
@@ -174,6 +190,7 @@ class AppService {
     String userPhoneNumber,
     String text,
     int? timestamp,
+    String symmetricKey,
   ) {
     final message = _databaseService.saveMessage(
       fromNumber,
@@ -183,7 +200,7 @@ class AppService {
       timestamp: timestamp,
     );
 
-    sendDeliveredAcknowledgement(fromNumber, message.id);
+    sendDeliveredAcknowledgement(fromNumber, message.id, symmetricKey);
 
     if (chatModel.contactPhoneNumber == fromNumber) {
       chatModel.addMessage(message);
@@ -213,7 +230,7 @@ class AppService {
 
   void _handleDeleteEvent(String fromNumber, List<String> ids) {
     chatModel.markMessagesDeleted(ids);
-    _databaseService.markMessagesDeleted(fromNumber, ids);
+    _databaseService.markMessagesDeleted(ids);
   }
 
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
@@ -243,7 +260,11 @@ class AppService {
 
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
-  Future<Message> sendMessage(String recipientNumber, String text) async {
+  Future<Message> sendMessage(
+    String recipientNumber,
+    String text,
+    String symmetricKey,
+  ) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
@@ -258,15 +279,19 @@ class AppService {
       "contents": {
         "type": "message",
         "text": text,
-      },
+      }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
 
     return savedMessage;
   }
 
-  void requestDeleteMessages(String recipientNumber, List<String> ids) async {
+  void requestDeleteMessages(
+    String recipientNumber,
+    List<String> ids,
+    String symmetricKey,
+  ) async {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -277,10 +302,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendStatus(String recipientNumber, String status) {
+  void sendStatus(
+    String recipientNumber,
+    String status,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -291,10 +320,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendProfileImage(String recipientNumber, String base64Image) {
+  void sendProfileImage(
+    String recipientNumber,
+    String base64Image,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -305,10 +338,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendDeliveredAcknowledgement(String recipientNumber, String messageId) {
+  void sendDeliveredAcknowledgement(
+    String recipientNumber,
+    String messageId,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -319,10 +356,13 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendSeenAcknowledgementForContact(String recipientNumber) async {
+  void sendSeenAcknowledgementForContact(
+    String recipientNumber,
+    String symmetricKey,
+  ) async {
     final unseenMessageIds =
         (await _databaseService.fetchUnseenMessagesWith(recipientNumber))
             .map((e) => e.id)
@@ -340,6 +380,16 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
+  }
+
+  void _encryptAndQueue(Map<String, Object> event, String symmetricKey) async {
+    final contents = event["contents"];
+    final contentsAsString = jsonEncode(contents);
+    final encryptedContents =
+        await _encryptionService.encrypt(contentsAsString, symmetricKey);
+    event["contents"] = encryptedContents;
+
+    _messageQueue.add(jsonEncode(event));
   }
 }

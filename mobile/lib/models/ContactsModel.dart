@@ -1,6 +1,8 @@
+import 'package:http/http.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/exceptions/DuplicateContactNumberException.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/KeyGenService.dart';
 import 'package:mobile/services/responses/DatabaseServiceResponses.dart';
 import 'package:mobx/mobx.dart';
 
@@ -10,8 +12,9 @@ class ContactsModel = ContactsModelBase with _$ContactsModel;
 
 abstract class ContactsModelBase with Store {
   final DatabaseService _databaseService;
+  final KeyGenService _keyGenService;
 
-  ContactsModelBase(this._databaseService);
+  ContactsModelBase(this._databaseService, this._keyGenService);
 
   @observable
   ObservableList<Contact> contacts = <Contact>[].asObservable();
@@ -76,6 +79,21 @@ abstract class ContactsModelBase with Store {
       if (contact == null) {
         throw StateError("Contact was null when status was success");
       } else {
+        final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
+        final rsaResponse = await get(Uri.parse(
+            "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/user/$encodedPhoneNumber/rsa-public-key"));
+
+        var key = "";
+
+        if (rsaResponse.statusCode == 200) {
+          print("${rsaResponse.statusCode} - ${rsaResponse.body}");
+          key = await _keyGenService.generateSharedSecret(rsaResponse.body);
+          await _databaseService.setContactSymmetricKey(phoneNumber, key);
+        } else {
+          print("${rsaResponse.statusCode} - ${rsaResponse.body}");
+        }
+
+        contact.symmetricKey = key;
         contacts.add(contact);
         contacts.sort((a, b) => a.displayName.compareTo(b.displayName));
       }

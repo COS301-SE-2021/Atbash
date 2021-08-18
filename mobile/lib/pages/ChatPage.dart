@@ -40,7 +40,10 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     _messagesDisposer = autorun((_) {
-      _appService.sendSeenAcknowledgementForContact(_contact.phoneNumber);
+      _appService.sendSeenAcknowledgementForContact(
+        _contact.phoneNumber,
+        _contact.symmetricKey,
+      );
 
       setState(() {
         _selectedMessages = _appService.chatModel.chatMessages
@@ -163,6 +166,7 @@ class _ChatPageState extends State<ChatPage> {
             _appService.requestDeleteMessages(
               _contact.phoneNumber,
               selectedMessagesIds,
+              _contact.symmetricKey,
             );
 
             _appService.chatModel.markMessagesDeleted(selectedMessagesIds);
@@ -289,7 +293,9 @@ class _ChatPageState extends State<ChatPage> {
 
     if (contents.isEmpty) return;
 
-    _appService.sendMessage(recipientNumber, contents).then((message) {
+    _appService
+        .sendMessage(recipientNumber, contents, _contact.symmetricKey)
+        .then((message) {
       _appService.chatModel.addMessage(message);
       _scrollController.animateTo(
         0,
@@ -348,7 +354,9 @@ class ChatCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
                     child: Text(
-                      _message.contents,
+                      _message.deleted
+                          ? "This message was deleted"
+                          : _message.contents,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),

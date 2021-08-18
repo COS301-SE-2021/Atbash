@@ -6,6 +6,8 @@ import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/AppService.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/EncryptionService.dart';
+import 'package:mobile/services/KeyGenService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -18,23 +20,28 @@ void main() async {
   final navigatorKey = GlobalKey<NavigatorState>();
 
   final databaseService = DatabaseService();
+  final keyGenService = KeyGenService();
+  final encryptionService = EncryptionService();
 
   final userModel = UserModel();
-  final contactsModel = ContactsModel(databaseService);
+  final contactsModel = ContactsModel(databaseService, keyGenService);
   final chatModel = ChatModel(databaseService);
 
-  final userService = UserService();
+  final userService = UserService(keyGenService);
   final notificationService =
       NotificationService(databaseService, navigatorKey);
   final appService = AppService(
     userService,
     databaseService,
+    encryptionService,
     notificationService,
     contactsModel,
     chatModel,
   );
 
   GetIt.I.registerSingleton(databaseService);
+  GetIt.I.registerSingleton(keyGenService);
+  GetIt.I.registerSingleton(encryptionService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(appService);
   GetIt.I.registerSingleton(notificationService);

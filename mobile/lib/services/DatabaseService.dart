@@ -155,7 +155,7 @@ class DatabaseService {
 
     if (existingContact == null) {
       final contact = Contact(
-          phoneNumber, displayName, status, profileImage, hasChat, save);
+          phoneNumber, displayName, status, profileImage, hasChat, save, "");
 
       try {
         final response = await db.insert(Contact.TABLE_NAME, contact.toMap());
@@ -213,6 +213,14 @@ class DatabaseService {
         null,
       );
     }
+  }
+
+  Future<void> setContactSymmetricKey(String contactPhone, String key) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_SYMMETRIC_KEY} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [key, contactPhone],
+    );
   }
 
   /// Flags contact with phone number [phoneNumber] as having a chat.
@@ -330,15 +338,14 @@ class DatabaseService {
   }
 
   Future<void> markMessagesDeleted(
-    String contactPhoneNumber,
     List<String> ids,
   ) async {
     final db = await _database;
     String where = "(" + ids.map((e) => "?").join(", ") + ")";
 
     await db.rawUpdate(
-      "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
-      [contactPhoneNumber, ...ids],
+      "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_ID} in $where",
+      ids,
     );
   }
 

@@ -1,5 +1,4 @@
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -133,21 +132,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    FirebaseMessaging.instance.getToken().then((token) {
-      final deviceToken = token;
-      if (deviceToken != null) {
-        widget.userService.register(phoneNumber, deviceToken).then(
-          (successful) {
-            if (successful) {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => ProfileSetupPage()));
-            } else {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text("Failed to register")));
-            }
-          },
-        );
-      }
-    });
+    widget.userService.register(phoneNumber).then(
+      (successful) {
+        if (successful) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => ProfileSetupPage()));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Failed to register")));
+        }
+      },
+    );
   }
 }

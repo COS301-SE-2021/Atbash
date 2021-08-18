@@ -20,7 +20,7 @@ class UserServiceMock implements UserService {
   }
 
   @override
-  Future<bool> register(String phoneNumber, String deviceToken) async {
+  Future<bool> register(String phoneNumber) async {
     return true;
   }
 }

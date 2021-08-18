@@ -1,117 +1,150 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/util/Utils.dart';
+import 'package:mobile/constants.dart';
 
 class RegistrationPage extends StatefulWidget {
+  final UserService userService;
+
+  RegistrationPage({required this.userService});
+
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _phoneNumberController = TextEditingController();
-  final _displayNameController = TextEditingController();
-  final _passwordController = TextEditingController();
 
-  _RegistrationPageState() {
-    // TODO this is mock data
-    _phoneNumberController.text = "12345";
-    _passwordController.text = "password";
-  }
+  bool loading = false;
+  String selectedDialCode = "+27";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
-                ),
-                hintText: "Phone number",
-              ),
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.phone,
-              controller: _phoneNumberController,
-            ),
+          Spacer(
+            flex: 2,
           ),
-          Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
-                ),
-                hintText: "Display name",
-              ),
-              textAlign: TextAlign.center,
-              controller: _displayNameController,
-            ),
+          SvgPicture.asset(
+            "assets/atbash.svg",
+            width: 256,
           ),
-          Container(
-            margin: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
-            child: TextField(
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(const Radius.circular(32.0)),
-                ),
-                hintText: "Password",
-              ),
-              textAlign: TextAlign.center,
-              controller: _passwordController,
-              obscureText: true,
-            ),
+          Spacer(
+            flex: 1,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32.0, vertical: 20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: ElevatedButton(
-                    onPressed: () => _register(context),
-                    child: Text("REGISTER"),
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32.0),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 80),
+            child: Container(
+              padding: EdgeInsets.symmetric(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CountryCodePicker(
+                    showFlag: false,
+                    initialSelection: selectedDialCode,
+                    onChanged: (countryCode) {
+                      final dialCode = countryCode.dialCode;
+                      if (dialCode != null) {
+                        this.selectedDialCode = dialCode;
+                      }
+                    },
+                  ),
+                  Container(
+                    width: 160,
+                    child: TextField(
+                      cursorColor: Constants.darkGreyColor.withOpacity(0.6),
+                      cursorHeight: 20,
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: "Phone Number",
+                        hintStyle: TextStyle(
+                          color: Constants.darkGreyColor.withOpacity(0.6),
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Constants.orangeColor,
+                          ),
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.black,
+                          ),
                         ),
                       ),
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                      controller: _phoneNumberController,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+          SizedBox(
+            height: 25,
+          ),
+          _buildRegisterButton(context),
+          Spacer(
+            flex: 2,
+          )
         ],
       ),
     );
   }
 
+  Widget _buildRegisterButton(BuildContext context) {
+    if (loading) {
+      return SpinKitThreeBounce(
+        color: Colors.orange,
+        size: 24.0,
+      );
+    } else {
+      return MaterialButton(
+        color: Constants.orangeColor,
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          "Register",
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
+        onPressed: () => _register(context),
+      );
+    }
+  }
+
   void _register(BuildContext context) {
-    final userService = GetIt.I.get<UserService>();
-
-    final phoneNumber = _phoneNumberController.text.trim();
-    final displayName = _displayNameController.text.trim();
-    final password = _passwordController.text.trim();
-
-    FirebaseMessaging.instance.getToken().then((token) {
-      final deviceToken = token;
-      if (deviceToken != null) {
-        userService
-            .register(phoneNumber, deviceToken, password)
-            .then((successful) {
-          if (successful) {
-            Navigator.pop(context);
-            final storage = FlutterSecureStorage();
-            storage.write(key: "display_name", value: displayName);
-          }
-        });
-      }
+    setState(() {
+      loading = true;
     });
+
+    final phoneNumber =
+        selectedDialCode + cullToE164(_phoneNumberController.text);
+
+    widget.userService.register(phoneNumber).then(
+      (successful) {
+        if (successful) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => ProfileSetupPage()));
+        } else {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text("Failed to register")));
+          setState(() {
+            loading = false;
+          });
+        }
+      },
+    );
   }
 }

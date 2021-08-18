@@ -5,7 +5,7 @@ on:
     branches: [ development ]
     paths:
     - 'backend/onconnect/**'
-    
+
 jobs:
   build:
 

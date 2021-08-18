@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/Message.dart';
+import 'package:mobile/models/ContactsModel.dart';
+import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
-import 'package:mobile/pages/LoginPage.dart';
 import 'package:mobile/pages/NewChatPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
-import 'package:mobile/services/UserService.dart';
-import 'package:mobile/widgets/ProfileIcon.dart';
+import 'package:mobile/services/AppService.dart';
+import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobile/constants.dart';
+import 'package:mobile/util/Extensions.dart';
 
 class MainPage extends StatefulWidget {
   @override
@@ -14,50 +21,141 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _userService = GetIt.I.get<UserService>();
+  final UserModel _userModel = GetIt.I.get();
+  final ContactsModel _contactsModel = GetIt.I.get();
+  final AppService _appService = GetIt.I.get();
+  final DatabaseService _databaseService = GetIt.I.get();
 
-  String _displayName = "";
-  List<Contact> _chatContacts = [];
+  bool _searching = false;
 
-  _MainPageState() {
-    _displayName = _userService.getUser()?.displayName ?? "";
+  final _searchController = TextEditingController();
+  late final FocusNode _searchFocusNode;
 
-    _userService.getContactsWithChats().then((contacts) {
-      setState(() {
-        _chatContacts = contacts;
-      });
-    });
+  @override
+  void initState() {
+    super.initState();
 
-    _userService.onChangeUserInfo((user) {
-      setState(() {
-        _displayName = user.displayName;
-      });
-    });
+    _searchFocusNode = FocusNode();
 
-    _userService.onChangeChats((chats) {
-      setState(() {
-        _chatContacts = chats;
-      });
-    });
+    _appService.goOnline();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _searchFocusNode.dispose();
+    _appService.disconnect();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: _buildBody(),
-      floatingActionButton: _buildFloatingActionButton(context),
+    return WillPopScope(
+      onWillPop: () async {
+        bool shouldPop = true;
+
+        if (_searching) {
+          _stopSearching();
+          shouldPop = false;
+        }
+        return shouldPop;
+      },
+      child: Scaffold(
+        appBar: _buildAppBar(context),
+        body: _buildBody(),
+        floatingActionButton: _buildFloatingActionButton(context),
+      ),
     );
   }
 
+  void _stopSearching() {
+    setState(() {
+      _searching = false;
+      _contactsModel.filter = "";
+      _searchController.text = "";
+    });
+  }
+
   AppBar _buildAppBar(BuildContext context) {
+    Widget title = Row(
+      children: [
+        Container(
+            margin: EdgeInsets.only(right: 16.0),
+            child:
+                Observer(builder: (_) => AvatarIcon(_userModel.profileImage))),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Observer(
+                builder: (_) => Text(
+                  _userModel.displayName,
+                  key: Key("displayName"),
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 2,
+              ),
+              Observer(
+                builder: (_) {
+                  if (_userModel.status.isBlank) {
+                    return SizedBox.shrink();
+                  } else {
+                    return Text(
+                      _userModel.status,
+                      key: Key("status"),
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    );
+                  }
+                },
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+
+    if (_searching) {
+      title = TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        onChanged: _filter,
+        decoration: InputDecoration(border: InputBorder.none),
+        key: Key("searchField"),
+      );
+
+      _searchFocusNode.requestFocus();
+    }
+
     return AppBar(
-      title: Text(_displayName),
+      title: title,
+      leading: _searching
+          ? IconButton(
+              onPressed: () {
+                if (_searching) _stopSearching();
+              },
+              icon: Icon(Icons.arrow_back),
+            )
+          : null,
       actions: [
-        IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        if (!_searching)
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _searching = true;
+              });
+            },
+            icon: Icon(Icons.search),
+            key: Key("searchButton"),
+          ),
         PopupMenuButton(
+          icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
-            return ["Settings", "Logout"].map((menuItem) {
+            return ["Settings"].map((menuItem) {
               return PopupMenuItem(
                 child: Text(menuItem),
                 value: menuItem,
@@ -70,11 +168,6 @@ class _MainPageState extends State<MainPage> {
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
-            } else if (value == "Logout") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
             }
           },
         ),
@@ -82,31 +175,155 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  ListView _buildBody() {
-    return ListView(
-        children: _chatContacts.map((chat) => _buildChat(chat)).toList());
+  void _filter(String searchQuery) {
+    _contactsModel.filter = searchQuery;
+  }
+
+  SafeArea _buildBody() {
+    return SafeArea(
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            color: Colors.orange,
+            child: Row(
+              children: [
+                Container(
+                  //TODO Add functionality for chats button
+                  child: Text("Chats"),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(
+                  width: 12,
+                ),
+                Container(
+                  //TODO Add functionality for private chats button
+                  child: Text("Private Chats"),
+                  padding: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Expanded(child: Observer(
+            builder: (context) {
+              return ListView(
+                children: _contactsModel.filteredChatContacts
+                    .map((each) => _buildChat(each))
+                    .toList(),
+              );
+            },
+          )),
+        ],
+      ),
+    );
   }
 
   InkWell _buildChat(Contact contact) {
+    final mostRecentMessage =
+        _databaseService.mostRecentMessageWithContact(contact.phoneNumber);
+
     return InkWell(
       onTap: () {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => ChatPage(contact)));
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
+      child: Slidable(
+        actionPane: SlidableScrollActionPane(),
+        secondaryActions: [
+          IconSlideAction(
+            caption: 'Delete',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () {
+              _contactsModel.deleteChatsWithContacts([contact.phoneNumber]);
+            },
+          ),
+        ],
+        child: Column(
           children: [
-            EmptyProfileIcon(Colors.black),
-            Expanded(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  contact.displayName,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 18.0),
+            Row(
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: AvatarIcon.fromString(contact.profileImage),
                 ),
-              ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        contact.displayName.isNotEmpty
+                            ? contact.displayName
+                            : contact.phoneNumber,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      ),
+                      // TODO temporary solution
+                      FutureBuilder(
+                        future: mostRecentMessage,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            final message = snapshot.data as Message?;
+
+                            if (message != null) {
+                              return Text(
+                                message.deleted
+                                    ? "This message was deleted"
+                                    : message.contents,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Constants.darkGreyColor,
+                                ),
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(right: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      //TODO Create timestamp logic here
+                      Text("10:00"),
+                      Icon(
+                        Icons.circle,
+                        //TODO Create read receipts logic here
+                        color: Constants.orangeColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              thickness: 1,
+              height: 6,
             ),
           ],
         ),

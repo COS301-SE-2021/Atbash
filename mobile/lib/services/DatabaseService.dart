@@ -338,15 +338,14 @@ class DatabaseService {
   }
 
   Future<void> markMessagesDeleted(
-    String contactPhoneNumber,
     List<String> ids,
   ) async {
     final db = await _database;
     String where = "(" + ids.map((e) => "?").join(", ") + ")";
 
     await db.rawUpdate(
-      "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
-      [contactPhoneNumber, ...ids],
+      "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_ID} in $where",
+      ids,
     );
   }
 

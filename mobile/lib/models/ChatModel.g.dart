@@ -87,6 +87,17 @@ mixin _$ChatModel on ChatModelBase, Store {
   }
 
   @override
+  void markMessagesSeen(List<String> messageIds) {
+    final _$actionInfo = _$ChatModelBaseActionController.startAction(
+        name: 'ChatModelBase.markMessagesSeen');
+    try {
+      return super.markMessagesSeen(messageIds);
+    } finally {
+      _$ChatModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void addMessage(Message m) {
     final _$actionInfo = _$ChatModelBaseActionController.startAction(
         name: 'ChatModelBase.addMessage');

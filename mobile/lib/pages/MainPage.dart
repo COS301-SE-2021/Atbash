@@ -274,15 +274,21 @@ class _MainPageState extends State<MainPage> {
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            return Text(
-                              (snapshot.data as Message).contents,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Constants.darkGreyColor,
-                              ),
-                            );
+                            final message = snapshot.data as Message?;
+
+                            if (message != null) {
+                              return Text(
+                                message.contents,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Constants.darkGreyColor,
+                                ),
+                              );
+                            } else {
+                              return SizedBox.shrink();
+                            }
                           } else {
                             return SizedBox.shrink();
                           }

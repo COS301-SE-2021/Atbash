@@ -37,7 +37,7 @@ void main() {
     expect(buttonFinder, findsOneWidget);
   });
 
-  testWidgets("clicking 'REGISTER' shows loading icon",
+  testWidgets("clicking 'REGISTER' shows loading icon and succeeds, displaying ProfileSetupPage",
       (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -58,4 +58,29 @@ void main() {
     expect(buttonFinder, findsNothing);
     expect(loadingIconFinder, findsOneWidget);
   });
+
+  testWidgets("clicking 'REGISTER' shows loading icon and fails, showing 'REGISTER' button again",
+          (WidgetTester tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: RegistrationPage(
+              userService: userServiceMock,
+            ),
+          ),
+        );
+        final buttonFinder = find.byType(MaterialButton);
+        final loadingIconFinder = find.byType(SpinKitThreeBounce);
+
+        expect(buttonFinder, findsOneWidget);
+        expect(loadingIconFinder, findsNothing);
+
+        await tester.tap(buttonFinder);
+        await tester.pump();
+
+        //TODO ask pfab how pump works, should show loading first then go back to register
+        expect(buttonFinder, findsOneWidget);
+        expect(loadingIconFinder, findsNothing);
+
+        //userModel.register(validNumber)
+      });
 }

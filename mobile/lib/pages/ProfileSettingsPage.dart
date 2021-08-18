@@ -153,9 +153,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       _userModel.setProfileImage(profileImage);
 
                       _contactsModel.contacts.forEach((contact) {
-                        _appService.sendStatus(contact.phoneNumber, status);
-                        _appService.sendProfileImage(
-                            contact.phoneNumber, base64Encode(profileImage));
+                        _appService.sendStatus(
+                          contact.phoneNumber,
+                          status,
+                          contact.symmetricKey,
+                        );
+                        // TODO re-enable once sendProfileImage is fixed
+                        // _appService.sendProfileImage(
+                        //   contact.phoneNumber,
+                        //   base64Encode(profileImage),
+                        //   contact.symmetricKey,
+                        // );
                       });
 
                       Navigator.pop(context);

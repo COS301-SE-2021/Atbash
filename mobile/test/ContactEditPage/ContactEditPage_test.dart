@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ContactsModel.dart';
 import 'package:mobile/pages/ContactEditPage.dart';
+import 'package:mobile/pages/ContactPage.dart';
 import 'package:mockito/annotations.dart';
 
 import 'ContactEditPage_test.mocks.dart';
@@ -38,10 +39,22 @@ void main() {
       ),
     );
 
-    //final textFieldFinder = find.byType(TextField);
-    //final buttonFinder = find.byType(MaterialButton);
-    //await tester.tap(buttonFinder);
-
     expect(find.text("Joshua"), findsOneWidget);
   });
+
+  // testWidgets("When clicking save it takes you back to the previous page",
+  //     (WidgetTester tester) async {
+  //   await tester.pumpWidget(
+  //     MaterialApp(
+  //       home: ContactEditPage(
+  //           Contact("0721985674", "Joshua", "Hi", "", false, false, "")),
+  //     ),
+  //   );
+  //
+  //   final buttonFinder = find.byKey(Key("save"));
+  //   await tester.tap(buttonFinder);
+  //
+  //   await tester.pump();
+  //   expect(find.byType(ContactPage), findsOneWidget);
+  // });
 }

@@ -16,9 +16,11 @@ class DatabaseService {
     return openDatabase(path, version: 2, onCreate: (db, version) {
       db.execute(Contact.CREATE_TABLE);
       db.execute(Message.CREATE_TABLE);
-    }, onUpgrade: (db, oldVersion, newVersion) {
-      db.execute("drop table ${Contact.CREATE_TABLE};");
-      db.execute("drop table ${Message.CREATE_TABLE};");
+    }, onUpgrade: (db, oldVersion, newVersion) async {
+      await Future.wait([
+        db.execute("drop table ${Contact.TABLE_NAME};"),
+        db.execute("drop table ${Message.TABLE_NAME};"),
+      ]);
       db.execute(Contact.CREATE_TABLE);
       db.execute(Message.CREATE_TABLE);
     });

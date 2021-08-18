@@ -262,6 +262,17 @@ class DatabaseService {
     );
   }
 
+  Future<void> updateContactDisplayName(
+    String phoneNumber,
+    String displayName,
+  ) async {
+    final db = await _database;
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_DISPLAY_NAME} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [displayName, phoneNumber],
+    );
+  }
+
   Future<bool> messageWithIdExists(String id) async {
     final db = await _database;
     final response = await db.rawQuery(
@@ -337,6 +348,28 @@ class DatabaseService {
       "update ${Message.TABLE_NAME} set contents = '', deleted = 1 where ${Message.COLUMN_SENDER_PHONE_NUMBER} = ? and ${Message.COLUMN_ID} in $where",
       [contactPhoneNumber, ...ids],
     );
+  }
+
+  Future<Message?> mostRecentMessageWithContact(
+    String contactPhoneNumber,
+  ) async {
+    final db = await _database;
+
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where:
+          "${Message.COLUMN_SENDER_PHONE_NUMBER} = ? or ${Message.COLUMN_RECIPIENT_PHONE_NUMBER} = ?",
+      whereArgs: [contactPhoneNumber, contactPhoneNumber],
+      orderBy: "${Message.COLUMN_TIMESTAMP} desc",
+      limit: 1,
+      offset: 0,
+    );
+
+    if (response.isEmpty) {
+      return null;
+    } else {
+      return Message.fromMap(response.first);
+    }
   }
 
   /// Saves a message in the database and returns.

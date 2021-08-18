@@ -2,7 +2,6 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
@@ -141,6 +140,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         } else {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text("Failed to register")));
+          setState(() {
+            loading = false;
+          });
         }
       },
     );

@@ -123,6 +123,17 @@ mixin _$ContactsModel on ContactsModelBase, Store {
   }
 
   @override
+  void setContactDisplayName(String phoneNumber, String displayName) {
+    final _$actionInfo = _$ContactsModelBaseActionController.startAction(
+        name: 'ContactsModelBase.setContactDisplayName');
+    try {
+      return super.setContactDisplayName(phoneNumber, displayName);
+    } finally {
+      _$ContactsModelBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void deleteChatsWithContacts(List<String> phoneNumbers) {
     final _$actionInfo = _$ContactsModelBaseActionController.startAction(
         name: 'ContactsModelBase.deleteChatsWithContacts');

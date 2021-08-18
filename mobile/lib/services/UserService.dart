@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/services/KeyGenService.dart';
@@ -13,7 +14,9 @@ class UserService {
 
   /// Register a user on the server. [deviceToken] is the firebase device token
   /// for push notifications
-  Future<bool> register(String phoneNumber, String deviceToken) async {
+  Future<bool> register(String phoneNumber) async {
+    final deviceToken = await FirebaseMessaging.instance.getToken();
+
     final url = Uri.parse(
         "https://bjarhthz5j.execute-api.af-south-1.amazonaws.com/dev/register");
 

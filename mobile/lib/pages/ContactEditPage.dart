@@ -52,6 +52,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 0, horizontal: 160),
               child: MaterialButton(
+                key: Key("save"),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),

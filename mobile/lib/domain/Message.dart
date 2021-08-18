@@ -6,7 +6,7 @@ class Message {
   final String id;
   final String senderPhoneNumber;
   final String recipientPhoneNumber;
-  final String contents;
+  String contents;
   final DateTime timestamp;
   ReadReceipt readReceipt;
   bool deleted;

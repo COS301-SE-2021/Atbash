@@ -3,21 +3,21 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_it/get_it.dart';
-import 'package:mobile/pages/MainPage.dart';
 import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/constants.dart';
 
 class RegistrationPage extends StatefulWidget {
+  final UserService userService;
+
+  RegistrationPage({required this.userService});
+
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final UserService _userService = GetIt.I.get();
-
   final _phoneNumberController = TextEditingController();
 
   bool loading = false;
@@ -136,7 +136,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     FirebaseMessaging.instance.getToken().then((token) {
       final deviceToken = token;
       if (deviceToken != null) {
-        _userService.register(phoneNumber, deviceToken).then(
+        widget.userService.register(phoneNumber, deviceToken).then(
           (successful) {
             if (successful) {
               Navigator.pushReplacement(context,

@@ -87,7 +87,9 @@ class AtbashApp extends StatelessWidget {
               title: "Atbash",
               theme: ThemeData(primarySwatch: Colors.orange),
               navigatorKey: _navigatorKey,
-              home: RegistrationPage(),
+              home: RegistrationPage(
+                userService: GetIt.I.get<UserService>(),
+              ),
             );
           }
         }

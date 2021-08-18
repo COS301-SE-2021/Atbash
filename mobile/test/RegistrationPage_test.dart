@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -5,24 +7,28 @@ import 'package:flutter_svg/svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
+import 'package:mobile/services/UserService.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
-import 'service/UserModelMock.dart';
-import 'service/UserServiceMock.dart';
+import 'RegistrationPage_test.mocks.dart';
 
+@GenerateMocks([UserService, UserModel])
 void main() {
-  UserServiceMock userServiceMock = UserServiceMock();
-  UserModelMock userModelMock = UserModelMock();
+  final userService = MockUserService();
+  final userModel = MockUserModel();
 
-  GetIt.I.registerSingleton(userServiceMock);
-  GetIt.I.registerSingleton<UserModel>(userModelMock);
+  GetIt.I.registerSingleton(userService);
+  GetIt.I.registerSingleton<UserModel>(userModel);
 
   testWidgets("Registration has image, country code, phone number, and button",
       (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: RegistrationPage(
-          userService: userServiceMock,
+          userService: userService,
         ),
       ),
     );
@@ -37,15 +43,22 @@ void main() {
     expect(buttonFinder, findsOneWidget);
   });
 
-  testWidgets("clicking 'REGISTER' shows loading icon and succeeds, displaying ProfileSetupPage",
+  testWidgets(
+      "clicking 'REGISTER' shows loading icon and succeeds, displaying ProfileSetupPage",
       (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: RegistrationPage(
-          userService: userServiceMock,
+          userService: userService,
         ),
       ),
     );
+
+    when(userService.register(any)).thenAnswer((_) => Future.value(true));
+    when(userModel.displayName).thenReturn("");
+    when(userModel.status).thenReturn("");
+    when(userModel.profileImage).thenReturn(Uint8List(0));
+
     final buttonFinder = find.byType(MaterialButton);
     final loadingIconFinder = find.byType(SpinKitThreeBounce);
 
@@ -57,30 +70,39 @@ void main() {
 
     expect(buttonFinder, findsNothing);
     expect(loadingIconFinder, findsOneWidget);
+
+    await tester.pump();
+
+    expect(find.byType(ProfileSetupPage), findsOneWidget);
   });
 
-  testWidgets("clicking 'REGISTER' shows loading icon and fails, showing 'REGISTER' button again",
-          (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: RegistrationPage(
-              userService: userServiceMock,
-            ),
-          ),
-        );
-        final buttonFinder = find.byType(MaterialButton);
-        final loadingIconFinder = find.byType(SpinKitThreeBounce);
+  testWidgets(
+      "clicking 'REGISTER' shows loading icon and fails, showing 'REGISTER' button again",
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: RegistrationPage(
+          userService: userService,
+        ),
+      ),
+    );
 
-        expect(buttonFinder, findsOneWidget);
-        expect(loadingIconFinder, findsNothing);
+    when(userService.register(any)).thenAnswer((_) => Future.value(false));
 
-        await tester.tap(buttonFinder);
-        await tester.pump();
+    final buttonFinder = find.byType(MaterialButton);
+    final loadingIconFinder = find.byType(SpinKitThreeBounce);
 
-        //TODO ask pfab how pump works, should show loading first then go back to register
-        expect(buttonFinder, findsOneWidget);
-        expect(loadingIconFinder, findsNothing);
+    expect(buttonFinder, findsOneWidget);
+    expect(loadingIconFinder, findsNothing);
 
-        //userModel.register(validNumber)
-      });
+    await tester.tap(buttonFinder);
+    await tester.pump();
+
+    expect(buttonFinder, findsOneWidget);
+    expect(loadingIconFinder, findsNothing);
+
+    await tester.pump();
+
+    expect(find.byType(RegistrationPage), findsOneWidget);
+  });
 }

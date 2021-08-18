@@ -28,4 +28,20 @@ void main() {
     expect(textFieldFinder, findsOneWidget);
     expect(buttonFinder, findsOneWidget);
   });
+
+  testWidgets("Verify that the initial text is the contacts name",
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ContactEditPage(
+            Contact("0721985674", "Joshua", "Hi", "", false, false, "")),
+      ),
+    );
+
+    //final textFieldFinder = find.byType(TextField);
+    //final buttonFinder = find.byType(MaterialButton);
+    //await tester.tap(buttonFinder);
+
+    expect(find.text("Joshua"), findsOneWidget);
+  });
 }

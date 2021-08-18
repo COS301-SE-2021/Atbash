@@ -132,7 +132,13 @@ class AppService {
           final text = decryptedContentsMap["text"] as String?;
           if (text != null) {
             _handleMessageEvent(
-                id, fromNumber, userPhoneNumber, text, timestamp);
+              id,
+              fromNumber,
+              userPhoneNumber,
+              text,
+              timestamp,
+              contact.symmetricKey,
+            );
           }
           break;
         case "delete":
@@ -184,6 +190,7 @@ class AppService {
     String userPhoneNumber,
     String text,
     int? timestamp,
+    String symmetricKey,
   ) {
     final message = _databaseService.saveMessage(
       fromNumber,
@@ -193,7 +200,7 @@ class AppService {
       timestamp: timestamp,
     );
 
-    sendDeliveredAcknowledgement(fromNumber, message.id);
+    sendDeliveredAcknowledgement(fromNumber, message.id, symmetricKey);
 
     if (chatModel.contactPhoneNumber == fromNumber) {
       chatModel.addMessage(message);
@@ -223,7 +230,7 @@ class AppService {
 
   void _handleDeleteEvent(String fromNumber, List<String> ids) {
     chatModel.markMessagesDeleted(ids);
-    _databaseService.markMessagesDeleted(fromNumber, ids);
+    _databaseService.markMessagesDeleted(ids);
   }
 
   void _handleProfileImageEvent(String fromNumber, String imageBase64) {
@@ -254,7 +261,10 @@ class AppService {
   /// Send a message to a [recipientNumber] through the web socket. The message
   /// is additionally saved in the database, and is returned.
   Future<Message> sendMessage(
-      String recipientNumber, String text, String symmetricKey) async {
+    String recipientNumber,
+    String text,
+    String symmetricKey,
+  ) async {
     final userPhoneNumber = await _userService.getUserPhoneNumber();
     final savedMessage = _databaseService.saveMessage(
       userPhoneNumber,
@@ -266,24 +276,22 @@ class AppService {
       "action": "sendmessage",
       "id": savedMessage.id,
       "recipientPhoneNumber": recipientNumber,
+      "contents": {
+        "type": "message",
+        "text": text,
+      }
     };
 
-    final contents = jsonEncode({
-      "type": "message",
-      "text": text,
-    });
-
-    final encryptedContents =
-        await _encryptionService.encrypt(contents, symmetricKey);
-
-    data["contents"] = encryptedContents;
-
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
 
     return savedMessage;
   }
 
-  void requestDeleteMessages(String recipientNumber, List<String> ids) async {
+  void requestDeleteMessages(
+    String recipientNumber,
+    List<String> ids,
+    String symmetricKey,
+  ) async {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -294,10 +302,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendStatus(String recipientNumber, String status) {
+  void sendStatus(
+    String recipientNumber,
+    String status,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -308,10 +320,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendProfileImage(String recipientNumber, String base64Image) {
+  void sendProfileImage(
+    String recipientNumber,
+    String base64Image,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -322,10 +338,14 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendDeliveredAcknowledgement(String recipientNumber, String messageId) {
+  void sendDeliveredAcknowledgement(
+    String recipientNumber,
+    String messageId,
+    String symmetricKey,
+  ) {
     final data = {
       "action": "sendmessage",
       "id": Uuid().v4(),
@@ -336,10 +356,13 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
   }
 
-  void sendSeenAcknowledgementForContact(String recipientNumber) async {
+  void sendSeenAcknowledgementForContact(
+    String recipientNumber,
+    String symmetricKey,
+  ) async {
     final unseenMessageIds =
         (await _databaseService.fetchUnseenMessagesWith(recipientNumber))
             .map((e) => e.id)
@@ -357,6 +380,16 @@ class AppService {
       }
     };
 
-    _messageQueue.add(jsonEncode(data));
+    _encryptAndQueue(data, symmetricKey);
+  }
+
+  void _encryptAndQueue(Map<String, Object> event, String symmetricKey) async {
+    final contents = event["contents"];
+    final contentsAsString = jsonEncode(contents);
+    final encryptedContents =
+        await _encryptionService.encrypt(contentsAsString, symmetricKey);
+    event["contents"] = encryptedContents;
+
+    _messageQueue.add(jsonEncode(event));
   }
 }

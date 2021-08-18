@@ -13,14 +13,15 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) {
-        db.execute(Contact.CREATE_TABLE);
-        db.execute(Message.CREATE_TABLE);
-      },
-    );
+    return openDatabase(path, version: 2, onCreate: (db, version) {
+      db.execute(Contact.CREATE_TABLE);
+      db.execute(Message.CREATE_TABLE);
+    }, onUpgrade: (db, oldVersion, newVersion) {
+      db.execute("drop table ${Contact.CREATE_TABLE};");
+      db.execute("drop table ${Message.CREATE_TABLE};");
+      db.execute(Contact.CREATE_TABLE);
+      db.execute(Message.CREATE_TABLE);
+    });
   }
 
   /// Fetches the name of the contact with phone number [phoneNumber]. Returns

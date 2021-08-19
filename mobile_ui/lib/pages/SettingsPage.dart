@@ -203,6 +203,14 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () {},
               dense: true,
             ),
+            Container(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "Notifications",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+
           ],
         ),
       ),

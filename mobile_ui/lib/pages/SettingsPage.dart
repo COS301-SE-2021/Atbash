@@ -175,7 +175,24 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.arrow_forward_rounded),
               onTap: () {},
               dense: true,
-            )
+            ),
+            Container(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "Account",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.delete_forever),
+              title: Text(
+                "Delete Account",
+                style: TextStyle(fontSize: 16),
+              ),
+              trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {},
+              dense: true,
+            ),
           ],
         ),
       ),

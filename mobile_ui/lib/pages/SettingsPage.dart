@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ui/Domain/constants.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -8,7 +9,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _darkModeIsSelected = false;
+  //bool _darkModeIsSelected = false;
   bool _blurredImagesIsSelected = false;
   bool _safeChatIsSelected = false;
   bool _profileImageVisibleIsSelected = false;
@@ -68,20 +69,23 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            SwitchListTile(
-              value: _darkModeIsSelected,
-              onChanged: (bool newValue) {
-                setState(() {
-                  _darkModeIsSelected = !_darkModeIsSelected;
-                });
-              },
-              title: Text(
-                "Dark mode",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(Icons.dark_mode_rounded),
-              dense: true,
-            ),
+            // SwitchListTile(
+            //   value: _darkModeIsSelected,
+            //   onChanged: (bool newValue) {
+            //     setState(() {
+            //       _darkModeIsSelected = !_darkModeIsSelected;
+            //     });
+            //   },
+            //   title: Text(
+            //     "Dark mode",
+            //     style: TextStyle(fontSize: 16),
+            //   ),
+            //   secondary: Icon(
+            //     Icons.dark_mode_rounded,
+            //     color: Constants.orangeColor,
+            //   ),
+            //   dense: true,
+            // ),
             Container(
               padding: EdgeInsets.all(15),
               child: Text(
@@ -100,7 +104,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Blur images",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.remove_red_eye_outlined),
+              secondary: Icon(
+                Icons.remove_red_eye_outlined,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle: Text(
                   "Blur images by default. Images can still be viewed if selected"),
@@ -116,7 +123,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Safe chat",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.health_and_safety),
+              secondary: Icon(
+                Icons.health_and_safety,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle: Text(
                   "Enable safety features for all chats. Including profanity filters for text and media"),
@@ -133,7 +143,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Profile photo",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.photo),
+              secondary: Icon(
+                Icons.photo,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle: Text(
                   "Enable or disable whether your profile photo is visible to others"),
@@ -149,7 +162,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Status",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.wysiwyg),
+              secondary: Icon(
+                Icons.wysiwyg,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle: Text(
                   "Enable or disable whether your profile photo is visible to others"),
@@ -165,13 +181,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Read receipts",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.done_all),
+              secondary: Icon(
+                Icons.done_all,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle: Text(
                   "Choose whether others can see if you've read their messages"),
             ),
             ListTile(
-              leading: Icon(Icons.block),
+              leading: Icon(
+                Icons.block,
+                color: Constants.orangeColor,
+              ),
               title: Text(
                 "Blocked contacts",
                 style: TextStyle(fontSize: 16),
@@ -189,7 +211,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.contact_phone),
+              leading: Icon(
+                Icons.contact_phone,
+                color: Constants.orangeColor,
+              ),
               title: Text(
                 "Change Number",
                 style: TextStyle(fontSize: 16),
@@ -199,7 +224,10 @@ class _SettingsPageState extends State<SettingsPage> {
               dense: true,
             ),
             ListTile(
-              leading: Icon(Icons.delete_forever),
+              leading: Icon(
+                Icons.delete_forever,
+                color: Constants.orangeColor,
+              ),
               title: Text(
                 "Delete Account",
                 style: TextStyle(fontSize: 16),
@@ -226,7 +254,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Show notifications",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.notifications_active),
+              secondary: Icon(
+                Icons.notifications_active,
+                color: Constants.orangeColor,
+              ),
               dense: true,
             ),
             SwitchListTile(
@@ -241,7 +272,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Notification sounds",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.multitrack_audio),
+              secondary: Icon(
+                Icons.multitrack_audio,
+                color: Constants.orangeColor,
+              ),
               dense: true,
             ),
             SwitchListTile(
@@ -256,7 +290,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Message preview",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.multitrack_audio),
+              secondary: Icon(
+                Icons.multitrack_audio,
+                color: Constants.orangeColor,
+              ),
               dense: true,
               subtitle:
                   Text("Display a preview of the message in the notification"),
@@ -289,7 +326,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.help),
+              leading: Icon(
+                Icons.help,
+                color: Constants.orangeColor,
+              ),
               title: Text(
                 "User Manual",
                 style: TextStyle(fontSize: 16),

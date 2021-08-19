@@ -184,6 +184,16 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             ListTile(
+              leading: Icon(Icons.contact_phone),
+              title: Text(
+                "Change Number",
+                style: TextStyle(fontSize: 16),
+              ),
+              trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {},
+              dense: true,
+            ),
+            ListTile(
               leading: Icon(Icons.delete_forever),
               title: Text(
                 "Delete Account",

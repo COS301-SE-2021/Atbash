@@ -140,7 +140,6 @@ class _SettingsPageState extends State<SettingsPage> {
               secondary: Icon(Icons.wysiwyg),
               dense: true,
             ),
-
           ],
         ),
       ),

@@ -165,6 +165,17 @@ class _SettingsPageState extends State<SettingsPage> {
               subtitle: Text(
                   "Choose whether others can see if you've read their messages"),
             ),
+            ListTile(
+              leading: Icon(Icons.block),
+              title: Text(
+                "Blocked contacts",
+                style: TextStyle(fontSize: 16),
+              ),
+              subtitle: Text("View a list of all blocked contacts"),
+              trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {},
+              dense: true,
+            )
           ],
         ),
       ),

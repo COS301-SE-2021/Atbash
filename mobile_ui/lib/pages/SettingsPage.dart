@@ -71,6 +71,41 @@ class _SettingsPageState extends State<SettingsPage> {
               secondary: Icon(Icons.dark_mode_rounded),
               dense: true,
             ),
+            Container(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "Privacy",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
+            SwitchListTile(
+              value: _blurredImagesIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _blurredImagesIsSelected = !_blurredImagesIsSelected;
+                });
+              },
+              title: Text(
+                "Blur Incoming Images",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.remove_red_eye_outlined),
+              dense: true,
+            ),
+            SwitchListTile(
+              value: _blurredImagesIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _blurredImagesIsSelected = !_blurredImagesIsSelected;
+                });
+              },
+              title: Text(
+                "Blur Incoming Images",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.remove_red_eye_outlined),
+              dense: true,
+            ),
           ],
         ),
       ),

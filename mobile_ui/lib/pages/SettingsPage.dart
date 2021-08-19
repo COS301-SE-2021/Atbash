@@ -288,6 +288,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
+            ListTile(
+              leading: Icon(Icons.help),
+              title: Text(
+                "User Manual",
+                style: TextStyle(fontSize: 16),
+              ),
+              trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {},
+              dense: true,
+            ),
           ],
         ),
       ),

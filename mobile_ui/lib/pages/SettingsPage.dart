@@ -17,6 +17,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   bool _showNotificationsIsSelected = false;
   bool _notificationSoundsEnabledIsSelected = false;
+  bool _showMessagePreviewIsSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -241,6 +242,30 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               secondary: Icon(Icons.multitrack_audio),
               dense: true,
+            ),
+            SwitchListTile(
+              value: _showMessagePreviewIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _showMessagePreviewIsSelected =
+                      !_showMessagePreviewIsSelected;
+                });
+              },
+              title: Text(
+                "Message preview",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.multitrack_audio),
+              dense: true,
+              subtitle:
+                  Text("Display a preview of the message in the notification"),
+            ),
+            Container(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "Media auto-download",
+                style: TextStyle(fontSize: 20),
+              ),
             ),
           ],
         ),

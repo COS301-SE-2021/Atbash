@@ -57,8 +57,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            Icon(
-              Icons.arrow_forward,
+            SwitchListTile(
+              value: _darkModeIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _darkModeIsSelected = !_darkModeIsSelected;
+                });
+              },
+              title: Text(
+                "Dark mode",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.dark_mode_rounded),
+              dense: true,
             ),
           ],
         ),

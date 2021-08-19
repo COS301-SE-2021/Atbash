@@ -11,6 +11,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _darkModeIsSelected = false;
   bool _blurredImagesIsSelected = false;
   bool _safeChatIsSelected = false;
+  bool _profileImageVisibleIsSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +108,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.health_and_safety),
+              dense: true,
+            ),
+            SwitchListTile(
+              value: _profileImageVisibleIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _profileImageVisibleIsSelected =
+                      !_profileImageVisibleIsSelected;
+                });
+              },
+              title: Text(
+                "Profile Photo viewable by others",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.photo),
               dense: true,
             ),
           ],

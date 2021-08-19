@@ -281,6 +281,13 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               dense: true,
             ),
+            Container(
+              padding: EdgeInsets.all(15),
+              child: Text(
+                "Help",
+                style: TextStyle(fontSize: 20),
+              ),
+            ),
           ],
         ),
       ),

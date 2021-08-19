@@ -31,7 +31,7 @@ You visit our [project manangement tool](https://github.com/COS301-SE-2021/Atbas
 ### Dylan Pfab
 I am a 3rd year computer science student. I have been programming recreationally since I was 10, and professionaly since 2019.
 
-### Liam Mayston <br>
+### Liam Mayston (u19027801) [GitHub Profile](https://github.com/Blackbird0911), [LinkedIn](https://www.linkedin.com/in/liam-mayston-a28a1020b/) <br>
 
 <details><summary>Expand details</summary> 
   

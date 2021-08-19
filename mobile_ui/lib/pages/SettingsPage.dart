@@ -18,6 +18,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _showNotificationsIsSelected = false;
   bool _notificationSoundsEnabledIsSelected = false;
   bool _showMessagePreviewIsSelected = false;
+  bool _photoAutoDownloadIsSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +267,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Media auto-download",
                 style: TextStyle(fontSize: 20),
               ),
+            ),
+            SwitchListTile(
+              value: _photoAutoDownloadIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _photoAutoDownloadIsSelected = !_photoAutoDownloadIsSelected;
+                });
+              },
+              title: Text(
+                "Photos",
+                style: TextStyle(fontSize: 16),
+              ),
+              dense: true,
             ),
           ],
         ),

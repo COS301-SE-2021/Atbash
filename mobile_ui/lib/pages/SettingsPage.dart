@@ -15,6 +15,8 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _statusVisibleIsSelected = false;
   bool _readReceiptsIsSelected = false;
 
+  bool _showNotificationsIsSelected = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,6 +211,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 "Notifications",
                 style: TextStyle(fontSize: 20),
               ),
+            ),
+            SwitchListTile(
+              value: _showNotificationsIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _showNotificationsIsSelected = !_showNotificationsIsSelected;
+                });
+              },
+              title: Text(
+                "Show notifications",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.notifications_active),
+              dense: true,
             ),
           ],
         ),

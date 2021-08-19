@@ -13,6 +13,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _safeChatIsSelected = false;
   bool _profileImageVisibleIsSelected = false;
   bool _statusVisibleIsSelected = false;
+  bool _readReceiptsIsSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
               title: Text(
-                "Profile Photo viewable by others",
+                "Profile Photo",
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.photo),
@@ -134,10 +135,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
               title: Text(
-                "Status viewable by others",
+                "Status",
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.wysiwyg),
+              dense: true,
+            ),
+            SwitchListTile(
+              value: _readReceiptsIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _readReceiptsIsSelected = !_readReceiptsIsSelected;
+                });
+              },
+              title: Text(
+                "Read receipts",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.done_all),
               dense: true,
             ),
           ],

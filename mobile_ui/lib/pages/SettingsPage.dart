@@ -16,6 +16,7 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _readReceiptsIsSelected = false;
 
   bool _showNotificationsIsSelected = false;
+  bool _notificationSoundsEnabledIsSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +225,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.notifications_active),
+              dense: true,
+            ),
+            SwitchListTile(
+              value: _notificationSoundsEnabledIsSelected,
+              onChanged: (bool newValue) {
+                setState(() {
+                  _notificationSoundsEnabledIsSelected =
+                      !_notificationSoundsEnabledIsSelected;
+                });
+              },
+              title: Text(
+                "Notification sounds",
+                style: TextStyle(fontSize: 16),
+              ),
+              secondary: Icon(Icons.multitrack_audio),
               dense: true,
             ),
           ],

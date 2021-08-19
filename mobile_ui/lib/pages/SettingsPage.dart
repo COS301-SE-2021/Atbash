@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_ui/Domain/constants.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -9,6 +8,10 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  bool _darkModeIsSelected = false;
+  bool _blurredImagesIsSelected = false;
+  bool _safeChatIsSelected = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,17 +96,17 @@ class _SettingsPageState extends State<SettingsPage> {
               dense: true,
             ),
             SwitchListTile(
-              value: _blurredImagesIsSelected,
+              value: _safeChatIsSelected,
               onChanged: (bool newValue) {
                 setState(() {
-                  _blurredImagesIsSelected = !_blurredImagesIsSelected;
+                  _safeChatIsSelected = !_safeChatIsSelected;
                 });
               },
               title: Text(
-                "Blur Incoming Images",
+                "Safe Chat",
                 style: TextStyle(fontSize: 16),
               ),
-              secondary: Icon(Icons.remove_red_eye_outlined),
+              secondary: Icon(Icons.health_and_safety),
               dense: true,
             ),
           ],

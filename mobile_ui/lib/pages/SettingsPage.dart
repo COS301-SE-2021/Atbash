@@ -210,7 +210,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
-
           ],
         ),
       ),

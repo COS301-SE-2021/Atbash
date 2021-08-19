@@ -92,11 +92,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
               title: Text(
-                "Blur Incoming Images",
+                "Blur images",
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.remove_red_eye_outlined),
               dense: true,
+              subtitle: Text(
+                  "Blur images by default. Images can still be viewed if selected"),
             ),
             SwitchListTile(
               value: _safeChatIsSelected,
@@ -106,11 +108,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
               title: Text(
-                "Safe Chat",
+                "Safe chat",
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.health_and_safety),
               dense: true,
+              subtitle: Text(
+                  "Enable safety features for all chats. Including profanity filters for text and media"),
             ),
             SwitchListTile(
               value: _profileImageVisibleIsSelected,
@@ -121,11 +125,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 });
               },
               title: Text(
-                "Profile Photo",
+                "Profile photo",
                 style: TextStyle(fontSize: 16),
               ),
               secondary: Icon(Icons.photo),
               dense: true,
+              subtitle: Text(
+                  "Enable or disable whether your profile photo is visible to others"),
             ),
             SwitchListTile(
               value: _statusVisibleIsSelected,
@@ -140,6 +146,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               secondary: Icon(Icons.wysiwyg),
               dense: true,
+              subtitle: Text(
+                  "Enable or disable whether your profile photo is visible to others"),
             ),
             SwitchListTile(
               value: _readReceiptsIsSelected,
@@ -154,6 +162,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               secondary: Icon(Icons.done_all),
               dense: true,
+              subtitle: Text(
+                  "Choose whether others can see if you've read their messages"),
             ),
           ],
         ),

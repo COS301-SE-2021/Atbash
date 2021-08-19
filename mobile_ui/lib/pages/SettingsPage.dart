@@ -12,6 +12,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Settings"),
+      ),
       body: SafeArea(
         child: ListView(
           children: [

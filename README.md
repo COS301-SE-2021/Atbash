@@ -17,9 +17,13 @@ Atbash is a messaging application, where the privacy of messages is the top prio
 - You can see a recoding of our [third demo here](https://1drv.ms/v/s!ArtWCXK1UVHqguoButdH9j2d3wSSMg)
 
 ---
-## SRS Document
+## Demo 3 Documentation
 
-Please see our [SRS document](/Documentation/Demo2/SRS_Demo2.pdf) to see more about the technical details of our application.
+- Please see our [SRS document](/Documentation/Demo3/SRS.pdf) to see more about the technical details of our application.
+- Please see our [Architectural Requirements document](/Documentation/Demo3/Architectural_Requirements.pdf) to see more about the architectural details of our application.
+- Please see our [Coding Standards document](/Documentation/Demo3/Coding_Standards.pdf) to see more about the coding details of our application.
+- Please see our [Technical Installation Manual document](/Documentation/Demo3/Technical_Installation_Manual.pdf) to see more about the installation details of our application.
+- Please see our [User Manual document](/Documentation/Demo3/User_Manual.pdf) to see more about how to use our application.
 
 ---
 ## Project Management Tool

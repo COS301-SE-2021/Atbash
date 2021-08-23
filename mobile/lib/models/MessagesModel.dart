@@ -58,7 +58,12 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void sendMessageSeen(String messageId) {}
+  void sendMessageSeen(String messageId) {
+    // TODO send to remote
+
+    final message = messages.firstWhere((m) => m.id == messageId);
+    message.readReceipt = ReadReceipt.seen;
+  }
 
   @action
   void sendDeleteMessageRequest(String messageId) {

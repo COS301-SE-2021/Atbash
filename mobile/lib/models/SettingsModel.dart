@@ -45,8 +45,48 @@ abstract class _ChatListModel with Store {
         .read(key: "settings_blur_images")
         .then((value) => blurImages = value == "true");
 
+    final safeModeFuture = _storage
+        .read(key: "settings_safe_mode")
+        .then((value) => blurImages = value == "true");
+
+    final shareProfileImageFuture = _storage
+        .read(key: "settings_share_profile_image")
+        .then((value) => blurImages = value == "true");
+
+    final shareStatusFuture = _storage
+        .read(key: "settings_share_status")
+        .then((value) => blurImages = value == "true");
+
+    final shareReadReceiptsFuture = _storage
+        .read(key: "settings_share_read_receipts")
+        .then((value) => blurImages = value == "true");
+
+    final showNotificationsFuture = _storage
+        .read(key: "settings_show_notifications")
+        .then((value) => blurImages = value == "true");
+
+    final playNotificationsSoundFuture = _storage
+        .read(key: "settings_play_notifications_sound")
+        .then((value) => blurImages = value == "true");
+
+    final showMessagePreviewFuture = _storage
+        .read(key: "settings_show_message_preview")
+        .then((value) => blurImages = value == "true");
+
+    final autoDownloadMediaFuture = _storage
+        .read(key: "settings_auto_download_media")
+        .then((value) => blurImages = value == "true");
+
     await Future.wait([
       blurImagesFuture,
+      safeModeFuture,
+      shareProfileImageFuture,
+      shareStatusFuture,
+      shareReadReceiptsFuture,
+      showNotificationsFuture,
+      playNotificationsSoundFuture,
+      showMessagePreviewFuture,
+      autoDownloadMediaFuture
     ]);
   }
 
@@ -103,11 +143,15 @@ abstract class _ChatListModel with Store {
   @action
   void setShowMessagePreview(bool value) {
     this.showMessagePreview = value;
+    _storage.write(
+        key: "settings_show_message_preview", value: value ? "true" : "false");
   }
 
   @action
   void setAutoDownloadMedia(bool value) {
     this.autoDownloadMedia = value;
+    _storage.write(
+        key: "settings_auto_download_media", value: value ? "true" : "false");
   }
 
   @action

@@ -61,7 +61,13 @@ abstract class _MessagesModel with Store {
   void sendMessageSeen(String messageId) {}
 
   @action
-  void sendDeleteMessageRequest(String messageId) {}
+  void sendDeleteMessageRequest(String messageId) {
+    // TODO send to remote
+
+    final message = messages.firstWhere((m) => m.id == messageId);
+    message.deleted = true;
+    message.contents = "";
+  }
 
   @action
   void likeMessage(String messageId) {}

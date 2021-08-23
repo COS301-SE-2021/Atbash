@@ -4,8 +4,7 @@ part 'UserModel.g.dart';
 
 class UserModel = _UserModel with _$UserModel;
 
-abstract class _UserModel with Store{
-
+abstract class _UserModel with Store {
   String phoneNumber = "";
   String displayName = "";
   String status = "";
@@ -13,12 +12,10 @@ abstract class _UserModel with Store{
   String birthday = "";
 
   @action
-  register(String phoneNumber){
-
-  }
+  register(String phoneNumber) {}
 
   @action
-  bool isRegistered(){
+  bool isRegistered() {
     return true;
   }
 }

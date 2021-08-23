@@ -25,6 +25,8 @@ void main() async {
   GetIt.I.registerSingleton(contactListModel);
   GetIt.I.registerSingleton(messagesModel);
 
+  await settingsModel.init();
+
   runApp(AtbashApp(navigatorKey));
 }
 

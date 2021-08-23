@@ -55,7 +55,11 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void deleteChat(String id) {}
+  void deleteChat(String id) {
+    // TODO remove from db
+
+    chats.removeWhere((element) => element.id == id);
+  }
 
   @action
   void setChatContact(Contact contact) {}

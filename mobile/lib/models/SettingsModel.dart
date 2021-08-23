@@ -37,31 +37,51 @@ abstract class _ChatListModel with Store {
   ObservableList<String> blockedNumbers = <String>[].asObservable();
 
   @action
-  void setSafeMode(bool safeMode, String pin) {}
+  void setSafeMode(bool safeMode, String pin) {
+    //TODO: set pin variable
+    //if(pin is correct)
+    this.safeMode = safeMode;
+  }
 
   @action
-  void setBlurImages(bool value) {}
+  void setBlurImages(bool value) {
+    this.blurImages = value;
+  }
 
   @action
-  void setShareProfileImage(bool value) {}
+  void setShareProfileImage(bool value) {
+    this.shareProfileImage = value;
+  }
 
   @action
-  void setShareStatus(bool value) {}
+  void setShareStatus(bool value) {
+    this.shareStatus = value;
+  }
 
   @action
-  void setShareReadReceipts(bool value) {}
+  void setShareReadReceipts(bool value) {
+    this.shareReadReceipts = value;
+  }
 
   @action
-  void setShowNotifications(bool value) {}
+  void setShowNotifications(bool value) {
+    this.showNotifications = value;
+  }
 
   @action
-  void setPlayNotificationsSound(bool value) {}
+  void setPlayNotificationsSound(bool value) {
+    this.playNotificationsSound = value;
+  }
 
   @action
-  void setShowMessagePreview(bool value) {}
+  void setShowMessagePreview(bool value) {
+    this.showMessagePreview = value;
+  }
 
   @action
-  void setAutoDownloadMedia(bool value) {}
+  void setAutoDownloadMedia(bool value) {
+    this.autoDownloadMedia = value;
+  }
 
   @action
   void addBlockedNumber(String number) {

@@ -1,1 +1,0 @@
-class DuplicateContactNumberException implements Exception {}

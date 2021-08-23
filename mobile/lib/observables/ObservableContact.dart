@@ -18,7 +18,7 @@ abstract class _ObservableContact with Store {
   String profileImage;
 
   @observable
-  DateTime birthday;
+  DateTime? birthday;
 
   _ObservableContact(Contact c)
       : phoneNumber = c.phoneNumber,
@@ -26,4 +26,10 @@ abstract class _ObservableContact with Store {
         status = c.status,
         profileImage = c.profileImage,
         birthday = c.birthday;
+}
+
+extension ContactExtension on Contact {
+  ObservableContact asObservable() {
+    return ObservableContact(this);
+  }
 }

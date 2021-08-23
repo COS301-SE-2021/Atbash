@@ -49,4 +49,25 @@ abstract class _UserModel with Store {
   bool isRegistered() {
     return true;
   }
+
+  void setDisplayName(String displayName) {
+    this.displayName = displayName;
+    _storage.write(key: "display_name", value: displayName);
+  }
+
+  void setStatus(String status) {
+    this.status = status;
+    _storage.write(key: "status", value: status);
+  }
+
+  void setProfileImage(String profileImage) {
+    this.profileImage = profileImage;
+    _storage.write(key: "profile_image", value: profileImage);
+  }
+
+  void setBirthday(DateTime birthday) {
+    this.birthday = birthday;
+    _storage.write(
+        key: "birthday", value: birthday.millisecondsSinceEpoch.toString());
+  }
 }

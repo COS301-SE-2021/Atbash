@@ -13,12 +13,12 @@ abstract class _UserModel with Store{
   String birthday = "";
 
   @action
-  register(){
+  register(String phoneNumber){
 
   }
 
   @action
-  isRegistered(){
-
+  bool isRegistered(){
+    return true;
   }
 }

@@ -166,8 +166,26 @@ mixin _$ChatListModel on _ChatListModel, Store {
     });
   }
 
+  final _$initAsyncAction = AsyncAction('_ChatListModel.init');
+
+  @override
+  Future<void> init() {
+    return _$initAsyncAction.run(() => super.init());
+  }
+
   final _$_ChatListModelActionController =
       ActionController(name: '_ChatListModel');
+
+  @override
+  void setSafeModePin(String pin) {
+    final _$actionInfo = _$_ChatListModelActionController.startAction(
+        name: '_ChatListModel.setSafeModePin');
+    try {
+      return super.setSafeModePin(pin);
+    } finally {
+      _$_ChatListModelActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setSafeMode(bool safeMode, String pin) {

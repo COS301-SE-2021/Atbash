@@ -63,6 +63,8 @@ abstract class _MessagesModel with Store {
 
     final message = messages.firstWhere((m) => m.id == messageId);
     message.readReceipt = ReadReceipt.seen;
+
+    // TODO persist changes
   }
 
   @action
@@ -72,6 +74,8 @@ abstract class _MessagesModel with Store {
     final message = messages.firstWhere((m) => m.id == messageId);
     message.deleted = true;
     message.contents = "";
+
+    // TODO persist changes
   }
 
   @action
@@ -80,5 +84,7 @@ abstract class _MessagesModel with Store {
 
     final message = messages.firstWhere((m) => m.id == messageId);
     message.liked = true;
+
+    // TODO persist changes
   }
 }

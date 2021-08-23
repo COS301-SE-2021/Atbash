@@ -91,10 +91,17 @@ abstract class _ChatListModel with Store {
   }
 
   @action
+  void setSafeModePin(String pin) {
+    _storage.write(key: "settings_safe_search_pin", value: pin);
+  }
+
+  @action
   void setSafeMode(bool safeMode, String pin) {
-    //TODO: set pin variable
-    //if(pin is correct)
+    //TODO: implement pin check
+
     this.safeMode = safeMode;
+    _storage.write(
+        key: "settings_safe_mode", value: safeMode ? "true" : "false");
   }
 
   @action

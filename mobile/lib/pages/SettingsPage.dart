@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/pages/ContactEditPage.dart';
+import 'package:mobile/pages/ProfileSettingsPage.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ContactEditPage()));
+                          builder: (context) => ProfileSettingsPage()));
                 },
                 child: Container(
                   padding: EdgeInsets.all(15),

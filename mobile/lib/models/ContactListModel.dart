@@ -41,5 +41,9 @@ abstract class _ContactListModel with Store {
 
   @action
   void setContactProfilePicture(
-      String phoneNumber, String profilePictureBase64) {}
+      String phoneNumber, String profilePictureBase64) {
+    contacts
+        .firstWhere((element) => element.phoneNumber == phoneNumber)
+        .profileImage = profilePictureBase64;
+  }
 }

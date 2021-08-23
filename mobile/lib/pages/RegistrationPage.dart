@@ -137,15 +137,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => ProfileSettingsPage()));
     } else {
-      showSnackBar("This phone number is already registered");
+      showSnackBar(context, "This phone number is already registered");
+      setState(() {
+        loading = false;
+      });
     }
-  }
-
-  void showSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
-    setState(() {
-      loading = false;
-    });
   }
 }

@@ -51,7 +51,11 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void deleteMessageLocally(String messageId) {}
+  void deleteMessageLocally(String messageId) {
+    // TODO delete from db
+
+    messages.removeWhere((m) => m.id == messageId);
+  }
 
   @action
   void sendReadReceipt(String messageId, ReadReceipt readReceipt) {}

@@ -35,7 +35,24 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {}
+  void startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
+    // If specific type of chat already exists with contact, do nothing and return
+    if (chats.any((element) =>
+        element.contactPhoneNumber == phoneNumber &&
+        element.chatType == chatType)) {
+      return;
+    }
+
+    final chat = Chat(
+      id: Uuid().v4(),
+      contactPhoneNumber: phoneNumber,
+      chatType: chatType,
+    );
+
+    // TODO persist chat
+
+    chats.add(chat.asObservable());
+  }
 
   @action
   void deleteChat(String id) {}

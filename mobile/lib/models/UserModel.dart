@@ -44,7 +44,11 @@ abstract class _UserModel with Store {
   }
 
   @action
-  void register(String phoneNumber) {}
+  bool register(String phoneNumber) {
+    //TODO implement logic
+
+    return true;
+  }
 
   @computed
   Future<bool> get isRegistered async =>

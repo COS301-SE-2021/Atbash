@@ -87,7 +87,7 @@ mixin _$UserModel on _UserModel, Store {
   final _$_UserModelActionController = ActionController(name: '_UserModel');
 
   @override
-  void register(String phoneNumber) {
+  bool register(String phoneNumber) {
     final _$actionInfo =
         _$_UserModelActionController.startAction(name: '_UserModel.register');
     try {

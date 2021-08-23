@@ -14,7 +14,9 @@ abstract class _ContactListModel with Store {
   void addContact(String phoneNumber, String displayName) {}
 
   @action
-  void deleteContact(String phoneNumber) {}
+  void deleteContact(String phoneNumber) {
+    contacts.removeWhere((element) => element.phoneNumber == phoneNumber);
+  }
 
   @action
   void setContactBirthday(String phoneNumber, DateTime birthday) {}

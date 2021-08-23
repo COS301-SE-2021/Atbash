@@ -62,4 +62,20 @@ abstract class _ChatListModel with Store {
 
   @action
   void setAutoDownloadMedia(bool value) {}
+
+  @action
+  void addBlockedNumber(String number) {
+    //TODO:
+    //Persist data
+
+    blockedNumbers.add(number);
+  }
+
+  @action
+  void removeBlockedNumber(String number) {
+    //TODO:
+    //Persist data
+
+    blockedNumbers.remove(number);
+  }
 }

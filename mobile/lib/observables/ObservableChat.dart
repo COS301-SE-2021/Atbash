@@ -27,3 +27,9 @@ abstract class _ObservableChat with Store {
         this.chatType = c.chatType,
         this.mostRecentMessage = c.mostRecentMessage;
 }
+
+extension ChatExtension on Chat {
+  ObservableChat asObservable() {
+    return ObservableChat(this);
+  }
+}

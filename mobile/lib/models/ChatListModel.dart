@@ -62,8 +62,8 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void setChatContact(Contact contact) {}
+  void setChatContact(String chatId, Contact contact) {}
 
   @action
-  void setChatMostRecentMessage(Message message) {}
+  void setChatMostRecentMessage(String chatId, Message message) {}
 }

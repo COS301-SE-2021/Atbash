@@ -61,22 +61,22 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void setChatContact(Contact contact) {
+  void setChatContact(String chatId, Contact contact) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatContact');
     try {
-      return super.setChatContact(contact);
+      return super.setChatContact(chatId, contact);
     } finally {
       _$_ChatListModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  void setChatMostRecentMessage(Message message) {
+  void setChatMostRecentMessage(String chatId, Message message) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatMostRecentMessage');
     try {
-      return super.setChatMostRecentMessage(message);
+      return super.setChatMostRecentMessage(chatId, message);
     } finally {
       _$_ChatListModelActionController.endAction(_$actionInfo);
     }

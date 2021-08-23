@@ -58,7 +58,7 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void sendReadReceipt(String messageId, ReadReceipt readReceipt) {}
+  void sendMessageSeen(String messageId) {}
 
   @action
   void sendDeleteMessageRequest(String messageId) {}

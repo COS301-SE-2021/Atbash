@@ -76,11 +76,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void sendReadReceipt(String messageId, ReadReceipt readReceipt) {
+  void sendMessageSeen(String messageId) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
-        name: '_MessagesModel.sendReadReceipt');
+        name: '_MessagesModel.sendMessageSeen');
     try {
-      return super.sendReadReceipt(messageId, readReceipt);
+      return super.sendMessageSeen(messageId);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }

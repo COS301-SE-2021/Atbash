@@ -8,8 +8,9 @@ class UserModel = _UserModel with _$UserModel;
 abstract class _UserModel with Store {
   final _storage = FlutterSecureStorage();
 
-  @observable
-  String phoneNumber = "";
+  @computed
+  Future<String?> get phoneNumber async =>
+      await _storage.read(key: "phone_number");
 
   @observable
   String? displayName;
@@ -45,10 +46,9 @@ abstract class _UserModel with Store {
   @action
   void register(String phoneNumber) {}
 
-  @action
-  bool isRegistered() {
-    return true;
-  }
+  @computed
+  Future<bool> get isRegistered async =>
+      await _storage.read(key: "phone_number") != null;
 
   void setDisplayName(String displayName) {
     this.displayName = displayName;

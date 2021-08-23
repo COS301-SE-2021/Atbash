@@ -69,5 +69,9 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void setChatMostRecentMessage(String chatId, Message message) {}
+  void setChatMostRecentMessage(String chatId, Message message) {
+    // TODO update in db
+
+    chats.firstWhere((e) => e.id == chatId).mostRecentMessage = message;
+  }
 }

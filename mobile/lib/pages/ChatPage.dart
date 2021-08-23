@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/observables/ObservableChat.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  final ObservableChat chat;
+
+  const ChatPage({
+    Key? key,
+    required this.chat,
+  }) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();

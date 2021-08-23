@@ -33,7 +33,11 @@ abstract class _ContactListModel with Store {
   }
 
   @action
-  void setContactStatus(String phoneNumber, String status) {}
+  void setContactStatus(String phoneNumber, String status) {
+    contacts
+        .firstWhere((element) => element.phoneNumber == phoneNumber)
+        .status = status;
+  }
 
   @action
   void setContactProfilePicture(

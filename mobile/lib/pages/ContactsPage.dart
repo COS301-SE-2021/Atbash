@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/observables/ObservableContact.dart';
+import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactsPage extends StatefulWidget {
@@ -228,7 +229,11 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _editContact(ObservableContact contact) {
-    // TODO edit contact
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ContactInfoPage(contact: contact),
+      ),
+    );
   }
 
   void _deleteContact(ObservableContact contact) {

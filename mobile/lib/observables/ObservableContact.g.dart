@@ -57,13 +57,13 @@ mixin _$ObservableContact on _ObservableContact, Store {
   final _$birthdayAtom = Atom(name: '_ObservableContact.birthday');
 
   @override
-  DateTime get birthday {
+  DateTime? get birthday {
     _$birthdayAtom.reportRead();
     return super.birthday;
   }
 
   @override
-  set birthday(DateTime value) {
+  set birthday(DateTime? value) {
     _$birthdayAtom.reportWrite(value, super.birthday, () {
       super.birthday = value;
     });

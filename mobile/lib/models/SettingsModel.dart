@@ -7,31 +7,31 @@ class ChatListModel = _ChatListModel with _$ChatListModel;
 
 abstract class _ChatListModel with Store {
   @observable
-  bool blurImages;
+  bool blurImages = false;
 
   @observable
-  bool safeMode;
+  bool safeMode = false;
 
   @observable
-  bool shareProfileImage;
+  bool shareProfileImage = true;
 
   @observable
-  bool shareStatus;
+  bool shareStatus = true;
 
   @observable
-  bool shareReadReceipts;
+  bool shareReadReceipts = true;
 
   @observable
-  bool showNotifications;
+  bool showNotifications = true;
 
   @observable
-  bool playNotificationsSound;
+  bool playNotificationsSound = true;
 
   @observable
-  bool showMessagePreview;
+  bool showMessagePreview = false;
 
   @observable
-  bool autoDownloadMedia;
+  bool autoDownloadMedia = false;
 
   @observable
   ObservableList<String> blockedNumbers = <String>[].asObservable();

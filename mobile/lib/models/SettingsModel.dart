@@ -35,4 +35,31 @@ abstract class _ChatListModel with Store {
 
   @observable
   ObservableList<String> blockedNumbers = <String>[].asObservable();
+
+  @action
+  void setSafeMode(bool safeMode, String pin) {}
+
+  @action
+  void setBlurImages(bool value) {}
+
+  @action
+  void setShareProfileImage(bool value) {}
+
+  @action
+  void setShareStatus(bool value) {}
+
+  @action
+  void setShareReadReceipts(bool value) {}
+
+  @action
+  void setShowNotifications(bool value) {}
+
+  @action
+  void setPlayNotificationsSound(bool value) {}
+
+  @action
+  void setShowMessagePreview(bool value) {}
+
+  @action
+  void setAutoDownloadMedia(bool value) {}
 }

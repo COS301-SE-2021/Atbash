@@ -1,3 +1,4 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -6,35 +7,48 @@ part 'SettingsModel.g.dart';
 class ChatListModel = _ChatListModel with _$ChatListModel;
 
 abstract class _ChatListModel with Store {
-  @observable
-  bool blurImages = false;
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   @observable
-  bool safeMode = false;
+  late bool blurImages;
 
   @observable
-  bool shareProfileImage = true;
+  late bool safeMode;
 
   @observable
-  bool shareStatus = true;
+  late bool shareProfileImage;
 
   @observable
-  bool shareReadReceipts = true;
+  late bool shareStatus;
 
   @observable
-  bool showNotifications = true;
+  late bool shareReadReceipts;
 
   @observable
-  bool playNotificationsSound = true;
+  late bool showNotifications;
 
   @observable
-  bool showMessagePreview = false;
+  late bool playNotificationsSound;
 
   @observable
-  bool autoDownloadMedia = false;
+  late bool showMessagePreview;
+
+  @observable
+  late bool autoDownloadMedia;
 
   @observable
   ObservableList<String> blockedNumbers = <String>[].asObservable();
+
+  @action
+  Future<void> init() async {
+    final blurImagesFuture = _storage
+        .read(key: "settings_blur_images")
+        .then((value) => blurImages = value == "true");
+
+    await Future.wait([
+      blurImagesFuture,
+    ]);
+  }
 
   @action
   void setSafeMode(bool safeMode, String pin) {
@@ -46,31 +60,44 @@ abstract class _ChatListModel with Store {
   @action
   void setBlurImages(bool value) {
     this.blurImages = value;
+    _storage.write(
+        key: "settings_blur_images", value: value ? "true" : "false");
   }
 
   @action
   void setShareProfileImage(bool value) {
     this.shareProfileImage = value;
+    _storage.write(
+        key: "settings_share_profile_image", value: value ? "true" : "false");
   }
 
   @action
   void setShareStatus(bool value) {
     this.shareStatus = value;
+    _storage.write(
+        key: "settings_share_status", value: value ? "true" : "false");
   }
 
   @action
   void setShareReadReceipts(bool value) {
     this.shareReadReceipts = value;
+    _storage.write(
+        key: "settings_share_read_receipts", value: value ? "true" : "false");
   }
 
   @action
   void setShowNotifications(bool value) {
     this.showNotifications = value;
+    _storage.write(
+        key: "settings_show_notifications", value: value ? "true" : "false");
   }
 
   @action
   void setPlayNotificationsSound(bool value) {
     this.playNotificationsSound = value;
+    _storage.write(
+        key: "settings_play_notifications_sound",
+        value: value ? "true" : "false");
   }
 
   @action

@@ -41,3 +41,9 @@ abstract class _ObservableMessage with Store {
         liked = m.liked,
         tags = m.tags.map((e) => ObservableTag(e)).toList().asObservable();
 }
+
+extension MessageExtension on Message {
+  ObservableMessage asObservable() {
+    return ObservableMessage(this);
+  }
+}

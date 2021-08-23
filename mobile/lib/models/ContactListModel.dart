@@ -26,7 +26,11 @@ abstract class _ContactListModel with Store {
   }
 
   @action
-  void setContactDisplayName(String phoneNumber, String displayName) {}
+  void setContactDisplayName(String phoneNumber, String displayName) {
+    contacts
+        .firstWhere((element) => element.phoneNumber == phoneNumber)
+        .displayName = displayName;
+  }
 
   @action
   void setContactStatus(String phoneNumber, String status) {}

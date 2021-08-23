@@ -130,20 +130,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
       loading = true;
     });
 
-    final number = cullToE164(_phoneNumberController.text);
-    print(number);
+    final phoneNumber =
+        selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    if (number.length != 9) {
-      showSnackBar("Phone number must be 10 digits long");
+    if (userModel.register(phoneNumber)) {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => ProfileSettingsPage()));
     } else {
-      final phoneNumber = selectedDialCode + number;
-
-      if (userModel.register(phoneNumber)) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => ProfileSettingsPage()));
-      } else {
-        showSnackBar("This phone number is already registered");
-      }
+      showSnackBar("This phone number is already registered");
     }
   }
 

@@ -19,7 +19,11 @@ abstract class _ContactListModel with Store {
   }
 
   @action
-  void setContactBirthday(String phoneNumber, DateTime birthday) {}
+  void setContactBirthday(String phoneNumber, DateTime birthday) {
+    contacts
+        .firstWhere((element) => element.phoneNumber == phoneNumber)
+        .birthday = birthday;
+  }
 
   @action
   void setContactDisplayName(String phoneNumber, String displayName) {}

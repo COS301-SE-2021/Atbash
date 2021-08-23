@@ -47,7 +47,7 @@ abstract class _MessagesModel with Store {
 
     // TODO persist message
 
-    messages.add(message.asObservable());
+    messages.insert(0, message.asObservable());
   }
 
   @action

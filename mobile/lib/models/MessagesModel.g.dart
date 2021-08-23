@@ -65,11 +65,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void deleteMessagesLocally(String messageId) {
+  void deleteMessageLocally(String messageId) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
-        name: '_MessagesModel.deleteMessagesLocally');
+        name: '_MessagesModel.deleteMessageLocally');
     try {
-      return super.deleteMessagesLocally(messageId);
+      return super.deleteMessageLocally(messageId);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }

@@ -65,8 +65,8 @@ class _ContactEditPageState extends State<ContactEditPage> {
     if (displayName.isEmpty) {
       showSnackBar(context, "Display name cannot be blank");
     } else {
-      // TODO verify that this updates in ContactsPage
       widget.contact.displayName = displayName;
+      Navigator.of(context).pop();
     }
   }
 }

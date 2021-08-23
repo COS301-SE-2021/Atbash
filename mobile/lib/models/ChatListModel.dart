@@ -62,7 +62,11 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void setChatContact(String chatId, Contact contact) {}
+  void setChatContact(String chatId, Contact contact) {
+    // TODO update in db
+
+    chats.firstWhere((e) => e.id == chatId).contact = contact;
+  }
 
   @action
   void setChatMostRecentMessage(String chatId, Message message) {}

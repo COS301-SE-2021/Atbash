@@ -70,5 +70,10 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void likeMessage(String messageId) {}
+  void likeMessage(String messageId) {
+    // TODO send to remote
+
+    final message = messages.firstWhere((m) => m.id == messageId);
+    message.liked = true;
+  }
 }

@@ -1,12 +1,11 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
-import 'package:mobx/mobx.dart';
 
 part 'SettingsModel.g.dart';
 
-class ChatListModel = _ChatListModel with _$ChatListModel;
+class SettingsModel = _SettingsModel with _$SettingsModel;
 
-abstract class _ChatListModel with Store {
+abstract class _SettingsModel with Store {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   @observable

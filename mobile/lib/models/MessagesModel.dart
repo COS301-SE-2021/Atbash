@@ -16,7 +16,11 @@ abstract class _MessagesModel with Store {
   ObservableChat? openChat;
 
   @action
-  void enterChat(ObservableChat chat) {}
+  void enterChat(ObservableChat chat) {
+    openChat = chat;
+
+    // TODO fetch messages
+  }
 
   @action
   void sendMessage(String contents) {}

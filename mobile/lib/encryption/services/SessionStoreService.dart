@@ -17,10 +17,10 @@ class SessionStoreService extends SessionStore {
   //   return (await _databaseService.fetchSession(address)) != null;
   // }
 
-  @override
-  Future<void> deleteAllSessions(String name) async {
-    await _databaseService.deleteAllSessions();
-  }
+  // @override
+  // Future<void> deleteAllSessions(String name) async {
+  //   await _databaseService.deleteAllSessions();
+  // }
 
   @override
   Future<void> deleteSession(SignalProtocolAddress address) async {
@@ -72,6 +72,11 @@ class SessionStoreService extends SessionStore {
     return response.isNotEmpty;
   }
 
-
+  /// Deletes all sessions from database.
+  @override
+  Future<void> deleteAllSessions() async {
+    final db = await _databaseService.database;
+    db.delete(SessionDBRecord.TABLE_NAME);
+  }
 
 }

@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'EncryptionService.dart';
@@ -212,10 +215,6 @@ class RegistrationService {
 
     return base64.encode(authBytesBuilder.toBytes());
   }
-
-
-
-
 
 
 

@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../TrustedKeyDBRecord.dart';
 
@@ -101,6 +102,19 @@ class IdentityKeyStoreService extends IdentityKeyStore {
     return null;
   }
 
+  /// Saves a TrustedKey to the database and returns.
+  Future<TrustedKeyDBRecord> saveTrustedKey(
+      SignalProtocolAddress address, IdentityKey identityKey) async {
+    TrustedKeyDBRecord trustedKey =
+    TrustedKeyDBRecord(address, identityKey.serialize());
+
+    final db = await _databaseService.database;
+
+    db.insert(TrustedKeyDBRecord.TABLE_NAME, trustedKey.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+
+    return trustedKey;
+  }
 
 
 

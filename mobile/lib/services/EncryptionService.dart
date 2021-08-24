@@ -52,24 +52,7 @@ class EncryptionService {
     CiphertextMessage ciphertext = await createCipherTextMessage(
         recipientNumber, jsonEncode(messageContent));
     final serializedCipherMessage = ciphertext.serialize();
-    // print("Encrypted contents as list: " + serializedCipherMessage.toString());
-    // print("Checking message is in correct format...");
     final encodedSerializedCipherMessage = base64Encode(serializedCipherMessage);
-    // CiphertextMessage? reconstructedCipherMessage;
-    //
-    // try {
-    //   reconstructedCipherMessage = PreKeySignalMessage(base64Decode(encodedSerializedCipherMessage));
-    //   print("Success");
-    // } catch (error){
-    //   try {
-    //     reconstructedCipherMessage = SignalMessage.fromSerialized(base64Decode(encodedSerializedCipherMessage));
-    //     print("Success");
-    //   } catch (error){
-    //     print("Failed");
-    //     reconstructedCipherMessage = null;
-    //     throw error;
-    //   }
-    // }
 
     return encodedSerializedCipherMessage;
   }
@@ -108,8 +91,6 @@ class EncryptionService {
         }
       }
 
-      // plaintext = await decryptCipherTextMessage(senderPhoneNumber,
-      //     reconstructedCipherMessage);
     } on InvalidMessageException catch (e) {
       throw DecryptionErrorException(e.detailMessage);
     }
@@ -121,7 +102,6 @@ class EncryptionService {
       String plaintext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 
-    //Todo: Update this to also execute if there has been 5? failed decryptions in a row
     if (!(await _signalProtocolStoreService.containsSession(address))) {
       print("Session for \"" + number + "\" not found. Creating new session.");
       await createSession(address);
@@ -146,7 +126,6 @@ class EncryptionService {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 
     //Note: New session is created automatically
-
     var sessionCipher = SessionCipher.fromStore(
         _signalProtocolStoreService, address);
 
@@ -209,13 +188,10 @@ class EncryptionService {
 
   }
 
-  //GET /v2/keys/+31611XXXXXX/* HTTP/1.0
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
-    // final url = Uri.parse("http://" + baseURL + "keys/$number/");
     final url = Uri.parse(Constants.httpUrl + "keys/get");
 
     final authTokenEncoded = await getDeviceAuthTokenEncoded();
-    // final response = await http.get(url, headers: {"Authorization": "Basic $authTokenEncoded"});
 
     final phoneNumber = await getUserPhoneNumber();
 
@@ -226,6 +202,7 @@ class EncryptionService {
       "recipientNumber": number
     };
 
+    // final response = await http.post(url, body: jsonEncode(data), headers: {"Authorization": "Basic $authTokenEncoded"});
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
@@ -240,11 +217,6 @@ class EncryptionService {
       }
 
       PreKeyBundle preKeyBundle = preKeyBundlePackage.createPreKeyBundle();
-
-      // if (preKeyBundle == null) {
-      //   throw InvalidPreKeyBundleFormat(
-      //       "Receive incorrectly formatted PreKeyBundle from server for number: $number.");
-      // }
 
       print("Returning created PKBundle");
       return preKeyBundle;

@@ -49,7 +49,7 @@ class EncryptionService {
     }
 
     print("Creating CipherTextMessage");
-    CiphertextMessage ciphertext = await createCipherTextMessage(
+    CiphertextMessage ciphertext = await _createCipherTextMessage(
         recipientNumber, jsonEncode(messageContent));
     final serializedCipherMessage = ciphertext.serialize();
     final encodedSerializedCipherMessage = base64Encode(serializedCipherMessage);
@@ -76,13 +76,13 @@ class EncryptionService {
       try {
         reconstructedCipherMessage = PreKeySignalMessage(decodedEncryptedContents);
         print("Success1");
-        plaintext = await decryptCipherTextMessage(senderPhoneNumber,
+        plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
             reconstructedCipherMessage);
       } catch (error){
         try {
           reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
           print("Success2");
-          plaintext = await decryptCipherTextMessage(senderPhoneNumber,
+          plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
               reconstructedCipherMessage);
         } catch (error){
           print("Failed");
@@ -98,7 +98,7 @@ class EncryptionService {
     return jsonDecode(plaintext);
   }
 
-  Future<CiphertextMessage> createCipherTextMessage(String number,
+  Future<CiphertextMessage> _createCipherTextMessage(String number,
       String plaintext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 
@@ -121,7 +121,7 @@ class EncryptionService {
     return ciphertext;
   }
 
-  Future<String> decryptCipherTextMessage(String number,
+  Future<String> _decryptCipherTextMessage(String number,
       CiphertextMessage ciphertext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 

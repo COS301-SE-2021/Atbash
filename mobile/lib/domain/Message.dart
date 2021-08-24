@@ -39,7 +39,7 @@ class Message {
       "$COLUMN_TIMESTAMP int not null,"
       "$COLUMN_READ_RECEIPT int not null,"
       "$COLUMN_DELETED tinyint not null,"
-      "$COLUMN_LIKED tinyint not null,"
+      "$COLUMN_LIKED tinyint not null"
       ");";
 }
 

@@ -28,7 +28,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   @override
   Future<List<SignedPreKeyRecord>> loadSignedPreKeys() async {
     try {
-      final results = await _databaseService.fetchSignedPreKeys();
+      final results = await fetchSignedPreKeys();
       return results;
     } on Exception catch (e) {
       throw AssertionError(e);

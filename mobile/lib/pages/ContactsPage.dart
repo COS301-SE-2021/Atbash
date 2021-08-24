@@ -3,8 +3,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
+import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/observables/ObservableContact.dart';
+import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -17,6 +20,7 @@ class ContactsPage extends StatefulWidget {
 
 class _ContactsPageState extends State<ContactsPage> {
   final ContactListModel contactListModel = GetIt.I.get();
+  final ChatListModel chatListModel = GetIt.I.get();
 
   bool _searching = false;
   String _filterQuery = "";
@@ -180,7 +184,12 @@ class _ContactsPageState extends State<ContactsPage> {
 
   InkWell _buildContact(ObservableContact contact) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        final chat =
+            chatListModel.startChatWithContact(contact, ChatType.general);
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => ChatPage(chat: chat)));
+      },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0),
         child: Container(

@@ -46,10 +46,10 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   // Future<bool> containsSignedPreKey(int signedPreKeyId) async =>
   //     _databaseService.checkExistsSignedPreKey(signedPreKeyId);
 
-  @override
-  Future<void> removeSignedPreKey(int signedPreKeyId) async {
-    _databaseService.deleteSignedPreKey(signedPreKeyId);
-  }
+  // @override
+  // Future<void> removeSignedPreKey(int signedPreKeyId) async {
+  //   _databaseService.deleteSignedPreKey(signedPreKeyId);
+  // }
 
   Future<void> storeLocalSignedPreKeyID(int signedPreKeyId) async {
     await _storage.write(key: "local_signed_prekey_id", value: signedPreKeyId.toString());
@@ -130,6 +130,16 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     return response.isNotEmpty;
   }
 
+  /// Deletes SignedPreKey from database.
+  @override
+  Future<void> removeSignedPreKey(int signedPreKeyId) async {
+    final db = await _databaseService.database;
 
+    db.delete(
+      SignedPreKeyDBRecord.TABLE_NAME,
+      where: "${SignedPreKeyDBRecord.COLUMN_KEY_ID} = ?",
+      whereArgs: [signedPreKeyId],
+    );
+  }
 
 }

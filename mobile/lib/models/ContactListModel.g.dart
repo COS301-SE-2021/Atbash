@@ -24,15 +24,23 @@ mixin _$ContactListModel on _ContactListModel, Store {
     });
   }
 
+  final _$addContactAsyncAction = AsyncAction('_ContactListModel.addContact');
+
+  @override
+  Future<void> addContact(String phoneNumber, String displayName) {
+    return _$addContactAsyncAction
+        .run(() => super.addContact(phoneNumber, displayName));
+  }
+
   final _$_ContactListModelActionController =
       ActionController(name: '_ContactListModel');
 
   @override
-  void addContact(String phoneNumber, String displayName) {
+  void init() {
     final _$actionInfo = _$_ContactListModelActionController.startAction(
-        name: '_ContactListModel.addContact');
+        name: '_ContactListModel.init');
     try {
-      return super.addContact(phoneNumber, displayName);
+      return super.init();
     } finally {
       _$_ContactListModelActionController.endAction(_$actionInfo);
     }

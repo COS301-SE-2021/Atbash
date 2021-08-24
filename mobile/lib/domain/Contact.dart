@@ -3,12 +3,12 @@ class Contact {
   final String displayName;
   final String status;
   final String profileImage;
-  final DateTime birthday;
+  final DateTime? birthday;
 
   Contact(
       {required this.phoneNumber,
       required this.displayName,
       required this.status,
       required this.profileImage,
-      required this.birthday});
+      this.birthday});
 }

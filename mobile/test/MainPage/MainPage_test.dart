@@ -15,7 +15,7 @@ import 'package:mockito/mockito.dart';
 
 import 'MainPage_test.mocks.dart';
 
-@GenerateMocks([UserModel, ContactsModel, AppService, DatabaseService])
+// @GenerateMocks([UserModel, ContactsModel, AppService, DatabaseService])
 void main() {
   final userModel = MockUserModel();
   final contactsModel = MockContactsModel();

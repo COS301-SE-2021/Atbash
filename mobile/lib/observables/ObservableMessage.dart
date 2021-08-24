@@ -7,6 +7,8 @@ part 'ObservableMessage.g.dart';
 class ObservableMessage = _ObservableMessage with _$ObservableMessage;
 
 abstract class _ObservableMessage with Store {
+  final Message message;
+
   final String id;
 
   final String senderPhoneNumber;
@@ -30,14 +32,21 @@ abstract class _ObservableMessage with Store {
   @observable
   ObservableList<ObservableTag> tags;
 
-  _ObservableMessage(Message m)
-      : id = m.id,
-        senderPhoneNumber = m.senderPhoneNumber,
-        recipientPhoneNumber = m.recipientPhoneNumber,
-        contents = m.contents,
-        timestamp = m.timestamp,
-        readReceipt = m.readReceipt,
-        deleted = m.deleted,
-        liked = m.liked,
-        tags = m.tags.map((e) => ObservableTag(e)).toList().asObservable();
+  _ObservableMessage(this.message)
+      : id = message.id,
+        senderPhoneNumber = message.senderPhoneNumber,
+        recipientPhoneNumber = message.recipientPhoneNumber,
+        contents = message.contents,
+        timestamp = message.timestamp,
+        readReceipt = message.readReceipt,
+        deleted = message.deleted,
+        liked = message.liked,
+        tags =
+            message.tags.map((e) => ObservableTag(e)).toList().asObservable();
+}
+
+extension MessageExtension on Message {
+  ObservableMessage asObservable() {
+    return ObservableMessage(this);
+  }
 }

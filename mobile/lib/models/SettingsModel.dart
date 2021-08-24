@@ -1,40 +1,39 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
-import 'package:mobx/mobx.dart';
 
 part 'SettingsModel.g.dart';
 
-class ChatListModel = _ChatListModel with _$ChatListModel;
+class SettingsModel = _SettingsModel with _$SettingsModel;
 
-abstract class _ChatListModel with Store {
+abstract class _SettingsModel with Store {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
   @observable
-  late bool blurImages;
+  bool blurImages = false;
 
   @observable
-  late bool safeMode;
+  bool safeMode = false;
 
   @observable
-  late bool shareProfileImage;
+  bool shareProfileImage = false;
 
   @observable
-  late bool shareStatus;
+  bool shareStatus = false;
 
   @observable
-  late bool shareReadReceipts;
+  bool shareReadReceipts = false;
 
   @observable
-  late bool showNotifications;
+  bool showNotifications = false;
 
   @observable
-  late bool playNotificationsSound;
+  bool playNotificationsSound = false;
 
   @observable
-  late bool showMessagePreview;
+  bool showMessagePreview = false;
 
   @observable
-  late bool autoDownloadMedia;
+  bool autoDownloadMedia = false;
 
   @observable
   ObservableList<String> blockedNumbers = <String>[].asObservable();
@@ -47,35 +46,35 @@ abstract class _ChatListModel with Store {
 
     final safeModeFuture = _storage
         .read(key: "settings_safe_mode")
-        .then((value) => blurImages = value == "true");
+        .then((value) => safeMode = value == "true");
 
     final shareProfileImageFuture = _storage
         .read(key: "settings_share_profile_image")
-        .then((value) => blurImages = value == "true");
+        .then((value) => shareProfileImage = value == "true");
 
     final shareStatusFuture = _storage
         .read(key: "settings_share_status")
-        .then((value) => blurImages = value == "true");
+        .then((value) => shareStatus = value == "true");
 
     final shareReadReceiptsFuture = _storage
         .read(key: "settings_share_read_receipts")
-        .then((value) => blurImages = value == "true");
+        .then((value) => shareReadReceipts = value == "true");
 
     final showNotificationsFuture = _storage
         .read(key: "settings_show_notifications")
-        .then((value) => blurImages = value == "true");
+        .then((value) => showNotifications = value == "true");
 
     final playNotificationsSoundFuture = _storage
         .read(key: "settings_play_notifications_sound")
-        .then((value) => blurImages = value == "true");
+        .then((value) => playNotificationsSound = value == "true");
 
     final showMessagePreviewFuture = _storage
         .read(key: "settings_show_message_preview")
-        .then((value) => blurImages = value == "true");
+        .then((value) => showMessagePreview = value == "true");
 
     final autoDownloadMediaFuture = _storage
         .read(key: "settings_auto_download_media")
-        .then((value) => blurImages = value == "true");
+        .then((value) => autoDownloadMedia = value == "true");
 
     await Future.wait([
       blurImagesFuture,

@@ -12,13 +12,13 @@ mixin _$ObservableChat on _ObservableChat, Store {
   final _$contactAtom = Atom(name: '_ObservableChat.contact');
 
   @override
-  Contact? get contact {
+  ObservableContact? get contact {
     _$contactAtom.reportRead();
     return super.contact;
   }
 
   @override
-  set contact(Contact? value) {
+  set contact(ObservableContact? value) {
     _$contactAtom.reportWrite(value, super.contact, () {
       super.contact = value;
     });
@@ -28,13 +28,13 @@ mixin _$ObservableChat on _ObservableChat, Store {
       Atom(name: '_ObservableChat.mostRecentMessage');
 
   @override
-  Message? get mostRecentMessage {
+  ObservableMessage? get mostRecentMessage {
     _$mostRecentMessageAtom.reportRead();
     return super.mostRecentMessage;
   }
 
   @override
-  set mostRecentMessage(Message? value) {
+  set mostRecentMessage(ObservableMessage? value) {
     _$mostRecentMessageAtom.reportWrite(value, super.mostRecentMessage, () {
       super.mostRecentMessage = value;
     });

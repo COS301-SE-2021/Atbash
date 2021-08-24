@@ -9,7 +9,7 @@ import 'package:mockito/annotations.dart';
 
 import 'ContactEditPage_test.mocks.dart';
 
-@GenerateMocks([ContactsModel])
+// @GenerateMocks([ContactsModel])
 void main() {
   final contactsModel = MockContactsModel();
   GetIt.I.registerSingleton<ContactsModel>(contactsModel);

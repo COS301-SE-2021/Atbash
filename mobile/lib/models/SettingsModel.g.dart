@@ -8,8 +8,8 @@ part of 'SettingsModel.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
-mixin _$ChatListModel on _ChatListModel, Store {
-  final _$blurImagesAtom = Atom(name: '_ChatListModel.blurImages');
+mixin _$SettingsModel on _SettingsModel, Store {
+  final _$blurImagesAtom = Atom(name: '_SettingsModel.blurImages');
 
   @override
   bool get blurImages {
@@ -24,7 +24,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
     });
   }
 
-  final _$safeModeAtom = Atom(name: '_ChatListModel.safeMode');
+  final _$safeModeAtom = Atom(name: '_SettingsModel.safeMode');
 
   @override
   bool get safeMode {
@@ -40,7 +40,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$shareProfileImageAtom =
-      Atom(name: '_ChatListModel.shareProfileImage');
+      Atom(name: '_SettingsModel.shareProfileImage');
 
   @override
   bool get shareProfileImage {
@@ -55,7 +55,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
     });
   }
 
-  final _$shareStatusAtom = Atom(name: '_ChatListModel.shareStatus');
+  final _$shareStatusAtom = Atom(name: '_SettingsModel.shareStatus');
 
   @override
   bool get shareStatus {
@@ -71,7 +71,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$shareReadReceiptsAtom =
-      Atom(name: '_ChatListModel.shareReadReceipts');
+      Atom(name: '_SettingsModel.shareReadReceipts');
 
   @override
   bool get shareReadReceipts {
@@ -87,7 +87,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$showNotificationsAtom =
-      Atom(name: '_ChatListModel.showNotifications');
+      Atom(name: '_SettingsModel.showNotifications');
 
   @override
   bool get showNotifications {
@@ -103,7 +103,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$playNotificationsSoundAtom =
-      Atom(name: '_ChatListModel.playNotificationsSound');
+      Atom(name: '_SettingsModel.playNotificationsSound');
 
   @override
   bool get playNotificationsSound {
@@ -120,7 +120,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$showMessagePreviewAtom =
-      Atom(name: '_ChatListModel.showMessagePreview');
+      Atom(name: '_SettingsModel.showMessagePreview');
 
   @override
   bool get showMessagePreview {
@@ -136,7 +136,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   final _$autoDownloadMediaAtom =
-      Atom(name: '_ChatListModel.autoDownloadMedia');
+      Atom(name: '_SettingsModel.autoDownloadMedia');
 
   @override
   bool get autoDownloadMedia {
@@ -151,7 +151,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
     });
   }
 
-  final _$blockedNumbersAtom = Atom(name: '_ChatListModel.blockedNumbers');
+  final _$blockedNumbersAtom = Atom(name: '_SettingsModel.blockedNumbers');
 
   @override
   ObservableList<String> get blockedNumbers {
@@ -166,127 +166,145 @@ mixin _$ChatListModel on _ChatListModel, Store {
     });
   }
 
-  final _$_ChatListModelActionController =
-      ActionController(name: '_ChatListModel');
+  final _$initAsyncAction = AsyncAction('_SettingsModel.init');
+
+  @override
+  Future<void> init() {
+    return _$initAsyncAction.run(() => super.init());
+  }
+
+  final _$_SettingsModelActionController =
+      ActionController(name: '_SettingsModel');
+
+  @override
+  void setSafeModePin(String pin) {
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setSafeModePin');
+    try {
+      return super.setSafeModePin(pin);
+    } finally {
+      _$_SettingsModelActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void setSafeMode(bool safeMode, String pin) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setSafeMode');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setSafeMode');
     try {
       return super.setSafeMode(safeMode, pin);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setBlurImages(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setBlurImages');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setBlurImages');
     try {
       return super.setBlurImages(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setShareProfileImage(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setShareProfileImage');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setShareProfileImage');
     try {
       return super.setShareProfileImage(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setShareStatus(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setShareStatus');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setShareStatus');
     try {
       return super.setShareStatus(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setShareReadReceipts(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setShareReadReceipts');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setShareReadReceipts');
     try {
       return super.setShareReadReceipts(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setShowNotifications(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setShowNotifications');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setShowNotifications');
     try {
       return super.setShowNotifications(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setPlayNotificationsSound(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setPlayNotificationsSound');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setPlayNotificationsSound');
     try {
       return super.setPlayNotificationsSound(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setShowMessagePreview(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setShowMessagePreview');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setShowMessagePreview');
     try {
       return super.setShowMessagePreview(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setAutoDownloadMedia(bool value) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.setAutoDownloadMedia');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.setAutoDownloadMedia');
     try {
       return super.setAutoDownloadMedia(value);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void addBlockedNumber(String number) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.addBlockedNumber');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.addBlockedNumber');
     try {
       return super.addBlockedNumber(number);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void removeBlockedNumber(String number) {
-    final _$actionInfo = _$_ChatListModelActionController.startAction(
-        name: '_ChatListModel.removeBlockedNumber');
+    final _$actionInfo = _$_SettingsModelActionController.startAction(
+        name: '_SettingsModel.removeBlockedNumber');
     try {
       return super.removeBlockedNumber(number);
     } finally {
-      _$_ChatListModelActionController.endAction(_$actionInfo);
+      _$_SettingsModelActionController.endAction(_$actionInfo);
     }
   }
 

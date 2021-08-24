@@ -180,7 +180,17 @@ class RegistrationService {
     }
   }
 
-
+  /// Get the device_password_base64 of the device from secure storage. If it is not set,
+  /// the function throws a [StateError], since the device_password_base64 is generated
+  /// during registration and is expected to be saved.
+  Future<Uint8List> getDevicePassword() async {
+    final devicePassword = await _storage.read(key: "device_password_base64");
+    if (devicePassword == null) {
+      throw StateError("device_password_base64 is not readable");
+    } else {
+      return base64.decode(devicePassword);
+    }
+  }
 
 
 

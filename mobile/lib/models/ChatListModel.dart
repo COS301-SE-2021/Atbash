@@ -1,7 +1,7 @@
 import 'package:mobile/domain/Chat.dart';
-import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/domain/Message.dart';
 import 'package:mobile/observables/ObservableChat.dart';
+import 'package:mobile/observables/ObservableContact.dart';
+import 'package:mobile/observables/ObservableMessage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,7 +14,7 @@ abstract class _ChatListModel with Store {
   ObservableList<ObservableChat> chats = <ObservableChat>[].asObservable();
 
   @action
-  void startChatWithContact(Contact contact, ChatType chatType) {
+  void startChatWithContact(ObservableContact contact, ChatType chatType) {
     // If specific type of chat already exists with contact, do nothing and return
     if (chats.any((element) =>
         element.contactPhoneNumber == contact.phoneNumber &&
@@ -25,7 +25,7 @@ abstract class _ChatListModel with Store {
     final chat = Chat(
       id: Uuid().v4(),
       contactPhoneNumber: contact.phoneNumber,
-      contact: contact,
+      contact: contact.contact,
       chatType: chatType,
     );
 
@@ -62,14 +62,14 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void setChatContact(String chatId, Contact contact) {
+  void setChatContact(String chatId, ObservableContact contact) {
     // TODO update in db
 
     chats.firstWhere((e) => e.id == chatId).contact = contact;
   }
 
   @action
-  void setChatMostRecentMessage(String chatId, Message message) {
+  void setChatMostRecentMessage(String chatId, ObservableMessage message) {
     // TODO update in db
 
     chats.firstWhere((e) => e.id == chatId).mostRecentMessage = message;

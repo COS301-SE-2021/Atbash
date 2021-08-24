@@ -80,5 +80,34 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     return null;
   }
 
+  /// Fetches all SignedPreKeys
+  Future<List<SignedPreKeyRecord>> fetchSignedPreKeys() async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SignedPreKeyDBRecord.TABLE_NAME,
+    );
+
+    final list = <SignedPreKeyRecord>[];
+
+    response.forEach((element) {
+      final record = SignedPreKeyDBRecord.fromMap(element);
+      if (record != null) {
+        final signedPreKeyRecord =
+        SignedPreKeyRecord.fromSerialized(record.serializedKey);
+
+        if (signedPreKeyRecord is SignedPreKeyRecord) {
+          list.add(signedPreKeyRecord);
+        }
+      }
+    });
+
+    return list;
+  }
+
+
+
+
+
+
 
 }

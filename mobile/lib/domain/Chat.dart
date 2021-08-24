@@ -16,6 +16,33 @@ class Chat {
     this.mostRecentMessage,
   });
 
+  Map<String, Object?> toMap() {
+    return {
+      COLUMN_ID: id,
+      COLUMN_CONTACT_PHONE_NUMBER: contactPhoneNumber,
+      COLUMN_CHAT_TYPE: chatType.index,
+      COLUMN_RECENT_MESSAGE_ID: mostRecentMessage?.id,
+    };
+  }
+
+  static Chat? fromMap(Map<String, Object?> map) {
+    final id = map[COLUMN_ID] as String?;
+    final contactPhoneNumber = map[COLUMN_CONTACT_PHONE_NUMBER] as String?;
+    final contact = Contact.fromMap(map);
+    final chatType = map[COLUMN_CHAT_TYPE] as int?;
+    final mostRecentMessage = Message.fromMap(map);
+
+    if (id != null && contactPhoneNumber != null && chatType != null) {
+      return Chat(
+        id: id,
+        contactPhoneNumber: contactPhoneNumber,
+        contact: contact,
+        chatType: ChatType.values[chatType],
+        mostRecentMessage: mostRecentMessage,
+      );
+    }
+  }
+
   static const String TABLE_NAME = "chat";
   static const String COLUMN_ID = "chat_id";
   static const String COLUMN_CONTACT_PHONE_NUMBER = "chat_contact_phone_number";

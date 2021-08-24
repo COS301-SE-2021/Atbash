@@ -1,4 +1,6 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ContactListModel.g.dart';
@@ -9,8 +11,17 @@ abstract class _ContactListModel with Store {
   @observable
   ObservableList<Contact> contacts = <Contact>[].asObservable();
 
+  final ContactService _contactService = GetIt.I.get();
+
   @action
-  void addContact(String phoneNumber, String displayName) {
+  void init() {
+    _contactService.fetchAll().then((contactList) {
+      contacts = contactList.asObservable();
+    });
+  }
+
+  @action
+  Future<void> addContact(String phoneNumber, String displayName) async {
     final contact = Contact(
       phoneNumber: phoneNumber,
       displayName: displayName,
@@ -18,53 +29,61 @@ abstract class _ContactListModel with Store {
       profileImage: "",
     );
 
-    // TODO persist to db
+    try {
+      await _contactService.insert(contact);
+    } on DuplicateContactPhoneNumberException {
+      rethrow;
+    }
 
     contacts.add(contact);
   }
 
   @action
   void deleteContact(String phoneNumber) {
-    // TODO remove from db
+    _contactService.deleteByPhoneNumber(phoneNumber);
 
     contacts.removeWhere((element) => element.phoneNumber == phoneNumber);
   }
 
   @action
-  void setContactBirthday(String phoneNumber, DateTime birthday) {
-    // TODO update in db
+  Future<void> setContactBirthday(String phoneNumber, DateTime birthday) async {
+    final contact =
+        contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
-    contacts
-        .firstWhere((element) => element.phoneNumber == phoneNumber)
-        .birthday = birthday;
+    contact.birthday = birthday;
+
+    await _contactService.update(contact);
   }
 
   @action
-  void setContactDisplayName(String phoneNumber, String displayName) {
-    // TODO update in db
+  Future<void> setContactDisplayName(
+      String phoneNumber, String displayName) async {
+    final contact =
+        contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
-    contacts
-        .firstWhere((element) => element.phoneNumber == phoneNumber)
-        .displayName = displayName;
+    contact.displayName = displayName;
+
+    await _contactService.update(contact);
   }
 
   @action
   void setContactStatus(String phoneNumber, String status) {
-    // TODO update in db
+    final contact =
+        contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
-    contacts
-        .firstWhere((element) => element.phoneNumber == phoneNumber)
-        .status = status;
+    contact.status = status;
+
+    _contactService.update(contact);
   }
 
   @action
   void setContactProfilePicture(
-      // TODO update in db
+      String phoneNumber, String profilePictureBase64) {
+    final contact =
+        contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
-      String phoneNumber,
-      String profilePictureBase64) {
-    contacts
-        .firstWhere((element) => element.phoneNumber == phoneNumber)
-        .profileImage = profilePictureBase64;
+    contact.profileImage = profilePictureBase64;
+
+    _contactService.update(contact);
   }
 }

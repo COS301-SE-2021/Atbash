@@ -34,14 +34,11 @@ class SessionStoreService extends SessionStore {
 
   @override
   Future<SessionRecord> loadSession(SignalProtocolAddress address) async {
-    print("Loading session for number: " + address.getName());
     try {
       final sessionRecord = await fetchSession(address);
       if (sessionRecord != null) {
-        print("Returning session");
         return sessionRecord;
       } else {
-        print("Returning blank/new session");
         return SessionRecord();
       }
     } on Exception catch (e) {

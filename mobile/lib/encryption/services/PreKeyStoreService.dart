@@ -84,5 +84,16 @@ class PreKeyStoreService extends PreKeyStore {
     return list;
   }
 
+  ///Checks if PreKey exists in the database
+  Future<bool> checkExistsPreKey(int preKeyId) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      PreKeyDBRecord.TABLE_NAME,
+      where: "${PreKeyDBRecord.COLUMN_KEY_ID} = ?",
+      whereArgs: [preKeyId],
+    );
+
+    return response.isNotEmpty;
+  }
 
 }

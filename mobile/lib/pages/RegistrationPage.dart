@@ -59,18 +59,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   Container(
                     width: 160,
                     child: TextField(
-                      cursorColor: Constants.darkGreyColor.withOpacity(0.6),
+                      cursorColor: Constants.darkGrey.withOpacity(0.6),
                       cursorHeight: 20,
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         hintText: "Phone Number",
                         hintStyle: TextStyle(
-                          color: Constants.darkGreyColor.withOpacity(0.6),
+                          color: Constants.darkGrey.withOpacity(0.6),
                         ),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
-                            color: Constants.orangeColor,
+                            color: Constants.orange,
                           ),
                         ),
                         enabledBorder: UnderlineInputBorder(
@@ -109,7 +109,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       );
     } else {
       return MaterialButton(
-        color: Constants.orangeColor,
+        color: Constants.orange,
         elevation: 10,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),

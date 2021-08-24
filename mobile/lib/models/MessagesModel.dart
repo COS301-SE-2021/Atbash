@@ -18,6 +18,8 @@ abstract class _MessagesModel with Store {
   void enterChat(Chat chat) {
     openChat = chat;
 
+    messages.clear();
+
     // TODO fetch messages
   }
 

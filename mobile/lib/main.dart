@@ -7,6 +7,7 @@ import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/MessageService.dart';
 
 import 'models/UserModel.dart';
 
@@ -17,9 +18,11 @@ void main() async {
 
   final databaseService = DatabaseService();
   final contactService = ContactService(databaseService);
+  final messageService = MessageService(databaseService);
 
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(contactService);
+  GetIt.I.registerSingleton(messageService);
 
   final userModel = UserModel();
   final settingsModel = SettingsModel();

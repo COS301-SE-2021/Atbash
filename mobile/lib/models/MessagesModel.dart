@@ -1,5 +1,7 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/MessageService.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -8,6 +10,8 @@ part 'MessagesModel.g.dart';
 class MessagesModel = _MessagesModel with _$MessagesModel;
 
 abstract class _MessagesModel with Store {
+  final MessageService messageService = GetIt.I.get();
+
   @observable
   ObservableList<Message> messages = <Message>[].asObservable();
 
@@ -20,7 +24,11 @@ abstract class _MessagesModel with Store {
 
     messages.clear();
 
-    // TODO fetch messages
+    messageService
+        .fetchAllBySenderOrRecipient(chat.contactPhoneNumber)
+        .then((messages) {
+      this.messages = messages.asObservable();
+    });
   }
 
   @action
@@ -45,14 +53,14 @@ abstract class _MessagesModel with Store {
       tags: [],
     );
 
-    // TODO persist message
+    messageService.insert(message);
 
     messages.insert(0, message);
   }
 
   @action
   void deleteMessageLocally(String messageId) {
-    // TODO delete from db
+    messageService.deleteById(messageId);
 
     messages.removeWhere((m) => m.id == messageId);
   }
@@ -64,7 +72,7 @@ abstract class _MessagesModel with Store {
     final message = messages.firstWhere((m) => m.id == messageId);
     message.readReceipt = ReadReceipt.seen;
 
-    // TODO persist changes
+    messageService.update(message);
   }
 
   @action
@@ -75,7 +83,7 @@ abstract class _MessagesModel with Store {
     message.deleted = true;
     message.contents = "";
 
-    // TODO persist changes
+    messageService.update(message);
   }
 
   @action
@@ -85,6 +93,6 @@ abstract class _MessagesModel with Store {
     final message = messages.firstWhere((m) => m.id == messageId);
     message.liked = true;
 
-    // TODO persist changes
+    messageService.update(message);
   }
 }

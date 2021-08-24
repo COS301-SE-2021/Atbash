@@ -6,6 +6,8 @@ import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
 
+import '../TrustedKeyDBRecord.dart';
+
 class IdentityKeyStoreService extends IdentityKeyStore {
   final _storage = FlutterSecureStorage();
   final DatabaseService _databaseService;
@@ -27,8 +29,11 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   }
 
   @override
-  Future<IdentityKey> getIdentity(SignalProtocolAddress address) async =>
-      _databaseService.fetchTrustedKey(address).then((value) => value!);
+  Future<IdentityKey> getIdentity(SignalProtocolAddress address) async {
+    final key = await fetchTrustedKey(address);
+
+    return key!;
+  }
 
   ///The returned value should never be null
   @override
@@ -74,4 +79,29 @@ class IdentityKeyStoreService extends IdentityKeyStore {
       return false;
     }
   }
+
+  /// ******************** Database Methods ********************
+
+  /// Fetches trusted key for a SignalProtocolAddress
+  Future<IdentityKey?> fetchTrustedKey(SignalProtocolAddress address) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      TrustedKeyDBRecord.TABLE_NAME,
+      where:
+      "${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+      whereArgs: [address.getName(), address.getDeviceId()],
+    );
+
+    if (response.isNotEmpty) {
+      final trustedKey = TrustedKeyDBRecord.fromMap(response.first);
+      if (trustedKey != null) {
+        return IdentityKey.fromBytes(trustedKey.serializedKey, 0);
+      }
+    }
+    return null;
+  }
+
+
+
+
 }

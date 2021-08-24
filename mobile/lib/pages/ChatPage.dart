@@ -118,6 +118,7 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     return AppBar(
+      titleSpacing: 0,
       title: Row(
         children: [
           Observer(

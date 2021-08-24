@@ -5,6 +5,7 @@ import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/models/MessagesModel.dart';
 import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
+import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/MessageService.dart';
@@ -17,10 +18,12 @@ void main() async {
   final navigatorKey = GlobalKey<NavigatorState>();
 
   final databaseService = DatabaseService();
+  final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
 
   GetIt.I.registerSingleton(databaseService);
+  GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
 

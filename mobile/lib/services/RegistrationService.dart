@@ -9,6 +9,26 @@ class RegistrationService {
 
   final _storage = FlutterSecureStorage();
 
+  Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
+    throwIfNot(
+        Validations().numberIsValid(phoneNumber),
+        new InvalidNumberException(
+            "Invalid number provided in requestRegistrationCode method"));
 
+    final url =
+    Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      Future.wait([
+        _storage.write(key: "phone_number", value: phoneNumber),
+      ]);
+
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 }

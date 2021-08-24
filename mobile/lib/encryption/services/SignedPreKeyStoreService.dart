@@ -36,21 +36,6 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     }
   }
 
-  // @override
-  // Future<void> storeSignedPreKey(
-  //     int signedPreKeyId, SignedPreKeyRecord record) async {
-  //   _databaseService.saveSignedPreKey(signedPreKeyId, record);
-  // }
-
-  // @override
-  // Future<bool> containsSignedPreKey(int signedPreKeyId) async =>
-  //     _databaseService.checkExistsSignedPreKey(signedPreKeyId);
-
-  // @override
-  // Future<void> removeSignedPreKey(int signedPreKeyId) async {
-  //   _databaseService.deleteSignedPreKey(signedPreKeyId);
-  // }
-
   Future<void> storeLocalSignedPreKeyID(int signedPreKeyId) async {
     await _storage.write(key: "local_signed_prekey_id", value: signedPreKeyId.toString());
   }

@@ -28,10 +28,6 @@ class _ContactsPageState extends State<ContactsPage> {
     super.initState();
 
     _searchFocusNode = FocusNode();
-    contactListModel.addContact("123", "Dylan");
-    contactListModel.addContact("456", "Josh");
-    contactListModel.addContact("789", "Connor");
-    contactListModel.addContact("101112", "Liam");
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../PreKeyDBRecord.dart';
 
@@ -94,6 +95,17 @@ class PreKeyStoreService extends PreKeyStore {
     );
 
     return response.isNotEmpty;
+  }
+
+  /// Saves a PreKey to the database and returns.
+  Future<PreKeyDBRecord> savePreKey(int preKeyId, PreKeyRecord preKeyRecord) async {
+    PreKeyDBRecord preKeyDBRecord = PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
+    final db = await _databaseService.database;
+
+    db.insert(PreKeyDBRecord.TABLE_NAME, preKeyDBRecord.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+
+    return preKeyDBRecord;
   }
 
 }

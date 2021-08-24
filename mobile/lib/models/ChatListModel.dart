@@ -1,7 +1,6 @@
 import 'package:mobile/domain/Chat.dart';
-import 'package:mobile/observables/ObservableChat.dart';
-import 'package:mobile/observables/ObservableContact.dart';
-import 'package:mobile/observables/ObservableMessage.dart';
+import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/Message.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -11,11 +10,10 @@ class ChatListModel = _ChatListModel with _$ChatListModel;
 
 abstract class _ChatListModel with Store {
   @observable
-  ObservableList<ObservableChat> chats = <ObservableChat>[].asObservable();
+  ObservableList<Chat> chats = <Chat>[].asObservable();
 
   @action
-  ObservableChat startChatWithContact(
-      ObservableContact contact, ChatType chatType) {
+  Chat startChatWithContact(Contact contact, ChatType chatType) {
     // If specific type of chat already exists with contact, do nothing and return
     final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == contact.phoneNumber &&
@@ -28,20 +26,18 @@ abstract class _ChatListModel with Store {
     final chat = Chat(
       id: Uuid().v4(),
       contactPhoneNumber: contact.phoneNumber,
-      contact: contact.contact,
+      contact: contact,
       chatType: chatType,
     );
 
     // TODO persist chat
 
-    final observable = chat.asObservable();
-    chats.add(observable);
-    return observable;
+    chats.add(chat);
+    return chat;
   }
 
   @action
-  ObservableChat startChatWithPhoneNumber(
-      String phoneNumber, ChatType chatType) {
+  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
     // If specific type of chat already exists with contact, do nothing and return
     final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == phoneNumber &&
@@ -59,9 +55,8 @@ abstract class _ChatListModel with Store {
 
     // TODO persist chat
 
-    final observable = chat.asObservable();
-    chats.add(observable);
-    return observable;
+    chats.add(chat);
+    return chat;
   }
 
   @action
@@ -72,14 +67,14 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  void setChatContact(String chatId, ObservableContact contact) {
+  void setChatContact(String chatId, Contact contact) {
     // TODO update in db
 
     chats.firstWhere((e) => e.id == chatId).contact = contact;
   }
 
   @action
-  void setChatMostRecentMessage(String chatId, ObservableMessage message) {
+  void setChatMostRecentMessage(String chatId, Message message) {
     // TODO update in db
 
     chats.firstWhere((e) => e.id == chatId).mostRecentMessage = message;

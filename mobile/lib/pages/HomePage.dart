@@ -3,10 +3,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/observables/ObservableChat.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -239,7 +239,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<InkWell> _buildChatList(bool filtered) {
-    List<ObservableChat> chats = _chatListModel.chats;
+    List<Chat> chats = _chatListModel.chats;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();
@@ -253,7 +253,7 @@ class _HomePageState extends State<HomePage> {
     return chats.map((e) => _buildChatItem(e)).toList();
   }
 
-  InkWell _buildChatItem(ObservableChat chat) {
+  InkWell _buildChatItem(Chat chat) {
     final contact = chat.contact;
     final message = chat.mostRecentMessage;
 

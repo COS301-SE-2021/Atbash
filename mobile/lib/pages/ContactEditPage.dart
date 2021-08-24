@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/observables/ObservableContact.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Utils.dart';
 
 class ContactEditPage extends StatefulWidget {
-  final ObservableContact contact;
+  final Contact contact;
 
   const ContactEditPage({
     Key? key,

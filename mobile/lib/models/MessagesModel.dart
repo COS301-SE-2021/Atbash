@@ -1,6 +1,5 @@
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/observables/ObservableChat.dart';
-import 'package:mobile/observables/ObservableMessage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,14 +9,13 @@ class MessagesModel = _MessagesModel with _$MessagesModel;
 
 abstract class _MessagesModel with Store {
   @observable
-  ObservableList<ObservableMessage> messages =
-      <ObservableMessage>[].asObservable();
+  ObservableList<Message> messages = <Message>[].asObservable();
 
   @observable
-  ObservableChat? openChat;
+  Chat? openChat;
 
   @action
-  void enterChat(ObservableChat chat) {
+  void enterChat(Chat chat) {
     openChat = chat;
 
     // TODO fetch messages
@@ -47,7 +45,7 @@ abstract class _MessagesModel with Store {
 
     // TODO persist message
 
-    messages.insert(0, message.asObservable());
+    messages.insert(0, message);
   }
 
   @action

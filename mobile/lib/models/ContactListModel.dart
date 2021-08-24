@@ -1,5 +1,4 @@
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/observables/ObservableContact.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ContactListModel.g.dart';
@@ -8,8 +7,7 @@ class ContactListModel = _ContactListModel with _$ContactListModel;
 
 abstract class _ContactListModel with Store {
   @observable
-  ObservableList<ObservableContact> contacts =
-      <ObservableContact>[].asObservable();
+  ObservableList<Contact> contacts = <Contact>[].asObservable();
 
   @action
   void addContact(String phoneNumber, String displayName) {
@@ -22,7 +20,7 @@ abstract class _ContactListModel with Store {
 
     // TODO persist to db
 
-    contacts.add(contact.asObservable());
+    contacts.add(contact);
   }
 
   @action

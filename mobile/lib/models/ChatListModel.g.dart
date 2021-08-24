@@ -12,13 +12,13 @@ mixin _$ChatListModel on _ChatListModel, Store {
   final _$chatsAtom = Atom(name: '_ChatListModel.chats');
 
   @override
-  ObservableList<ObservableChat> get chats {
+  ObservableList<Chat> get chats {
     _$chatsAtom.reportRead();
     return super.chats;
   }
 
   @override
-  set chats(ObservableList<ObservableChat> value) {
+  set chats(ObservableList<Chat> value) {
     _$chatsAtom.reportWrite(value, super.chats, () {
       super.chats = value;
     });
@@ -28,8 +28,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
       ActionController(name: '_ChatListModel');
 
   @override
-  ObservableChat startChatWithContact(
-      ObservableContact contact, ChatType chatType) {
+  Chat startChatWithContact(Contact contact, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithContact');
     try {
@@ -40,8 +39,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  ObservableChat startChatWithPhoneNumber(
-      String phoneNumber, ChatType chatType) {
+  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithPhoneNumber');
     try {
@@ -63,7 +61,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void setChatContact(String chatId, ObservableContact contact) {
+  void setChatContact(String chatId, Contact contact) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatContact');
     try {
@@ -74,7 +72,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void setChatMostRecentMessage(String chatId, ObservableMessage message) {
+  void setChatMostRecentMessage(String chatId, Message message) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatMostRecentMessage');
     try {

@@ -12,13 +12,13 @@ mixin _$ContactListModel on _ContactListModel, Store {
   final _$contactsAtom = Atom(name: '_ContactListModel.contacts');
 
   @override
-  ObservableList<ObservableContact> get contacts {
+  ObservableList<Contact> get contacts {
     _$contactsAtom.reportRead();
     return super.contacts;
   }
 
   @override
-  set contacts(ObservableList<ObservableContact> value) {
+  set contacts(ObservableList<Contact> value) {
     _$contactsAtom.reportWrite(value, super.contacts, () {
       super.contacts = value;
     });

@@ -12,13 +12,13 @@ mixin _$MessagesModel on _MessagesModel, Store {
   final _$messagesAtom = Atom(name: '_MessagesModel.messages');
 
   @override
-  ObservableList<ObservableMessage> get messages {
+  ObservableList<Message> get messages {
     _$messagesAtom.reportRead();
     return super.messages;
   }
 
   @override
-  set messages(ObservableList<ObservableMessage> value) {
+  set messages(ObservableList<Message> value) {
     _$messagesAtom.reportWrite(value, super.messages, () {
       super.messages = value;
     });
@@ -27,13 +27,13 @@ mixin _$MessagesModel on _MessagesModel, Store {
   final _$openChatAtom = Atom(name: '_MessagesModel.openChat');
 
   @override
-  ObservableChat? get openChat {
+  Chat? get openChat {
     _$openChatAtom.reportRead();
     return super.openChat;
   }
 
   @override
-  set openChat(ObservableChat? value) {
+  set openChat(Chat? value) {
     _$openChatAtom.reportWrite(value, super.openChat, () {
       super.openChat = value;
     });
@@ -43,7 +43,7 @@ mixin _$MessagesModel on _MessagesModel, Store {
       ActionController(name: '_MessagesModel');
 
   @override
-  void enterChat(ObservableChat chat) {
+  void enterChat(Chat chat) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
         name: '_MessagesModel.enterChat');
     try {

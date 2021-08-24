@@ -4,11 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/MessagesModel.dart';
 import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/observables/ObservableChat.dart';
-import 'package:mobile/observables/ObservableMessage.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
@@ -16,7 +15,7 @@ import 'package:mobx/mobx.dart';
 import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
-  final ObservableChat chat;
+  final Chat chat;
 
   const ChatPage({Key? key, required this.chat}) : super(key: key);
 
@@ -28,7 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   final MessagesModel messagesModel = GetIt.I.get();
   final UserModel userModel = GetIt.I.get();
 
-  List<Tuple<ObservableMessage, bool>> _messages = [];
+  List<Tuple<Message, bool>> _messages = [];
   late final ReactionDisposer _messagesDisposer;
   bool _selecting = false;
 
@@ -212,7 +211,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  ChatCard _buildMessage(Tuple<ObservableMessage, bool> message) {
+  ChatCard _buildMessage(Tuple<Message, bool> message) {
     return ChatCard(
       message.first,
       contactPhoneNumber: widget.chat.contactPhoneNumber,
@@ -301,7 +300,7 @@ class _ChatPageState extends State<ChatPage> {
 
 class ChatCard extends StatelessWidget {
   final String contactPhoneNumber;
-  final ObservableMessage _message;
+  final Message _message;
   final void Function() onTap;
   final void Function() onLongPress;
   final bool selected;

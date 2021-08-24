@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobile/observables/ObservableContact.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ContactEditPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactInfoPage extends StatefulWidget {
-  final ObservableContact contact;
+  final Contact contact;
 
   const ContactInfoPage({
     Key? key,

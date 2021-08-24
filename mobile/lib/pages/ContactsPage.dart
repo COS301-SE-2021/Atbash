@@ -4,9 +4,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/ContactListModel.dart';
-import 'package:mobile/observables/ObservableContact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -168,7 +168,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   List<InkWell> _buildContactList(BuildContext context, bool filtered) {
-    List<ObservableContact> contacts = contactListModel.contacts;
+    List<Contact> contacts = contactListModel.contacts;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();
@@ -182,7 +182,7 @@ class _ContactsPageState extends State<ContactsPage> {
     return contacts.map((e) => _buildContact(e)).toList();
   }
 
-  InkWell _buildContact(ObservableContact contact) {
+  InkWell _buildContact(Contact contact) {
     return InkWell(
       onTap: () {
         final chat =
@@ -233,7 +233,7 @@ class _ContactsPageState extends State<ContactsPage> {
     );
   }
 
-  void _editContact(ObservableContact contact) {
+  void _editContact(Contact contact) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ContactInfoPage(contact: contact),
@@ -241,7 +241,7 @@ class _ContactsPageState extends State<ContactsPage> {
     );
   }
 
-  void _deleteContact(ObservableContact contact) {
+  void _deleteContact(Contact contact) {
     contactListModel.deleteContact(contact.phoneNumber);
   }
 }

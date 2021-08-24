@@ -28,7 +28,8 @@ mixin _$ChatListModel on _ChatListModel, Store {
       ActionController(name: '_ChatListModel');
 
   @override
-  void startChatWithContact(ObservableContact contact, ChatType chatType) {
+  ObservableChat startChatWithContact(
+      ObservableContact contact, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithContact');
     try {
@@ -39,7 +40,8 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
+  ObservableChat startChatWithPhoneNumber(
+      String phoneNumber, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithPhoneNumber');
     try {

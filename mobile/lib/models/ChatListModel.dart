@@ -14,12 +14,15 @@ abstract class _ChatListModel with Store {
   ObservableList<ObservableChat> chats = <ObservableChat>[].asObservable();
 
   @action
-  void startChatWithContact(ObservableContact contact, ChatType chatType) {
+  ObservableChat startChatWithContact(
+      ObservableContact contact, ChatType chatType) {
     // If specific type of chat already exists with contact, do nothing and return
-    if (chats.any((element) =>
+    final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == contact.phoneNumber &&
-        element.chatType == chatType)) {
-      return;
+        element.chatType == chatType);
+
+    if (index != -1) {
+      return chats[index];
     }
 
     final chat = Chat(
@@ -31,16 +34,21 @@ abstract class _ChatListModel with Store {
 
     // TODO persist chat
 
-    chats.add(chat.asObservable());
+    final observable = chat.asObservable();
+    chats.add(observable);
+    return observable;
   }
 
   @action
-  void startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
+  ObservableChat startChatWithPhoneNumber(
+      String phoneNumber, ChatType chatType) {
     // If specific type of chat already exists with contact, do nothing and return
-    if (chats.any((element) =>
+    final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == phoneNumber &&
-        element.chatType == chatType)) {
-      return;
+        element.chatType == chatType);
+
+    if (index != -1) {
+      return chats[index];
     }
 
     final chat = Chat(
@@ -51,7 +59,9 @@ abstract class _ChatListModel with Store {
 
     // TODO persist chat
 
-    chats.add(chat.asObservable());
+    final observable = chat.asObservable();
+    chats.add(observable);
+    return observable;
   }
 
   @action

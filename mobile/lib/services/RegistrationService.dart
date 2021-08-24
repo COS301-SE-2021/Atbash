@@ -202,6 +202,16 @@ class RegistrationService {
     }
   }
 
+  String _generateAuthenticationToken(
+      String phoneNumber, Uint8List passwordBytes) {
+    var authBytesBuilder = BytesBuilder();
+    final numberAsIntList = utf8.encoder.convert(phoneNumber + ":");
+
+    authBytesBuilder.add(numberAsIntList);
+    authBytesBuilder.add(passwordBytes);
+
+    return base64.encode(authBytesBuilder.toBytes());
+  }
 
 
 

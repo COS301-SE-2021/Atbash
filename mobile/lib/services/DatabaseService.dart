@@ -13,7 +13,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 5, onCreate: (db, version) async {
+    return openDatabase(path, version: 6, onCreate: (db, version) async {
       await _createTables(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
       await _dropTables(db);
@@ -27,6 +27,8 @@ class DatabaseService {
       db.execute("drop table if exists ${Message.TABLE_NAME};"),
       db.execute("drop table if exists ${Contact.TABLE_NAME};"),
       db.execute("drop table if exists ${Tag.TABLE_NAME};"),
+      db.execute(
+          "drop table if exists ${Message.TABLE_NAME}_${Tag.TABLE_NAME};")
     ]);
   }
 

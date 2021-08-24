@@ -27,10 +27,10 @@ class SessionStoreService extends SessionStore {
   //   await _databaseService.deleteSession(address);
   // }
 
-  @override
-  Future<List<int>> getSubDeviceSessions(String name) async {
-    return await _databaseService.fetchSubDeviceSessions(name);
-  }
+  // @override
+  // Future<List<int>> getSubDeviceSessions(String name) async {
+  //   return await _databaseService.fetchSubDeviceSessions(name);
+  // }
 
   @override
   Future<SessionRecord> loadSession(SignalProtocolAddress address) async {
@@ -89,6 +89,29 @@ class SessionStoreService extends SessionStore {
       "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
       whereArgs: [address.getName(), address.getDeviceId()],
     );
+  }
+
+  /// Fetches a list of sub devices for the specified name
+  @override
+  Future<List<int>> getSubDeviceSessions(String name) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SessionDBRecord.TABLE_NAME,
+      where:
+      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} != 1",
+      whereArgs: [name],
+    );
+
+    final list = <int>[];
+
+    response.forEach((element) {
+      final session = SessionDBRecord.fromMap(element);
+      if (session != null) {
+        list.add(session.signalProtocolAddress.getDeviceId());
+      }
+    });
+
+    return list;
   }
 
 }

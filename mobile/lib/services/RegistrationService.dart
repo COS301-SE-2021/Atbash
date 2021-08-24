@@ -1,9 +1,24 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:cryptography/cryptography.dart'; //Need to use this
+import 'package:crypto/crypto.dart'; //Remove this and use "cryptography"
+import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
+
+import 'package:mobile/constants.dart';
+import 'package:mobile/exceptions/InvalidNumberException.dart';
+import 'package:mobile/exceptions/RegistrationErrorException.dart';
+import 'package:mobile/util/Validations.dart';
 import 'EncryptionService.dart';
+
+import 'package:rsa_encrypt/rsa_encrypt.dart' as rsa;
+// import 'package:encrypt/encrypt.dart' as encrypt;
+import 'package:pointycastle/asymmetric/api.dart';
+import 'package:pointycastle/export.dart';
 
 class RegistrationService {
   RegistrationService(this._encryptionService);
@@ -15,7 +30,7 @@ class RegistrationService {
   Future<bool> register(String phoneNumber, String deviceToken) async {
     // final url = Uri.parse("https://" + baseURL + "accounts/code/$verificationCode");
 
-    final url = Uri.parse(baseURLHttps + "register");
+    final url = Uri.parse(Constants.httpUrl + "register");
 
     throwIfNot(Validations().numberIsValid(phoneNumber),
         new InvalidNumberException("Invalid number provided in requestRegistrationCode method"));
@@ -123,12 +138,12 @@ class RegistrationService {
   }
 
   Future<bool> registerKeys() async {
-    final url = Uri.parse(baseURLHttps + "keys/register");
+    final url = Uri.parse(Constants.httpUrl + "keys/register");
 
-    final phoneNumber = await getUserPhoneNumber();
+    final phoneNumber = await _encryptionService.getUserPhoneNumber();
     // final devicePassword = await getDevicePassword();
     // final authTokenEncoded = _generateAuthenticationToken(phoneNumber, devicePassword);
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _encryptionService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();

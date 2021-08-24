@@ -119,6 +119,66 @@ class RegistrationService {
     }
   }
 
+  Future<bool> registerKeys() async {
+    final url = Uri.parse(baseURLHttps + "keys/register");
+
+    final phoneNumber = await getUserPhoneNumber();
+    // final devicePassword = await getDevicePassword();
+    // final authTokenEncoded = _generateAuthenticationToken(phoneNumber, devicePassword);
+    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+
+    final identityKeyPair = await _encryptionService.getIdentityKeyPair();
+    final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();
+    final preKeys = await _encryptionService.loadPreKeys();
+
+    if (identityKeyPair == null ||
+        signedPreKey == null ||
+        preKeys.isEmpty ||
+        preKeys.length < 100) {
+      ///Output reason for failure to log here??
+      return false;
+    }
+
+    List<Map<String, Object>> preKeysArr = [];
+
+    for (var p in preKeys) {
+      preKeysArr.add({
+        "keyId": p.id,
+        "publicKey": base64Encode(p.getKeyPair().publicKey.serialize())
+      });
+    }
+
+    var data = {
+      //Todo: Implement Authorization header and place this there instead
+      "authorization": "Bearer $authTokenEncoded",
+      "phoneNumber": phoneNumber,
+      "identityKey": base64Encode(identityKeyPair.getPublicKey().serialize()),
+      "preKeys": preKeysArr,
+      "signedPreKey": {
+        "keyId": signedPreKey.id,
+        "publicKey":
+        base64Encode(signedPreKey.getKeyPair().publicKey.serialize()),
+        "signature": base64Encode(signedPreKey.signature)
+      }
+    };
+
+    // final response = await http.put(url,
+    //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      Future.wait([
+        _storage.write(key: "registered", value: "1"),
+      ]);
+
+      print("Successfully registered");
+      return true;
+    } else {
+      print("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      throw new RegistrationErrorException("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      //return false;
+    }
+  }
 
 
 
@@ -132,7 +192,7 @@ class RegistrationService {
 
 
 
-  // Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
+// Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
   //   throwIfNot(
   //       Validations().numberIsValid(phoneNumber),
   //       new InvalidNumberException(

@@ -6,6 +6,8 @@ part 'ObservableContact.g.dart';
 class ObservableContact = _ObservableContact with _$ObservableContact;
 
 abstract class _ObservableContact with Store {
+  final Contact contact;
+
   final String phoneNumber;
 
   @observable
@@ -20,12 +22,12 @@ abstract class _ObservableContact with Store {
   @observable
   DateTime? birthday;
 
-  _ObservableContact(Contact c)
-      : phoneNumber = c.phoneNumber,
-        displayName = c.displayName,
-        status = c.status,
-        profileImage = c.profileImage,
-        birthday = c.birthday;
+  _ObservableContact(this.contact)
+      : phoneNumber = contact.phoneNumber,
+        displayName = contact.displayName,
+        status = contact.status,
+        profileImage = contact.profileImage,
+        birthday = contact.birthday;
 }
 
 extension ContactExtension on Contact {

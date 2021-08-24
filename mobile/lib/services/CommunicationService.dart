@@ -1,6 +1,7 @@
 import 'package:mobile/domain/Message.dart';
 
 //Use "encryptMessageContent" and "decryptMessageContents"
+//from "EncryptionService"
 //for encrypting and decrypting messsages
 
 class CommunicationService {

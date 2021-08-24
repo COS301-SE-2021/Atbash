@@ -11,6 +11,7 @@ import 'package:mobile/exceptions/InvalidNumberException.dart';
 import 'package:mobile/exceptions/InvalidPreKeyBundleFormat.dart';
 import 'package:mobile/exceptions/PreKeyBundleFetchError.dart';
 import 'package:mobile/exceptions/UnsupportedCiphertextMessageType.dart';
+import 'package:mobile/constants.dart';
 
 //Signal Imports
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
@@ -37,8 +38,6 @@ class EncryptionService {
   final SignalProtocolStoreService _signalProtocolStoreService;
 
   final _storage = FlutterSecureStorage();
-
-  final baseURLHttps = "https://2emt0tnwh8.execute-api.af-south-1.amazonaws.com/";
 
   Future<String> encryptMessageContent(String messageContent,
       String recipientNumber) async {
@@ -213,7 +212,7 @@ class EncryptionService {
   //GET /v2/keys/+31611XXXXXX/* HTTP/1.0
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
     // final url = Uri.parse("http://" + baseURL + "keys/$number/");
-    final url = Uri.parse(baseURLHttps + "keys/get");
+    final url = Uri.parse(Constants.httpUrl + "keys/get");
 
     final authTokenEncoded = await getDeviceAuthTokenEncoded();
     // final response = await http.get(url, headers: {"Authorization": "Basic $authTokenEncoded"});

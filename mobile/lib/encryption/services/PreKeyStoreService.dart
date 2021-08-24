@@ -61,5 +61,28 @@ class PreKeyStoreService extends PreKeyStore {
     return null;
   }
 
+  /// Fetches all PreKeys
+  Future<List<PreKeyRecord>> fetchPreKeys() async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      PreKeyDBRecord.TABLE_NAME,
+    );
+
+    final list = <PreKeyRecord>[];
+
+    response.forEach((element) {
+      final record = PreKeyDBRecord.fromMap(element);
+      if (record != null) {
+        final preKeyRecord = PreKeyRecord.fromBuffer(record.serializedKey);
+
+        if (preKeyRecord is PreKeyRecord) {
+          list.add(preKeyRecord);
+        }
+      }
+    });
+
+    return list;
+  }
+
 
 }

@@ -74,7 +74,7 @@ class IdentityKeyStoreService extends IdentityKeyStore {
       return false;
     }
     if (identityKey != existing) {
-      _databaseService.saveTrustedKey(address, identityKey);
+      await saveTrustedKey(address, identityKey);
       return true;
     } else {
       return false;
@@ -105,8 +105,7 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   /// Saves a TrustedKey to the database and returns.
   Future<TrustedKeyDBRecord> saveTrustedKey(
       SignalProtocolAddress address, IdentityKey identityKey) async {
-    TrustedKeyDBRecord trustedKey =
-    TrustedKeyDBRecord(address, identityKey.serialize());
+    TrustedKeyDBRecord trustedKey = TrustedKeyDBRecord(address, identityKey.serialize());
 
     final db = await _databaseService.database;
 

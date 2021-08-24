@@ -24,15 +24,41 @@ mixin _$ContactListModel on _ContactListModel, Store {
     });
   }
 
+  final _$addContactAsyncAction = AsyncAction('_ContactListModel.addContact');
+
+  @override
+  Future<void> addContact(String phoneNumber, String displayName) {
+    return _$addContactAsyncAction
+        .run(() => super.addContact(phoneNumber, displayName));
+  }
+
+  final _$setContactBirthdayAsyncAction =
+      AsyncAction('_ContactListModel.setContactBirthday');
+
+  @override
+  Future<void> setContactBirthday(String phoneNumber, DateTime birthday) {
+    return _$setContactBirthdayAsyncAction
+        .run(() => super.setContactBirthday(phoneNumber, birthday));
+  }
+
+  final _$setContactDisplayNameAsyncAction =
+      AsyncAction('_ContactListModel.setContactDisplayName');
+
+  @override
+  Future<void> setContactDisplayName(String phoneNumber, String displayName) {
+    return _$setContactDisplayNameAsyncAction
+        .run(() => super.setContactDisplayName(phoneNumber, displayName));
+  }
+
   final _$_ContactListModelActionController =
       ActionController(name: '_ContactListModel');
 
   @override
-  void addContact(String phoneNumber, String displayName) {
+  void init() {
     final _$actionInfo = _$_ContactListModelActionController.startAction(
-        name: '_ContactListModel.addContact');
+        name: '_ContactListModel.init');
     try {
-      return super.addContact(phoneNumber, displayName);
+      return super.init();
     } finally {
       _$_ContactListModelActionController.endAction(_$actionInfo);
     }
@@ -44,28 +70,6 @@ mixin _$ContactListModel on _ContactListModel, Store {
         name: '_ContactListModel.deleteContact');
     try {
       return super.deleteContact(phoneNumber);
-    } finally {
-      _$_ContactListModelActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setContactBirthday(String phoneNumber, DateTime birthday) {
-    final _$actionInfo = _$_ContactListModelActionController.startAction(
-        name: '_ContactListModel.setContactBirthday');
-    try {
-      return super.setContactBirthday(phoneNumber, birthday);
-    } finally {
-      _$_ContactListModelActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setContactDisplayName(String phoneNumber, String displayName) {
-    final _$actionInfo = _$_ContactListModelActionController.startAction(
-        name: '_ContactListModel.setContactDisplayName');
-    try {
-      return super.setContactDisplayName(phoneNumber, displayName);
     } finally {
       _$_ContactListModelActionController.endAction(_$actionInfo);
     }

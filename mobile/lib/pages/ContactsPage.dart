@@ -9,6 +9,8 @@ import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
+import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactsPage extends StatefulWidget {
@@ -30,6 +32,8 @@ class _ContactsPageState extends State<ContactsPage> {
   @override
   void initState() {
     super.initState();
+
+    contactListModel.init();
 
     _searchFocusNode = FocusNode();
   }
@@ -157,12 +161,17 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _addContact(BuildContext context) {
-    showNewContactDialog(context).then((nameNumberPair) {
+    showNewContactDialog(context).then((nameNumberPair) async {
       if (nameNumberPair != null) {
-        contactListModel.addContact(
-          nameNumberPair.phoneNumber,
-          nameNumberPair.name,
-        );
+        try {
+          await contactListModel.addContact(
+            nameNumberPair.phoneNumber,
+            nameNumberPair.name,
+          );
+        } on DuplicateContactPhoneNumberException {
+          showSnackBar(context,
+              "A contact already exists with the number ${nameNumberPair.phoneNumber}");
+        }
       }
     });
   }

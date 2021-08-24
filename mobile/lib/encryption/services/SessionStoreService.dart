@@ -4,16 +4,18 @@ import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
 
+import '../SessionDBRecord.dart';
+
 class SessionStoreService extends SessionStore {
   final DatabaseService _databaseService;
 
   SessionStoreService(this._databaseService);
 
-  @override
-  Future<bool> containsSession(SignalProtocolAddress address) async {
-    print("Checking session exists for number: " + address.getName());
-    return (await _databaseService.fetchSession(address)) != null;
-  }
+  // @override
+  // Future<bool> containsSession(SignalProtocolAddress address) async {
+  //   print("Checking session exists for number: " + address.getName());
+  //   return (await _databaseService.fetchSession(address)) != null;
+  // }
 
   @override
   Future<void> deleteAllSessions(String name) async {
@@ -53,4 +55,23 @@ class SessionStoreService extends SessionStore {
     print("Storing session for number: " + address.getName());
     await _databaseService.saveSession(address, record);
   }
+
+  /// ******************** Database Methods ********************
+
+  ///Checking session exists for number in the database
+  @override
+  Future<bool> containsSession(SignalProtocolAddress address) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SessionDBRecord.TABLE_NAME,
+      where:
+      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+      whereArgs: [address.getName(), address.getDeviceId()],
+    );
+
+    return response.isNotEmpty;
+  }
+
+
+
 }

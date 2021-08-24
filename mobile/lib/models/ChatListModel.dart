@@ -68,8 +68,6 @@ abstract class _ChatListModel with Store {
 
   @action
   void setChatContact(String chatId, Contact contact) {
-    // TODO update in db
-
     chats.firstWhere((e) => e.id == chatId).contact = contact;
   }
 

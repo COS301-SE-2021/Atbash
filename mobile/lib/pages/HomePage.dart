@@ -36,6 +36,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    _chatListModel.init();
+
     _searchFocusNode = FocusNode();
   }
 

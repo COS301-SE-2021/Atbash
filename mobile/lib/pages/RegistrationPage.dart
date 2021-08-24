@@ -134,8 +134,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
     if (userModel.register(phoneNumber)) {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => ProfileSettingsPage()));
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(
+                    setup: true,
+                  )));
     } else {
       showSnackBar(context, "This phone number is already registered");
       setState(() {

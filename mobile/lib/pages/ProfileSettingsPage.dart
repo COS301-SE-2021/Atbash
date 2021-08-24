@@ -1,8 +1,19 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/pages/HomePage.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
-  const ProfileSettingsPage({Key? key}) : super(key: key);
+  final bool setup;
+
+  const ProfileSettingsPage({Key? key, required this.setup}) : super(key: key);
 
   @override
   _ProfileSettingsPageState createState() => _ProfileSettingsPageState();
@@ -10,10 +21,33 @@ class ProfileSettingsPage extends StatefulWidget {
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   late bool isFirstTime;
+  final UserModel _userModel = GetIt.I.get();
+
+  final picker = ImagePicker();
+  final _displayNameController = TextEditingController();
+  final _statusController = TextEditingController();
+  Uint8List? _selectedProfileImage;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final displayName = _userModel.displayName;
+    final status = _userModel.status;
+    final profileImage = _userModel.profileImage;
+
+    if (displayName != null) _displayNameController.text = displayName;
+
+    if (status != null) _statusController.text = status;
+
+    if (profileImage != null)
+      _selectedProfileImage = base64Decode(profileImage);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(),
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
@@ -34,15 +68,16 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   SizedBox(
                     height: 15,
                   ),
-                  Text(
-                    "Please provide a name as well as an optional profile picture and status.",
-                    textAlign: TextAlign.center,
-                  ),
+                  if (widget.setup)
+                    Text(
+                      "Please provide a name as well as an optional profile picture and status.",
+                      textAlign: TextAlign.center,
+                    ),
                   SizedBox(
                     height: 30,
                   ),
-                  CircleAvatar(
-                    backgroundColor: Constants.orange,
+                  AvatarIcon(
+                    _selectedProfileImage,
                     radius: 64,
                   ),
                   Row(
@@ -52,7 +87,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _loadPicker(ImageSource.gallery);
+                        },
                         icon: Icon(Icons.photo_library),
                       ),
                       SizedBox(
@@ -62,7 +99,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         splashRadius: 24,
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
-                        onPressed: () {},
+                        onPressed: () {
+                          _imgFromCamera(context);
+                        },
                         icon: Icon(Icons.photo_camera),
                       ),
                     ],
@@ -77,6 +116,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _displayNameController,
                         decoration: InputDecoration(
                           hintText: "Display Name",
                         ),
@@ -94,6 +134,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                     child: Container(
                       child: TextField(
+                        controller: _statusController,
                         decoration: InputDecoration(
                           hintText: "Status",
                         ),
@@ -104,13 +145,35 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   SizedBox(
                     height: 60,
                   ),
+                  //TODO add birthday inputfield
                   MaterialButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
                     color: Constants.orange,
-                    onPressed: () {},
-                    child: Text("Next"),
+                    onPressed: () {
+                      final displayName = _displayNameController.text;
+                      final status = _statusController.text;
+                      final profileImage =
+                          _selectedProfileImage ?? Uint8List(0);
+
+                      if (displayName.isNotEmpty)
+                        _userModel.setDisplayName(displayName);
+
+                      if (status.isNotEmpty) _userModel.setStatus(status);
+
+                      _userModel.setProfileImage(base64Encode(profileImage));
+
+                      if (widget.setup) {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomePage()));
+                      } else {
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: Text(widget.setup ? "Next" : "Save"),
                   ),
                 ],
               ),
@@ -119,5 +182,55 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         ),
       ),
     );
+  }
+
+  Future _loadPicker(ImageSource source) async {
+    final pickedFile = await picker.getImage(source: source);
+    if (pickedFile != null) {
+      final File file = File(pickedFile.path);
+      final imageBytes = await file.readAsBytes();
+      setState(() {
+        _selectedProfileImage = imageBytes;
+      });
+    }
+  }
+
+  Future _imgFromCamera(BuildContext context) async {
+    try {
+      //TODO implement this setState for taking pictures
+      // setState(() {
+      //   if (pickedFile != null) {
+      //     _image = File(pickedFile.path);
+      //   } else {
+      //     print('No image selected.');
+      //   }
+      // });
+    } catch (e) {
+      showAlertDialog(context);
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    // Create button
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          Widget okButton = TextButton(
+            child: Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          );
+
+          AlertDialog alert = AlertDialog(
+            title: Text("ALERT"),
+            content: Text("Your device does not have a functional camera."),
+            actions: [
+              okButton,
+            ],
+          );
+          return alert;
+        });
   }
 }

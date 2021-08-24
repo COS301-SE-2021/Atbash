@@ -21,15 +21,14 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final _status = _userModel.status;
-    final _displayName = _userModel.displayName;
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
       ),
       body: SafeArea(
         child: Observer(builder: (_) {
+          final _status = _userModel.status;
+          final _displayName = _userModel.displayName;
           return ListView(
             children: [
               InkWell(
@@ -37,7 +36,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ProfileSettingsPage()));
+                          builder: (context) => ProfileSettingsPage(
+                                setup: false,
+                              )));
                 },
                 child: Container(
                   padding: EdgeInsets.all(15),

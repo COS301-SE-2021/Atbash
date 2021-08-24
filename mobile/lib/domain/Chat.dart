@@ -1,20 +1,24 @@
+import 'package:mobx/mobx.dart';
+
 import 'Contact.dart';
 import 'Message.dart';
 
-class Chat {
-  final String id;
-  final String contactPhoneNumber;
-  final Contact? contact;
-  final ChatType chatType;
-  final Message? mostRecentMessage;
+part 'Chat.g.dart';
 
+class Chat extends _Chat with _$Chat {
   Chat({
-    required this.id,
-    required this.contactPhoneNumber,
-    this.contact,
-    required this.chatType,
-    this.mostRecentMessage,
-  });
+    required String id,
+    required String contactPhoneNumber,
+    Contact? contact,
+    required ChatType chatType,
+    Message? mostRecentMessage,
+  }) : super(
+          id: id,
+          contactPhoneNumber: contactPhoneNumber,
+          contact: contact,
+          chatType: chatType,
+          mostRecentMessage: mostRecentMessage,
+        );
 
   Map<String, Object?> toMap() {
     return {
@@ -54,6 +58,28 @@ class Chat {
       "$COLUMN_CHAT_TYPE int not null,"
       "$COLUMN_RECENT_MESSAGE_ID text"
       ");";
+}
+
+abstract class _Chat with Store {
+  final String id;
+
+  final String contactPhoneNumber;
+
+  @observable
+  Contact? contact;
+
+  final ChatType chatType;
+
+  @observable
+  Message? mostRecentMessage;
+
+  _Chat({
+    required this.id,
+    required this.contactPhoneNumber,
+    this.contact,
+    required this.chatType,
+    this.mostRecentMessage,
+  });
 }
 
 enum ChatType { general, private }

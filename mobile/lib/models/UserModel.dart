@@ -46,6 +46,7 @@ abstract class _UserModel with Store {
   @action
   bool register(String phoneNumber) {
     //TODO implement logic
+    _storage.write(key: "phone_number", value: phoneNumber);
 
     return true;
   }

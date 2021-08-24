@@ -9,4 +9,7 @@ class Constants {
   static const Color darkGrey = Color.fromARGB(255, 35, 47, 62);
   static const Color black = Color.fromARGB(255, 19, 26, 34);
   static const Color white = Colors.white;
+
+  static const String webSocketUrl = ""; // TODO
+  static const String httpUrl = ""; // TODO
 }

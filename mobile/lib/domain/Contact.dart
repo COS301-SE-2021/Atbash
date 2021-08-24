@@ -1,17 +1,20 @@
-class Contact {
-  final String phoneNumber;
-  final String displayName;
-  final String status;
-  final String profileImage;
-  final DateTime? birthday;
+import 'package:mobx/mobx.dart';
 
+part 'Contact.g.dart';
+
+class Contact extends _Contact with _$Contact {
   Contact({
-    required this.phoneNumber,
-    required this.displayName,
-    required this.status,
-    required this.profileImage,
-    this.birthday,
-  });
+    required String phoneNumber,
+    required String displayName,
+    required String status,
+    required String profileImage,
+    DateTime? birthday,
+  }) : super(
+            phoneNumber: phoneNumber,
+            displayName: displayName,
+            status: status,
+            profileImage: profileImage,
+            birthday: birthday);
 
   Map<String, Object?> toMap() {
     return {
@@ -61,4 +64,28 @@ class Contact {
       "$COLUMN_PROFILE_IMAGE blob not null,"
       "$COLUMN_BIRTHDAY int"
       ");";
+}
+
+abstract class _Contact with Store {
+  final String phoneNumber;
+
+  @observable
+  String displayName;
+
+  @observable
+  String status;
+
+  @observable
+  String profileImage;
+
+  @observable
+  DateTime? birthday;
+
+  _Contact({
+    required this.phoneNumber,
+    required this.displayName,
+    required this.status,
+    required this.profileImage,
+    this.birthday,
+  });
 }

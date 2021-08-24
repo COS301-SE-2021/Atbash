@@ -45,6 +45,9 @@ dependencies:
   cryptography: ^2.0.2
   intl: ^0.17.0
   flutter_slidable: ^0.6.0
+  libsignal_protocol_dart: ^0.5.3
+  #crypto: ^3.0.1   #Will need this later
+  encrypt: ^5.0.1
 
 dev_dependencies:
   flutter_test:

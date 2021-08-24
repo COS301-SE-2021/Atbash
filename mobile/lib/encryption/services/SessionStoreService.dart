@@ -22,10 +22,10 @@ class SessionStoreService extends SessionStore {
   //   await _databaseService.deleteAllSessions();
   // }
 
-  @override
-  Future<void> deleteSession(SignalProtocolAddress address) async {
-    await _databaseService.deleteSession(address);
-  }
+  // @override
+  // Future<void> deleteSession(SignalProtocolAddress address) async {
+  //   await _databaseService.deleteSession(address);
+  // }
 
   @override
   Future<List<int>> getSubDeviceSessions(String name) async {
@@ -77,6 +77,18 @@ class SessionStoreService extends SessionStore {
   Future<void> deleteAllSessions() async {
     final db = await _databaseService.database;
     db.delete(SessionDBRecord.TABLE_NAME);
+  }
+
+  /// Deletes sessions from database with specified SignalProtocolAddress.
+  @override
+  Future<void> deleteSession(SignalProtocolAddress address) async {
+    final db = await _databaseService.database;
+    db.delete(
+      SessionDBRecord.TABLE_NAME,
+      where:
+      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+      whereArgs: [address.getName(), address.getDeviceId()],
+    );
   }
 
 }

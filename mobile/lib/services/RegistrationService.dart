@@ -192,7 +192,15 @@ class RegistrationService {
     }
   }
 
-
+  /// Check if the user is registered
+  Future<bool> isRegistered() async {
+    final registered = await _storage.read(key: "registered");
+    if (registered == "1") {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
 
 

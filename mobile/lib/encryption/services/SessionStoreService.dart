@@ -36,7 +36,7 @@ class SessionStoreService extends SessionStore {
   Future<SessionRecord> loadSession(SignalProtocolAddress address) async {
     print("Loading session for number: " + address.getName());
     try {
-      final sessionRecord = await _databaseService.fetchSession(address);
+      final sessionRecord = await fetchSession(address);
       if (sessionRecord != null) {
         print("Returning session");
         return sessionRecord;
@@ -112,6 +112,25 @@ class SessionStoreService extends SessionStore {
     });
 
     return list;
+  }
+
+  /// Fetches all sessions for a SignalProtocolAddress
+  Future<SessionRecord?> fetchSession(SignalProtocolAddress address) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SessionDBRecord.TABLE_NAME,
+      where:
+      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+      whereArgs: [address.getName(), address.getDeviceId()],
+    );
+
+    if (response.isNotEmpty) {
+      final sessionDBRecord = SessionDBRecord.fromMap(response.first);
+      if (sessionDBRecord != null) {
+        return SessionRecord.fromSerialized(sessionDBRecord.serializedSession);
+      }
+    }
+    return null;
   }
 
 }

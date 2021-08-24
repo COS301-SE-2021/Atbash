@@ -57,7 +57,7 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   @override
   Future<bool> isTrustedIdentity(SignalProtocolAddress address,
       IdentityKey? identityKey, Direction? direction) async {
-    final trusted = await _databaseService.fetchTrustedKey(address);
+    final trusted = await fetchTrustedKey(address);
     if (identityKey == null) {
       return false;
     }
@@ -68,7 +68,7 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   @override
   Future<bool> saveIdentity(
       SignalProtocolAddress address, IdentityKey? identityKey) async {
-    final existing = await _databaseService.fetchTrustedKey(address);
+    final existing = await fetchTrustedKey(address);
     if (identityKey == null) {
       return false;
     }

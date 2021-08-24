@@ -97,17 +97,17 @@ class MessageService {
     final db = await databaseService.database;
 
     await db.transaction((txn) async {
-      final exists = await db.query(
+      final exists = await txn.query(
         Message.TABLE_NAME,
         where: "${Message.COLUMN_ID} = ?",
         whereArgs: [id],
       );
 
-      if (exists.isNotEmpty) {
+      if (exists.isEmpty) {
         throw MessageNotFoundException();
       }
 
-      await db.delete(
+      await txn.delete(
         Message.TABLE_NAME,
         where: "${Message.COLUMN_ID} = ?",
         whereArgs: [id],

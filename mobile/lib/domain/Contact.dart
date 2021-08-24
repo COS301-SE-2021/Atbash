@@ -11,4 +11,18 @@ class Contact {
       required this.status,
       required this.profileImage,
       this.birthday});
+
+  static const String TABLE_NAME = "contact";
+  static const String COLUMN_PHONE_NUMBER = "contact_phone_number";
+  static const String COLUMN_DISPLAY_NAME = "contact_display_name";
+  static const String COLUMN_STATUS = "contact_status";
+  static const String COLUMN_PROFILE_IMAGE = "contact_profile_image";
+  static const String COLUMN_BIRTHDAY = "contact_birthday";
+  static const String CREATE_TABLE = "create table $TABLE_NAME ("
+      "$COLUMN_PHONE_NUMBER text primary key,"
+      "$COLUMN_DISPLAY_NAME text not null,"
+      "$COLUMN_STATUS text not null,"
+      "$COLUMN_PROFILE_IMAGE text not null,"
+      "$COLUMN_BIRTHDAY int"
+      ");";
 }

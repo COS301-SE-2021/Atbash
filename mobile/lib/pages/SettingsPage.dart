@@ -94,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.remove_red_eye_outlined,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -112,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.health_and_safety,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -129,7 +129,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.photo,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -146,7 +146,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.wysiwyg,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -163,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.done_all,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -172,7 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: Icon(
                   Icons.block,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 title: Text(
                   "Blocked contacts",
@@ -195,7 +195,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: Icon(
                   Icons.contact_phone,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 title: Text(
                   "Change Number",
@@ -210,7 +210,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: Icon(
                   Icons.delete_forever,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 title: Text(
                   "Delete Account",
@@ -240,7 +240,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.notifications_active,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
               ),
@@ -255,7 +255,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.multitrack_audio,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
               ),
@@ -270,7 +270,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.multitrack_audio,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 dense: true,
                 subtitle: Text(
@@ -304,7 +304,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ListTile(
                 leading: Icon(
                   Icons.help,
-                  color: Constants.orangeColor,
+                  color: Constants.orange,
                 ),
                 title: Text(
                   "User Manual",

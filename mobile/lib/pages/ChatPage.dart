@@ -320,12 +320,12 @@ class ChatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     var alignment = Alignment.centerRight;
     var padding = EdgeInsets.only(left: 100, right: 20);
-    var color = Constants.orangeColor;
+    var color = Constants.orange;
 
     if (_contactIsSender) {
       alignment = Alignment.centerLeft;
       padding = padding.flipped;
-      color = Constants.darkGreyColor;
+      color = Constants.darkGrey;
     }
 
     return Container(

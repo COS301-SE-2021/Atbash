@@ -287,7 +287,7 @@ class _HomePageState extends State<HomePage> {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: 12,
-            color: Constants.darkGreyColor,
+            color: Constants.darkGrey,
           ),
         );
       } else {
@@ -299,7 +299,7 @@ class _HomePageState extends State<HomePage> {
       if (message != null && message.readReceipt != ReadReceipt.seen) {
         return Icon(
           Icons.circle,
-          color: Constants.orangeColor,
+          color: Constants.orange,
           size: 16,
         );
       } else {

@@ -1,11 +1,15 @@
-class Tag {
-  final String id;
-  String name;
+import 'package:mobx/mobx.dart';
 
+part 'Tag.g.dart';
+
+class Tag extends _Tag with _$Tag {
   Tag({
-    required this.id,
-    required this.name,
-  });
+    required String id,
+    required String name,
+  }) : super(
+      id: id,
+      name: name
+  );
 
   Map<String, Object> toMap() {
     return {
@@ -32,4 +36,18 @@ class Tag {
       "$COLUMN_ID text primary key,"
       "$COLUMN_NAME text not null"
       ");";
+}
+
+abstract class _Tag with Store {
+  final String id;
+
+  @observable
+  String name;
+
+  _Tag({
+    required this.id,
+    required this.name,
+  });
+
+
 }

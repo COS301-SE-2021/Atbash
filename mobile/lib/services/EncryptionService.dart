@@ -6,20 +6,23 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
-import 'package:libsignal_protocol_dart/src/invalid_message_exception.dart';
-import 'package:mobile/domain/DataPackages/PreKeyBundlePackage.dart';
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
 import 'package:mobile/exceptions/InvalidPreKeyBundleFormat.dart';
 import 'package:mobile/exceptions/PreKeyBundleFetchError.dart';
 import 'package:mobile/exceptions/UnsupportedCiphertextMessageType.dart';
-import 'package:mobile/services/SignalProtocolStoreService.dart';
 
-import 'IdentityKeyStoreService.dart';
-import 'PreKeyStoreService.dart';
-import 'SessionStoreService.dart';
-import 'SignedPreKeyStoreService.dart';
+//Signal Imports
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
+import 'package:libsignal_protocol_dart/src/invalid_message_exception.dart';
+
+//Encryption Imports
+import 'package:mobile/encryption/DataPackages/PreKeyBundlePackage.dart';
+import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
+import 'package:mobile/encryption/services/IdentityKeyStoreService.dart';
+import 'package:mobile/encryption/services/PreKeyStoreService.dart';
+import 'package:mobile/encryption/services/SessionStoreService.dart';
+import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
 ///Use this rather: https://pub.dev/packages/libsignal_protocol_dart/install
 ///instead of this: https://pub.dev/packages/cryptography

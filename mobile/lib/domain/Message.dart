@@ -1,27 +1,30 @@
+import 'package:mobx/mobx.dart';
+
 import 'Tag.dart';
 
-class Message {
-  final String id;
-  final String senderPhoneNumber;
-  final String recipientPhoneNumber;
-  final String contents;
-  final DateTime timestamp;
-  final ReadReceipt readReceipt;
-  final bool deleted;
-  final bool liked;
-  final List<Tag> tags;
+part 'Message.g.dart';
 
+class Message extends _Message with _$Message {
   Message({
-    required this.id,
-    required this.senderPhoneNumber,
-    required this.recipientPhoneNumber,
-    required this.contents,
-    required this.timestamp,
-    required this.readReceipt,
-    required this.deleted,
-    required this.liked,
-    required this.tags,
-  });
+    required String id,
+    required String senderPhoneNumber,
+    required String recipientPhoneNumber,
+    required String contents,
+    required DateTime timestamp,
+    required ReadReceipt readReceipt,
+    required bool deleted,
+    required bool liked,
+    required List<Tag> tags,
+  }) : super(
+            id: id,
+            senderPhoneNumber: senderPhoneNumber,
+            recipientPhoneNumber: recipientPhoneNumber,
+            contents: contents,
+            timestamp: timestamp,
+            readReceipt: readReceipt,
+            deleted: deleted,
+            liked: liked,
+            tags: tags);
 
   Map<String, Object> toMap() {
     return {
@@ -87,6 +90,41 @@ class Message {
       "$COLUMN_DELETED tinyint not null,"
       "$COLUMN_LIKED tinyint not null"
       ");";
+}
+
+abstract class _Message with Store {
+  final String id;
+  final String senderPhoneNumber;
+  final String recipientPhoneNumber;
+
+  @observable
+  String contents;
+
+  final DateTime timestamp;
+
+  @observable
+  ReadReceipt readReceipt;
+
+  @observable
+  bool deleted;
+
+  @observable
+  bool liked;
+
+  @observable
+  List<Tag> tags;
+
+  _Message({
+    required this.id,
+    required this.senderPhoneNumber,
+    required this.recipientPhoneNumber,
+    required this.contents,
+    required this.timestamp,
+    required this.readReceipt,
+    required this.deleted,
+    required this.liked,
+    required this.tags,
+  });
 }
 
 enum ReadReceipt { undelivered, delivered, seen }

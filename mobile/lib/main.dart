@@ -4,7 +4,7 @@ import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/models/MessagesModel.dart';
 import 'package:mobile/models/SettingsModel.dart';
-import 'package:mobile/pages/RegistrationPage.dart';
+import 'package:mobile/pages/HomePage.dart';
 
 import 'models/UserModel.dart';
 
@@ -41,7 +41,7 @@ class AtbashApp extends StatelessWidget {
       title: "Atbash",
       theme: ThemeData(primarySwatch: Colors.orange),
       navigatorKey: _navigatorKey,
-      home: RegistrationPage(),
+      home: HomePage(),
     );
   }
 }

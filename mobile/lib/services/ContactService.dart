@@ -49,7 +49,9 @@ class ContactService {
       if (existingContact.isEmpty)
         throw ContactWithPhoneNumberDoesNotExistException();
 
-      await txn.update(Contact.TABLE_NAME, contact.toMap());
+      await txn.update(Contact.TABLE_NAME, contact.toMap(),
+          where: "${Contact.COLUMN_PHONE_NUMBER} = ?",
+          whereArgs: [contact.phoneNumber]);
     });
 
     return contact;

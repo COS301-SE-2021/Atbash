@@ -3,13 +3,13 @@ import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
 
+import '../SignedPreKeyDBRecord.dart';
+
 class SignedPreKeyStoreService extends SignedPreKeyStore {
   final DatabaseService _databaseService;
   final _storage = FlutterSecureStorage();
 
   SignedPreKeyStoreService(this._databaseService);
-
-  // final store = HashMap<int, Uint8List>();
 
   @override
   Future<SignedPreKeyRecord> loadSignedPreKey(int signedPreKeyId) async {
@@ -59,4 +59,26 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     if(id == null) return null;
     return int.parse(id);
   }
+
+  /// ******************** Database Methods ********************
+
+  ///Fetches SignedPreKey from the database
+  Future<SignedPreKeyRecord?> fetchSignedPreKey(int preKeyId) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SignedPreKeyDBRecord.TABLE_NAME,
+      where: "${SignedPreKeyDBRecord.COLUMN_KEY_ID} = ?",
+      whereArgs: [preKeyId],
+    );
+
+    if (response.isNotEmpty) {
+      final signedPreKey = SignedPreKeyDBRecord.fromMap(response.first);
+      if (signedPreKey != null) {
+        return SignedPreKeyRecord.fromSerialized(signedPreKey.serializedKey);
+      }
+    }
+    return null;
+  }
+
+
 }

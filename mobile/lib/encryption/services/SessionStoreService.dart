@@ -12,27 +12,6 @@ class SessionStoreService extends SessionStore {
 
   SessionStoreService(this._databaseService);
 
-  // @override
-  // Future<bool> containsSession(SignalProtocolAddress address) async {
-  //   print("Checking session exists for number: " + address.getName());
-  //   return (await _databaseService.fetchSession(address)) != null;
-  // }
-
-  // @override
-  // Future<void> deleteAllSessions(String name) async {
-  //   await _databaseService.deleteAllSessions();
-  // }
-
-  // @override
-  // Future<void> deleteSession(SignalProtocolAddress address) async {
-  //   await _databaseService.deleteSession(address);
-  // }
-
-  // @override
-  // Future<List<int>> getSubDeviceSessions(String name) async {
-  //   return await _databaseService.fetchSubDeviceSessions(name);
-  // }
-
   @override
   Future<SessionRecord> loadSession(SignalProtocolAddress address) async {
     try {
@@ -46,13 +25,6 @@ class SessionStoreService extends SessionStore {
       throw AssertionError(e);
     }
   }
-
-  // @override
-  // Future<void> storeSession(
-  //     SignalProtocolAddress address, SessionRecord record) async {
-  //   print("Storing session for number: " + address.getName());
-  //   await _databaseService.saveSession(address, record);
-  // }
 
   /// ******************** Database Methods ********************
 

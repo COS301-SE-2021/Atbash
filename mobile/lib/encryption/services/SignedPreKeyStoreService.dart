@@ -42,9 +42,9 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   //   _databaseService.saveSignedPreKey(signedPreKeyId, record);
   // }
 
-  @override
-  Future<bool> containsSignedPreKey(int signedPreKeyId) async =>
-      _databaseService.checkExistsSignedPreKey(signedPreKeyId);
+  // @override
+  // Future<bool> containsSignedPreKey(int signedPreKeyId) async =>
+  //     _databaseService.checkExistsSignedPreKey(signedPreKeyId);
 
   @override
   Future<void> removeSignedPreKey(int signedPreKeyId) async {
@@ -117,7 +117,18 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  ///Checks if SignedPreKey exists in the database
+  @override
+  Future<bool> containsSignedPreKey(int signedPreKeyId) async{
+    final db = await _databaseService.database;
+    final response = await db.query(
+      SignedPreKeyDBRecord.TABLE_NAME,
+      where: "${SignedPreKeyDBRecord.COLUMN_KEY_ID} = ?",
+      whereArgs: [signedPreKeyId],
+    );
 
+    return response.isNotEmpty;
+  }
 
 
 

@@ -108,4 +108,15 @@ class PreKeyStoreService extends PreKeyStore {
     return preKeyDBRecord;
   }
 
+  /// Deletes PreKey from database.
+  Future<void> deletePreKey(int preKeyId) async {
+    final db = await _databaseService.database;
+
+    db.delete(
+      PreKeyDBRecord.TABLE_NAME,
+      where: "${PreKeyDBRecord.COLUMN_KEY_ID} = ?",
+      whereArgs: [preKeyId],
+    );
+  }
+
 }

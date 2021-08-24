@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../SessionDBRecord.dart';
 
@@ -46,12 +47,12 @@ class SessionStoreService extends SessionStore {
     }
   }
 
-  @override
-  Future<void> storeSession(
-      SignalProtocolAddress address, SessionRecord record) async {
-    print("Storing session for number: " + address.getName());
-    await _databaseService.saveSession(address, record);
-  }
+  // @override
+  // Future<void> storeSession(
+  //     SignalProtocolAddress address, SessionRecord record) async {
+  //   print("Storing session for number: " + address.getName());
+  //   await _databaseService.saveSession(address, record);
+  // }
 
   /// ******************** Database Methods ********************
 
@@ -128,6 +129,15 @@ class SessionStoreService extends SessionStore {
       }
     }
     return null;
+  }
+
+  /// Saves a SessionRecord to the database and returns.
+  @override
+  Future<void> storeSession(SignalProtocolAddress address, SessionRecord record) async {
+    SessionDBRecord sessionDBRecord = SessionDBRecord(address, record.serialize());
+    final db = await _databaseService.database;
+
+    await db.insert(SessionDBRecord.TABLE_NAME, sessionDBRecord.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
 }

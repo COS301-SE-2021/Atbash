@@ -46,23 +46,24 @@ abstract class _ContactListModel with Store {
   }
 
   @action
-  void setContactBirthday(String phoneNumber, DateTime birthday) {
+  Future<void> setContactBirthday(String phoneNumber, DateTime birthday) async {
     final contact =
         contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
     contact.birthday = birthday;
 
-    _contactService.update(contact);
+    await _contactService.update(contact);
   }
 
   @action
-  void setContactDisplayName(String phoneNumber, String displayName) {
+  Future<void> setContactDisplayName(
+      String phoneNumber, String displayName) async {
     final contact =
         contacts.firstWhere((element) => element.phoneNumber == phoneNumber);
 
     contact.displayName = displayName;
 
-    _contactService.update(contact);
+    await _contactService.update(contact);
   }
 
   @action

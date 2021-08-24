@@ -1,6 +1,6 @@
 class Tag {
   final String id;
-  final String name;
+  String name;
 
   Tag({
     required this.id,

@@ -74,7 +74,7 @@ class SessionStoreService extends SessionStore {
 
   /// Deletes all sessions from database.
   @override
-  Future<void> deleteAllSessions() async {
+  Future<void> deleteAllSessions(String name) async {
     final db = await _databaseService.database;
     db.delete(SessionDBRecord.TABLE_NAME);
   }

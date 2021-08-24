@@ -14,7 +14,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   @override
   Future<SignedPreKeyRecord> loadSignedPreKey(int signedPreKeyId) async {
     try {
-      final signedPreKeyRecord = await _databaseService.fetchSignedPreKey(signedPreKeyId);
+      final signedPreKeyRecord = await fetchSignedPreKey(signedPreKeyId);
       if (signedPreKeyRecord == null) {
         throw InvalidKeyIdException(
             'No such signedprekeyrecord! $signedPreKeyId');

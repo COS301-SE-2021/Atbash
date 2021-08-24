@@ -1,6 +1,8 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/ChatService.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -9,8 +11,17 @@ part 'ChatListModel.g.dart';
 class ChatListModel = _ChatListModel with _$ChatListModel;
 
 abstract class _ChatListModel with Store {
+  final ChatService chatService = GetIt.I.get();
+
   @observable
   ObservableList<Chat> chats = <Chat>[].asObservable();
+
+  @action
+  void init() {
+    chatService.fetchAll().then((chatList) {
+      chats = chatList.asObservable();
+    });
+  }
 
   @action
   Chat startChatWithContact(Contact contact, ChatType chatType) {
@@ -30,7 +41,7 @@ abstract class _ChatListModel with Store {
       chatType: chatType,
     );
 
-    // TODO persist chat
+    chatService.insert(chat);
 
     chats.add(chat);
     return chat;
@@ -53,7 +64,7 @@ abstract class _ChatListModel with Store {
       chatType: chatType,
     );
 
-    // TODO persist chat
+    chatService.insert(chat);
 
     chats.add(chat);
     return chat;
@@ -61,7 +72,7 @@ abstract class _ChatListModel with Store {
 
   @action
   void deleteChat(String id) {
-    // TODO remove from db
+    chatService.deleteById(id);
 
     chats.removeWhere((element) => element.id == id);
   }
@@ -73,8 +84,10 @@ abstract class _ChatListModel with Store {
 
   @action
   void setChatMostRecentMessage(String chatId, Message message) {
-    // TODO update in db
+    final chat = chats.firstWhere((e) => e.id == chatId);
 
-    chats.firstWhere((e) => e.id == chatId).mostRecentMessage = message;
+    chat.mostRecentMessage = message;
+
+    chatService.update(chat);
   }
 }

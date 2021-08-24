@@ -8,14 +8,14 @@ class ObservableTag = _ObservableTag with _$ObservableTag;
 abstract class _ObservableTag with Store {
   final Tag tag;
 
-  final String id;
+  String get id => tag.id;
 
-  @observable
-  String name;
+  @computed
+  String get name => tag.name;
 
-  _ObservableTag(this.tag)
-      : id = tag.id,
-        name = tag.name;
+  set name(String value) => tag.name = value;
+
+  _ObservableTag(this.tag);
 }
 
 extension TagExtension on Tag {

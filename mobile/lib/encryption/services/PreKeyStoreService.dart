@@ -11,10 +11,6 @@ class PreKeyStoreService extends PreKeyStore {
   PreKeyStoreService(this._databaseService);
 
   @override
-  Future<bool> containsPreKey(int preKeyId) async =>
-      _databaseService.checkExistsPreKey(preKeyId);
-
-  @override
   Future<PreKeyRecord> loadPreKey(int preKeyId) async {
     try {
       final preKeyRecord = await fetchPreKey(preKeyId);
@@ -26,20 +22,6 @@ class PreKeyStoreService extends PreKeyStore {
     } on Exception catch (e) {
       throw AssertionError(e);
     }
-  }
-
-  @override
-  Future<void> removePreKey(int preKeyId) async {
-    _databaseService.deletePreKey(preKeyId);
-  }
-
-  @override
-  Future<void> storePreKey(int preKeyId, PreKeyRecord record) async {
-    _databaseService.savePreKey(preKeyId, record);
-  }
-
-  Future<List<PreKeyRecord>> loadPreKeys() async {
-    return await _databaseService.fetchPreKeys();
   }
 
   /// ******************** Database Methods ********************
@@ -63,7 +45,7 @@ class PreKeyStoreService extends PreKeyStore {
   }
 
   /// Fetches all PreKeys
-  Future<List<PreKeyRecord>> fetchPreKeys() async {
+  Future<List<PreKeyRecord>> loadPreKeys() async {
     final db = await _databaseService.database;
     final response = await db.query(
       PreKeyDBRecord.TABLE_NAME,
@@ -86,7 +68,8 @@ class PreKeyStoreService extends PreKeyStore {
   }
 
   ///Checks if PreKey exists in the database
-  Future<bool> checkExistsPreKey(int preKeyId) async {
+  @override
+  Future<bool> containsPreKey(int preKeyId) async {
     final db = await _databaseService.database;
     final response = await db.query(
       PreKeyDBRecord.TABLE_NAME,
@@ -98,7 +81,8 @@ class PreKeyStoreService extends PreKeyStore {
   }
 
   /// Saves a PreKey to the database and returns.
-  Future<PreKeyDBRecord> savePreKey(int preKeyId, PreKeyRecord preKeyRecord) async {
+  @override
+  Future<PreKeyDBRecord> storePreKey(int preKeyId, PreKeyRecord preKeyRecord) async {
     PreKeyDBRecord preKeyDBRecord = PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
     final db = await _databaseService.database;
 
@@ -109,7 +93,8 @@ class PreKeyStoreService extends PreKeyStore {
   }
 
   /// Deletes PreKey from database.
-  Future<void> deletePreKey(int preKeyId) async {
+  @override
+  Future<void> removePreKey(int preKeyId) async {
     final db = await _databaseService.database;
 
     db.delete(

@@ -2,6 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:sqflite/sqflite.dart';
 
 import '../SignedPreKeyDBRecord.dart';
 
@@ -35,11 +36,11 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     }
   }
 
-  @override
-  Future<void> storeSignedPreKey(
-      int signedPreKeyId, SignedPreKeyRecord record) async {
-    _databaseService.saveSignedPreKey(signedPreKeyId, record);
-  }
+  // @override
+  // Future<void> storeSignedPreKey(
+  //     int signedPreKeyId, SignedPreKeyRecord record) async {
+  //   _databaseService.saveSignedPreKey(signedPreKeyId, record);
+  // }
 
   @override
   Future<bool> containsSignedPreKey(int signedPreKeyId) async =>
@@ -104,7 +105,17 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
     return list;
   }
 
+  /// Saves a SignedPreKey to the database and returns.
+  @override
+  Future<void> storeSignedPreKey(
+      int signedPreKeyId, SignedPreKeyRecord record) async {
+    SignedPreKeyDBRecord signedPreKeyDBRecord =
+    SignedPreKeyDBRecord(signedPreKeyId, record.serialize());
+    final db = await _databaseService.database;
 
+    db.insert(SignedPreKeyDBRecord.TABLE_NAME, signedPreKeyDBRecord.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
 
 
 

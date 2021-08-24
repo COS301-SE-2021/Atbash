@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-  static const double verticalPadding = 5;
-  static const double horizontalPadding = 10;
-  static const Color orangeColor = Color.fromARGB(255, 255, 153, 0);
-  static const Color darkGreyColor = Color.fromARGB(255, 35, 47, 62);
+  //paddings
+  static const double screenBorderPadding = 15;
+
+  //Colors
+  static const Color orange = Color.fromARGB(255, 255, 153, 0);
+  static const Color darkGrey = Color.fromARGB(255, 35, 47, 62);
+  static const Color black = Color.fromARGB(255, 19, 26, 34);
+  static const Color white = Colors.white;
 }

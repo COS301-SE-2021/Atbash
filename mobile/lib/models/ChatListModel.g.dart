@@ -28,7 +28,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
       ActionController(name: '_ChatListModel');
 
   @override
-  void startChatWithContact(Contact contact, ChatType chatType) {
+  void startChatWithContact(ObservableContact contact, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithContact');
     try {
@@ -61,7 +61,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void setChatContact(String chatId, Contact contact) {
+  void setChatContact(String chatId, ObservableContact contact) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatContact');
     try {
@@ -72,7 +72,7 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  void setChatMostRecentMessage(String chatId, Message message) {
+  void setChatMostRecentMessage(String chatId, ObservableMessage message) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.setChatMostRecentMessage');
     try {

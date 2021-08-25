@@ -84,17 +84,11 @@ mixin _$UserModel on _UserModel, Store {
     });
   }
 
-  final _$_UserModelActionController = ActionController(name: '_UserModel');
+  final _$registerAsyncAction = AsyncAction('_UserModel.register');
 
   @override
-  bool register(String phoneNumber) {
-    final _$actionInfo =
-        _$_UserModelActionController.startAction(name: '_UserModel.register');
-    try {
-      return super.register(phoneNumber);
-    } finally {
-      _$_UserModelActionController.endAction(_$actionInfo);
-    }
+  Future<bool> register(String phoneNumber) {
+    return _$registerAsyncAction.run(() => super.register(phoneNumber));
   }
 
   @override

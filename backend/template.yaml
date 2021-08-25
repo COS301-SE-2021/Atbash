@@ -190,13 +190,13 @@ Resources:
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: register/
+      CodeUri: register_user/
       Handler: index.handler
       Runtime: nodejs14.x
       MemorySize: 128
       Environment:
         Variables:
-          TABLE_NAME: !Ref TableUsers
+          TABLE_USERS: !Ref TableUsers
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
@@ -208,6 +208,52 @@ Resources:
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref RegisterFunction
+      Principal: apigateway.amazonaws.com
+
+  RegisterKeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_keys/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  RegisterKeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref RegisterKeysFunction
+      Principal: apigateway.amazonaws.com
+
+  GetPrekeyBundleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_prekey_bundle/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  GetPrekeyBundlePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetPrekeyBundleFunction
       Principal: apigateway.amazonaws.com
 
   SendMessageFunction:
@@ -460,6 +506,65 @@ Resources:
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
+
+  RegisterKeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/register'
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref RegisterKeysIntegration
+  RegisterKeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - RegisterKeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt RegisterKeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetPrekeyBundleRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/get'
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetPrekeyBundleIntegration
+  GetPrekeyBundleIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetPrekeyBundleFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetPrekeyBundleFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
 
   GetMessagesRoute:
     Type: AWS::ApiGatewayV2::Route

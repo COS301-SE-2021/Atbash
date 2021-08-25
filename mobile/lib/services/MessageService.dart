@@ -7,12 +7,12 @@ class MessageService {
 
   MessageService(this.databaseService);
 
-  Future<List<Message>> fetchAllBySenderOrRecipient(String phoneNumber) async {
+  Future<List<Message>> fetchAllByChatId(String chatId) async {
     final db = await databaseService.database;
 
     final response = await db.rawQuery(
-      "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message where ${Message.COLUMN_SENDER_NUMBER} = ? or ${Message.COLUMN_RECIPIENT_NUMBER} = ?;",
-      [phoneNumber, phoneNumber],
+      "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message where ${Message.COLUMN_CHAT_ID} = ?;",
+      [chatId],
     );
 
     final messages = <Message>[];

@@ -147,9 +147,7 @@ class _ChatPageState extends State<ChatPage> {
     final selectedMessagesIds =
         selectedMessages.map((e) => e.first.id).toList();
 
-    if (selectedMessages.any((m) =>
-        m.first.senderPhoneNumber == widget.chat.contactPhoneNumber ||
-        m.first.deleted)) {
+    if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
       showConfirmDialog(
         context,
         "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
@@ -293,7 +291,7 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       print("User phone number is $userPhoneNumber");
-      messagesModel.sendMessage(userPhoneNumber, contents);
+      messagesModel.sendMessage(widget.chat.id, contents);
     });
   }
 }
@@ -321,7 +319,7 @@ class ChatCard extends StatelessWidget {
     var padding = EdgeInsets.only(left: 100, right: 20);
     var color = Constants.orange;
 
-    if (_contactIsSender) {
+    if (_message.isIncoming) {
       alignment = Alignment.centerLeft;
       padding = padding.flipped;
       color = Constants.darkGrey;
@@ -376,10 +374,8 @@ class ChatCard extends StatelessWidget {
     );
   }
 
-  bool get _contactIsSender => _message.senderPhoneNumber == contactPhoneNumber;
-
   Icon? _readReceipt() {
-    if (_contactIsSender) {
+    if (_message.isIncoming) {
       return null;
     }
 

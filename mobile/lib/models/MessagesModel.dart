@@ -24,15 +24,13 @@ abstract class _MessagesModel with Store {
 
     messages.clear();
 
-    messageService
-        .fetchAllBySenderOrRecipient(chat.contactPhoneNumber)
-        .then((messages) {
+    messageService.fetchAllByChatId(chat.id).then((messages) {
       this.messages = messages.asObservable();
     });
   }
 
   @action
-  void sendMessage(String userPhoneNumber, String contents) {
+  void sendMessage(String chatId, String contents) {
     // TODO send to remote
 
     final chat = openChat;
@@ -43,8 +41,8 @@ abstract class _MessagesModel with Store {
 
     final message = Message(
       id: Uuid().v4(),
-      senderPhoneNumber: userPhoneNumber,
-      recipientPhoneNumber: chat.contactPhoneNumber,
+      chatId: chatId,
+      isIncoming: false,
       contents: contents,
       timestamp: DateTime.now(),
       readReceipt: ReadReceipt.undelivered,

@@ -28,6 +28,17 @@ mixin _$ChatListModel on _ChatListModel, Store {
       ActionController(name: '_ChatListModel');
 
   @override
+  void init() {
+    final _$actionInfo = _$_ChatListModelActionController.startAction(
+        name: '_ChatListModel.init');
+    try {
+      return super.init();
+    } finally {
+      _$_ChatListModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   Chat startChatWithContact(Contact contact, ChatType chatType) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithContact');

@@ -133,18 +133,23 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    if (userModel.register(phoneNumber)) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ProfileSettingsPage(
-                    setup: true,
-                  )));
-    } else {
-      showSnackBar(context, "This phone number is already registered");
+    userModel.register(phoneNumber).then((successful) {
+      if (successful) {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(setup: true),
+            ));
+      } else {
+        showSnackBar(context, "This phone number is already registered");
+        setState(() {
+          loading = false;
+        });
+      }
+    }).catchError((error) {
       setState(() {
         loading = false;
       });
-    }
+    });
   }
 }

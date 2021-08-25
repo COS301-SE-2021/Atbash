@@ -1,4 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobx/mobx.dart';
 
 part 'UserModel.g.dart';
@@ -6,6 +8,8 @@ part 'UserModel.g.dart';
 class UserModel = _UserModel with _$UserModel;
 
 abstract class _UserModel with Store {
+  final RegistrationService registrationService = GetIt.I.get();
+
   final _storage = FlutterSecureStorage();
 
   @computed
@@ -44,11 +48,8 @@ abstract class _UserModel with Store {
   }
 
   @action
-  bool register(String phoneNumber) {
-    //TODO implement logic
-    _storage.write(key: "phone_number", value: phoneNumber);
-
-    return true;
+  Future<bool> register(String phoneNumber) async {
+    return await registrationService.register(phoneNumber, "abc");
   }
 
   @computed

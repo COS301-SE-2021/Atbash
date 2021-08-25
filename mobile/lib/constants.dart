@@ -10,6 +10,8 @@ class Constants {
   static const Color black = Color.fromARGB(255, 19, 26, 34);
   static const Color white = Colors.white;
 
-  static const String webSocketUrl = ""; // TODO
-  static const String httpUrl = ""; // TODO
+  static const String webSocketUrl =
+      "wss://ny2m9x8oj7.execute-api.eu-west-1.amazonaws.com/dev/";
+  static const String httpUrl =
+      "https://jsvaci1qg1.execute-api.eu-west-1.amazonaws.com/dev/";
 }

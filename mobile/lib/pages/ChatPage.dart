@@ -216,12 +216,15 @@ class _ChatPageState extends State<ChatPage> {
             return Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(3),
+                  margin: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: Constants.white.withOpacity(0.88),
                     borderRadius: BorderRadius.circular(45),
                   ),
-                  child: Text(dateString),
+                  child: Text(
+                    dateString,
+                  ),
                 ),
                 _buildMessage(_messages[index]),
               ],
@@ -262,8 +265,7 @@ class _ChatPageState extends State<ChatPage> {
       if (today - curDay < 7)
         return DateFormat("EEEE").format(_messages[index].first.timestamp);
 
-      return DateFormat("EEE, dd MMM hh:mm")
-          .format(_messages[index].first.timestamp);
+      return DateFormat("EEE, dd MMM").format(_messages[index].first.timestamp);
     }
 
     return ans;

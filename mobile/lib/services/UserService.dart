@@ -30,7 +30,12 @@ class UserService {
   }
 
   Future<String> getStatus() async {
-    throw UnimplementedError();
+    final status = await _storage.read(key: "status");
+    if (status == null) {
+      return "";
+    } else {
+      return status;
+    }
   }
 
   Future<void> setStatus(String status) async {

@@ -57,7 +57,13 @@ class UserService {
   }
 
   Future<DateTime?> getBirthday() async {
-    throw UnimplementedError();
+    final birthday = await _storage.read(key: "birthday");
+    if (birthday != null) {
+      final timestamp = int.parse(birthday);
+      return DateTime.fromMillisecondsSinceEpoch(timestamp);
+    } else {
+      return null;
+    }
   }
 
   Future<void> setBirthday(DateTime birthday) async {

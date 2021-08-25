@@ -210,6 +210,17 @@ class _ChatPageState extends State<ChatPage> {
       child: ListView.builder(
         itemCount: _messages.length,
         itemBuilder: (_, index) {
+          DateTime date = _messages[index].first.timestamp;
+          return Column(
+            children: [
+              Container(
+                color: Colors.red,
+                child: Text(
+                    _messages[index].first.timestamp.toString().split(" ")[0]),
+              ),
+              _buildMessage(_messages[index]),
+            ],
+          );
           return _buildMessage(_messages[index]);
         },
         controller: _scrollController,
@@ -407,4 +418,8 @@ class ChatCard extends StatelessWidget {
       color: Colors.white,
     );
   }
+}
+
+Widget _dateSeperatorWidget() {
+  return Container();
 }

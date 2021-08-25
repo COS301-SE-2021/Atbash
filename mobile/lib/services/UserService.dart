@@ -13,7 +13,7 @@ class UserService {
   }
 
   Future<void> setPhoneNumber(String phoneNumber) async {
-    throw UnimplementedError();
+    await _storage.write(key: "phone_number", value: phoneNumber);
   }
 
   Future<String> getDisplayName() async {

@@ -39,7 +39,7 @@ class UserService {
   }
 
   Future<void> setStatus(String status) async {
-    throw UnimplementedError();
+    await _storage.write(key: "status", value: status);
   }
 
   Future<String> getProfileImage() async {

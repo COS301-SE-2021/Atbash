@@ -17,7 +17,12 @@ class UserService {
   }
 
   Future<String> getDisplayName() async {
-    throw UnimplementedError();
+    final displayName = await _storage.read(key: "display_name");
+    if (displayName == null) {
+      return "";
+    } else {
+      return displayName;
+    }
   }
 
   Future<void> setDisplayName(String displayName) async {

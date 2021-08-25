@@ -257,8 +257,6 @@ class _ChatPageState extends State<ChatPage> {
     int today =
         (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
 
-    print(curDay.toString() + " : " + today.toString());
-
     if (curDay > prevDay) {
       if (curDay == today) return "Today";
 
@@ -359,7 +357,6 @@ class _ChatPageState extends State<ChatPage> {
             "User phone number was null when trying to send a message");
       }
 
-      print("User phone number is $userPhoneNumber");
       messagesModel.sendMessage(widget.chat.id, contents);
     });
   }

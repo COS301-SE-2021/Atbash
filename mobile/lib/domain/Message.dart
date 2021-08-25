@@ -7,8 +7,8 @@ part 'Message.g.dart';
 class Message extends _Message with _$Message {
   Message({
     required String id,
-    required String senderPhoneNumber,
-    required String recipientPhoneNumber,
+    required String chatId,
+    required bool isIncoming,
     required String contents,
     required DateTime timestamp,
     required ReadReceipt readReceipt,
@@ -17,8 +17,8 @@ class Message extends _Message with _$Message {
     required List<Tag> tags,
   }) : super(
             id: id,
-            senderPhoneNumber: senderPhoneNumber,
-            recipientPhoneNumber: recipientPhoneNumber,
+            chatId: chatId,
+            isIncoming: isIncoming,
             contents: contents,
             timestamp: timestamp,
             readReceipt: readReceipt,
@@ -29,8 +29,8 @@ class Message extends _Message with _$Message {
   Map<String, Object> toMap() {
     return {
       COLUMN_ID: id,
-      COLUMN_SENDER_NUMBER: senderPhoneNumber,
-      COLUMN_RECIPIENT_NUMBER: recipientPhoneNumber,
+      COLUMN_CHAT_ID: chatId,
+      COLUMN_IS_INCOMING: isIncoming ? 1 : 0,
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
       COLUMN_READ_RECEIPT: readReceipt.index,
@@ -41,8 +41,8 @@ class Message extends _Message with _$Message {
 
   static Message? fromMap(Map<String, Object?> map) {
     final id = map[COLUMN_ID] as String?;
-    final senderPhoneNumber = map[COLUMN_SENDER_NUMBER] as String?;
-    final recipientPhoneNumber = map[COLUMN_RECIPIENT_NUMBER] as String?;
+    final chatId = map[COLUMN_CHAT_ID] as String?;
+    final isIncoming = map[COLUMN_IS_INCOMING] as int?;
     final contents = map[COLUMN_CONTENTS] as String?;
     final timestamp = map[COLUMN_TIMESTAMP] as int?;
     final readReceipt = map[COLUMN_READ_RECEIPT] as int?;
@@ -50,8 +50,8 @@ class Message extends _Message with _$Message {
     final liked = map[COLUMN_LIKED] as int?;
 
     if (id != null &&
-        senderPhoneNumber != null &&
-        recipientPhoneNumber != null &&
+        chatId != null &&
+        isIncoming != null &&
         contents != null &&
         timestamp != null &&
         readReceipt != null &&
@@ -59,13 +59,13 @@ class Message extends _Message with _$Message {
         liked != null) {
       return Message(
         id: id,
-        senderPhoneNumber: senderPhoneNumber,
-        recipientPhoneNumber: recipientPhoneNumber,
+        chatId: chatId,
+        isIncoming: isIncoming != 0,
         contents: contents,
         timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
         readReceipt: ReadReceipt.values[readReceipt],
-        deleted: deleted == 1,
-        liked: liked == 1,
+        deleted: deleted != 0,
+        liked: liked != 0,
         tags: [],
       );
     }
@@ -73,8 +73,8 @@ class Message extends _Message with _$Message {
 
   static const String TABLE_NAME = "message";
   static const String COLUMN_ID = "message_id";
-  static const String COLUMN_SENDER_NUMBER = "message_sender_number";
-  static const String COLUMN_RECIPIENT_NUMBER = "message_recipient_number";
+  static const String COLUMN_CHAT_ID = "message_chat_id";
+  static const String COLUMN_IS_INCOMING = "message_is_incoming";
   static const String COLUMN_CONTENTS = "message_contents";
   static const String COLUMN_TIMESTAMP = "message_timestamp";
   static const String COLUMN_READ_RECEIPT = "message_read_receipt";
@@ -82,8 +82,8 @@ class Message extends _Message with _$Message {
   static const String COLUMN_LIKED = "message_liked";
   static const String CREATE_TABLE = "create table $TABLE_NAME ("
       "$COLUMN_ID text primary key,"
-      "$COLUMN_SENDER_NUMBER text not null,"
-      "$COLUMN_RECIPIENT_NUMBER text not null,"
+      "$COLUMN_CHAT_ID text not null,"
+      "$COLUMN_IS_INCOMING tinyint not null,"
       "$COLUMN_CONTENTS text not null,"
       "$COLUMN_TIMESTAMP int not null,"
       "$COLUMN_READ_RECEIPT int not null,"
@@ -94,8 +94,10 @@ class Message extends _Message with _$Message {
 
 abstract class _Message with Store {
   final String id;
-  final String senderPhoneNumber;
-  final String recipientPhoneNumber;
+
+  final String chatId;
+
+  final bool isIncoming;
 
   @observable
   String contents;
@@ -116,8 +118,8 @@ abstract class _Message with Store {
 
   _Message({
     required this.id,
-    required this.senderPhoneNumber,
-    required this.recipientPhoneNumber,
+    required this.chatId,
+    required this.isIncoming,
     required this.contents,
     required this.timestamp,
     required this.readReceipt,

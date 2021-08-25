@@ -54,11 +54,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void sendMessage(String userPhoneNumber, String contents) {
+  void sendMessage(String chatId, String contents) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
         name: '_MessagesModel.sendMessage');
     try {
-      return super.sendMessage(userPhoneNumber, contents);
+      return super.sendMessage(chatId, contents);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }

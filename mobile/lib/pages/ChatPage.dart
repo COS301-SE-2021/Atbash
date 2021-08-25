@@ -65,9 +65,18 @@ class _ChatPageState extends State<ChatPage> {
 
         return true;
       },
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: _buildBody(),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: _buildBody(),
+        ),
       ),
     );
   }
@@ -201,12 +210,63 @@ class _ChatPageState extends State<ChatPage> {
       child: ListView.builder(
         itemCount: _messages.length,
         itemBuilder: (_, index) {
+          String dateString = _chatDateString(index);
+
+          if (dateString != "")
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Constants.white.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(45),
+                  ),
+                  child: Text(
+                    dateString,
+                  ),
+                ),
+                _buildMessage(_messages[index]),
+              ],
+            );
           return _buildMessage(_messages[index]);
         },
         controller: _scrollController,
         reverse: true,
       ),
     );
+  }
+
+  String _chatDateString(int index) {
+    String ans = "";
+
+    int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
+            1000 /
+            60 /
+            60 /
+            24)
+        .floor();
+    int prevDay = index == _messages.length - 1
+        ? 0
+        : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+                1000 /
+                60 /
+                60 /
+                24)
+            .floor();
+    int today =
+        (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+
+    if (curDay > prevDay) {
+      if (curDay == today) return "Today";
+
+      if (today - curDay < 7)
+        return DateFormat("EEEE").format(_messages[index].first.timestamp);
+
+      return DateFormat("EEE, dd MMM").format(_messages[index].first.timestamp);
+    }
+
+    return ans;
   }
 
   ChatCard _buildMessage(Tuple<Message, bool> message) {
@@ -230,6 +290,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Container _buildInput() {
     return Container(
+      color: Constants.darkGrey.withOpacity(0.88),
       child: SafeArea(
         child: Row(
           children: [
@@ -239,13 +300,16 @@ class _ChatPageState extends State<ChatPage> {
                 left: 5,
               ),
               onPressed: () {},
-              icon: Icon(Icons.add_circle_outline),
+              icon: Icon(
+                Icons.add_circle_outline,
+                color: Constants.white,
+              ),
             ),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.5),
+                  color: Constants.orange,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
@@ -271,7 +335,10 @@ class _ChatPageState extends State<ChatPage> {
             IconButton(
               padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
-              icon: Icon(Icons.send),
+              icon: Icon(
+                Icons.send,
+                color: Constants.white,
+              ),
             )
           ],
         ),
@@ -290,7 +357,6 @@ class _ChatPageState extends State<ChatPage> {
             "User phone number was null when trying to send a message");
       }
 
-      print("User phone number is $userPhoneNumber");
       messagesModel.sendMessage(widget.chat.id, contents);
     });
   }

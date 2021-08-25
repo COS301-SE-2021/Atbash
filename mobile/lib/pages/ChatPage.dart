@@ -210,23 +210,9 @@ class _ChatPageState extends State<ChatPage> {
       child: ListView.builder(
         itemCount: _messages.length,
         itemBuilder: (_, index) {
-          int curDay =
-              (_messages[index].first.timestamp.millisecondsSinceEpoch /
-                      1000 /
-                      60)
-                  .floor();
-          int prevDay = index == _messages.length - 1
-              ? 0
-              : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
-                      1000 /
-                      60)
-                  .floor();
-          int today =
-              (DateTime.now().millisecondsSinceEpoch / 1000 / 60).floor();
-          print(curDay.toString() + " " + prevDay.toString());
+          String dateString = _chatDateString(index);
 
-          String day = "";
-          if (curDay == today) if (curDay > prevDay)
+          if (dateString != "")
             return Column(
               children: [
                 Container(
@@ -235,8 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                     color: Constants.white.withOpacity(0.88),
                     borderRadius: BorderRadius.circular(45),
                   ),
-                  child: Text(DateFormat("EEE, d MMM hh:mm")
-                      .format(_messages[index].first.timestamp)),
+                  child: Text(dateString),
                 ),
                 _buildMessage(_messages[index]),
               ],
@@ -247,6 +232,41 @@ class _ChatPageState extends State<ChatPage> {
         reverse: true,
       ),
     );
+  }
+
+  String _chatDateString(int index) {
+    String ans = "";
+
+    int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
+            1000 /
+            60 /
+            60 /
+            24)
+        .floor();
+    int prevDay = index == _messages.length - 1
+        ? 0
+        : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+                1000 /
+                60 /
+                60 /
+                24)
+            .floor();
+    int today =
+        (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+
+    print(curDay.toString() + " : " + today.toString());
+
+    if (curDay > prevDay) {
+      if (curDay == today) return "Today";
+
+      if (today - curDay < 7)
+        return DateFormat("EEEE").format(_messages[index].first.timestamp);
+
+      return DateFormat("EEE, dd MMM hh:mm")
+          .format(_messages[index].first.timestamp);
+    }
+
+    return ans;
   }
 
   ChatCard _buildMessage(Tuple<Message, bool> message) {

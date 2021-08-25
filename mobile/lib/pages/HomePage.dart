@@ -298,7 +298,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     Widget _buildReadReceipt() {
-      if (message != null && message.readReceipt != ReadReceipt.seen) {
+      if (message != null &&
+          message.isIncoming &&
+          message.readReceipt != ReadReceipt.seen) {
         return Icon(
           Icons.circle,
           color: Constants.orange,

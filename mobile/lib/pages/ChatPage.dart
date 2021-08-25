@@ -65,9 +65,18 @@ class _ChatPageState extends State<ChatPage> {
 
         return true;
       },
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: _buildBody(),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: _buildBody(),
+        ),
       ),
     );
   }
@@ -230,6 +239,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Container _buildInput() {
     return Container(
+      color: Constants.darkGrey.withOpacity(0.88),
       child: SafeArea(
         child: Row(
           children: [
@@ -239,13 +249,16 @@ class _ChatPageState extends State<ChatPage> {
                 left: 5,
               ),
               onPressed: () {},
-              icon: Icon(Icons.add_circle_outline),
+              icon: Icon(
+                Icons.add_circle_outline,
+                color: Constants.white,
+              ),
             ),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.5),
+                  color: Constants.orange,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
@@ -271,7 +284,10 @@ class _ChatPageState extends State<ChatPage> {
             IconButton(
               padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
-              icon: Icon(Icons.send),
+              icon: Icon(
+                Icons.send,
+                color: Constants.white,
+              ),
             )
           ],
         ),

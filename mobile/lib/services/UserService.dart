@@ -42,8 +42,13 @@ class UserService {
     await _storage.write(key: "status", value: status);
   }
 
-  Future<String> getProfileImage() async {
-    throw UnimplementedError();
+  Future<Uint8List?> getProfileImage() async {
+    final profileImage = await _storage.read(key: "profile_image");
+    if (profileImage != null) {
+      return base64Decode(profileImage);
+    } else {
+      return null;
+    }
   }
 
   Future<void> setProfileImage(String profileImage) async {

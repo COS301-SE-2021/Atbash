@@ -210,17 +210,37 @@ class _ChatPageState extends State<ChatPage> {
       child: ListView.builder(
         itemCount: _messages.length,
         itemBuilder: (_, index) {
-          DateTime date = _messages[index].first.timestamp;
-          return Column(
-            children: [
-              Container(
-                color: Colors.red,
-                child: Text(
-                    _messages[index].first.timestamp.toString().split(" ")[0]),
-              ),
-              _buildMessage(_messages[index]),
-            ],
-          );
+          int curDay =
+              (_messages[index].first.timestamp.millisecondsSinceEpoch /
+                      1000 /
+                      60)
+                  .floor();
+          int prevDay = index == _messages.length - 1
+              ? 0
+              : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+                      1000 /
+                      60)
+                  .floor();
+          int today =
+              (DateTime.now().millisecondsSinceEpoch / 1000 / 60).floor();
+          print(curDay.toString() + " " + prevDay.toString());
+
+          String day = "";
+          if (curDay == today) if (curDay > prevDay)
+            return Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Constants.white.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(45),
+                  ),
+                  child: Text(DateFormat("EEE, d MMM hh:mm")
+                      .format(_messages[index].first.timestamp)),
+                ),
+                _buildMessage(_messages[index]),
+              ],
+            );
           return _buildMessage(_messages[index]);
         },
         controller: _scrollController,
@@ -422,4 +442,8 @@ class ChatCard extends StatelessWidget {
 
 Widget _dateSeperatorWidget() {
   return Container();
+}
+
+String _convertDateToString() {
+  return "";
 }

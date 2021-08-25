@@ -24,7 +24,7 @@ exports.getPhoneNumberOfConnection = async (connectionId) => {
     })
 }
 
-exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents) => {
+exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, timestamp, chatId, contents) => {
     try {
         await db.put({
             TableName: process.env.TABLE_MESSAGES,

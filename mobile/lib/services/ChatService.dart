@@ -9,9 +9,8 @@ class ChatService {
   Future<List<Chat>> fetchAll() async {
     final db = await databaseService.database;
 
-    // TODO should have inner query which fetches most recent message for chat
     final response = await db.rawQuery(
-        "select * from chat left join contact on chat_contact_phone_number = contact_phone_number;");
+        "select * from chat left join message on message_id = (select message_id from message where message_chat_id = chat_id order by message_timestamp desc limit 1)  left join contact on chat_contact_phone_number = contact_phone_number;");
 
     final chats = <Chat>[];
     response.forEach((element) {

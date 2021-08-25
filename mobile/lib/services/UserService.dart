@@ -4,7 +4,12 @@ class UserService {
   final _storage = FlutterSecureStorage();
 
   Future<String> getPhoneNumber() async {
-    throw UnimplementedError();
+    final phoneNumber = await _storage.read(key: "phone_number");
+    if (phoneNumber == null) {
+      throw PhoneNumberNotFoundException();
+    } else {
+      return phoneNumber;
+    }
   }
 
   Future<void> setPhoneNumber(String phoneNumber) async {

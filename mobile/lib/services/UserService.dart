@@ -67,7 +67,8 @@ class UserService {
   }
 
   Future<void> setBirthday(DateTime birthday) async {
-    throw UnimplementedError();
+    final timestamp = birthday.millisecondsSinceEpoch;
+    await _storage.write(key: "birthday", value: timestamp.toString());
   }
 }
 

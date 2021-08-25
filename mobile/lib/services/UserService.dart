@@ -43,3 +43,5 @@ class UserService {
     throw UnimplementedError();
   }
 }
+
+class PhoneNumberNotFoundException implements Exception {}

@@ -459,11 +459,3 @@ class ChatCard extends StatelessWidget {
     );
   }
 }
-
-Widget _dateSeperatorWidget() {
-  return Container();
-}
-
-String _convertDateToString() {
-  return "";
-}

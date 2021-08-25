@@ -51,8 +51,9 @@ class UserService {
     }
   }
 
-  Future<void> setProfileImage(String profileImage) async {
-    throw UnimplementedError();
+  Future<void> setProfileImage(Uint8List profileImage) async {
+    await _storage.write(
+        key: "profile_image", value: base64Encode(profileImage));
   }
 
   Future<DateTime?> getBirthday() async {

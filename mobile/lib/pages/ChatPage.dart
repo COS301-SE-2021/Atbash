@@ -291,7 +291,7 @@ class _ChatPageState extends State<ChatPage> {
       }
 
       print("User phone number is $userPhoneNumber");
-      messagesModel.sendMessage(widget.chat.id, contents);
+      messagesModel.sendMessage(widget.chat, contents);
     });
   }
 }

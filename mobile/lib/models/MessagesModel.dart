@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
@@ -11,6 +12,7 @@ class MessagesModel = _MessagesModel with _$MessagesModel;
 
 abstract class _MessagesModel with Store {
   final MessageService messageService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   @observable
   ObservableList<Message> messages = <Message>[].asObservable();
@@ -30,9 +32,7 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void sendMessage(String chatId, String contents) {
-    // TODO send to remote
-
+  void sendMessage(Chat chat, String contents) {
     final chat = openChat;
 
     if (chat == null) {
@@ -41,7 +41,7 @@ abstract class _MessagesModel with Store {
 
     final message = Message(
       id: Uuid().v4(),
-      chatId: chatId,
+      chatId: chat.id,
       isIncoming: false,
       contents: contents,
       timestamp: DateTime.now(),
@@ -50,6 +50,8 @@ abstract class _MessagesModel with Store {
       liked: false,
       tags: [],
     );
+
+    communicationService.sendMessage(message, chat.contactPhoneNumber);
 
     messageService.insert(message);
 

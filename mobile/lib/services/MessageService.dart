@@ -42,6 +42,27 @@ class MessageService {
     return messages;
   }
 
+  Future<Message> fetchById(String id) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_ID} = ?",
+      whereArgs: [id],
+    );
+
+    if (response.isEmpty) {
+      throw MessageNotFoundException();
+    } else {
+      final message = Message.fromMap(response.first);
+      if (message == null) {
+        throw MessageNotFoundException();
+      } else {
+        return message;
+      }
+    }
+  }
+
   Future<Message> insert(Message message) async {
     final db = await databaseService.database;
 

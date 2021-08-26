@@ -8,6 +8,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatListModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
@@ -24,6 +25,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final UserModel _userModel = GetIt.I.get();
   final ChatListModel _chatListModel = GetIt.I.get();
+  final CommunicationService _communicationService = GetIt.I.get();
   final DateFormat dateFormatter = DateFormat.Hm();
 
   bool _searching = false;
@@ -36,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    _communicationService.goOnline();
     _chatListModel.init();
 
     _searchFocusNode = FocusNode();

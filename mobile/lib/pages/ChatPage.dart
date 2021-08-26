@@ -150,6 +150,14 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: () => _deleteMessages(context),
             icon: Icon(Icons.delete),
           ),
+        if (_selecting)
+          IconButton(
+            onPressed: () {
+              _copyMessages();
+              _stopSelecting();
+            },
+            icon: Icon(Icons.copy),
+          ),
       ],
     );
   }
@@ -213,6 +221,24 @@ class _ChatPageState extends State<ChatPage> {
         setState(() {});
       });
     }
+  }
+
+  void _copyMessages() {
+    final selectedMessages = _messages.where((m) => m.second).toList();
+
+    String result = "";
+    final format = DateFormat("dd/MM HH:mm");
+
+    selectedMessages.reversed.forEach((message) {
+      if (!message.first.deleted) {
+        result +=
+            "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
+      }
+    });
+
+    result = result.substring(0, result.length - 1);
+
+    Clipboard.setData(ClipboardData(text: result));
   }
 
   SafeArea _buildBody() {

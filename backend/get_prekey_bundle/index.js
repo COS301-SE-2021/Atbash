@@ -1,4 +1,4 @@
-const {authenticateAuthenticationToken, existsNumber, getNumPreKeys, getBundleKeys, getAndRemovePreKey} = require("./db_access")
+const {authenticateAuthenticationToken, existsNumber, getNumPreKeys, getBundleKeys, getAndRemovePreKey} = require("./db_acccess")
 //const {PhoneNumberFormat: PNF} = require("google-libphonenumber");
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()

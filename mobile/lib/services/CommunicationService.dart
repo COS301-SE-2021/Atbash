@@ -6,6 +6,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 class CommunicationService {
@@ -45,13 +46,11 @@ class CommunicationService {
     final id = parsedEvent["id"] as String?;
     final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
     final timestamp = parsedEvent["timestamp"] as int?;
-    final chatId = parsedEvent["chatId"] as String?;
     final encryptedContents = parsedEvent["contents"] as String?;
 
     if (id != null &&
         senderPhoneNumber != null &&
         timestamp != null &&
-        chatId != null &&
         encryptedContents != null) {
       final Map<String, Object?> decryptedContents = jsonDecode(
           await encryptionService.decryptMessageContents(
@@ -68,6 +67,7 @@ class CommunicationService {
             id: id,
             chatId: chatId,
             isIncoming: true,
+            otherPartyPhoneNumber: senderPhoneNumber,
             contents: text,
             timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
             readReceipt: ReadReceipt.delivered,
@@ -126,8 +126,31 @@ class CommunicationService {
       "id": message.id,
       "senderPhoneNumber": userPhoneNumber,
       "recipientPhoneNumber": recipientPhoneNumber,
-      "chatId": message.chatId,
       "contents": encryptedContents
+    };
+
+    final response = await post(Uri.parse("${Constants.httpUrl}messages"),
+        body: jsonEncode(data));
+
+    print("${response.statusCode} - ${response.body}");
+  }
+
+  Future<void> sendAck(String messageId, String recipientPhoneNumber) async {
+    final userPhoneNumber = await userService.getPhoneNumber();
+
+    final contents = jsonEncode({
+      "type": "ack",
+      "messageId": messageId,
+    });
+
+    final encryptedContents = await encryptionService.encryptMessageContent(
+        contents, recipientPhoneNumber);
+
+    final data = {
+      "id": Uuid().v4(),
+      "senderPhoneNumber": userPhoneNumber,
+      "recipientPhoneNumber": recipientPhoneNumber,
+      "contents": encryptedContents,
     };
 
     await post(Uri.parse("${Constants.httpUrl}messages"),

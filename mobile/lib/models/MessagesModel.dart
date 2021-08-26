@@ -23,6 +23,7 @@ abstract class _MessagesModel with Store {
   _MessagesModel() {
     communicationService.onMessage = (message) {
       messageService.insert(message);
+      communicationService.sendAck(message.id, message.otherPartyPhoneNumber);
 
       if (message.chatId == openChat?.id) {
         messages.insert(0, message);

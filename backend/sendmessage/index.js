@@ -7,9 +7,9 @@ const {
 const {sendToConnection, notifyDevice} = require("./api_access")
 
 exports.handler = async event => {
-    const {id, senderPhoneNumber, recipientPhoneNumber, chatId, contents} = JSON.parse(event.body)
+    const {id, senderPhoneNumber, recipientPhoneNumber, contents} = JSON.parse(event.body)
 
-    if (anyUndefined(id, senderPhoneNumber, recipientPhoneNumber, chatId, contents)) {
+    if (anyUndefined(id, senderPhoneNumber, recipientPhoneNumber, contents)) {
         console.log("Bad request: ", id, recipientPhoneNumber, contents)
         return {statusCode: 400, body: "Invalid request"}
     }
@@ -17,7 +17,7 @@ exports.handler = async event => {
     const timestamp = new Date().getTime();
 
     try {
-        await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, timestamp, chatId, contents)
+        await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents)
     } catch (error) {
         console.log(error)
         return {statusCode: 500, body: JSON.stringify(error)}
@@ -34,7 +34,6 @@ exports.handler = async event => {
                     senderPhoneNumber,
                     recipientPhoneNumber,
                     timestamp,
-                    chatId,
                     contents
                 })
                 sent = true

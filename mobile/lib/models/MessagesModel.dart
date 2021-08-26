@@ -79,6 +79,7 @@ abstract class _MessagesModel with Store {
       id: Uuid().v4(),
       chatId: chat.id,
       isIncoming: false,
+      otherPartyPhoneNumber: chat.contactPhoneNumber,
       contents: contents,
       timestamp: DateTime.now(),
       readReceipt: ReadReceipt.undelivered,

@@ -46,7 +46,7 @@ exports.handler = async event => {
                         return {statusCode: 500, body: JSON.stringify(error)}
                     }
                 } else {
-                    console.log("Found status code ${error.statusCode}")
+                    console.log(`Found status code ${error.statusCode}`)
                 }
             }
         }))

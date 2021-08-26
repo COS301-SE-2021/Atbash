@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
@@ -11,6 +13,7 @@ import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
+import 'package:flutter/services.dart';
 
 import '../constants.dart';
 
@@ -147,6 +150,14 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: () => _deleteMessages(context),
             icon: Icon(Icons.delete),
           ),
+        if (_selecting)
+          IconButton(
+            onPressed: () {
+              _copyMessages();
+              _stopSelecting();
+            },
+            icon: Icon(Icons.copy),
+          ),
       ],
     );
   }
@@ -185,6 +196,49 @@ class _ChatPageState extends State<ChatPage> {
         }
       });
     }
+  }
+
+  void _deleteSingleMessage(Message message) {
+    if (message.isIncoming || message.deleted) {
+      showConfirmDialog(
+        context,
+        "You are about to delete this message. Are you sure?",
+      ).then((confirmed) {
+        if (confirmed == true) {
+          messagesModel.deleteMessageLocally(message.id);
+        }
+      });
+    } else {
+      showConfirmDeleteDialog(
+        context,
+        "You are about to delete this message. Are you sure?",
+      ).then((response) {
+        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+          messagesModel.sendDeleteMessageRequest(message.id);
+        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+          messagesModel.deleteMessageLocally(message.id);
+        }
+        setState(() {});
+      });
+    }
+  }
+
+  void _copyMessages() {
+    final selectedMessages = _messages.where((m) => m.second).toList();
+
+    String result = "";
+    final format = DateFormat("dd/MM HH:mm");
+
+    selectedMessages.reversed.forEach((message) {
+      if (!message.first.deleted) {
+        result +=
+            "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
+      }
+    });
+
+    result = result.substring(0, result.length - 1);
+
+    Clipboard.setData(ClipboardData(text: result));
   }
 
   SafeArea _buildBody() {
@@ -278,12 +332,13 @@ class _ChatPageState extends State<ChatPage> {
           message.second = !message.second;
         });
       },
-      onLongPress: () {
+      onSelect: () {
         setState(() {
           _selecting = true;
           message.second = true;
         });
       },
+      onDelete: () => _deleteSingleMessage(message.first),
       selected: _selecting && message.second,
     );
   }
@@ -366,14 +421,16 @@ class ChatCard extends StatelessWidget {
   final String contactPhoneNumber;
   final Message _message;
   final void Function() onTap;
-  final void Function() onLongPress;
+  final void Function() onSelect;
+  final void Function() onDelete;
   final bool selected;
 
   ChatCard(
     this._message, {
     required this.contactPhoneNumber,
     required this.onTap,
-    required this.onLongPress,
+    required this.onSelect,
+    required this.onDelete,
     required this.selected,
   });
 
@@ -397,9 +454,45 @@ class ChatCard extends StatelessWidget {
         alignment: alignment,
         child: Padding(
           padding: padding,
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
+          child: FocusedMenuHolder(
+            blurSize: 2,
+            blurBackgroundColor: Constants.black,
+            menuWidth: MediaQuery.of(context).size.width * 0.4,
+            onPressed: onTap,
+            menuItemExtent: 40,
+            menuItems: [
+              FocusedMenuItem(
+                  title: Text("Select"),
+                  onPressed: onSelect,
+                  trailingIcon: Icon(Icons.check_box_outline_blank)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Tag"),
+                    onPressed: () {},
+                    trailingIcon: Icon(Icons.tag)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Forward"),
+                    onPressed: () {},
+                    trailingIcon: Icon(Icons.forward)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Copy"),
+                    onPressed: () => Clipboard.setData(
+                        ClipboardData(text: _message.contents)),
+                    trailingIcon: Icon(Icons.copy)),
+              FocusedMenuItem(
+                  title: Text(
+                    "Delete",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: onDelete,
+                  trailingIcon: Icon(
+                    Icons.delete,
+                    color: Constants.white,
+                  ),
+                  backgroundColor: Colors.redAccent),
+            ],
             child: Card(
               color: color.withOpacity(0.8),
               child: Stack(

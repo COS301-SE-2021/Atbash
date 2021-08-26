@@ -20,6 +20,42 @@ abstract class _MessagesModel with Store {
   @observable
   Chat? openChat;
 
+  _MessagesModel() {
+    communicationService.onMessage = (message) {
+      messageService.insert(message);
+
+      if (message.chatId == openChat?.id) {
+        messages.insert(0, message);
+      }
+    };
+
+    communicationService.onDelete = (messageId) {
+      messageService.deleteById(messageId);
+
+      messages.removeWhere((m) => m.id == messageId);
+    };
+
+    communicationService.onAck = (messageId) async {
+      messageService
+          .fetchById(messageId)
+          .then((message) => message.readReceipt = ReadReceipt.delivered);
+
+      messages
+          .where((m) => m.id == messageId)
+          .forEach((m) => m.readReceipt = ReadReceipt.delivered);
+    };
+
+    communicationService.onAckSeen = (messageId) async {
+      messageService
+          .fetchById(messageId)
+          .then((message) => message.readReceipt = ReadReceipt.seen);
+
+      messages
+          .where((m) => m.id == messageId)
+          .forEach((m) => m.readReceipt = ReadReceipt.seen);
+    };
+  }
+
   @action
   void enterChat(Chat chat) {
     openChat = chat;

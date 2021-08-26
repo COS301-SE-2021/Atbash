@@ -434,24 +434,27 @@ class ChatCard extends StatelessWidget {
             menuWidth: MediaQuery.of(context).size.width * 0.4,
             onPressed: onTap,
             menuItemExtent: 40,
-            menuItems: <FocusedMenuItem>[
+            menuItems: [
               FocusedMenuItem(
                   title: Text("Select"),
                   onPressed: onSelect,
                   trailingIcon: Icon(Icons.check_box_outline_blank)),
-              FocusedMenuItem(
-                  title: Text("Tag"),
-                  onPressed: () {},
-                  trailingIcon: Icon(Icons.tag)),
-              FocusedMenuItem(
-                  title: Text("Forward"),
-                  onPressed: () {},
-                  trailingIcon: Icon(Icons.forward)),
-              FocusedMenuItem(
-                  title: Text("Copy"),
-                  onPressed: () =>
-                      Clipboard.setData(ClipboardData(text: _message.contents)),
-                  trailingIcon: Icon(Icons.copy)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Tag"),
+                    onPressed: () {},
+                    trailingIcon: Icon(Icons.tag)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Forward"),
+                    onPressed: () {},
+                    trailingIcon: Icon(Icons.forward)),
+              if (!_message.deleted)
+                FocusedMenuItem(
+                    title: Text("Copy"),
+                    onPressed: () => Clipboard.setData(
+                        ClipboardData(text: _message.contents)),
+                    trailingIcon: Icon(Icons.copy)),
               FocusedMenuItem(
                   title: Text(
                     "Delete",

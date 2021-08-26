@@ -12,66 +12,115 @@ class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
 
+  IOWebSocketChannel? channel;
+
+  void Function(Message message)? onMessage;
+  void Function(String messageId)? onDelete;
+  void Function(String contactPhoneNumber, String profileImage)? onProfileImage;
+  void Function(String contactPhoneNumber, String status)? onStatus;
+  void Function(String messageId)? onAck;
+  void Function(String messageId)? onAckSeen;
+
   CommunicationService(this.encryptionService, this.userService);
 
-  Stream<Message> messages() async* {
+  Future<void> goOnline() async {
     final phoneNumber = await userService.getPhoneNumber();
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
-    final channel = IOWebSocketChannel.connect(
+    channel?.sink.close();
+    channel = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
       pingInterval: Duration(minutes: 9),
     );
 
-    await for (var event in channel.stream) {
-      final message = await _parseEvent(event);
-      if (message != null) {
-        yield message;
-      }
-    }
+    channel?.stream.listen((event) {
+      _handleEvent(event);
+    });
   }
 
-  Future<Message?> _parseEvent(dynamic event) async {
+  Future<Message?> _handleEvent(dynamic event) async {
     final Map<String, Object?> parsedEvent = jsonDecode(event);
 
     final id = parsedEvent["id"] as String?;
-    final type = parsedEvent["type"] as String?;
     final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
     final timestamp = parsedEvent["timestamp"] as int?;
     final chatId = parsedEvent["chatId"] as String?;
-    final contents = parsedEvent["contents"] as String?;
+    final encryptedContents = parsedEvent["contents"] as String?;
 
     if (id != null &&
-        type != null &&
         senderPhoneNumber != null &&
         timestamp != null &&
         chatId != null &&
-        contents != null) {
-      final decryptedContents = await encryptionService.decryptMessageContents(
-          contents, senderPhoneNumber);
+        encryptedContents != null) {
+      final Map<String, Object?> decryptedContents = jsonDecode(
+          await encryptionService.decryptMessageContents(
+              encryptedContents, senderPhoneNumber));
 
-      final message = Message(
-        id: id,
-        chatId: chatId,
-        isIncoming: true,
-        contents: decryptedContents,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-        readReceipt: ReadReceipt.delivered,
-        deleted: false,
-        liked: false,
-        tags: [],
-      );
+      final type = decryptedContents["type"] as String?;
 
-      return message;
+      switch (type) {
+        case "message":
+          final chatId = decryptedContents["chatId"] as String;
+          final text = decryptedContents["text"] as String;
+
+          final message = Message(
+            id: id,
+            chatId: chatId,
+            isIncoming: true,
+            contents: text,
+            timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+            readReceipt: ReadReceipt.delivered,
+            deleted: false,
+            liked: false,
+            tags: [],
+          );
+
+          print("received message");
+
+          final onMessage = this.onMessage;
+          if (onMessage != null) onMessage(message);
+          break;
+        case "delete":
+          final messageId = decryptedContents["messageId"] as String;
+          final onDelete = this.onDelete;
+          if (onDelete != null) onDelete(messageId);
+          break;
+        case "profileImage":
+          final image = decryptedContents["image"] as String;
+          final onProfileImage = this.onProfileImage;
+          if (onProfileImage != null) onProfileImage(senderPhoneNumber, image);
+          break;
+        case "status":
+          final status = decryptedContents["status"] as String;
+          final onStatus = this.onStatus;
+          if (onStatus != null) onStatus(senderPhoneNumber, status);
+          break;
+        case "ack":
+          final messageId = decryptedContents["messageId"] as String;
+          final onAck = this.onAck;
+          if (onAck != null) onAck(messageId);
+          break;
+        case "ackSeen":
+          final messageId = decryptedContents["messageId"] as String;
+          final onAckSeen = this.onAckSeen;
+          if (onAckSeen != null) onAckSeen(messageId);
+          break;
+      }
     }
   }
 
   Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
     final userPhoneNumber = await userService.getPhoneNumber();
 
+    final contents = jsonEncode({
+      "type": "message",
+      "chatId": message.chatId,
+      "text": message.contents,
+    });
+
     final encryptedContents = await encryptionService.encryptMessageContent(
-        message.contents, recipientPhoneNumber);
+        contents, recipientPhoneNumber);
 
     final data = {
       "id": message.id,

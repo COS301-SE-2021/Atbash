@@ -361,12 +361,12 @@ class ChatCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Positioned(
-                    child: Padding(
+                  Positioned(child: Observer(builder: (_) {
+                    return Padding(
                       padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
                       child: _readReceipt(),
-                    ),
-                  ),
+                    );
+                  })),
                 ],
               ),
             ),

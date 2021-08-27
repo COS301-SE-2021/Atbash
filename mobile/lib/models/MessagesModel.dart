@@ -37,9 +37,10 @@ abstract class _MessagesModel with Store {
     };
 
     communicationService.onAck = (messageId) async {
-      messageService
-          .fetchById(messageId)
-          .then((message) => message.readReceipt = ReadReceipt.delivered);
+      messageService.fetchById(messageId).then((message) {
+        message.readReceipt = ReadReceipt.delivered;
+        messageService.update(message);
+      });
 
       messages
           .where((m) => m.id == messageId)
@@ -47,9 +48,10 @@ abstract class _MessagesModel with Store {
     };
 
     communicationService.onAckSeen = (messageId) async {
-      messageService
-          .fetchById(messageId)
-          .then((message) => message.readReceipt = ReadReceipt.seen);
+      messageService.fetchById(messageId).then((message) {
+        message.readReceipt = ReadReceipt.seen;
+        messageService.update(message);
+      });
 
       messages
           .where((m) => m.id == messageId)

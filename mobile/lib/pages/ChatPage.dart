@@ -164,8 +164,8 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          selectedMessagesIds
-              .forEach((id) => messagesModel.sendDeleteMessageRequest(id));
+          selectedMessagesIds.forEach((id) => messagesModel
+              .sendDeleteMessageRequest(id, widget.chat.contactPhoneNumber));
         } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
           selectedMessagesIds
               .forEach((id) => messagesModel.deleteMessageLocally(id));
@@ -214,9 +214,11 @@ class _ChatPageState extends State<ChatPage> {
       message.first,
       contactPhoneNumber: widget.chat.contactPhoneNumber,
       onTap: () {
-        setState(() {
-          message.second = !message.second;
-        });
+        if (_selecting) {
+          setState(() {
+            message.second = !message.second;
+          });
+        }
       },
       onLongPress: () {
         setState(() {

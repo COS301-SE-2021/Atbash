@@ -33,9 +33,11 @@ abstract class _MessagesModel with Store {
     };
 
     communicationService.onDelete = (messageId) {
-      messageService.deleteById(messageId);
+      final message = messages.firstWhere((m) => m.id == messageId);
+      message.deleted = true;
+      message.contents = "";
 
-      messages.removeWhere((m) => m.id == messageId);
+      messageService.update(message);
     };
 
     communicationService.onAck = (messageId) async {
@@ -133,8 +135,8 @@ abstract class _MessagesModel with Store {
   }
 
   @action
-  void sendDeleteMessageRequest(String messageId) {
-    // TODO send to remote
+  void sendDeleteMessageRequest(String messageId, String recipientPhoneNumber) {
+    communicationService.sendDelete(messageId, recipientPhoneNumber);
 
     final message = messages.firstWhere((m) => m.id == messageId);
     message.deleted = true;

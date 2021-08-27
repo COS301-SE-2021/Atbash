@@ -87,11 +87,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void sendDeleteMessageRequest(String messageId) {
+  void sendDeleteMessageRequest(String messageId, String recipientPhoneNumber) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
         name: '_MessagesModel.sendDeleteMessageRequest');
     try {
-      return super.sendDeleteMessageRequest(messageId);
+      return super.sendDeleteMessageRequest(messageId, recipientPhoneNumber);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }

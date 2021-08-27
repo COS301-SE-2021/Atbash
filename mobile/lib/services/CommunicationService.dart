@@ -134,10 +134,30 @@ class CommunicationService {
       "contents": encryptedContents
     };
 
-    final response = await post(Uri.parse("${Constants.httpUrl}messages"),
+    await post(Uri.parse("${Constants.httpUrl}messages"),
         body: jsonEncode(data));
+  }
 
-    print("${response.statusCode} - ${response.body}");
+  Future<void> sendDelete(String messageId, String recipientPhoneNumber) async {
+    final userPhoneNumber = await userService.getPhoneNumber();
+
+    final contents = jsonEncode({
+      "type": "delete",
+      "messageId": messageId,
+    });
+
+    final encryptedContents = await encryptionService.encryptMessageContent(
+        contents, recipientPhoneNumber);
+
+    final data = {
+      "id": Uuid().v4(),
+      "senderPhoneNumber": userPhoneNumber,
+      "recipientPhoneNumber": recipientPhoneNumber,
+      "contents": encryptedContents
+    };
+
+    await post(Uri.parse("${Constants.httpUrl}messages"),
+        body: jsonEncode(data));
   }
 
   Future<void> sendAck(String messageId, String recipientPhoneNumber) async {

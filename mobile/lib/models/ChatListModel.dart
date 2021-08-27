@@ -3,6 +3,8 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobx/mobx.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,9 +14,31 @@ class ChatListModel = _ChatListModel with _$ChatListModel;
 
 abstract class _ChatListModel with Store {
   final ChatService chatService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   @observable
   ObservableList<Chat> chats = <Chat>[].asObservable();
+
+  _ChatListModel() {
+    communicationService.onMessage = (message) async {
+      final senderPhoneNumber = message.otherPartyPhoneNumber;
+
+      final contacts = await contactService.fetchAll();
+
+      final index = contacts
+          .indexWhere((contact) => contact.phoneNumber == senderPhoneNumber);
+      final contact = index != -1 ? contacts[index] : null;
+
+      if (contact != null) {
+        startChatWithContact(contact, ChatType.general,
+            id: message.chatId, mostRecentMessage: message);
+      } else {
+        startChatWithPhoneNumber(senderPhoneNumber, ChatType.general,
+            id: message.chatId, mostRecentMessage: message);
+      }
+    };
+  }
 
   @action
   void init() {
@@ -24,7 +48,8 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  Chat startChatWithContact(Contact contact, ChatType chatType) {
+  Chat startChatWithContact(Contact contact, ChatType chatType,
+      {String? id, Message? mostRecentMessage}) {
     // If specific type of chat already exists with contact, do nothing and return
     final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == contact.phoneNumber &&
@@ -35,9 +60,10 @@ abstract class _ChatListModel with Store {
     }
 
     final chat = Chat(
-      id: Uuid().v4(),
+      id: id ?? Uuid().v4(),
       contactPhoneNumber: contact.phoneNumber,
       contact: contact,
+      mostRecentMessage: mostRecentMessage,
       chatType: chatType,
     );
 
@@ -48,7 +74,8 @@ abstract class _ChatListModel with Store {
   }
 
   @action
-  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
+  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType,
+      {String? id, Message? mostRecentMessage}) {
     // If specific type of chat already exists with contact, do nothing and return
     final index = chats.indexWhere((element) =>
         element.contactPhoneNumber == phoneNumber &&
@@ -59,8 +86,9 @@ abstract class _ChatListModel with Store {
     }
 
     final chat = Chat(
-      id: Uuid().v4(),
+      id: id ?? Uuid().v4(),
       contactPhoneNumber: phoneNumber,
+      mostRecentMessage: mostRecentMessage,
       chatType: chatType,
     );
 

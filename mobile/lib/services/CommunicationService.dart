@@ -15,12 +15,15 @@ class CommunicationService {
 
   IOWebSocketChannel? channel;
 
-  void Function(Message message)? onMessage;
+  List<void Function(Message message)> _onMessageListeners = [];
   void Function(String messageId)? onDelete;
   void Function(String contactPhoneNumber, String profileImage)? onProfileImage;
   void Function(String contactPhoneNumber, String status)? onStatus;
   void Function(String messageId)? onAck;
   void Function(String messageId)? onAckSeen;
+
+  set onMessage(void Function(Message message) cb) =>
+      _onMessageListeners.add(cb);
 
   CommunicationService(this.encryptionService, this.userService);
 
@@ -78,8 +81,7 @@ class CommunicationService {
 
           print("received message");
 
-          final onMessage = this.onMessage;
-          if (onMessage != null) onMessage(message);
+          _onMessageListeners.forEach((listener) => listener(message));
           break;
         case "delete":
           final messageId = decryptedContents["messageId"] as String;

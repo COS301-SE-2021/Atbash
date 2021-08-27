@@ -39,22 +39,26 @@ mixin _$ChatListModel on _ChatListModel, Store {
   }
 
   @override
-  Chat startChatWithContact(Contact contact, ChatType chatType) {
+  Chat startChatWithContact(Contact contact, ChatType chatType,
+      {String? id, Message? mostRecentMessage}) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithContact');
     try {
-      return super.startChatWithContact(contact, chatType);
+      return super.startChatWithContact(contact, chatType,
+          id: id, mostRecentMessage: mostRecentMessage);
     } finally {
       _$_ChatListModelActionController.endAction(_$actionInfo);
     }
   }
 
   @override
-  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType) {
+  Chat startChatWithPhoneNumber(String phoneNumber, ChatType chatType,
+      {String? id, Message? mostRecentMessage}) {
     final _$actionInfo = _$_ChatListModelActionController.startAction(
         name: '_ChatListModel.startChatWithPhoneNumber');
     try {
-      return super.startChatWithPhoneNumber(phoneNumber, chatType);
+      return super.startChatWithPhoneNumber(phoneNumber, chatType,
+          id: id, mostRecentMessage: mostRecentMessage);
     } finally {
       _$_ChatListModelActionController.endAction(_$actionInfo);
     }

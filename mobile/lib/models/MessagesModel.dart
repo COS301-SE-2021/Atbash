@@ -27,6 +27,8 @@ abstract class _MessagesModel with Store {
 
       if (message.chatId == openChat?.id) {
         messages.insert(0, message);
+        communicationService
+            .sendAckSeen([message.id], message.otherPartyPhoneNumber);
       }
     };
 
@@ -47,15 +49,17 @@ abstract class _MessagesModel with Store {
           .forEach((m) => m.readReceipt = ReadReceipt.delivered);
     };
 
-    communicationService.onAckSeen = (messageId) async {
-      messageService.fetchById(messageId).then((message) {
-        message.readReceipt = ReadReceipt.seen;
-        messageService.update(message);
+    communicationService.onAckSeen = (messageIds) async {
+      messageService.fetchAllById(messageIds).then((messageList) {
+        messageList.forEach((message) {
+          message.readReceipt = ReadReceipt.seen;
+          messageService.update(message);
+        });
       });
 
-      messages
-          .where((m) => m.id == messageId)
-          .forEach((m) => m.readReceipt = ReadReceipt.seen);
+      messages.where((m) => messageIds.any((e) => e == m.id)).forEach((m) {
+        m.readReceipt = ReadReceipt.seen;
+      });
     };
   }
 
@@ -67,6 +71,19 @@ abstract class _MessagesModel with Store {
 
     messageService.fetchAllByChatId(chat.id).then((messages) {
       this.messages = messages.asObservable();
+
+      final unseenMessages = messages
+          .where((m) => m.readReceipt != ReadReceipt.seen && m.isIncoming);
+
+      final unseenMessagesIds = unseenMessages.map((e) => e.id).toList();
+
+      unseenMessages.forEach((message) {
+        message.readReceipt = ReadReceipt.seen;
+        messageService.update(message);
+      });
+
+      communicationService.sendAckSeen(
+          unseenMessagesIds, chat.contactPhoneNumber);
     });
   }
 

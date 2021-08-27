@@ -63,6 +63,29 @@ class MessageService {
     }
   }
 
+  Future<List<Message>> fetchAllById(List<String> ids) async {
+    final db = await databaseService.database;
+
+    final where = "(" + ids.map((e) => "?").join(",") + ")";
+
+    final response = await db.query(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_ID} in $where",
+      whereArgs: ids,
+    );
+
+    final messages = <Message>[];
+
+    response.forEach((element) {
+      final message = Message.fromMap(element);
+      if (message != null) {
+        messages.add(message);
+      }
+    });
+
+    return messages;
+  }
+
   Future<Message> insert(Message message) async {
     final db = await databaseService.database;
 

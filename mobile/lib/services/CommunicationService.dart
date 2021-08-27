@@ -20,7 +20,7 @@ class CommunicationService {
   void Function(String contactPhoneNumber, String profileImage)? onProfileImage;
   void Function(String contactPhoneNumber, String status)? onStatus;
   void Function(String messageId)? onAck;
-  void Function(String messageId)? onAckSeen;
+  void Function(List<String> messageIds)? onAckSeen;
 
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -104,9 +104,12 @@ class CommunicationService {
           if (onAck != null) onAck(messageId);
           break;
         case "ackSeen":
-          final messageId = decryptedContents["messageId"] as String;
+          final messageIds = (decryptedContents["messageIds"] as List)
+              .map((e) => e as String)
+              .toList();
+
           final onAckSeen = this.onAckSeen;
-          if (onAckSeen != null) onAckSeen(messageId);
+          if (onAckSeen != null) onAckSeen(messageIds);
           break;
       }
     }
@@ -153,6 +156,29 @@ class CommunicationService {
       "senderPhoneNumber": userPhoneNumber,
       "recipientPhoneNumber": recipientPhoneNumber,
       "contents": encryptedContents,
+    };
+
+    await post(Uri.parse("${Constants.httpUrl}messages"),
+        body: jsonEncode(data));
+  }
+
+  Future<void> sendAckSeen(
+      List<String> messageIds, String recipientPhoneNumber) async {
+    final userPhoneNumber = await userService.getPhoneNumber();
+
+    final contents = jsonEncode({
+      "type": "ackSeen",
+      "messageIds": messageIds,
+    });
+
+    final encryptedContents = await encryptionService.encryptMessageContent(
+        contents, recipientPhoneNumber);
+
+    final data = {
+      "id": Uuid().v4(),
+      "senderPhoneNumber": userPhoneNumber,
+      "recipientPhoneNumber": recipientPhoneNumber,
+      "contents": encryptedContents
     };
 
     await post(Uri.parse("${Constants.httpUrl}messages"),

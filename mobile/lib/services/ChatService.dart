@@ -24,6 +24,28 @@ class ChatService {
     return chats;
   }
 
+  Future<Chat> fetchById(String chatId) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(
+      Chat.TABLE_NAME,
+      where: "${Chat.COLUMN_ID} = ?",
+      whereArgs: [chatId],
+    );
+
+    if (response.isEmpty) {
+      throw ChatNotFoundException();
+    } else {
+      final chat = Chat.fromMap(response.first);
+
+      if (chat != null) {
+        return chat;
+      } else {
+        throw ChatNotFoundException();
+      }
+    }
+  }
+
   Future<Chat> insert(Chat chat) async {
     final db = await databaseService.database;
 
@@ -56,3 +78,5 @@ class ChatService {
     );
   }
 }
+
+class ChatNotFoundException implements Exception {}

@@ -12,8 +12,10 @@ import 'package:web_socket_channel/io.dart';
 class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
+  Future<String> userPhoneNumber;
 
   IOWebSocketChannel? channel;
+  StreamController<MessagePayload> _messageQueue = StreamController();
 
   List<void Function(Message message)> _onMessageListeners = [];
   void Function(String messageId)? onDelete;
@@ -25,7 +27,22 @@ class CommunicationService {
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
-  CommunicationService(this.encryptionService, this.userService);
+  CommunicationService(this.encryptionService, this.userService)
+      : userPhoneNumber = userService.getPhoneNumber() {
+    final uri = Uri.parse("${Constants.httpUrl}messages");
+
+    _messageQueue.stream.listen(
+      (payload) async {
+        final encryptedContents = await encryptionService.encryptMessageContent(
+            payload.contents, payload.recipientPhoneNumber);
+
+        payload.contents = encryptedContents;
+
+        await post(uri, body: jsonEncode(payload.asMap));
+      },
+      onDone: () => _messageQueue.close(),
+    );
+  }
 
   Future<void> goOnline() async {
     final phoneNumber = await userService.getPhoneNumber();
@@ -38,12 +55,12 @@ class CommunicationService {
       pingInterval: Duration(minutes: 9),
     );
 
-    channel?.stream.listen((event) {
-      _handleEvent(event);
+    channel?.stream.listen((event) async {
+      await _handleEvent(event);
     });
   }
 
-  Future<Message?> _handleEvent(dynamic event) async {
+  Future<void> _handleEvent(dynamic event) async {
     final Map<String, Object?> parsedEvent = jsonDecode(event);
 
     final id = parsedEvent["id"] as String?;
@@ -78,8 +95,6 @@ class CommunicationService {
             liked: false,
             tags: [],
           );
-
-          print("received message");
 
           _onMessageListeners.forEach((listener) => listener(message));
           break;
@@ -116,92 +131,75 @@ class CommunicationService {
   }
 
   Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
-    final userPhoneNumber = await userService.getPhoneNumber();
-
     final contents = jsonEncode({
       "type": "message",
       "chatId": message.chatId,
       "text": message.contents,
     });
 
-    final encryptedContents = await encryptionService.encryptMessageContent(
-        contents, recipientPhoneNumber);
-
-    final data = {
-      "id": message.id,
-      "senderPhoneNumber": userPhoneNumber,
-      "recipientPhoneNumber": recipientPhoneNumber,
-      "contents": encryptedContents
-    };
-
-    await post(Uri.parse("${Constants.httpUrl}messages"),
-        body: jsonEncode(data));
+    _queueForSending(contents, recipientPhoneNumber, id: message.id);
   }
 
   Future<void> sendDelete(String messageId, String recipientPhoneNumber) async {
-    final userPhoneNumber = await userService.getPhoneNumber();
-
     final contents = jsonEncode({
       "type": "delete",
       "messageId": messageId,
     });
 
-    final encryptedContents = await encryptionService.encryptMessageContent(
-        contents, recipientPhoneNumber);
-
-    final data = {
-      "id": Uuid().v4(),
-      "senderPhoneNumber": userPhoneNumber,
-      "recipientPhoneNumber": recipientPhoneNumber,
-      "contents": encryptedContents
-    };
-
-    await post(Uri.parse("${Constants.httpUrl}messages"),
-        body: jsonEncode(data));
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendAck(String messageId, String recipientPhoneNumber) async {
-    final userPhoneNumber = await userService.getPhoneNumber();
-
     final contents = jsonEncode({
       "type": "ack",
       "messageId": messageId,
     });
 
-    final encryptedContents = await encryptionService.encryptMessageContent(
-        contents, recipientPhoneNumber);
-
-    final data = {
-      "id": Uuid().v4(),
-      "senderPhoneNumber": userPhoneNumber,
-      "recipientPhoneNumber": recipientPhoneNumber,
-      "contents": encryptedContents,
-    };
-
-    await post(Uri.parse("${Constants.httpUrl}messages"),
-        body: jsonEncode(data));
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendAckSeen(
       List<String> messageIds, String recipientPhoneNumber) async {
-    final userPhoneNumber = await userService.getPhoneNumber();
-
     final contents = jsonEncode({
       "type": "ackSeen",
       "messageIds": messageIds,
     });
 
-    final encryptedContents = await encryptionService.encryptMessageContent(
-        contents, recipientPhoneNumber);
-
-    final data = {
-      "id": Uuid().v4(),
-      "senderPhoneNumber": userPhoneNumber,
-      "recipientPhoneNumber": recipientPhoneNumber,
-      "contents": encryptedContents
-    };
-
-    await post(Uri.parse("${Constants.httpUrl}messages"),
-        body: jsonEncode(data));
+    _queueForSending(contents, recipientPhoneNumber);
   }
+
+  void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
+      {String? id}) async {
+    final userPhoneNumber = await this.userPhoneNumber;
+
+    final payload = MessagePayload(
+      id: id ?? Uuid().v4(),
+      senderPhoneNumber: userPhoneNumber,
+      recipientPhoneNumber: recipientPhoneNumber,
+      contents: unencryptedContents,
+    );
+
+    _messageQueue.sink.add(payload);
+  }
+}
+
+class MessagePayload {
+  final String id;
+  final String senderPhoneNumber;
+  final String recipientPhoneNumber;
+  String contents;
+
+  MessagePayload({
+    required this.id,
+    required this.senderPhoneNumber,
+    required this.recipientPhoneNumber,
+    required this.contents,
+  });
+
+  Map<String, Object> get asMap => {
+        "id": id,
+        "senderPhoneNumber": senderPhoneNumber,
+        "recipientPhoneNumber": recipientPhoneNumber,
+        "contents": contents
+      };
 }

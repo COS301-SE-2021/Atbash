@@ -170,7 +170,7 @@ class CommunicationService {
     if (response.statusCode == 200) {
       final uploadUrl = Uri.parse(response.body);
       final uploadResponse =
-          await post(uploadUrl, body: encryptedImage.concatenation());
+          await put(uploadUrl, body: encryptedImage.concatenation());
 
       if (uploadResponse.statusCode == 200) {
         final contents = jsonEncode({

@@ -104,6 +104,7 @@ class CommunicationService {
           );
 
           messageService.insert(message);
+          sendAck(id, senderPhoneNumber);
           _onMessageListeners.forEach((listener) => listener(message));
           break;
         case "delete":

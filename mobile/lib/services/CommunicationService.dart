@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/EncryptionService.dart';
+import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -12,6 +13,7 @@ import 'package:web_socket_channel/io.dart';
 class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
+  final MessageService messageService;
   Future<String> userPhoneNumber;
 
   IOWebSocketChannel? channel;
@@ -27,7 +29,8 @@ class CommunicationService {
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
-  CommunicationService(this.encryptionService, this.userService)
+  CommunicationService(
+      this.encryptionService, this.userService, this.messageService)
       : userPhoneNumber = userService.getPhoneNumber() {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -100,6 +103,7 @@ class CommunicationService {
             tags: [],
           );
 
+          messageService.insert(message);
           _onMessageListeners.forEach((listener) => listener(message));
           break;
         case "delete":

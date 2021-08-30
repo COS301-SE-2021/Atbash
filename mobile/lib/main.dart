@@ -78,6 +78,7 @@ void _registerServices() async {
   final communicationService = CommunicationService(
     encryptionService,
     userService,
+    messageService,
   );
 
   GetIt.I.registerSingleton(databaseService);

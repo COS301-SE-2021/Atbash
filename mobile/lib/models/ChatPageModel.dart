@@ -20,7 +20,7 @@ abstract class _ChatPageModel with Store {
 
   @action
   void addMessage(Message message) {
-    messages.add(message);
+    messages.insert(0, message);
   }
 
   @action

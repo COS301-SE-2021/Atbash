@@ -85,6 +85,17 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   }
 
   @override
+  void replaceMessages(Iterable<Message> messages) {
+    final _$actionInfo = _$_ChatPageModelActionController.startAction(
+        name: '_ChatPageModel.replaceMessages');
+    try {
+      return super.replaceMessages(messages);
+    } finally {
+      _$_ChatPageModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void removeMessageById(String messageId) {
     final _$actionInfo = _$_ChatPageModelActionController.startAction(
         name: '_ChatPageModel.removeMessageById');

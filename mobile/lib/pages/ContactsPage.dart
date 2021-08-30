@@ -178,7 +178,7 @@ class _ContactsPageState extends State<ContactsPage> {
     });
   }
 
-  List<InkWell> _buildContactList(BuildContext context, bool filtered) {
+  List<Widget> _buildContactList(BuildContext context, bool filtered) {
     List<Contact> contacts = contactListModel.contacts;
 
     if (filtered) {
@@ -190,7 +190,7 @@ class _ContactsPageState extends State<ContactsPage> {
           .toList();
     }
 
-    List<InkWell> contactList = [];
+    List<Widget> contactList = [];
 
     contactList.add(_buildContact(contacts.first, true));
 
@@ -209,7 +209,21 @@ class _ContactsPageState extends State<ContactsPage> {
     return contactList;
   }
 
-  InkWell _buildContact(Contact contact, bool isFirstInLetterGroup) {
+  Widget _buildContact(Contact contact, bool isFirstInLetterGroup) {
+    if (isFirstInLetterGroup)
+      return Column(
+        children: [
+          Container(
+            child: Text(contact.displayName.substring(0, 1)),
+          ),
+          _createContactItem(contact)
+        ],
+      );
+
+    return _createContactItem(contact);
+  }
+
+  InkWell _createContactItem(Contact contact) {
     return InkWell(
       onTap: () {
         final chat =

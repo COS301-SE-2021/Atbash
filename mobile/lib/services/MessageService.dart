@@ -148,6 +148,18 @@ class MessageService {
     if (response == 0) throw MessageNotFoundException();
   }
 
+  Future<void> setMessageReadReceipt(
+      String messageId, ReadReceipt readReceipt) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ?",
+      [readReceipt.index, messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+  }
+
   Future<void> deleteById(String id) async {
     final db = await databaseService.database;
 

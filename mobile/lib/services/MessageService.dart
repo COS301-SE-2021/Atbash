@@ -153,7 +153,7 @@ class MessageService {
     final db = await databaseService.database;
 
     final response = await db.rawUpdate(
-      "update ${Message.TABLE_NAME} set${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ?",
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ?",
       [readReceipt.index, messageId],
     );
 

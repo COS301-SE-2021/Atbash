@@ -54,4 +54,19 @@ class _ForwardDialog extends StatelessWidget {
               }),
         ));
   }
+
+  Widget _buildContactItem(Contact contact) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+        child: Row(
+          children: [
+            AvatarIcon.fromString(contact.profileImage),
+            Expanded(child: Text(contact.displayName)),
+          ],
+        ),
+      ),
+    );
+  }
 }

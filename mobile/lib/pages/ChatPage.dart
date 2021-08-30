@@ -327,53 +327,55 @@ class ChatCard extends StatelessWidget {
       color = Constants.darkGrey;
     }
 
-    return Container(
-      color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: padding,
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
-            child: Card(
-              color: color.withOpacity(0.8),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-                    child: Text(
-                      _message.deleted
-                          ? "This message was deleted"
-                          : _message.contents,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontStyle: _message.deleted ? FontStyle.italic : null,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+    return Observer(builder: (context) {
+      return Container(
+        color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
+        child: Align(
+          alignment: alignment,
+          child: Padding(
+            padding: padding,
+            child: InkWell(
+              onTap: onTap,
+              onLongPress: onLongPress,
+              child: Card(
+                color: color.withOpacity(0.8),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
                       child: Text(
-                        dateFormatter.format(_message.timestamp),
-                        style: TextStyle(fontSize: 11, color: Colors.white),
+                        _message.deleted
+                            ? "This message was deleted"
+                            : _message.contents,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontStyle: _message.deleted ? FontStyle.italic : null,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(child: Observer(builder: (_) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                      child: _readReceipt(),
-                    );
-                  })),
-                ],
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          dateFormatter.format(_message.timestamp),
+                          style: TextStyle(fontSize: 11, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
+                        child: _readReceipt(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Icon? _readReceipt() {

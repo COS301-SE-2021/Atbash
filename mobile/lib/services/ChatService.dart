@@ -27,10 +27,9 @@ class ChatService {
   Future<Chat> fetchById(String chatId) async {
     final db = await databaseService.database;
 
-    final response = await db.query(
-      Chat.TABLE_NAME,
-      where: "${Chat.COLUMN_ID} = ?",
-      whereArgs: [chatId],
+    final response = await db.rawQuery(
+      "select * from chat left join message on message_id = (select message_id from message where message_chat_id = chat_id order by message_timestamp desc limit 1) left join contact on chat_contact_phone_number = contact_phone_number where chat_id = ?;",
+      [chatId],
     );
 
     if (response.isEmpty) {

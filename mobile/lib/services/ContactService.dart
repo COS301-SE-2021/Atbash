@@ -9,7 +9,8 @@ class ContactService {
   Future<List<Contact>> fetchAll() async {
     final db = await databaseService.database;
 
-    final response = await db.query(Contact.TABLE_NAME);
+    final response =
+        await db.query(Contact.TABLE_NAME, orderBy: "contact_display_name");
 
     final contacts = <Contact>[];
     response.forEach((e) {

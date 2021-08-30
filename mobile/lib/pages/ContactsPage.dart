@@ -13,6 +13,8 @@ import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
+import '../constants.dart';
+
 class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
 
@@ -176,7 +178,7 @@ class _ContactsPageState extends State<ContactsPage> {
     });
   }
 
-  List<InkWell> _buildContactList(BuildContext context, bool filtered) {
+  List<Widget> _buildContactList(BuildContext context, bool filtered) {
     List<Contact> contacts = contactListModel.contacts;
 
     if (filtered) {
@@ -188,10 +190,45 @@ class _ContactsPageState extends State<ContactsPage> {
           .toList();
     }
 
-    return contacts.map((e) => _buildContact(e)).toList();
+    List<Widget> contactList = [];
+
+    contactList.add(_buildContact(contacts[0], true));
+
+    for (int i = 1; i < contacts.length; i++) {
+      String prevContactFirstLetter =
+          contacts[i - 1].displayName.substring(0, 1);
+      String currentContactFirstLetter =
+          contacts[i].displayName.substring(0, 1);
+
+      if (prevContactFirstLetter.compareTo(currentContactFirstLetter) < 0)
+        contactList.add(_buildContact(contacts[i], true));
+      else
+        contactList.add(_buildContact(contacts[i], false));
+    }
+
+    return contactList;
   }
 
-  InkWell _buildContact(Contact contact) {
+  Widget _buildContact(Contact contact, bool isFirstInLetterGroup) {
+    if (isFirstInLetterGroup)
+      return Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Constants.darkGrey.withOpacity(0.2),
+            ),
+            child: Text(contact.displayName.substring(0, 1)),
+          ),
+          _createContactItem(contact)
+        ],
+      );
+
+    return _createContactItem(contact);
+  }
+
+  InkWell _createContactItem(Contact contact) {
     return InkWell(
       onTap: () {
         final chat =

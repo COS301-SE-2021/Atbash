@@ -9,18 +9,49 @@ part of 'ChatPageModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$ChatPageModel on _ChatPageModel, Store {
-  final _$chatAtom = Atom(name: '_ChatPageModel.chat');
+  final _$contactTitleAtom = Atom(name: '_ChatPageModel.contactTitle');
 
   @override
-  Chat? get chat {
-    _$chatAtom.reportRead();
-    return super.chat;
+  String get contactTitle {
+    _$contactTitleAtom.reportRead();
+    return super.contactTitle;
   }
 
   @override
-  set chat(Chat? value) {
-    _$chatAtom.reportWrite(value, super.chat, () {
-      super.chat = value;
+  set contactTitle(String value) {
+    _$contactTitleAtom.reportWrite(value, super.contactTitle, () {
+      super.contactTitle = value;
+    });
+  }
+
+  final _$contactStatusAtom = Atom(name: '_ChatPageModel.contactStatus');
+
+  @override
+  String get contactStatus {
+    _$contactStatusAtom.reportRead();
+    return super.contactStatus;
+  }
+
+  @override
+  set contactStatus(String value) {
+    _$contactStatusAtom.reportWrite(value, super.contactStatus, () {
+      super.contactStatus = value;
+    });
+  }
+
+  final _$contactProfileImageAtom =
+      Atom(name: '_ChatPageModel.contactProfileImage');
+
+  @override
+  String get contactProfileImage {
+    _$contactProfileImageAtom.reportRead();
+    return super.contactProfileImage;
+  }
+
+  @override
+  set contactProfileImage(String value) {
+    _$contactProfileImageAtom.reportWrite(value, super.contactProfileImage, () {
+      super.contactProfileImage = value;
     });
   }
 
@@ -89,7 +120,9 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   @override
   String toString() {
     return '''
-chat: ${chat},
+contactTitle: ${contactTitle},
+contactStatus: ${contactStatus},
+contactProfileImage: ${contactProfileImage},
 messages: ${messages}
     ''';
   }

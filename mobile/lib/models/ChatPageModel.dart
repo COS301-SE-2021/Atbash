@@ -1,4 +1,3 @@
-import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobx/mobx.dart';
 
@@ -8,7 +7,13 @@ class ChatPageModel = _ChatPageModel with _$ChatPageModel;
 
 abstract class _ChatPageModel with Store {
   @observable
-  Chat? chat;
+  String contactTitle = "";
+
+  @observable
+  String contactStatus = "";
+
+  @observable
+  String contactProfileImage = "";
 
   @observable
   ObservableList<Message> messages = <Message>[].asObservable();

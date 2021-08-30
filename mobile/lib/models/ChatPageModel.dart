@@ -37,7 +37,11 @@ abstract class _ChatPageModel with Store {
   @action
   void setReadReceiptById(String messageId, ReadReceipt readReceipt) {
     messages.where((message) => message.id == messageId).forEach((message) {
-      message.readReceipt = readReceipt;
+      if (message.readReceipt == ReadReceipt.undelivered ||
+          (message.readReceipt == ReadReceipt.delivered &&
+              readReceipt == ReadReceipt.seen)) {
+        message.readReceipt = readReceipt;
+      }
     });
   }
 

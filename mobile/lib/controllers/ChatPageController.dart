@@ -4,12 +4,14 @@ import 'package:mobile/models/ChatPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/MessageService.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatPageController {
   final ChatService chatService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final MessageService messageService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -23,6 +25,10 @@ class ChatPageController {
       model.contactStatus = chat.contact?.status ?? "";
       model.contactProfileImage = chat.contact?.profileImage ?? "";
     });
+
+    messageService
+        .fetchAllByChatId(chatId)
+        .then((messages) => model.replaceMessages(messages));
   }
 
   void sendMessage(String contents) {

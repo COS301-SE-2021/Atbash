@@ -24,6 +24,12 @@ abstract class _ChatPageModel with Store {
   }
 
   @action
+  void replaceMessages(Iterable<Message> messages) {
+    this.messages.clear();
+    this.messages.addAll(messages);
+  }
+
+  @action
   void removeMessageById(String messageId) {
     messages.removeWhere((message) => message.id == messageId);
   }

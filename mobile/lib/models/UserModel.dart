@@ -56,21 +56,25 @@ abstract class _UserModel with Store {
   Future<bool> get isRegistered async =>
       await _storage.read(key: "phone_number") != null;
 
+  @action
   void setDisplayName(String displayName) {
     this.displayName = displayName;
     _storage.write(key: "display_name", value: displayName);
   }
 
+  @action
   void setStatus(String status) {
     this.status = status;
     _storage.write(key: "status", value: status);
   }
 
+  @action
   void setProfileImage(String profileImage) {
     this.profileImage = profileImage;
     _storage.write(key: "profile_image", value: profileImage);
   }
 
+  @action
   void setBirthday(DateTime birthday) {
     this.birthday = birthday;
     _storage.write(

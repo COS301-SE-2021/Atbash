@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ContactListModel.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
-Future<bool?> ShowForwardDialog(BuildContext context, String messageContents) {
-  return showDialog(
-      context: context, builder: (context) => _ForwardDialog(messageContents));
+import '../constants.dart';
+
+Future<bool?> showForwardDialog(BuildContext context, String messageContents) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => _ForwardDialog(messageContents),
+  );
 }
 
 class _ForwardDialog extends StatelessWidget {

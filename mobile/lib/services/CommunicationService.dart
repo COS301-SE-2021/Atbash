@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cryptography/cryptography.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Message.dart';
@@ -151,6 +152,40 @@ class CommunicationService {
     });
 
     _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendProfileImage(
+      String profileImageBase64, String recipientPhoneNumber) async {
+    final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
+    final key = await algorithm.newSecretKey();
+
+    final mediaId = Uuid().v4();
+    final encryptedImage =
+        await algorithm.encrypt(profileImageBase64.codeUnits, secretKey: key);
+
+    final uri = Uri.parse(Constants.httpUrl + "upload");
+    final body = {"mediaId": mediaId, "method": "PUT"};
+    final response = await post(uri, body: jsonEncode(body));
+
+    if (response.statusCode == 200) {
+      final uploadUrl = Uri.parse(response.body);
+      final uploadResponse =
+          await post(uploadUrl, body: encryptedImage.concatenation());
+
+      if (uploadResponse.statusCode == 200) {
+        final contents = jsonEncode({
+          "type": "profileImage",
+          "key": String.fromCharCodes(await key.extractBytes()),
+          "imageId": mediaId,
+        });
+
+        _queueForSending(contents, recipientPhoneNumber);
+      } else {
+        print("${uploadResponse.statusCode} - ${uploadResponse.body}");
+      }
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
   }
 
   Future<void> sendAck(String messageId, String recipientPhoneNumber) async {

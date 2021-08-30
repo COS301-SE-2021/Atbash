@@ -210,7 +210,6 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   InkWell _buildContact(Contact contact, bool isFirstInLetterGroup) {
-
     return InkWell(
       onTap: () {
         final chat =

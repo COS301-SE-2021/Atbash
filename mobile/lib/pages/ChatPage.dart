@@ -556,4 +556,8 @@ class ChatCard extends StatelessWidget {
       color: Colors.white,
     );
   }
+
+  Widget _buildForwardingPopUp(Message message) {
+    return AlertDialog();
+  }
 }

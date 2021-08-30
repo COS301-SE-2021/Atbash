@@ -176,6 +176,8 @@ class CommunicationService {
 
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
+          messageService.setMessageReadReceipt(
+              messageId, ReadReceipt.delivered);
           _onAckListeners.forEach((listener) => listener(messageId));
           break;
 
@@ -183,6 +185,9 @@ class CommunicationService {
           final messageIds = (decryptedContents["messageIds"] as List)
               .map((e) => e as String)
               .toList();
+
+          messageIds.forEach((id) =>
+              messageService.setMessageReadReceipt(id, ReadReceipt.seen));
 
           _onAckSeenListeners.forEach((listener) => listener(messageIds));
           break;

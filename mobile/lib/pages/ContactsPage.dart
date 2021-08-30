@@ -234,7 +234,7 @@ class _ContactsPageState extends State<ContactsPage> {
         final chat =
             chatListModel.startChatWithContact(contact, ChatType.general);
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => ChatPage(chat: chat)));
+            MaterialPageRoute(builder: (_) => ChatPage(chatId: chat.id)));
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0),

@@ -321,7 +321,7 @@ class _HomePageState extends State<HomePage> {
     return InkWell(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ChatPage(chat: chat)));
+            MaterialPageRoute(builder: (context) => ChatPage(chatId: chat.id)));
       },
       child: Slidable(
         actionPane: SlidableScrollActionPane(),

@@ -42,16 +42,21 @@ class ChatPageController {
     );
 
     communicationService.sendMessage(message, contactPhoneNumber);
+    messageService.insert(message);
     model.addMessage(message);
   }
 
   void deleteMessagesLocally(List<String> ids) {
-    ids.forEach((id) => model.removeMessageById(id));
+    ids.forEach((id) {
+      messageService.deleteById(id);
+      model.removeMessageById(id);
+    });
   }
 
   void deleteMessagesRemotely(List<String> ids) {
     ids.forEach((id) {
       communicationService.sendDelete(id, contactPhoneNumber);
+      messageService.setMessageDeleted(id);
       model.setDeletedById(id);
     });
   }

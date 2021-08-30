@@ -42,8 +42,10 @@ abstract class _MessagesModel with Store {
 
     communicationService.onAck = (messageId) async {
       messageService.fetchById(messageId).then((message) {
-        message.readReceipt = ReadReceipt.delivered;
-        messageService.update(message);
+        if (message.readReceipt != ReadReceipt.seen) {
+          message.readReceipt = ReadReceipt.delivered;
+          messageService.update(message);
+        }
       });
 
       messages

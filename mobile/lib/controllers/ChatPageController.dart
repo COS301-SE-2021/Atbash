@@ -19,6 +19,20 @@ class ChatPageController {
   late final String contactPhoneNumber;
 
   ChatPageController({required this.chatId}) {
+    communicationService.onMessage = (message) {
+      model.addMessage(message);
+    };
+
+    communicationService.onAck = (messageId) {
+      model.setReadReceiptById(messageId, ReadReceipt.delivered);
+    };
+
+    communicationService.onAckSeen = (messageIds) {
+      messageIds.forEach((id) {
+        model.setReadReceiptById(id, ReadReceipt.seen);
+      });
+    };
+
     chatService.fetchById(chatId).then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;

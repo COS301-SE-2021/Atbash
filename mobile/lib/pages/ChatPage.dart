@@ -184,8 +184,8 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          selectedMessagesIds
-              .forEach((id) => messagesModel.sendDeleteMessageRequest(id));
+          selectedMessagesIds.forEach((id) => messagesModel
+              .sendDeleteMessageRequest(id, widget.chat.contactPhoneNumber));
         } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
           selectedMessagesIds
               .forEach((id) => messagesModel.deleteMessageLocally(id));
@@ -214,11 +214,12 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete this message. Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          messagesModel.sendDeleteMessageRequest(message.id);
+          messagesModel.sendDeleteMessageRequest(
+              message.id, widget.chat.contactPhoneNumber);
         } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
           messagesModel.deleteMessageLocally(message.id);
         }
-        setState(() {});
+        // setState(() {});
       });
     }
   }
@@ -328,9 +329,11 @@ class _ChatPageState extends State<ChatPage> {
       message.first,
       contactPhoneNumber: widget.chat.contactPhoneNumber,
       onTap: () {
-        setState(() {
-          message.second = !message.second;
-        });
+        if (_selecting) {
+          setState(() {
+            message.second = !message.second;
+          });
+        }
       },
       onSelect: () {
         setState(() {
@@ -412,7 +415,7 @@ class _ChatPageState extends State<ChatPage> {
             "User phone number was null when trying to send a message");
       }
 
-      messagesModel.sendMessage(widget.chat.id, contents);
+      messagesModel.sendMessage(widget.chat, contents);
     });
   }
 }
@@ -448,89 +451,91 @@ class ChatCard extends StatelessWidget {
       color = Constants.darkGrey;
     }
 
-    return Container(
-      color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: padding,
-          child: FocusedMenuHolder(
-            blurSize: 2,
-            blurBackgroundColor: Constants.black,
-            menuWidth: MediaQuery.of(context).size.width * 0.4,
-            onPressed: onTap,
-            menuItemExtent: 40,
-            menuItems: [
-              FocusedMenuItem(
-                  title: Text("Select"),
-                  onPressed: onSelect,
-                  trailingIcon: Icon(Icons.check_box_outline_blank)),
-              if (!_message.deleted)
+    return Observer(builder: (context) {
+      return Container(
+        color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
+        child: Align(
+          alignment: alignment,
+          child: Padding(
+            padding: padding,
+            child: FocusedMenuHolder(
+              blurSize: 2,
+              blurBackgroundColor: Constants.black,
+              menuWidth: MediaQuery.of(context).size.width * 0.4,
+              onPressed: onTap,
+              menuItemExtent: 40,
+              menuItems: [
                 FocusedMenuItem(
-                    title: Text("Tag"),
-                    onPressed: () {},
-                    trailingIcon: Icon(Icons.tag)),
-              if (!_message.deleted)
+                    title: Text("Select"),
+                    onPressed: onSelect,
+                    trailingIcon: Icon(Icons.check_box_outline_blank)),
+                if (!_message.deleted)
+                  FocusedMenuItem(
+                      title: Text("Tag"),
+                      onPressed: () {},
+                      trailingIcon: Icon(Icons.tag)),
+                if (!_message.deleted)
+                  FocusedMenuItem(
+                      title: Text("Forward"),
+                      onPressed: () {},
+                      trailingIcon: Icon(Icons.forward)),
+                if (!_message.deleted)
+                  FocusedMenuItem(
+                      title: Text("Copy"),
+                      onPressed: () => Clipboard.setData(
+                          ClipboardData(text: _message.contents)),
+                      trailingIcon: Icon(Icons.copy)),
                 FocusedMenuItem(
-                    title: Text("Forward"),
-                    onPressed: () {},
-                    trailingIcon: Icon(Icons.forward)),
-              if (!_message.deleted)
-                FocusedMenuItem(
-                    title: Text("Copy"),
-                    onPressed: () => Clipboard.setData(
-                        ClipboardData(text: _message.contents)),
-                    trailingIcon: Icon(Icons.copy)),
-              FocusedMenuItem(
-                  title: Text(
-                    "Delete",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: onDelete,
-                  trailingIcon: Icon(
-                    Icons.delete,
-                    color: Constants.white,
-                  ),
-                  backgroundColor: Colors.redAccent),
-            ],
-            child: Card(
-              color: color.withOpacity(0.8),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-                    child: Text(
-                      _message.deleted
-                          ? "This message was deleted"
-                          : _message.contents,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontStyle: _message.deleted ? FontStyle.italic : null,
-                      ),
+                    title: Text(
+                      "Delete",
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ),
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    onPressed: onDelete,
+                    trailingIcon: Icon(
+                      Icons.delete,
+                      color: Constants.white,
+                    ),
+                    backgroundColor: Colors.redAccent),
+              ],
+              child: Card(
+                color: color.withOpacity(0.8),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
                       child: Text(
-                        dateFormatter.format(_message.timestamp),
-                        style: TextStyle(fontSize: 11, color: Colors.white),
+                        _message.deleted
+                            ? "This message was deleted"
+                            : _message.contents,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontStyle: _message.deleted ? FontStyle.italic : null,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                      child: _readReceipt(),
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          dateFormatter.format(_message.timestamp),
+                          style: TextStyle(fontSize: 11, color: Colors.white),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
+                        child: _readReceipt(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Icon? _readReceipt() {

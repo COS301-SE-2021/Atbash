@@ -12,11 +12,13 @@ import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/RegistrationService.dart';
+import 'package:mobile/services/UserService.dart';
 
 import 'models/UserModel.dart';
 
@@ -73,6 +75,11 @@ void _registerServices() async {
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
+  final userService = UserService();
+  final communicationService = CommunicationService(
+    encryptionService,
+    userService,
+  );
 
   GetIt.I.registerSingleton(databaseService);
   GetIt.I.registerSingleton(encryptionService);
@@ -81,6 +88,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
+  GetIt.I.registerSingleton(communicationService);
 
   final userModel = UserModel();
   final settingsModel = SettingsModel();

@@ -270,6 +270,7 @@ Resources:
           TABLE_USERS: !Ref TableUsers
           INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
           FCMKey: !Ref FCMKey
+          WEB_SOCKET_DOMAIN: !GetAtt AtbashWebSocket.ApiEndpoint
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessages
@@ -434,32 +435,11 @@ Resources:
       IntegrationType: AWS_PROXY
       IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
 
-  SendMessageRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref AtbashWebSocket
-      RouteKey: sendmessage
-      OperationName: SendMessageRoute
-      AuthorizationType: NONE
-      Target: !Join
-        - '/'
-        - - 'integrations'
-          - !Ref SendMessageIntegration
-  SendMessageIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    DependsOn:
-      - SendMessageFunction
-    Properties:
-      ApiId: !Ref AtbashWebSocket
-      IntegrationType: AWS_PROXY
-      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
-
   AtbashWebSocketDeployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
       - ConnectRoute
       - DisconnectRoute
-      - SendMessageRoute
     Properties:
       ApiId: !Ref AtbashWebSocket
 
@@ -476,6 +456,36 @@ Resources:
     Properties:
       Name: atbash-rest
       ProtocolType: HTTP
+
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messages'
+      OperationName: SendMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SendMessageIntegration
+  SendMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SendMessageFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt SendMessageFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
 
   RegisterRoute:
     Type: AWS::ApiGatewayV2::Route

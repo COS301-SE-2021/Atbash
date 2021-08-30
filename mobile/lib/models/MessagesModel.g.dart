@@ -54,11 +54,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void sendMessage(String chatId, String contents) {
+  void sendMessage(Chat chat, String contents) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
         name: '_MessagesModel.sendMessage');
     try {
-      return super.sendMessage(chatId, contents);
+      return super.sendMessage(chat, contents);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }
@@ -87,11 +87,11 @@ mixin _$MessagesModel on _MessagesModel, Store {
   }
 
   @override
-  void sendDeleteMessageRequest(String messageId) {
+  void sendDeleteMessageRequest(String messageId, String recipientPhoneNumber) {
     final _$actionInfo = _$_MessagesModelActionController.startAction(
         name: '_MessagesModel.sendDeleteMessageRequest');
     try {
-      return super.sendDeleteMessageRequest(messageId);
+      return super.sendDeleteMessageRequest(messageId, recipientPhoneNumber);
     } finally {
       _$_MessagesModelActionController.endAction(_$actionInfo);
     }

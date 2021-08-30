@@ -1,5 +1,4 @@
 const {
-    getPhoneNumberOfConnection,
     saveMessage,
     getConnectionsOfPhoneNumber,
     getDeviceTokenForPhoneNumber,
@@ -8,22 +7,11 @@ const {
 const {sendToConnection, notifyDevice} = require("./api_access")
 
 exports.handler = async event => {
-    const {connectionId} = event.requestContext
+    const {id, senderPhoneNumber, recipientPhoneNumber, contents} = JSON.parse(event.body)
 
-    const {id, recipientPhoneNumber, contents} = JSON.parse(event.body)
-
-    if (anyUndefined(id, recipientPhoneNumber, contents)) {
+    if (anyUndefined(id, senderPhoneNumber, recipientPhoneNumber, contents)) {
         console.log("Bad request: ", id, recipientPhoneNumber, contents)
         return {statusCode: 400, body: "Invalid request"}
-    }
-
-    let senderPhoneNumber
-
-    try {
-        senderPhoneNumber = await getPhoneNumberOfConnection(connectionId)
-    } catch (error) {
-        console.log(error)
-        return {statusCode: 500, body: JSON.stringify(error)}
     }
 
     const timestamp = new Date().getTime();
@@ -41,7 +29,7 @@ exports.handler = async event => {
 
         await Promise.all(recipientConnections.map(async connection => {
             try {
-                await sendToConnection(event.requestContext.domainName + "/" + event.requestContext.stage, connection, {
+                await sendToConnection(process.env.WEB_SOCKET_DOMAIN.substring(6) + "/dev", connection, {
                     id,
                     senderPhoneNumber,
                     recipientPhoneNumber,
@@ -57,7 +45,7 @@ exports.handler = async event => {
                         return {statusCode: 500, body: JSON.stringify(error)}
                     }
                 } else {
-                    console.log("Found status code ${error.statusCode}")
+                    console.log(`Found status code ${error.statusCode}`)
                 }
             }
         }))

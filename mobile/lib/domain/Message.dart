@@ -9,6 +9,7 @@ class Message extends _Message with _$Message {
     required String id,
     required String chatId,
     required bool isIncoming,
+    required String otherPartyPhoneNumber,
     required String contents,
     required DateTime timestamp,
     required ReadReceipt readReceipt,
@@ -19,6 +20,7 @@ class Message extends _Message with _$Message {
             id: id,
             chatId: chatId,
             isIncoming: isIncoming,
+            otherPartyPhoneNumber: otherPartyPhoneNumber,
             contents: contents,
             timestamp: timestamp,
             readReceipt: readReceipt,
@@ -31,6 +33,7 @@ class Message extends _Message with _$Message {
       COLUMN_ID: id,
       COLUMN_CHAT_ID: chatId,
       COLUMN_IS_INCOMING: isIncoming ? 1 : 0,
+      COLUMN_OTHER_PARTY_PHONE: otherPartyPhoneNumber,
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
       COLUMN_READ_RECEIPT: readReceipt.index,
@@ -43,6 +46,7 @@ class Message extends _Message with _$Message {
     final id = map[COLUMN_ID] as String?;
     final chatId = map[COLUMN_CHAT_ID] as String?;
     final isIncoming = map[COLUMN_IS_INCOMING] as int?;
+    final otherPartyPhoneNumber = map[COLUMN_OTHER_PARTY_PHONE] as String?;
     final contents = map[COLUMN_CONTENTS] as String?;
     final timestamp = map[COLUMN_TIMESTAMP] as int?;
     final readReceipt = map[COLUMN_READ_RECEIPT] as int?;
@@ -52,6 +56,7 @@ class Message extends _Message with _$Message {
     if (id != null &&
         chatId != null &&
         isIncoming != null &&
+        otherPartyPhoneNumber != null &&
         contents != null &&
         timestamp != null &&
         readReceipt != null &&
@@ -61,6 +66,7 @@ class Message extends _Message with _$Message {
         id: id,
         chatId: chatId,
         isIncoming: isIncoming != 0,
+        otherPartyPhoneNumber: otherPartyPhoneNumber,
         contents: contents,
         timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
         readReceipt: ReadReceipt.values[readReceipt],
@@ -75,6 +81,7 @@ class Message extends _Message with _$Message {
   static const String COLUMN_ID = "message_id";
   static const String COLUMN_CHAT_ID = "message_chat_id";
   static const String COLUMN_IS_INCOMING = "message_is_incoming";
+  static const String COLUMN_OTHER_PARTY_PHONE = "message_other_party_phone";
   static const String COLUMN_CONTENTS = "message_contents";
   static const String COLUMN_TIMESTAMP = "message_timestamp";
   static const String COLUMN_READ_RECEIPT = "message_read_receipt";
@@ -84,6 +91,7 @@ class Message extends _Message with _$Message {
       "$COLUMN_ID text primary key,"
       "$COLUMN_CHAT_ID text not null,"
       "$COLUMN_IS_INCOMING tinyint not null,"
+      "$COLUMN_OTHER_PARTY_PHONE text not null,"
       "$COLUMN_CONTENTS text not null,"
       "$COLUMN_TIMESTAMP int not null,"
       "$COLUMN_READ_RECEIPT int not null,"
@@ -98,6 +106,8 @@ abstract class _Message with Store {
   final String chatId;
 
   final bool isIncoming;
+
+  final String otherPartyPhoneNumber;
 
   @observable
   String contents;
@@ -120,6 +130,7 @@ abstract class _Message with Store {
     required this.id,
     required this.chatId,
     required this.isIncoming,
+    required this.otherPartyPhoneNumber,
     required this.contents,
     required this.timestamp,
     required this.readReceipt,

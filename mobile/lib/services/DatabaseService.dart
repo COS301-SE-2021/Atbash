@@ -17,7 +17,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 9, onCreate: (db, version) async {
+    return openDatabase(path, version: 11, onCreate: (db, version) async {
       await _createTables(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
       await _dropTables(db);

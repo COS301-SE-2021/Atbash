@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:cryptography/cryptography.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Message.dart';
@@ -156,12 +155,16 @@ class CommunicationService {
 
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
-    final algorithm = AesCtr.with256bits(macAlgorithm: Hmac.sha256());
-    final key = await algorithm.newSecretKey();
+    final base16Key = SecureRandom(32).base16;
+    final base16IV = SecureRandom(16).base16;
+
+    final key = Key.fromBase16(base16Key);
+    final iv = IV.fromBase16(base16IV);
+
+    final encryptor = Encrypter(AES(key));
 
     final mediaId = Uuid().v4();
-    final encryptedImage =
-        await algorithm.encrypt(profileImageBase64.codeUnits, secretKey: key);
+    final encryptedImage = encryptor.encrypt(profileImageBase64, iv: iv);
 
     final uri = Uri.parse(Constants.httpUrl + "upload");
     final body = {"mediaId": mediaId, "method": "PUT"};
@@ -169,13 +172,13 @@ class CommunicationService {
 
     if (response.statusCode == 200) {
       final uploadUrl = Uri.parse(response.body);
-      final uploadResponse =
-          await put(uploadUrl, body: encryptedImage.concatenation());
+      final uploadResponse = await put(uploadUrl, body: encryptedImage.base64);
 
       if (uploadResponse.statusCode == 200) {
         final contents = jsonEncode({
           "type": "profileImage",
-          "key": String.fromCharCodes(await key.extractBytes()),
+          "key": base16Key,
+          "iv": base16IV,
           "imageId": mediaId,
         });
 

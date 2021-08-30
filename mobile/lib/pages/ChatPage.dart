@@ -214,11 +214,12 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete this message. Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          messagesModel.sendDeleteMessageRequest(message.id);
+          messagesModel.sendDeleteMessageRequest(
+              message.id, widget.chat.contactPhoneNumber);
         } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
           messagesModel.deleteMessageLocally(message.id);
         }
-        setState(() {});
+        // setState(() {});
       });
     }
   }
@@ -414,7 +415,7 @@ class _ChatPageState extends State<ChatPage> {
             "User phone number was null when trying to send a message");
       }
 
-      messagesModel.sendMessage(widget.chat.id, contents);
+      messagesModel.sendMessage(widget.chat, contents);
     });
   }
 }

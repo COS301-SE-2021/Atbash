@@ -79,13 +79,15 @@ abstract class _MessagesModel with Store {
 
       final unseenMessagesIds = unseenMessages.map((e) => e.id).toList();
 
-      unseenMessages.forEach((message) {
-        message.readReceipt = ReadReceipt.seen;
-        messageService.update(message);
-      });
+      if (unseenMessagesIds.length > 0) {
+        unseenMessages.forEach((message) {
+          message.readReceipt = ReadReceipt.seen;
+          messageService.update(message);
+        });
 
-      communicationService.sendAckSeen(
-          unseenMessagesIds, chat.contactPhoneNumber);
+        communicationService.sendAckSeen(
+            unseenMessagesIds, chat.contactPhoneNumber);
+      }
     });
   }
 

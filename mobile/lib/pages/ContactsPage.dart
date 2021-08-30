@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -188,10 +190,27 @@ class _ContactsPageState extends State<ContactsPage> {
           .toList();
     }
 
-    return contacts.map((e) => _buildContact(e)).toList();
+    List<InkWell> contactList = [];
+
+    contactList.add(_buildContact(contacts.first, true));
+
+    for (int i = 1; i < contacts.length; i++) {
+      String prevContactFirstLetter =
+          contacts[i - 1].displayName.substring(0, 1);
+      String currentContactFirstLetter =
+          contacts[i].displayName.substring(0, 1);
+
+      if (prevContactFirstLetter.compareTo(currentContactFirstLetter) < 0)
+        contactList.add(_buildContact(contacts[i], true));
+      else
+        contactList.add(_buildContact(contacts[i], false));
+    }
+
+    return contactList;
   }
 
-  InkWell _buildContact(Contact contact) {
+  InkWell _buildContact(Contact contact, bool isFirstInLetterGroup) {
+
     return InkWell(
       onTap: () {
         final chat =

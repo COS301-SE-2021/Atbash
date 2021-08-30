@@ -1,5 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,6 +11,8 @@ class UserModel = _UserModel with _$UserModel;
 
 abstract class _UserModel with Store {
   final RegistrationService registrationService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
 
   final _storage = FlutterSecureStorage();
 
@@ -72,6 +76,13 @@ abstract class _UserModel with Store {
   void setProfileImage(String profileImage) {
     this.profileImage = profileImage;
     _storage.write(key: "profile_image", value: profileImage);
+
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendProfileImage(
+            profileImage, contact.phoneNumber);
+      });
+    });
   }
 
   @action

@@ -140,6 +140,8 @@ class CommunicationService {
           final onAckSeen = this.onAckSeen;
           if (onAckSeen != null) onAckSeen(messageIds);
           break;
+        case "requestStatus":
+          break;
       }
     }
   }
@@ -248,6 +250,11 @@ class CommunicationService {
     });
 
     _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> requestStatus(String contactPhoneNumber) async {
+    final contents = jsonEncode({"type": "requestStatus"});
+    _queueForSending(contents, contactPhoneNumber);
   }
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,

@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobx/mobx.dart';
 
@@ -12,6 +13,7 @@ abstract class _ContactListModel with Store {
   ObservableList<Contact> contacts = <Contact>[].asObservable();
 
   final ContactService _contactService = GetIt.I.get();
+  final CommunicationService _communicationService = GetIt.I.get();
 
   @action
   void init() {
@@ -34,7 +36,7 @@ abstract class _ContactListModel with Store {
     } on DuplicateContactPhoneNumberException {
       rethrow;
     }
-
+    _communicationService.requestStatus(phoneNumber);
     contacts.add(contact);
   }
 

@@ -57,6 +57,13 @@ class ChatPageController {
     });
   }
 
+  void dispose() {
+    communicationService.disposeOnMessage(_onMessage);
+    communicationService.disposeOnDelete(_onDelete);
+    communicationService.disposeOnAck(_onAck);
+    communicationService.disposeOnAckSeen(_onAckSeen);
+  }
+
   void sendMessage(String contents) {
     final message = Message(
       id: Uuid().v4(),

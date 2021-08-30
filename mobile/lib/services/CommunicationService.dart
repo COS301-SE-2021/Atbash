@@ -31,19 +31,39 @@ class CommunicationService {
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
+  void disposeOnMessage(void Function(Message message) cb) =>
+      _onMessageListeners.remove(cb);
+
   set onDelete(void Function(String messageId) cb) =>
+      _onDeleteListeners.add(cb);
+
+  void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
 
   set onProfileImage(
           void Function(String contactPhoneNumber, String profileImage) cb) =>
       _onProfileImageListeners.add(cb);
 
+  void disposeOnProfileImage(
+          void Function(String contactPhoneNumber, String profileImage) cb) =>
+      _onProfileImageListeners.add(cb);
+
   set onStatus(void Function(String contactPhoneNumber, String status) cb) =>
+      _onStatusListeners.add(cb);
+
+  void disposeOnStatus(
+          void Function(String contactPhoneNumber, String status) cb) =>
       _onStatusListeners.add(cb);
 
   set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
+  void disposeOnAck(void Function(String messageId) cb) =>
+      _onAckListeners.add(cb);
+
   set onAckSeen(void Function(List<String> messageIds) cb) =>
+      _onAckSeenListeners.add(cb);
+
+  void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
   CommunicationService(

@@ -53,6 +53,7 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
 
     _messagesDisposer();
+    controller.dispose();
   }
 
   @override

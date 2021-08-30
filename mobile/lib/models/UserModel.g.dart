@@ -91,6 +91,52 @@ mixin _$UserModel on _UserModel, Store {
     return _$registerAsyncAction.run(() => super.register(phoneNumber));
   }
 
+  final _$_UserModelActionController = ActionController(name: '_UserModel');
+
+  @override
+  void setDisplayName(String displayName) {
+    final _$actionInfo = _$_UserModelActionController.startAction(
+        name: '_UserModel.setDisplayName');
+    try {
+      return super.setDisplayName(displayName);
+    } finally {
+      _$_UserModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setStatus(String status) {
+    final _$actionInfo =
+        _$_UserModelActionController.startAction(name: '_UserModel.setStatus');
+    try {
+      return super.setStatus(status);
+    } finally {
+      _$_UserModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setProfileImage(String profileImage) {
+    final _$actionInfo = _$_UserModelActionController.startAction(
+        name: '_UserModel.setProfileImage');
+    try {
+      return super.setProfileImage(profileImage);
+    } finally {
+      _$_UserModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setBirthday(DateTime birthday) {
+    final _$actionInfo = _$_UserModelActionController.startAction(
+        name: '_UserModel.setBirthday');
+    try {
+      return super.setBirthday(birthday);
+    } finally {
+      _$_UserModelActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''

@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk")
 
-const s3Client = new AWS.S3({apiVersion: "2006-03-01", region: process.env.AWS_REGION})
+const s3Client = new AWS.S3({apiVersion: "2006-03-01", signatureVersion: "v4", region: process.env.AWS_REGION})
 
 exports.handler = async event => {
     const {mediaId, method} = JSON.parse(event.body)

@@ -19,19 +19,13 @@ class ChatPageController {
   late final String contactPhoneNumber;
 
   ChatPageController({required this.chatId}) {
-    communicationService.onMessage = (message) {
-      model.addMessage(message);
-    };
+    communicationService.onMessage = _onMessage;
 
-    communicationService.onAck = (messageId) {
-      model.setReadReceiptById(messageId, ReadReceipt.delivered);
-    };
+    communicationService.onDelete = _onDelete;
 
-    communicationService.onAckSeen = (messageIds) {
-      messageIds.forEach((id) {
-        model.setReadReceiptById(id, ReadReceipt.seen);
-      });
-    };
+    communicationService.onAck = _onAck;
+
+    communicationService.onAckSeen = _onAckSeen;
 
     chatService.fetchById(chatId).then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
@@ -43,6 +37,24 @@ class ChatPageController {
     messageService
         .fetchAllByChatId(chatId)
         .then((messages) => model.replaceMessages(messages));
+  }
+
+  void _onMessage(Message message) {
+    model.addMessage(message);
+  }
+
+  void _onDelete(String messageId) {
+    model.setDeletedById(messageId);
+  }
+
+  void _onAck(String messageId) {
+    model.setReadReceiptById(messageId, ReadReceipt.delivered);
+  }
+
+  void _onAckSeen(List<String> messageIds) {
+    messageIds.forEach((id) {
+      model.setReadReceiptById(id, ReadReceipt.seen);
+    });
   }
 
   void sendMessage(String contents) {

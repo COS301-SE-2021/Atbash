@@ -20,14 +20,31 @@ class CommunicationService {
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   List<void Function(Message message)> _onMessageListeners = [];
-  void Function(String messageId)? onDelete;
-  void Function(String contactPhoneNumber, String profileImage)? onProfileImage;
-  void Function(String contactPhoneNumber, String status)? onStatus;
-  void Function(String messageId)? onAck;
-  void Function(List<String> messageIds)? onAckSeen;
+  List<void Function(String messageId)> _onDeleteListeners = [];
+  List<void Function(String contactPhoneNumber, String profileImage)>
+      _onProfileImageListeners = [];
+  List<void Function(String contactPhoneNumber, String status)>
+      _onStatusListeners = [];
+  List<void Function(String messageId)> _onAckListeners = [];
+  List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
 
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
+
+  set onDelete(void Function(String messageId) cb) =>
+      _onDeleteListeners.add(cb);
+
+  set onProfileImage(
+          void Function(String contactPhoneNumber, String profileImage) cb) =>
+      _onProfileImageListeners.add(cb);
+
+  set onStatus(void Function(String contactPhoneNumber, String status) cb) =>
+      _onStatusListeners.add(cb);
+
+  set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
+
+  set onAckSeen(void Function(List<String> messageIds) cb) =>
+      _onAckSeenListeners.add(cb);
 
   CommunicationService(
       this.encryptionService, this.userService, this.messageService)
@@ -107,11 +124,12 @@ class CommunicationService {
           sendAck(id, senderPhoneNumber);
           _onMessageListeners.forEach((listener) => listener(message));
           break;
+
         case "delete":
           final messageId = decryptedContents["messageId"] as String;
-          final onDelete = this.onDelete;
-          if (onDelete != null) onDelete(messageId);
+          _onDeleteListeners.forEach((listener) => listener(messageId));
           break;
+
         case "profileImage":
           final imageId = decryptedContents["imageId"] as String;
           final base16Key = decryptedContents["key"] as String;
@@ -123,27 +141,29 @@ class CommunicationService {
           final image =
               await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
 
-          final onProfileImage = this.onProfileImage;
-          if (onProfileImage != null && image != null)
-            onProfileImage(senderPhoneNumber, image);
+          if (image != null) {
+            _onProfileImageListeners
+                .forEach((listener) => listener(senderPhoneNumber, image));
+          }
           break;
+
         case "status":
           final status = decryptedContents["status"] as String;
-          final onStatus = this.onStatus;
-          if (onStatus != null) onStatus(senderPhoneNumber, status);
+          _onStatusListeners
+              .forEach((listener) => listener(senderPhoneNumber, status));
           break;
+
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
-          final onAck = this.onAck;
-          if (onAck != null) onAck(messageId);
+          _onAckListeners.forEach((listener) => listener(messageId));
           break;
+
         case "ackSeen":
           final messageIds = (decryptedContents["messageIds"] as List)
               .map((e) => e as String)
               .toList();
 
-          final onAckSeen = this.onAckSeen;
-          if (onAckSeen != null) onAckSeen(messageIds);
+          _onAckSeenListeners.forEach((listener) => listener(messageIds));
           break;
       }
     }
@@ -168,9 +188,7 @@ class CommunicationService {
 
         final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
 
-        final onProfileImage = this.onProfileImage;
-        if (onProfileImage != null)
-          onProfileImage(senderPhoneNumber, decryptedImage);
+        return decryptedImage;
       } else {
         print("${response.statusCode} - ${response.body}");
       }

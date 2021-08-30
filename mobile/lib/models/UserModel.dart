@@ -34,20 +34,20 @@ abstract class _UserModel with Store {
 
   _UserModel() {
     _storage.read(key: "display_name").then((value) {
-      if (value != null) setDisplayName(value);
+      displayName = value;
     });
 
     _storage.read(key: "status").then((value) {
-      if (value != null) setStatus(value);
+      status = value;
     });
 
     _storage.read(key: "profile_image").then((value) {
-      if (value != null) setProfileImage(value);
+      profileImage = value;
     });
 
     _storage.read(key: "birthday").then((value) {
       if (value != null)
-        setBirthday(DateTime.fromMillisecondsSinceEpoch(int.parse(value)));
+        birthday = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
     });
   }
 

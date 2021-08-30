@@ -13,6 +13,8 @@ import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
+import '../constants.dart';
+
 class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
 
@@ -212,6 +214,11 @@ class _ContactsPageState extends State<ContactsPage> {
       return Column(
         children: [
           Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              color: Constants.darkGrey.withOpacity(0.2),
+            ),
             child: Text(contact.displayName.substring(0, 1)),
           ),
           _createContactItem(contact)

@@ -147,6 +147,7 @@ class CommunicationService {
 
         case "delete":
           final messageId = decryptedContents["messageId"] as String;
+          messageService.setMessageDeleted(messageId);
           _onDeleteListeners.forEach((listener) => listener(messageId));
           break;
 

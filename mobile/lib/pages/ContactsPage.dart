@@ -192,7 +192,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
     List<Widget> contactList = [];
 
-    contactList.add(_buildContact(contacts[0], true));
+    if (contacts.isNotEmpty) contactList.add(_buildContact(contacts[0], true));
 
     for (int i = 1; i < contacts.length; i++) {
       String prevContactFirstLetter =

@@ -40,7 +40,9 @@ class ChatPageController {
   }
 
   void _onMessage(Message message) {
-    model.addMessage(message);
+    if (message.chatId == chatId) {
+      model.addMessage(message);
+    }
   }
 
   void _onDelete(String messageId) {

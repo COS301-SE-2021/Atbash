@@ -459,6 +459,7 @@ class ChatCard extends StatelessWidget {
           child: Padding(
             padding: padding,
             child: FocusedMenuHolder(
+              animateMenuItems: false,
               blurSize: 2,
               blurBackgroundColor: Constants.black,
               menuWidth: MediaQuery.of(context).size.width * 0.4,

@@ -24,15 +24,34 @@ class _ForwardDialog extends StatelessWidget {
     List<Contact> contacts = _contactListModel.contacts;
 
     return AlertDialog(
-      title: Text(
-        "Search placeholder",
-        textAlign: TextAlign.center,
-      ),
-      content: ListView.builder(
-          itemCount: contacts.length,
-          itemBuilder: (BuildContext context, int index) {}),
-      scrollable: true,
-    );
-    ;
+        contentPadding: EdgeInsets.all(Constants.screenBorderPadding),
+        title: Text(
+          "Search placeholder",
+          textAlign: TextAlign.center,
+        ),
+        content: Container(
+          height: 400,
+          width: 200,
+          child: ListView.builder(
+              itemCount: contacts.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (index == 0 ||
+                    contacts[index - 1].displayName.substring(0, 1).compareTo(
+                            contacts[index].displayName.substring(0, 1)) <
+                        0)
+                  return Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        color: Constants.darkGrey.withOpacity(0.2),
+                        child:
+                            Text(contacts[index].displayName.substring(0, 1)),
+                      ),
+                      _buildContactItem(contacts[index]),
+                    ],
+                  );
+                return _buildContactItem(contacts[index]);
+              }),
+        ));
   }
 }

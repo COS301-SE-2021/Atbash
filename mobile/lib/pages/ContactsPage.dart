@@ -282,7 +282,7 @@ class _ContactsPageState extends State<ContactsPage> {
   void _editContact(Contact contact) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ContactInfoPage(contact: contact),
+        builder: (_) => ContactInfoPage(phoneNumber: contact.phoneNumber),
       ),
     );
   }

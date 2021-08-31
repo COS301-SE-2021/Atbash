@@ -6,6 +6,16 @@ class ChatService {
 
   ChatService(this.databaseService);
 
+  final List<void Function()> _onChangedListeners = [];
+
+  void onChanged(void Function() cb) {
+    _onChangedListeners.add(cb);
+  }
+
+  void disposeOnChanged(void Function() cb) {
+    _onChangedListeners.remove(cb);
+  }
+
   Future<List<Chat>> fetchAll() async {
     final db = await databaseService.database;
 
@@ -50,6 +60,8 @@ class ChatService {
 
     await db.insert(Chat.TABLE_NAME, chat.toMap());
 
+    _notifyListeners();
+
     return chat;
   }
 
@@ -63,6 +75,8 @@ class ChatService {
       whereArgs: [chat.id],
     );
 
+    _notifyListeners();
+
     return chat;
   }
 
@@ -75,6 +89,8 @@ class ChatService {
       where: "${Chat.COLUMN_ID} = ?",
       whereArgs: [id],
     );
+
+    _notifyListeners();
   }
 
   Future<bool> existsById(String id) async {
@@ -87,6 +103,10 @@ class ChatService {
     );
 
     return response.isNotEmpty;
+  }
+
+  void _notifyListeners() {
+    _onChangedListeners.forEach((listener) => listener());
   }
 }
 

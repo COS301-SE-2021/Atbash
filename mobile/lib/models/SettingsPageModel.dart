@@ -32,6 +32,7 @@ abstract class _SettingsPageModel with Store {
   @observable
   bool autoDownloadMedia = false;
 
-  @observable
-  String pin = "";
+  //TODO add pin
+  // @observable
+  // String pin = "";
 }

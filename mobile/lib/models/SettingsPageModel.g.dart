@@ -152,21 +152,6 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
-  final _$pinAtom = Atom(name: '_SettingsPageModel.pin');
-
-  @override
-  String get pin {
-    _$pinAtom.reportRead();
-    return super.pin;
-  }
-
-  @override
-  set pin(String value) {
-    _$pinAtom.reportWrite(value, super.pin, () {
-      super.pin = value;
-    });
-  }
-
   @override
   String toString() {
     return '''
@@ -178,8 +163,7 @@ shareReadReceipts: ${shareReadReceipts},
 showNotifications: ${showNotifications},
 playNotificationSound: ${playNotificationSound},
 showMessagePreview: ${showMessagePreview},
-autoDownloadMedia: ${autoDownloadMedia},
-pin: ${pin}
+autoDownloadMedia: ${autoDownloadMedia}
     ''';
   }
 }

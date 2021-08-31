@@ -40,6 +40,7 @@ class _ContactsPageState extends State<ContactsPage> {
   void dispose() {
     super.dispose();
 
+    controller.dispose();
     _searchFocusNode.dispose();
   }
 

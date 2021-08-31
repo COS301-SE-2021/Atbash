@@ -6,8 +6,11 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
+import 'package:mobile/dialogs/ForwardDialog.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/models/MessagesModel.dart';
 import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/util/Tuple.dart';
@@ -315,6 +318,8 @@ class _ChatPageState extends State<ChatPage> {
     if (curDay > prevDay) {
       if (curDay == today) return "Today";
 
+      if (today - curDay == 1) return "Yesterday";
+
       if (today - curDay < 7)
         return DateFormat("EEEE").format(_messages[index].first.timestamp);
 
@@ -478,7 +483,10 @@ class ChatCard extends StatelessWidget {
                 if (!_message.deleted)
                   FocusedMenuItem(
                       title: Text("Forward"),
-                      onPressed: () {},
+                      onPressed: () {
+                        //TODO: Send message to forwarded contacts.
+                        showForwardDialog(context).then((value) => null);
+                      },
                       trailingIcon: Icon(Icons.forward)),
                 if (!_message.deleted)
                   FocusedMenuItem(
@@ -555,9 +563,5 @@ class ChatCard extends StatelessWidget {
       size: 15,
       color: Colors.white,
     );
-  }
-
-  Widget _buildForwardingPopUp(Message message) {
-    return AlertDialog();
   }
 }

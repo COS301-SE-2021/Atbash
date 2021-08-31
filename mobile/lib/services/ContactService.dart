@@ -92,6 +92,8 @@ class ContactService {
       "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_PROFILE_IMAGE} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
       [profileImage, contactPhoneNumber],
     );
+
+    _notifyListeners();
   }
 
   Future<void> deleteByPhoneNumber(String phoneNumber) async {

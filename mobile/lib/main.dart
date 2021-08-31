@@ -107,6 +107,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(contactListModel);
 
   await settingsModel.init();
+  await communicationService.goOnline();
 }
 
 EncryptionService _initialiseEncryptionService(

@@ -6,18 +6,16 @@ import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
 
-Future<bool?> showForwardDialog(BuildContext context, String messageContents) {
-  return showDialog<bool>(
+Future<List<Contact>?> showForwardDialog(BuildContext context) {
+  return showDialog<List<Contact>>(
     context: context,
-    builder: (context) => _ForwardDialog(messageContents),
+    builder: (context) => _ForwardDialog(),
   );
 }
 
 class _ForwardDialog extends StatelessWidget {
-  final String message;
   final ContactListModel _contactListModel = GetIt.I.get();
-
-  _ForwardDialog(this.message);
+  final List<Contact> _selectedContacts = [];
 
   @override
   Widget build(BuildContext context) {

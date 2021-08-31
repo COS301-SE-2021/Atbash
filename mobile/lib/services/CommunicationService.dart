@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -13,6 +16,8 @@ import 'package:web_socket_channel/io.dart';
 class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
+  final ChatService chatService;
+  final ContactService contactService;
   final MessageService messageService;
   Future<String> userPhoneNumber;
 
@@ -66,8 +71,8 @@ class CommunicationService {
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
-  CommunicationService(
-      this.encryptionService, this.userService, this.messageService)
+  CommunicationService(this.encryptionService, this.userService,
+      this.chatService, this.contactService, this.messageService)
       : userPhoneNumber = userService.getPhoneNumber() {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -140,9 +145,20 @@ class CommunicationService {
             tags: [],
           );
 
-          messageService.insert(message);
-          sendAck(id, senderPhoneNumber);
-          _onMessageListeners.forEach((listener) => listener(message));
+          chatService.existsById(chatId).then((chatExists) {
+            if (!chatExists) {
+              final chat = Chat(
+                id: chatId,
+                contactPhoneNumber: senderPhoneNumber,
+                chatType: ChatType.general,
+              );
+              chatService.insert(chat);
+            }
+
+            messageService.insert(message);
+            sendAck(id, senderPhoneNumber);
+            _onMessageListeners.forEach((listener) => listener(message));
+          });
           break;
 
         case "delete":
@@ -163,8 +179,7 @@ class CommunicationService {
               await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
 
           if (image != null) {
-            _onProfileImageListeners
-                .forEach((listener) => listener(senderPhoneNumber, image));
+            contactService.setContactProfileImage(senderPhoneNumber, image);
           }
           break;
 

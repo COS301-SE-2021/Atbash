@@ -6,6 +6,12 @@ class ContactService {
 
   ContactService(this.databaseService);
 
+  final List<void Function()> _onChangedListeners = [];
+
+  void onChanged(void Function() cb) => _onChangedListeners.add(cb);
+
+  void disposeOnChanged(void Function() cb) => _onChangedListeners.remove(cb);
+
   Future<List<Contact>> fetchAll() async {
     final db = await databaseService.database;
 
@@ -52,6 +58,8 @@ class ContactService {
       await txn.insert(Contact.TABLE_NAME, contact.toMap());
     });
 
+    _notifyListeners();
+
     return contact;
   }
 
@@ -71,7 +79,21 @@ class ContactService {
           whereArgs: [contact.phoneNumber]);
     });
 
+    _notifyListeners();
+
     return contact;
+  }
+
+  Future<void> setContactProfileImage(
+      String contactPhoneNumber, String profileImage) async {
+    final db = await databaseService.database;
+
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_PROFILE_IMAGE} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [profileImage, contactPhoneNumber],
+    );
+
+    _notifyListeners();
   }
 
   Future<void> deleteByPhoneNumber(String phoneNumber) async {
@@ -88,6 +110,12 @@ class ContactService {
       await txn.delete(Contact.TABLE_NAME,
           where: "${Contact.COLUMN_PHONE_NUMBER} =?", whereArgs: [phoneNumber]);
     });
+
+    _notifyListeners();
+  }
+
+  void _notifyListeners() {
+    _onChangedListeners.forEach((listener) => listener());
   }
 }
 

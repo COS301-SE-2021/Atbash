@@ -81,6 +81,8 @@ void _registerServices() async {
   final communicationService = CommunicationService(
     encryptionService,
     userService,
+    chatService,
+    contactService,
     messageService,
   );
 

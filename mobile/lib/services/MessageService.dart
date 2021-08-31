@@ -181,6 +181,15 @@ class MessageService {
       );
     });
   }
+
+  Future<void> deleteAllByChatId(String chatId) async {
+    final db = await databaseService.database;
+    await db.delete(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_CHAT_ID} = ?",
+      whereArgs: [chatId],
+    );
+  }
 }
 
 class MessageNotFoundException implements Exception {}

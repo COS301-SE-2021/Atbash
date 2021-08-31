@@ -22,6 +22,22 @@ class ContactService {
     return contacts;
   }
 
+  Future<Contact> fetchByPhoneNumber(String phoneNumber) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(Contact.TABLE_NAME,
+        where: "${Contact.COLUMN_PHONE_NUMBER} = ?", whereArgs: [phoneNumber]);
+
+    if (response.isEmpty) throw ContactWithPhoneNumberDoesNotExistException();
+
+    final contact = Contact.fromMap(response.first);
+    if (contact == null) {
+      throw ContactWithPhoneNumberDoesNotExistException();
+    } else {
+      return contact;
+    }
+  }
+
   Future<Contact> insert(Contact contact) async {
     final db = await databaseService.database;
 

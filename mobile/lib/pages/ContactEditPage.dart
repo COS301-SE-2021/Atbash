@@ -25,7 +25,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    _displayNameController.text = widget.contact.displayName;
+    _displayNameController.text = controller.model.contactName;
 
     return Scaffold(
       appBar: AppBar(),
@@ -73,6 +73,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
       showSnackBar(context, "Display name cannot be blank");
     } else {
       controller.updateContact(displayName, null);
+      Navigator.pop(context);
       //TODO Update birthday
     }
   }

@@ -14,7 +14,12 @@ class ContactsPageController {
   final ContactsPageModel model = ContactsPageModel();
 
   ContactsPageController() {
+    contactService.onChanged(reload);
     reload();
+  }
+
+  void dispose() {
+    contactService.disposeOnChanged(reload);
   }
 
   void deleteContact(String phoneNumber) {

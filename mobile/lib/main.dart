@@ -5,8 +5,6 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
-import 'package:mobile/models/ChatListModel.dart';
-import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
@@ -98,13 +96,9 @@ void _registerServices() async {
 
   final userModel = UserModel();
   final settingsModel = SettingsModel();
-  final chatListModel = ChatListModel();
-  final contactListModel = ContactListModel();
 
   GetIt.I.registerSingleton(userModel);
   GetIt.I.registerSingleton(settingsModel);
-  GetIt.I.registerSingleton(chatListModel);
-  GetIt.I.registerSingleton(contactListModel);
 
   await settingsModel.init();
   await communicationService.goOnline();

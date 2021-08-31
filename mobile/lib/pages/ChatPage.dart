@@ -485,7 +485,7 @@ class ChatCard extends StatelessWidget {
                       title: Text("Forward"),
                       onPressed: () {
                         //TODO: Send message to forwarded contacts.
-                        showForwardDialog(context).then((value) => null);
+                        showForwardDialog(context).then((forwardContacts) {});
                       },
                       trailingIcon: Icon(Icons.forward)),
                 if (!_message.deleted)

@@ -82,6 +82,7 @@ void _registerServices() async {
     encryptionService,
     userService,
     chatService,
+    contactService,
     messageService,
   );
 

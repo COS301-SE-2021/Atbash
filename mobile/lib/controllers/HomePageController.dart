@@ -24,6 +24,7 @@ class HomePageController {
   }
 
   void deleteChat(String chatId) {
+    chatService.deleteById(chatId);
     model.removeChat(chatId);
   }
 }

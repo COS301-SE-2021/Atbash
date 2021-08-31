@@ -54,6 +54,7 @@ class ChatPageController {
   void _onMessage(Message message) {
     if (message.chatId == chatId) {
       model.addMessage(message);
+      messageService.setMessageReadReceipt(message.id, ReadReceipt.seen);
       communicationService.sendAckSeen([message.id], contactPhoneNumber);
     }
   }

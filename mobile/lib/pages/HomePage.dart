@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/controllers/HomePageController.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/models/ChatListModel.dart';
-import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
-import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
@@ -23,9 +20,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final UserModel _userModel = GetIt.I.get();
-  final ChatListModel _chatListModel = GetIt.I.get();
-  final CommunicationService _communicationService = GetIt.I.get();
+  final controller = HomePageController();
   final DateFormat dateFormatter = DateFormat.Hm();
 
   bool _searching = false;
@@ -37,9 +32,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    _communicationService.goOnline();
-    _chatListModel.init();
 
     _searchFocusNode = FocusNode();
   }
@@ -93,15 +85,14 @@ class _HomePageState extends State<HomePage> {
         Container(
             margin: EdgeInsets.only(right: 16.0),
             child: Observer(
-                builder: (_) =>
-                    AvatarIcon.fromString(_userModel.profileImage))),
+                builder: (_) => AvatarIcon(controller.model.userProfileImage))),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Observer(builder: (_) {
-                final displayName = _userModel.displayName;
-                if (displayName == null || displayName.isEmpty) {
+                final displayName = controller.model.userDisplayName;
+                if (displayName.isEmpty) {
                   return SizedBox.shrink();
                 } else {
                   return Text(
@@ -118,8 +109,8 @@ class _HomePageState extends State<HomePage> {
               ),
               Observer(
                 builder: (_) {
-                  final status = _userModel.status;
-                  if (status == null || status.isEmpty) {
+                  final status = controller.model.userStatus;
+                  if (status.isEmpty) {
                     return SizedBox.shrink();
                   } else {
                     return Text(
@@ -244,7 +235,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<InkWell> _buildChatList(bool filtered) {
-    List<Chat> chats = _chatListModel.chats;
+    List<Chat> chats = controller.model.chats;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();
@@ -331,7 +322,7 @@ class _HomePageState extends State<HomePage> {
             color: Colors.red,
             icon: Icons.delete,
             onTap: () {
-              _chatListModel.deleteChat(chat.id);
+              controller.deleteChat(chat.id);
             },
           ),
         ],

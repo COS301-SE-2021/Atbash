@@ -76,6 +76,18 @@ class ChatService {
       whereArgs: [id],
     );
   }
+
+  Future<bool> existsById(String id) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(
+      Chat.TABLE_NAME,
+      where: "${Chat.COLUMN_ID} = ?",
+      whereArgs: [id],
+    );
+
+    return response.isNotEmpty;
+  }
 }
 
 class ChatNotFoundException implements Exception {}

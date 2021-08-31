@@ -84,6 +84,16 @@ class ContactService {
     return contact;
   }
 
+  Future<void> setContactProfileImage(
+      String contactPhoneNumber, String profileImage) async {
+    final db = await databaseService.database;
+
+    await db.rawUpdate(
+      "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_PROFILE_IMAGE} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+      [profileImage, contactPhoneNumber],
+    );
+  }
+
   Future<void> deleteByPhoneNumber(String phoneNumber) async {
     final db = await databaseService.database;
 

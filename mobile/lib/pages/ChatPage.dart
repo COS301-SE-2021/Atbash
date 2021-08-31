@@ -343,6 +343,9 @@ class _ChatPageState extends State<ChatPage> {
       },
       onDelete: () => _deleteSingleMessage(message.first),
       selected: _selecting && message.second,
+      onDoubleTap: () {
+        //TODO: Like the message and update UI.
+      },
     );
   }
 
@@ -427,6 +430,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onSelect;
   final void Function() onDelete;
   final bool selected;
+  final void Function() onDoubleTap;
 
   ChatCard(
     this._message, {
@@ -435,6 +439,7 @@ class ChatCard extends StatelessWidget {
     required this.onSelect,
     required this.onDelete,
     required this.selected,
+    required this.onDoubleTap,
   });
 
   final dateFormatter = DateFormat("Hm");

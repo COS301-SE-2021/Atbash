@@ -13,9 +13,17 @@ Future<List<Contact>?> showForwardDialog(BuildContext context) {
   );
 }
 
-class _ForwardDialog extends StatelessWidget {
+class _ForwardDialog extends StatefulWidget {
+  @override
+  __ForwardDialogState createState() => __ForwardDialogState();
+}
+
+class __ForwardDialogState extends State<_ForwardDialog> {
   final ContactListModel _contactListModel = GetIt.I.get();
+
   final List<Contact> _selectedContacts = [];
+
+  String query = "";
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +59,9 @@ class _ForwardDialog extends StatelessWidget {
               ),
               Expanded(
                 child: TextField(
+                  onChanged: (String input) {
+                    _searchContacts(input, contacts);
+                  },
                   expands: false,
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -120,5 +131,16 @@ class _ForwardDialog extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _searchContacts(String query, List<Contact> contacts) {
+    final filteredContacts = contacts.where((contact) {
+      return contact.displayName.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+
+    setState(() {
+      this.query = query;
+      //TODO: Update contacts state variable.
+    });
   }
 }

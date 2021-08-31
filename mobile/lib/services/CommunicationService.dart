@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/EncryptionService.dart';
@@ -142,9 +143,20 @@ class CommunicationService {
             tags: [],
           );
 
-          messageService.insert(message);
-          sendAck(id, senderPhoneNumber);
-          _onMessageListeners.forEach((listener) => listener(message));
+          chatService.existsById(chatId).then((chatExists) {
+            if (!chatExists) {
+              final chat = Chat(
+                id: chatId,
+                contactPhoneNumber: senderPhoneNumber,
+                chatType: ChatType.general,
+              );
+              chatService.insert(chat);
+            }
+
+            messageService.insert(message);
+            sendAck(id, senderPhoneNumber);
+            _onMessageListeners.forEach((listener) => listener(message));
+          });
           break;
 
         case "delete":

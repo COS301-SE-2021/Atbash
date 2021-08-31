@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
-import 'package:mobile/models/SettingsModel.dart';
-import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -16,8 +14,9 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final UserModel _userModel = GetIt.I.get();
-  final SettingsModel _settingsModel = GetIt.I.get();
+  final SettingsPageController controller;
+
+  _SettingsPageState() : controller = SettingsPageController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,25 +26,25 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       body: SafeArea(
         child: Observer(builder: (_) {
-          final _status = _userModel.status;
-          final _displayName = _userModel.displayName;
           return ListView(
             children: [
               InkWell(
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProfileSettingsPage(
-                                setup: false,
-                              )));
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileSettingsPage(
+                        setup: false,
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   padding: EdgeInsets.all(15),
                   child: Row(
                     children: [
-                      AvatarIcon.fromString(
-                        _userModel.profileImage,
+                      AvatarIcon(
+                        controller.model.userProfilePicture,
                         radius: 24,
                       ),
                       SizedBox(
@@ -56,14 +55,14 @@ class _SettingsPageState extends State<SettingsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _displayName != null ? _displayName : "",
+                              controller.model.userName,
                               style: TextStyle(fontSize: 20),
                             ),
                             SizedBox(
                               height: 2,
                             ),
                             Text(
-                              _status != null ? _status : "",
+                              controller.model.userStatus,
                               style: TextStyle(fontSize: 14),
                             ),
                           ],
@@ -85,9 +84,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: _settingsModel.blurImages,
+                value: controller.model.blurImages,
                 onChanged: (bool newValue) {
-                  _settingsModel.setBlurImages(newValue);
+                  controller.setBlurImages(newValue);
                 },
                 title: Text(
                   "Blur images",
@@ -102,10 +101,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Blur images by default. Images can still be viewed if selected"),
               ),
               SwitchListTile(
-                value: _settingsModel.safeMode,
+                value: controller.model.safeMode,
                 onChanged: (bool newValue) {
                   //TODO Create Pin logic
-                  _settingsModel.setSafeMode(newValue, "Pin");
+                  controller.setSafeMode(newValue, "Pin");
                 },
                 title: Text(
                   "Safe chat",
@@ -120,9 +119,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable safety features for all chats. Including profanity filters for text and media"),
               ),
               SwitchListTile(
-                value: _settingsModel.shareProfileImage,
+                value: controller.model.sharedProfilePicture,
                 onChanged: (bool newValue) {
-                  _settingsModel.setShareProfileImage(newValue);
+                  controller.setSharedProfilePicture(newValue);
                 },
                 title: Text(
                   "Profile photo",
@@ -137,9 +136,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable or disable whether your profile photo is visible to others"),
               ),
               SwitchListTile(
-                value: _settingsModel.shareStatus,
+                value: controller.model.shareStatus,
                 onChanged: (bool newValue) {
-                  _settingsModel.setShareStatus(newValue);
+                  controller.setShareStatus(newValue);
                 },
                 title: Text(
                   "Status",
@@ -154,9 +153,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable or disable whether your profile photo is visible to others"),
               ),
               SwitchListTile(
-                value: _settingsModel.shareReadReceipts,
+                value: controller.model.shareReadReceipts,
                 onChanged: (bool newValue) {
-                  _settingsModel.setShareReadReceipts(newValue);
+                  controller.setShareReadReceipts(newValue);
                 },
                 title: Text(
                   "Read receipts",
@@ -231,9 +230,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: _settingsModel.showNotifications,
+                value: controller.model.showNotifications,
                 onChanged: (bool newValue) {
-                  _settingsModel.setShowNotifications(newValue);
+                  controller.setShowNotifications(newValue);
                 },
                 title: Text(
                   "Show notifications",
@@ -246,9 +245,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
-                value: _settingsModel.playNotificationsSound,
+                value: controller.model.playNotificationSound,
                 onChanged: (bool newValue) {
-                  _settingsModel.setPlayNotificationsSound(newValue);
+                  controller.setPlayNotificationSound(newValue);
                 },
                 title: Text(
                   "Notification sounds",
@@ -261,9 +260,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
-                value: _settingsModel.showMessagePreview,
+                value: controller.model.showMessagePreview,
                 onChanged: (bool newValue) {
-                  _settingsModel.setShowMessagePreview(newValue);
+                  controller.setShowMessagePreview(newValue);
                 },
                 title: Text(
                   "Message preview",
@@ -285,9 +284,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: _settingsModel.autoDownloadMedia,
+                value: controller.model.autoDownloadMedia,
                 onChanged: (bool newValue) {
-                  _settingsModel.setAutoDownloadMedia(newValue);
+                  controller.setAutoDownloadMedia(newValue);
                 },
                 title: Text(
                   "Photos",

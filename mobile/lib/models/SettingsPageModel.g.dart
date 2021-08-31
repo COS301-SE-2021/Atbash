@@ -9,6 +9,52 @@ part of 'SettingsPageModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$SettingsPageModel on _SettingsPageModel, Store {
+  final _$userNameAtom = Atom(name: '_SettingsPageModel.userName');
+
+  @override
+  String get userName {
+    _$userNameAtom.reportRead();
+    return super.userName;
+  }
+
+  @override
+  set userName(String value) {
+    _$userNameAtom.reportWrite(value, super.userName, () {
+      super.userName = value;
+    });
+  }
+
+  final _$userStatusAtom = Atom(name: '_SettingsPageModel.userStatus');
+
+  @override
+  String get userStatus {
+    _$userStatusAtom.reportRead();
+    return super.userStatus;
+  }
+
+  @override
+  set userStatus(String value) {
+    _$userStatusAtom.reportWrite(value, super.userStatus, () {
+      super.userStatus = value;
+    });
+  }
+
+  final _$userProfilePictureAtom =
+      Atom(name: '_SettingsPageModel.userProfilePicture');
+
+  @override
+  Uint8List? get userProfilePicture {
+    _$userProfilePictureAtom.reportRead();
+    return super.userProfilePicture;
+  }
+
+  @override
+  set userProfilePicture(Uint8List? value) {
+    _$userProfilePictureAtom.reportWrite(value, super.userProfilePicture, () {
+      super.userProfilePicture = value;
+    });
+  }
+
   final _$blurImagesAtom = Atom(name: '_SettingsPageModel.blurImages');
 
   @override
@@ -155,6 +201,9 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
   @override
   String toString() {
     return '''
+userName: ${userName},
+userStatus: ${userStatus},
+userProfilePicture: ${userProfilePicture},
 blurImages: ${blurImages},
 safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},

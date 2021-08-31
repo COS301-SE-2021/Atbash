@@ -94,17 +94,45 @@ class _ForwardDialog extends StatelessWidget {
   }
 
   Widget _buildContactItem(Contact contact) {
-    return InkWell(
-      onTap: () {},
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
-        child: Row(
-          children: [
-            AvatarIcon.fromString(contact.profileImage),
-            Expanded(child: Text(contact.displayName)),
-          ],
+    Widget widget;
+
+    if (contact.status != "")
+      widget = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(contact.displayName),
+          Text(contact.status),
+        ],
+      );
+    else
+      widget = Text(contact.displayName);
+
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            _selectedContacts.add(contact);
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
+            child: Row(
+              children: [
+                AvatarIcon.fromString(contact.profileImage),
+                SizedBox(
+                  width: 5,
+                ),
+                Expanded(
+                  child: widget,
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+        Divider(
+          height: 1,
+          color: Constants.darkGrey,
+        ),
+      ],
     );
   }
 }

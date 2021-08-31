@@ -1,27 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/controllers/ContactEditPageController.dart';
-import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Utils.dart';
+import 'package:mobx/mobx.dart';
 
 class ContactEditPage extends StatefulWidget {
-  final Contact contact;
+  final String phoneNumber;
 
   const ContactEditPage({
     Key? key,
-    required this.contact,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
-  _ContactEditPageState createState() => _ContactEditPageState(contact: contact);
+  _ContactEditPageState createState() =>
+      _ContactEditPageState(phoneNumber: phoneNumber);
 }
 
 class _ContactEditPageState extends State<ContactEditPage> {
   final ContactEditPageController controller;
   final _displayNameController = TextEditingController();
+  late final ReactionDisposer _contactDisposer;
 
-  _ContactEditPageState({required Contact contact})
-      : controller =
-            ContactEditPageController(contact: contact);
+  _ContactEditPageState({required String phoneNumber})
+      : controller = ContactEditPageController(phoneNumber: phoneNumber);
+
+  @override
+  void initState() {
+    super.initState();
+
+    _contactDisposer = autorun((_) {
+      _displayNameController.text = controller.model.contactName;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _contactDisposer();
+  }
 
   @override
   Widget build(BuildContext context) {

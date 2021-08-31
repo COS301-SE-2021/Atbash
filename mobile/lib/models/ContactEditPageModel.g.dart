@@ -40,31 +40,6 @@ mixin _$ContactEditPageModel on _ContactEditPageModel, Store {
     });
   }
 
-  final _$_ContactEditPageModelActionController =
-      ActionController(name: '_ContactEditPageModel');
-
-  @override
-  void setContactName(String name) {
-    final _$actionInfo = _$_ContactEditPageModelActionController.startAction(
-        name: '_ContactEditPageModel.setContactName');
-    try {
-      return super.setContactName(name);
-    } finally {
-      _$_ContactEditPageModelActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
-  void setContactBirthday(DateTime birthday) {
-    final _$actionInfo = _$_ContactEditPageModelActionController.startAction(
-        name: '_ContactEditPageModel.setContactBirthday');
-    try {
-      return super.setContactBirthday(birthday);
-    } finally {
-      _$_ContactEditPageModelActionController.endAction(_$actionInfo);
-    }
-  }
-
   @override
   String toString() {
     return '''

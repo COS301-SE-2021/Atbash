@@ -10,14 +10,4 @@ abstract class _ContactEditPageModel with Store {
 
   @observable
   DateTime? contactBirthday;
-
-  @action
-  void setContactName(String name) {
-    contactName = name;
-  }
-
-  @action
-  void setContactBirthday(DateTime birthday) {
-    contactBirthday = birthday;
-  }
 }

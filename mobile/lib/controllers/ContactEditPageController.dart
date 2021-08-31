@@ -8,19 +8,25 @@ class ContactEditPageController {
 
   final ContactEditPageModel model = ContactEditPageModel();
 
-  Contact contact;
+  final String phoneNumber;
+  late final Contact contact;
 
-  ContactEditPageController({required this.contact}) {
-    model.contactName = contact.displayName;
-    model.contactBirthday = contact.birthday;
+  ContactEditPageController({required this.phoneNumber}) {
+    contactService.fetchByPhoneNumber(phoneNumber).then((contact) {
+      this.contact = contact;
+      model.contactName = contact.displayName;
+      print(contact.displayName + " Name");
+      model.contactBirthday = contact.birthday;
+    });
   }
 
   void updateContact(String name, DateTime? birthday) {
-    model.setContactName(name);
-    if (birthday != null) model.setContactBirthday(birthday);
-
+    if (birthday != null) {
+      contact.birthday = birthday;
+      model.contactBirthday = birthday;
+    }
+    model.contactName = name;
     contact.displayName = name;
-    if (birthday != null) contact.birthday = birthday;
     contactService.update(contact);
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:mobile/controllers/ContactEditPageController.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/util/Utils.dart';
 
 class ContactEditPage extends StatefulWidget {
@@ -13,12 +12,16 @@ class ContactEditPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ContactEditPageState createState() => _ContactEditPageState();
+  _ContactEditPageState createState() => _ContactEditPageState(contact: contact);
 }
 
 class _ContactEditPageState extends State<ContactEditPage> {
-  final ContactListModel contactListModel = GetIt.I.get();
+  final ContactEditPageController controller;
   final _displayNameController = TextEditingController();
+
+  _ContactEditPageState({required Contact contact})
+      : controller =
+            ContactEditPageController(contact: contact);
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +72,8 @@ class _ContactEditPageState extends State<ContactEditPage> {
     if (displayName.isEmpty) {
       showSnackBar(context, "Display name cannot be blank");
     } else {
-      contactListModel
-          .setContactDisplayName(widget.contact.phoneNumber, displayName)
-          .then((_) {
-        Navigator.of(context).pop();
-      });
+      controller.updateContact(displayName, null);
+      //TODO Update birthday
     }
   }
 }

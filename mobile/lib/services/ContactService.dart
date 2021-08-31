@@ -6,6 +6,12 @@ class ContactService {
 
   ContactService(this.databaseService);
 
+  final List<void Function()> _onChangedListeners = [];
+
+  void onChanged(void Function() cb) => _onChangedListeners.add(cb);
+
+  void disposeOnChanged(void Function() cb) => _onChangedListeners.remove(cb);
+
   Future<List<Contact>> fetchAll() async {
     final db = await databaseService.database;
 
@@ -52,6 +58,8 @@ class ContactService {
       await txn.insert(Contact.TABLE_NAME, contact.toMap());
     });
 
+    _notifyListeners();
+
     return contact;
   }
 
@@ -71,6 +79,8 @@ class ContactService {
           whereArgs: [contact.phoneNumber]);
     });
 
+    _notifyListeners();
+
     return contact;
   }
 
@@ -88,6 +98,12 @@ class ContactService {
       await txn.delete(Contact.TABLE_NAME,
           where: "${Contact.COLUMN_PHONE_NUMBER} =?", whereArgs: [phoneNumber]);
     });
+
+    _notifyListeners();
+  }
+
+  void _notifyListeners() {
+    _onChangedListeners.forEach((listener) => listener());
   }
 }
 

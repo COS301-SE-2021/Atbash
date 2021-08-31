@@ -68,7 +68,8 @@ class _ForwardDialog extends StatelessWidget {
           ),
         ),
         content: Container(
-          height: 400,
+          margin: EdgeInsets.only(top: 15),
+          height: 320,
           width: 200,
           child: ListView.builder(
               itemCount: contacts.length,

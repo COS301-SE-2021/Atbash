@@ -13,8 +13,14 @@ class HomePageController {
   final HomePageModel model = HomePageModel();
 
   HomePageController() {
-    navigationObserver.onRoutePop(_onRoutePop);
+    chatService.onChanged(reload);
+    navigationObserver.onRoutePop(reload);
     reload();
+  }
+
+  void dispose() {
+    navigationObserver.disposeOnRoutePop(reload);
+    chatService.disposeOnChanged(reload);
   }
 
   void reload() {
@@ -29,14 +35,6 @@ class HomePageController {
         .then((profileImage) => model.userProfileImage = profileImage);
 
     chatService.fetchAll().then((chats) => model.replaceChats(chats));
-  }
-
-  void _onRoutePop() {
-    reload();
-  }
-
-  void dispose() {
-    navigationObserver.disposeOnRoutePop(_onRoutePop);
   }
 
   void deleteChat(String chatId) {

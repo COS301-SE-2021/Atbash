@@ -50,6 +50,17 @@ mixin _$ContactsPageModel on _ContactsPageModel, Store {
   }
 
   @override
+  void replaceContacts(Iterable<Contact> contacts) {
+    final _$actionInfo = _$_ContactsPageModelActionController.startAction(
+        name: '_ContactsPageModel.replaceContacts');
+    try {
+      return super.replaceContacts(contacts);
+    } finally {
+      _$_ContactsPageModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contacts: ${contacts}

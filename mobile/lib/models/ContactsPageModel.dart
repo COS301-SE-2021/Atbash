@@ -19,4 +19,10 @@ abstract class _ContactsPageModel with Store {
   void removeContact(String phoneNumber) {
     contacts.removeWhere((element) => element.phoneNumber == phoneNumber);
   }
+
+  @action
+  void replaceContacts(Iterable<Contact> contacts) {
+    this.contacts.clear();
+    this.contacts.addAll(contacts);
+  }
 }

@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
 
 class HomePageController {
@@ -9,6 +10,7 @@ class HomePageController {
 
   final UserService userService = GetIt.I.get();
   final ChatService chatService = GetIt.I.get();
+  final MessageService messageService = GetIt.I.get();
 
   final HomePageModel model = HomePageModel();
 
@@ -39,6 +41,7 @@ class HomePageController {
 
   void deleteChat(String chatId) {
     chatService.deleteById(chatId);
+    messageService.deleteAllByChatId(chatId);
     model.removeChat(chatId);
   }
 }

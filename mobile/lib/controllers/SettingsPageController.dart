@@ -1,13 +1,18 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/SettingsPageModel.dart';
 import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/services/UserService.dart';
 
 class SettingsPageController {
   final SettingsService settingsService = GetIt.I.get();
+  final UserService userService = GetIt.I.get();
 
   final SettingsPageModel model = SettingsPageModel();
 
   SettingsPageController() {
+    userService.getDisplayName().then((value) => model.userName = value);
+    userService.getStatus().then((value) => model.userStatus = value);
+    userService.getProfileImage().then((value) => model.userProfilePicture = value);
     settingsService.getBlurImages().then((value) => model.blurImages = value);
     settingsService.getSafeMode().then((value) => model.safeMode = value);
     settingsService
@@ -34,14 +39,13 @@ class SettingsPageController {
 
   //TODO create function to change pin
 
-  //TODO create function to check if pin is correct
-
   void setBlurImages(bool value) {
     model.blurImages = value;
     settingsService.setBlurImages(value);
   }
 
-  void setSafeMode(bool value) {
+  void setSafeMode(bool value, String pin) {
+    //TODO Check if pin is correct
     model.safeMode = value;
     settingsService.setSafeMode(value);
   }

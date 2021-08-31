@@ -88,6 +88,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
+  GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(communicationService);
 
   final userModel = UserModel();

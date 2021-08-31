@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:get_it/get_it.dart';
+import 'package:mobile/controllers/ContactsPageController.dart';
 import 'package:mobile/dialogs/NewContactDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/models/ChatListModel.dart';
-import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -23,19 +21,17 @@ class ContactsPage extends StatefulWidget {
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-  final ContactListModel contactListModel = GetIt.I.get();
-  final ChatListModel chatListModel = GetIt.I.get();
-
+  final ContactsPageController controller;
   bool _searching = false;
   String _filterQuery = "";
   TextEditingController _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
 
+  _ContactsPageState() : controller = ContactsPageController();
+
   @override
   void initState() {
     super.initState();
-
-    contactListModel.init();
 
     _searchFocusNode = FocusNode();
   }
@@ -166,7 +162,7 @@ class _ContactsPageState extends State<ContactsPage> {
     showNewContactDialog(context).then((nameNumberPair) async {
       if (nameNumberPair != null) {
         try {
-          await contactListModel.addContact(
+          controller.addContact(
             nameNumberPair.phoneNumber,
             nameNumberPair.name,
           );
@@ -179,7 +175,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   List<Widget> _buildContactList(BuildContext context, bool filtered) {
-    List<Contact> contacts = contactListModel.contacts;
+    List<Contact> contacts = controller.model.contacts;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();
@@ -231,10 +227,9 @@ class _ContactsPageState extends State<ContactsPage> {
   InkWell _createContactItem(Contact contact) {
     return InkWell(
       onTap: () {
-        final chat =
-            chatListModel.startChatWithContact(contact, ChatType.general);
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => ChatPage(chatId: chat.id)));
+        controller.startChat(contact, ChatType.general).then((chat) =>
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => ChatPage(chatId: chat.id))));
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0),
@@ -280,14 +275,16 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _editContact(Contact contact) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ContactInfoPage(phoneNumber: contact.phoneNumber),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => ContactInfoPage(phoneNumber: contact.phoneNumber),
+          ),
+        )
+        .then((_) => controller.reload());
   }
 
   void _deleteContact(Contact contact) {
-    contactListModel.deleteContact(contact.phoneNumber);
+    controller.deleteContact(contact.phoneNumber);
   }
 }

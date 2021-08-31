@@ -24,10 +24,50 @@ class _ForwardDialog extends StatelessWidget {
     List<Contact> contacts = _contactListModel.contacts;
 
     return AlertDialog(
-        contentPadding: EdgeInsets.all(Constants.screenBorderPadding),
-        title: Text(
-          "Search placeholder",
-          textAlign: TextAlign.center,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(null);
+            },
+            child: Text("CANCEL"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(_selectedContacts);
+            },
+            child: Text("SEND"),
+          ),
+        ],
+        contentPadding: EdgeInsets.zero,
+        title: Container(
+          padding: EdgeInsets.zero,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: Constants.darkGrey.withOpacity(0.5),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.search,
+                size: 20,
+              ),
+              Expanded(
+                child: TextField(
+                  expands: false,
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    disabledBorder: InputBorder.none,
+                    hintText: "Search",
+                    contentPadding: EdgeInsets.all(2),
+                    isDense: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         content: Container(
           height: 400,

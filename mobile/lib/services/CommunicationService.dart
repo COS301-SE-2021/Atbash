@@ -6,6 +6,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -16,6 +17,7 @@ class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
   final ChatService chatService;
+  final ContactService contactService;
   final MessageService messageService;
   Future<String> userPhoneNumber;
 
@@ -70,7 +72,7 @@ class CommunicationService {
       _onAckSeenListeners.add(cb);
 
   CommunicationService(this.encryptionService, this.userService,
-      this.chatService, this.messageService)
+      this.chatService, this.contactService, this.messageService)
       : userPhoneNumber = userService.getPhoneNumber() {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -177,8 +179,7 @@ class CommunicationService {
               await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
 
           if (image != null) {
-            _onProfileImageListeners
-                .forEach((listener) => listener(senderPhoneNumber, image));
+            contactService.setContactProfileImage(senderPhoneNumber, image);
           }
           break;
 

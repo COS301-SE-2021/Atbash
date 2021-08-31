@@ -34,14 +34,27 @@ class ChatPageController {
       model.contactProfileImage = chat.contact?.profileImage ?? "";
     });
 
-    messageService
-        .fetchAllByChatId(chatId)
-        .then((messages) => model.replaceMessages(messages));
+    messageService.fetchAllByChatId(chatId).then((messages) {
+      final unseenMessagesIds = messages
+          .where((message) =>
+              message.readReceipt != ReadReceipt.seen && message.isIncoming)
+          .map((m) => m.id);
+
+      unseenMessagesIds.forEach((id) {
+        messageService.setMessageReadReceipt(id, ReadReceipt.seen);
+      });
+
+      communicationService.sendAckSeen(
+          unseenMessagesIds.toList(), contactPhoneNumber);
+
+      model.replaceMessages(messages);
+    });
   }
 
   void _onMessage(Message message) {
     if (message.chatId == chatId) {
       model.addMessage(message);
+      communicationService.sendAckSeen([message.id], contactPhoneNumber);
     }
   }
 

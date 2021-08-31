@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -10,11 +11,13 @@ class HomePageController {
 
   final UserService userService = GetIt.I.get();
   final ChatService chatService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
   final MessageService messageService = GetIt.I.get();
 
   final HomePageModel model = HomePageModel();
 
   HomePageController() {
+    contactService.onChanged(reload);
     chatService.onChanged(reload);
     navigationObserver.onRoutePop(reload);
     reload();
@@ -23,6 +26,7 @@ class HomePageController {
   void dispose() {
     navigationObserver.disposeOnRoutePop(reload);
     chatService.disposeOnChanged(reload);
+    contactService.disposeOnChanged(reload);
   }
 
   void reload() {

@@ -12,8 +12,6 @@ class ContactEditPageController {
 
   ContactEditPageController({required this.contact}) {
     model.contactName = contact.displayName;
-    model.contactNumber = contact.phoneNumber;
-    model.contactProfileImage = contact.profileImage;
     model.contactBirthday = contact.birthday;
   }
 

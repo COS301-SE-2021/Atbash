@@ -8,23 +8,21 @@ class ContactEditPageController {
 
   final ContactEditPageModel model = ContactEditPageModel();
 
-  late final Contact contact;
+  Contact contact;
 
   ContactEditPageController({required this.contact}) {
-      this.contact = contact;
-      model.contactName = contact.displayName;
-      model.contactNumber = contact.phoneNumber;
-      model.contactProfileImage = contact.profileImage;
-      model.contactBirthday = contact.birthday;
+    model.contactName = contact.displayName;
+    model.contactNumber = contact.phoneNumber;
+    model.contactProfileImage = contact.profileImage;
+    model.contactBirthday = contact.birthday;
   }
 
   void updateContact(String name, DateTime? birthday) {
     model.setContactName(name);
-    if(birthday != null)
-    model.setContactBirthday(birthday);
+    if (birthday != null) model.setContactBirthday(birthday);
 
     contact.displayName = name;
-    contact.birthday = birthday;
+    if (birthday != null) contact.birthday = birthday;
     contactService.update(contact);
   }
 }

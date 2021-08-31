@@ -1,28 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/models/ContactListModel.dart';
+import 'package:mobile/controllers/ContactEditPageController.dart';
 import 'package:mobile/util/Utils.dart';
+import 'package:mobx/mobx.dart';
 
 class ContactEditPage extends StatefulWidget {
-  final Contact contact;
+  final String phoneNumber;
 
   const ContactEditPage({
     Key? key,
-    required this.contact,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
-  _ContactEditPageState createState() => _ContactEditPageState();
+  _ContactEditPageState createState() =>
+      _ContactEditPageState(phoneNumber: phoneNumber);
 }
 
 class _ContactEditPageState extends State<ContactEditPage> {
-  final ContactListModel contactListModel = GetIt.I.get();
+  final ContactEditPageController controller;
   final _displayNameController = TextEditingController();
+  late final ReactionDisposer _contactDisposer;
+
+  _ContactEditPageState({required String phoneNumber})
+      : controller = ContactEditPageController(phoneNumber: phoneNumber);
+
+  @override
+  void initState() {
+    super.initState();
+
+    _contactDisposer = autorun((_) {
+      _displayNameController.text = controller.model.contactName;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _contactDisposer();
+  }
 
   @override
   Widget build(BuildContext context) {
-    _displayNameController.text = widget.contact.displayName;
+    _displayNameController.text = controller.model.contactName;
 
     return Scaffold(
       appBar: AppBar(),
@@ -69,11 +88,9 @@ class _ContactEditPageState extends State<ContactEditPage> {
     if (displayName.isEmpty) {
       showSnackBar(context, "Display name cannot be blank");
     } else {
-      contactListModel
-          .setContactDisplayName(widget.contact.phoneNumber, displayName)
-          .then((_) {
-        Navigator.of(context).pop();
-      });
+      controller.updateContact(displayName, null);
+      Navigator.pop(context);
+      //TODO Update birthday
     }
   }
 }

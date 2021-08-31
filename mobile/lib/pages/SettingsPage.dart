@@ -37,7 +37,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         setup: false,
                       ),
                     ),
-                  );
+                  ).then((_) => controller.reload());
                 },
                 child: Container(
                   padding: EdgeInsets.all(15),

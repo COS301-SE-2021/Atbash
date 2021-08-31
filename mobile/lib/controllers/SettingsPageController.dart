@@ -10,9 +10,7 @@ class SettingsPageController {
   final SettingsPageModel model = SettingsPageModel();
 
   SettingsPageController() {
-    userService.getDisplayName().then((value) => model.userName = value);
-    userService.getStatus().then((value) => model.userStatus = value);
-    userService.getProfileImage().then((value) => model.userProfilePicture = value);
+    reload();
     settingsService.getBlurImages().then((value) => model.blurImages = value);
     settingsService.getSafeMode().then((value) => model.safeMode = value);
     settingsService
@@ -35,6 +33,14 @@ class SettingsPageController {
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
     //TODO Set model pin
+  }
+
+  void reload() {
+    userService.getDisplayName().then((value) => model.userName = value);
+    userService.getStatus().then((value) => model.userStatus = value);
+    userService
+        .getProfileImage()
+        .then((value) => model.userProfilePicture = value);
   }
 
   //TODO create function to change pin

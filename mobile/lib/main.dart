@@ -17,6 +17,7 @@ import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/RegistrationService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 
 import 'models/UserModel.dart';
@@ -75,6 +76,7 @@ void _registerServices() async {
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
   final userService = UserService();
+  final settingsService = SettingsService();
   final communicationService = CommunicationService(
     encryptionService,
     userService,
@@ -89,6 +91,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
   GetIt.I.registerSingleton(userService);
+  GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(communicationService);
 
   final userModel = UserModel();

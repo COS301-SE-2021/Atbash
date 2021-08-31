@@ -33,6 +33,7 @@ void main() async {
 
 class AtbashApp extends StatelessWidget {
   final RegistrationService registrationService = GetIt.I.get();
+  final NavigationObserver navigationObserver = GetIt.I.get();
 
   final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -57,6 +58,7 @@ class AtbashApp extends StatelessWidget {
 
         return MaterialApp(
           title: "Atbash",
+          navigatorObservers: [navigationObserver],
           theme: ThemeData(primarySwatch: Colors.orange),
           navigatorKey: _navigatorKey,
           home: page,
@@ -67,6 +69,9 @@ class AtbashApp extends StatelessWidget {
 }
 
 void _registerServices() async {
+  final navigationObserver = NavigationObserver();
+  GetIt.I.registerSingleton(navigationObserver);
+
   final databaseService = DatabaseService();
   final encryptionService = _initialiseEncryptionService(databaseService);
   final registrationService = RegistrationService(encryptionService);
@@ -102,6 +107,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(contactListModel);
 
   await settingsModel.init();
+  await communicationService.goOnline();
 }
 
 EncryptionService _initialiseEncryptionService(
@@ -123,4 +129,17 @@ EncryptionService _initialiseEncryptionService(
     preKeyStoreService,
     sessionStoreService,
   );
+}
+
+class NavigationObserver extends NavigatorObserver {
+  List<void Function()> _onRoutePopListeners = [];
+
+  void onRoutePop(void Function() cb) => _onRoutePopListeners.add(cb);
+
+  void disposeOnRoutePop(void Function() cb) => _onRoutePopListeners.remove(cb);
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    _onRoutePopListeners.forEach((listener) => listener());
+  }
 }

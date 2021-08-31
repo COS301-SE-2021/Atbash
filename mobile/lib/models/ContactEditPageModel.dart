@@ -9,12 +9,6 @@ abstract class _ContactEditPageModel with Store {
   String contactName = "";
 
   @observable
-  String contactNumber = "";
-
-  @observable
-  String contactProfileImage = "";
-
-  @observable
   DateTime? contactBirthday;
 
   @action

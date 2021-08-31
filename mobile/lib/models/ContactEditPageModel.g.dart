@@ -24,37 +24,6 @@ mixin _$ContactEditPageModel on _ContactEditPageModel, Store {
     });
   }
 
-  final _$contactNumberAtom = Atom(name: '_ContactEditPageModel.contactNumber');
-
-  @override
-  String get contactNumber {
-    _$contactNumberAtom.reportRead();
-    return super.contactNumber;
-  }
-
-  @override
-  set contactNumber(String value) {
-    _$contactNumberAtom.reportWrite(value, super.contactNumber, () {
-      super.contactNumber = value;
-    });
-  }
-
-  final _$contactProfileImageAtom =
-      Atom(name: '_ContactEditPageModel.contactProfileImage');
-
-  @override
-  String get contactProfileImage {
-    _$contactProfileImageAtom.reportRead();
-    return super.contactProfileImage;
-  }
-
-  @override
-  set contactProfileImage(String value) {
-    _$contactProfileImageAtom.reportWrite(value, super.contactProfileImage, () {
-      super.contactProfileImage = value;
-    });
-  }
-
   final _$contactBirthdayAtom =
       Atom(name: '_ContactEditPageModel.contactBirthday');
 
@@ -100,8 +69,6 @@ mixin _$ContactEditPageModel on _ContactEditPageModel, Store {
   String toString() {
     return '''
 contactName: ${contactName},
-contactNumber: ${contactNumber},
-contactProfileImage: ${contactProfileImage},
 contactBirthday: ${contactBirthday}
     ''';
   }

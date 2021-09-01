@@ -19,7 +19,6 @@ class CommunicationService {
   final ChatService chatService;
   final ContactService contactService;
   final MessageService messageService;
-  Future<String> userPhoneNumber;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -72,8 +71,7 @@ class CommunicationService {
       _onAckSeenListeners.add(cb);
 
   CommunicationService(this.encryptionService, this.userService,
-      this.chatService, this.contactService, this.messageService)
-      : userPhoneNumber = userService.getPhoneNumber() {
+      this.chatService, this.contactService, this.messageService) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -316,7 +314,7 @@ class CommunicationService {
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
       {String? id}) async {
-    final userPhoneNumber = await this.userPhoneNumber;
+    final userPhoneNumber = await userService.getPhoneNumber();
 
     final payload = MessagePayload(
       id: id ?? Uuid().v4(),

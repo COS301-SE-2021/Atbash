@@ -89,6 +89,8 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
+    _fetchUnreadMessages(encodedPhoneNumber);
+
     channel?.sink.close();
     channel = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
@@ -100,8 +102,22 @@ class CommunicationService {
     });
   }
 
+  Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {
+    final uri = Uri.parse(
+        Constants.httpUrl + "message?phoneNumber=$encodedPhoneNumber");
+    final response = await get(uri);
+
+    if (response.statusCode == 200) {
+      final messages = jsonDecode(response.body) as List;
+      messages.forEach((message) async => await _handleEvent(message));
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
+  }
+
   Future<void> _handleEvent(dynamic event) async {
-    final Map<String, Object?> parsedEvent = jsonDecode(event);
+    final Map<String, Object?> parsedEvent =
+        event is Map ? event : jsonDecode(event);
 
     final id = parsedEvent["id"] as String?;
     final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
@@ -232,6 +248,8 @@ class CommunicationService {
               .forEach((listener) => listener(messageId, liked));
           break;
       }
+
+      await _deleteMessageFromServer(id);
     }
   }
 
@@ -261,6 +279,11 @@ class CommunicationService {
     } else {
       print("${response.statusCode} - ${response.body}");
     }
+  }
+
+  Future<void> _deleteMessageFromServer(String id) async {
+    final uri = Uri.parse(Constants.httpUrl + "message/$id");
+    await delete(uri);
   }
 
   Future<void> sendMessage(Message message, String recipientPhoneNumber) async {

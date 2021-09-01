@@ -4,10 +4,12 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ContactsPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:uuid/uuid.dart';
 
 class ContactsPageController {
+  final CommunicationService communicationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final ChatService chatService = GetIt.I.get();
 
@@ -28,11 +30,13 @@ class ContactsPageController {
   }
 
   void addContact(String number, String name) {
-    //TODO Request status & profile image.
     Contact contact = new Contact(
         phoneNumber: number, displayName: name, status: "", profileImage: "");
     model.addContact(contact);
-    contactService.insert(contact);
+    contactService.insert(contact).then((_) {
+      communicationService.sendRequestStatus(number);
+      communicationService.sendRequestProfileImage(number);
+    });
   }
 
   Future<Chat> startChat(Contact contact, ChatType chatType,

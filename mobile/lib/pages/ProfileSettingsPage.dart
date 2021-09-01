@@ -19,7 +19,6 @@ class ProfileSettingsPage extends StatefulWidget {
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
-  late bool isFirstTime;
   final ProfileSettingsPageController controller;
 
   _ProfileSettingsPageState() : controller = ProfileSettingsPageController();
@@ -116,43 +115,49 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 40,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _displayNameController,
-                        decoration: InputDecoration(
-                          hintText: "Display Name",
-                        ),
-                        textAlign: TextAlign.center,
+                    child: TextField(
+                      controller: _displayNameController,
+                      decoration: InputDecoration(
+                        hintText: "Display Name",
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   SizedBox(
                     height: 10,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 80,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _statusController,
-                        decoration: InputDecoration(
-                          hintText: "Status",
-                        ),
-                        textAlign: TextAlign.center,
+                    child: TextField(
+                      controller: _statusController,
+                      decoration: InputDecoration(
+                        hintText: "Status",
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   SizedBox(
                     height: 60,
                   ),
-                  //TODO add birthday inputfield
+                  Text("Birthday"),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 80),
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      keyboardType: TextInputType.datetime,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),

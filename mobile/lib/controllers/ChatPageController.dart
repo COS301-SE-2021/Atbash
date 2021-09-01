@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -34,7 +35,10 @@ class ChatPageController {
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
       model.contactStatus = chat.contact?.status ?? "";
       model.contactProfileImage = chat.contact?.profileImage ?? "";
+      model.contactSaved = chat.contact != null;
     });
+
+    contactService.onChanged(_onContactChanged);
 
     messageService.fetchAllByChatId(chatId).then((messages) {
       final unseenMessagesIds = messages
@@ -75,6 +79,16 @@ class ChatPageController {
     });
   }
 
+  void _onContactChanged() {
+    try {
+      contactService.fetchByPhoneNumber(contactPhoneNumber).then((contact) {
+        model.contactTitle = contact.displayName;
+        model.contactStatus = contact.status;
+        model.contactProfileImage = contact.profileImage;
+      });
+    } on ContactWithPhoneNumberDoesNotExistException {}
+  }
+
   void _onMessageLiked(String messageID, bool liked) {
     model.setLikedById(messageID, liked);
   }
@@ -84,6 +98,7 @@ class ChatPageController {
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    contactService.disposeOnChanged(_onContactChanged);
   }
 
   void sendMessage(String contents) {
@@ -92,7 +107,7 @@ class ChatPageController {
       chatId: chatId,
       isIncoming: false,
       otherPartyPhoneNumber: contactPhoneNumber,
-      contents: contents,
+      contents: contents.trim(),
       timestamp: DateTime.now(),
     );
 
@@ -120,5 +135,22 @@ class ChatPageController {
     communicationService.sendLiked(messageId, liked, contactPhoneNumber);
     messageService.setMessageLiked(messageId, liked);
     model.setLikedById(messageId, liked);
+  }
+
+  void addSenderAsContact(String displayName) {
+    final contact = Contact(
+      phoneNumber: contactPhoneNumber,
+      displayName: displayName,
+      status: "",
+      profileImage: "",
+    );
+
+    contactService.insert(contact);
+
+    communicationService.sendRequestProfileImage(contactPhoneNumber);
+    communicationService.sendRequestStatus(contactPhoneNumber);
+
+    model.contactSaved = true;
+    model.contactTitle = displayName;
   }
 }

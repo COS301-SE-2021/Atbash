@@ -7,8 +7,11 @@ import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Tuple.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/services.dart';
@@ -126,21 +129,51 @@ class _ChatPageState extends State<ChatPage> {
 
     return AppBar(
       titleSpacing: 0,
-      title: Row(
-        children: [
-          Observer(
-            builder: (_) =>
-                AvatarIcon.fromString(controller.model.contactProfileImage),
-          ),
-          SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            child: titleBar,
-          ),
-        ],
+      title: InkWell(
+        highlightColor: _selecting ? Colors.transparent : null,
+        splashFactory: _selecting ? NoSplash.splashFactory : null,
+        enableFeedback: _selecting ? false : true,
+        onTap: () {
+          if (!_selecting)
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactInfoPage(
+                        phoneNumber: controller.contactPhoneNumber)));
+        },
+        child: Row(
+          children: [
+            Observer(
+              builder: (_) =>
+                  AvatarIcon.fromString(controller.model.contactProfileImage),
+            ),
+            SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: titleBar,
+            ),
+          ],
+        ),
       ),
       actions: [
+        if (!_selecting)
+          Observer(builder: (_) {
+            if (!controller.model.contactSaved) {
+              return IconButton(
+                onPressed: () {
+                  showInputDialog(context, "Name?").then((name) {
+                    if (name != null) {
+                      controller.addSenderAsContact(name);
+                    }
+                  });
+                },
+                icon: Icon(Icons.person_add),
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          }),
         if (_selecting)
           IconButton(
             onPressed: () => _deleteMessages(context),
@@ -150,7 +183,6 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             onPressed: () {
               _copyMessages();
-              _stopSelecting();
             },
             icon: Icon(Icons.copy),
           ),
@@ -160,35 +192,39 @@ class _ChatPageState extends State<ChatPage> {
 
   void _deleteMessages(BuildContext context) {
     final selectedMessages = _messages.where((m) => m.second);
-    final selectedMessagesIds =
-        selectedMessages.map((e) => e.first.id).toList();
+    if (selectedMessages.isNotEmpty) {
+      final selectedMessagesIds =
+          selectedMessages.map((e) => e.first.id).toList();
 
-    if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
-      showConfirmDialog(
-        context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-      ).then((confirmed) {
-        if (confirmed == true) {
-          controller.deleteMessagesLocally(selectedMessagesIds);
-          _stopSelecting();
-        }
-      });
+      if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
+        showConfirmDialog(
+          context,
+          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        ).then((confirmed) {
+          if (confirmed == true) {
+            controller.deleteMessagesLocally(selectedMessagesIds);
+            _stopSelecting();
+          }
+        });
+      } else {
+        showConfirmDeleteDialog(
+          context,
+          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        ).then((response) {
+          if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+            selectedMessagesIds
+                .forEach((id) => controller.deleteMessagesRemotely([id]));
+          } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+            controller.deleteMessagesLocally(selectedMessagesIds);
+          }
+
+          if (response != DeleteMessagesResponse.CANCEL) {
+            _stopSelecting();
+          }
+        });
+      }
     } else {
-      showConfirmDeleteDialog(
-        context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-      ).then((response) {
-        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          selectedMessagesIds
-              .forEach((id) => controller.deleteMessagesRemotely([id]));
-        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
-          controller.deleteMessagesLocally(selectedMessagesIds);
-        }
-
-        if (response != DeleteMessagesResponse.CANCEL) {
-          _stopSelecting();
-        }
-      });
+      showSnackBar(context, "No messages selected");
     }
   }
 
@@ -219,19 +255,24 @@ class _ChatPageState extends State<ChatPage> {
   void _copyMessages() {
     final selectedMessages = _messages.where((m) => m.second).toList();
 
-    String result = "";
-    final format = DateFormat("dd/MM HH:mm");
+    if (selectedMessages.isNotEmpty) {
+      String result = "";
+      final format = DateFormat("dd/MM HH:mm");
 
-    selectedMessages.reversed.forEach((message) {
-      if (!message.first.deleted) {
-        result +=
-            "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
-      }
-    });
+      selectedMessages.reversed.forEach((message) {
+        if (!message.first.deleted) {
+          result +=
+              "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
+        }
+      });
 
-    result = result.substring(0, result.length - 1);
+      result = result.substring(0, result.length - 1);
 
-    Clipboard.setData(ClipboardData(text: result));
+      Clipboard.setData(ClipboardData(text: result));
+      _stopSelecting();
+    } else {
+      showSnackBar(context, "No messages selected");
+    }
   }
 
   void _likeMessage(Message message) {

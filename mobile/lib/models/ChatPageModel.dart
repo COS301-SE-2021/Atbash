@@ -16,6 +16,9 @@ abstract class _ChatPageModel with Store {
   String contactProfileImage = "";
 
   @observable
+  bool contactSaved = false;
+
+  @observable
   ObservableList<Message> messages = <Message>[].asObservable();
 
   @action

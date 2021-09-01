@@ -7,7 +7,6 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
-import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -162,15 +161,14 @@ class _ContactsPageState extends State<ContactsPage> {
   void _addContact(BuildContext context) {
     showNewContactDialog(context).then((nameNumberPair) async {
       if (nameNumberPair != null) {
-        try {
-          controller.addContact(
-            nameNumberPair.phoneNumber,
-            nameNumberPair.name,
+        controller
+            .addContact(nameNumberPair.phoneNumber, nameNumberPair.name)
+            .catchError((_) {
+          showSnackBar(
+            context,
+            "A contact already exists with the number ${nameNumberPair.phoneNumber}",
           );
-        } on DuplicateContactPhoneNumberException {
-          showSnackBar(context,
-              "A contact already exists with the number ${nameNumberPair.phoneNumber}");
-        }
+        });
       }
     });
   }

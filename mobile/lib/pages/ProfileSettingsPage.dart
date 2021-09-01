@@ -172,10 +172,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       controller.setProfilePicture(profileImage);
 
                       if (widget.setup) {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomePage()));
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext buildContext) {
+                              return AlertDialog(
+                                title: Text(
+                                    "If you wish to import your contact list, please grant the app permission in the next popup."),
+                              );
+                            }).then((_) {
+                          controller.importContacts().then((_) =>
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomePage())));
+                        });
                       } else {
                         Navigator.pop(context);
                       }

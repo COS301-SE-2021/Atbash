@@ -29,14 +29,13 @@ class ContactsPageController {
     contactService.deleteByPhoneNumber(phoneNumber);
   }
 
-  void addContact(String number, String name) {
+  Future<void> addContact(String number, String name) async {
     Contact contact = new Contact(
         phoneNumber: number, displayName: name, status: "", profileImage: "");
+    await contactService.insert(contact);
     model.addContact(contact);
-    contactService.insert(contact).then((_) {
-      communicationService.sendRequestStatus(number);
-      communicationService.sendRequestProfileImage(number);
-    });
+    communicationService.sendRequestStatus(number);
+    communicationService.sendRequestProfileImage(number);
   }
 
   Future<Chat> startChat(Contact contact, ChatType chatType,

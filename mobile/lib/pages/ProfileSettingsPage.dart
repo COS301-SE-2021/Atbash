@@ -39,8 +39,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     _userDisposer = autorun((_) {
       _displayNameController.text = controller.model.displayName;
       _statusController.text = controller.model.status;
-      //TODO figure out why profile image isn't saving
-      _selectedProfileImage = controller.model.profilePicture;
+      setState(() {
+        _selectedProfileImage = controller.model.profilePicture;
+      });
     });
   }
 

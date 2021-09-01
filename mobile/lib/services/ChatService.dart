@@ -80,7 +80,6 @@ class ChatService {
     return chat;
   }
 
-  // TODO should also delete all messages
   Future<void> deleteById(String id) async {
     final db = await databaseService.database;
 

@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/ProfileSettingsPageModel.dart';
+import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/UserService.dart';
 
 class ProfileSettingsPageController {
   final UserService userService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final ProfileSettingsPageModel model = ProfileSettingsPageModel();
 
@@ -35,5 +40,11 @@ class ProfileSettingsPageController {
   void setProfilePicture(Uint8List picture) {
     model.profilePicture = picture;
     userService.setProfileImage(picture);
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendProfileImage(
+            base64Encode(picture), contact.phoneNumber);
+      });
+    });
   }
 }

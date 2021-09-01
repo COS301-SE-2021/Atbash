@@ -101,7 +101,7 @@ class ChatPageController {
       chatId: chatId,
       isIncoming: false,
       otherPartyPhoneNumber: contactPhoneNumber,
-      contents: contents,
+      contents: contents.trim(),
       timestamp: DateTime.now(),
     );
 

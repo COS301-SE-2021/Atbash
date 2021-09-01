@@ -271,7 +271,7 @@ class CommunicationService {
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
     bool shareImage = await settingsService.getShareProfilePicture();
-    if (!shareImage) return;
+    if (shareImage) return;
     final base16Key = SecureRandom(32).base16;
     final base16IV = SecureRandom(16).base16;
 

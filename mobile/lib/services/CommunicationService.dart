@@ -314,7 +314,7 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> requestStatus(String contactPhoneNumber) async {
+  Future<void> sendRequestStatus(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestStatus"});
     _queueForSending(contents, contactPhoneNumber);
   }

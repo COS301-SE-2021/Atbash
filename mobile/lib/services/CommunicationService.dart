@@ -232,6 +232,8 @@ class CommunicationService {
               .forEach((listener) => listener(messageId, liked));
           break;
       }
+
+      await _deleteMessageFromServer(id);
     }
   }
 

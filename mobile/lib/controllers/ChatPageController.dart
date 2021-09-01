@@ -109,4 +109,9 @@ class ChatPageController {
       model.setDeletedById(id);
     });
   }
+
+  void likeMessage(String messageID, bool liked) {
+    messageService.setMessageLiked(messageID, liked);
+    model.setLikedById(messageID, liked);
+  }
 }

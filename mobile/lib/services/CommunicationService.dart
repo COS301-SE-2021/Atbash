@@ -263,6 +263,11 @@ class CommunicationService {
     }
   }
 
+  Future<void> _deleteMessageFromServer(String id) async {
+    final uri = Uri.parse(Constants.httpUrl + "message/$id");
+    await delete(uri);
+  }
+
   Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "message",

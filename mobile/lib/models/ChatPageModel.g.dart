@@ -55,6 +55,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$contactSavedAtom = Atom(name: '_ChatPageModel.contactSaved');
+
+  @override
+  bool get contactSaved {
+    _$contactSavedAtom.reportRead();
+    return super.contactSaved;
+  }
+
+  @override
+  set contactSaved(bool value) {
+    _$contactSavedAtom.reportWrite(value, super.contactSaved, () {
+      super.contactSaved = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -134,6 +149,7 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
 contactTitle: ${contactTitle},
 contactStatus: ${contactStatus},
 contactProfileImage: ${contactProfileImage},
+contactSaved: ${contactSaved},
 messages: ${messages}
     ''';
   }

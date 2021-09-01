@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Tuple.dart';
@@ -154,6 +155,23 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
       actions: [
+        if (!_selecting)
+          Observer(builder: (_) {
+            if (!controller.model.contactSaved) {
+              return IconButton(
+                onPressed: () {
+                  showInputDialog(context, "Name?").then((name) {
+                    if (name != null) {
+                      controller.addSenderAsContact(name);
+                    }
+                  });
+                },
+                icon: Icon(Icons.person_add),
+              );
+            } else {
+              return SizedBox.shrink();
+            }
+          }),
         if (_selecting)
           IconButton(
             onPressed: () => _deleteMessages(context),

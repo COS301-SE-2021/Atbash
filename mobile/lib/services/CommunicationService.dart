@@ -9,6 +9,7 @@ import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -19,6 +20,7 @@ class CommunicationService {
   final ChatService chatService;
   final ContactService contactService;
   final MessageService messageService;
+  final SettingsService settingsService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -51,8 +53,13 @@ class CommunicationService {
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
-  CommunicationService(this.encryptionService, this.userService,
-      this.chatService, this.contactService, this.messageService) {
+  CommunicationService(
+      this.encryptionService,
+      this.userService,
+      this.chatService,
+      this.contactService,
+      this.messageService,
+      this.settingsService) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -186,15 +193,21 @@ class CommunicationService {
           break;
 
         case "requestStatus":
-          final status = await userService.getStatus();
-          sendStatus(status, senderPhoneNumber);
+          bool shareStatus = await settingsService.getShareStatus();
+          if (shareStatus) {
+            final status = await userService.getStatus();
+            sendStatus(status, senderPhoneNumber);
+          }
           break;
 
         case "requestProfileImage":
-          final profileImage = await userService.getProfileImage();
+          bool shareImage = await settingsService.getShareProfilePicture();
+          if (shareImage) {
+            final profileImage = await userService.getProfileImage();
 
-          if (profileImage != null) {
-            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+            if (profileImage != null) {
+              sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+            }
           }
           break;
       }
@@ -311,7 +324,8 @@ class CommunicationService {
       "messageIds": messageIds,
     });
 
-    _queueForSending(contents, recipientPhoneNumber);
+    bool shareReceipts = await settingsService.getShareReadReceipts();
+    if (shareReceipts) _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendRequestStatus(String contactPhoneNumber) async {

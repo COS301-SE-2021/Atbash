@@ -10,6 +10,7 @@ import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Tuple.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/services.dart';
@@ -181,7 +182,6 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             onPressed: () {
               _copyMessages();
-              _stopSelecting();
             },
             icon: Icon(Icons.copy),
           ),
@@ -191,35 +191,39 @@ class _ChatPageState extends State<ChatPage> {
 
   void _deleteMessages(BuildContext context) {
     final selectedMessages = _messages.where((m) => m.second);
-    final selectedMessagesIds =
-        selectedMessages.map((e) => e.first.id).toList();
+    if (selectedMessages.isNotEmpty) {
+      final selectedMessagesIds =
+          selectedMessages.map((e) => e.first.id).toList();
 
-    if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
-      showConfirmDialog(
-        context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-      ).then((confirmed) {
-        if (confirmed == true) {
-          controller.deleteMessagesLocally(selectedMessagesIds);
-          _stopSelecting();
-        }
-      });
+      if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
+        showConfirmDialog(
+          context,
+          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        ).then((confirmed) {
+          if (confirmed == true) {
+            controller.deleteMessagesLocally(selectedMessagesIds);
+            _stopSelecting();
+          }
+        });
+      } else {
+        showConfirmDeleteDialog(
+          context,
+          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        ).then((response) {
+          if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+            selectedMessagesIds
+                .forEach((id) => controller.deleteMessagesRemotely([id]));
+          } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+            controller.deleteMessagesLocally(selectedMessagesIds);
+          }
+
+          if (response != DeleteMessagesResponse.CANCEL) {
+            _stopSelecting();
+          }
+        });
+      }
     } else {
-      showConfirmDeleteDialog(
-        context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-      ).then((response) {
-        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          selectedMessagesIds
-              .forEach((id) => controller.deleteMessagesRemotely([id]));
-        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
-          controller.deleteMessagesLocally(selectedMessagesIds);
-        }
-
-        if (response != DeleteMessagesResponse.CANCEL) {
-          _stopSelecting();
-        }
-      });
+      showSnackBar(context, "No messages selected");
     }
   }
 
@@ -250,19 +254,24 @@ class _ChatPageState extends State<ChatPage> {
   void _copyMessages() {
     final selectedMessages = _messages.where((m) => m.second).toList();
 
-    String result = "";
-    final format = DateFormat("dd/MM HH:mm");
+    if (selectedMessages.isNotEmpty) {
+      String result = "";
+      final format = DateFormat("dd/MM HH:mm");
 
-    selectedMessages.reversed.forEach((message) {
-      if (!message.first.deleted) {
-        result +=
-            "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
-      }
-    });
+      selectedMessages.reversed.forEach((message) {
+        if (!message.first.deleted) {
+          result +=
+              "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
+        }
+      });
 
-    result = result.substring(0, result.length - 1);
+      result = result.substring(0, result.length - 1);
 
-    Clipboard.setData(ClipboardData(text: result));
+      Clipboard.setData(ClipboardData(text: result));
+      _stopSelecting();
+    } else {
+      showSnackBar(context, "No messages selected");
+    }
   }
 
   SafeArea _buildBody() {

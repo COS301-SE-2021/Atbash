@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/constants.dart';
-import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/controllers/ProfileSettingsPageController.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobx/mobx.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
   final bool setup;
@@ -21,27 +20,35 @@ class ProfileSettingsPage extends StatefulWidget {
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   late bool isFirstTime;
-  final UserModel _userModel = GetIt.I.get();
+  final ProfileSettingsPageController controller;
+
+  _ProfileSettingsPageState() : controller = ProfileSettingsPageController();
 
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
+
+  //TODO add birthday selector
+  late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
 
   @override
   void initState() {
     super.initState();
 
-    final displayName = _userModel.displayName;
-    final status = _userModel.status;
-    final profileImage = _userModel.profileImage;
+    _userDisposer = autorun((_) {
+      _displayNameController.text = controller.model.displayName;
+      _statusController.text = controller.model.status;
+      setState(() {
+        _selectedProfileImage = controller.model.profilePicture;
+      });
+    });
+  }
 
-    if (displayName != null) _displayNameController.text = displayName;
-
-    if (status != null) _statusController.text = status;
-
-    if (profileImage != null)
-      _selectedProfileImage = base64Decode(profileImage);
+  @override
+  void dispose() {
+    super.dispose();
+    _userDisposer();
   }
 
   @override
@@ -158,11 +165,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           _selectedProfileImage ?? Uint8List(0);
 
                       if (displayName.isNotEmpty)
-                        _userModel.setDisplayName(displayName);
+                        controller.setDisplayName(displayName);
 
-                      if (status.isNotEmpty) _userModel.setStatus(status);
+                      if (status.isNotEmpty) controller.setStatus(status);
 
-                      _userModel.setProfileImage(base64Encode(profileImage));
+                      controller.setProfilePicture(profileImage);
 
                       if (widget.setup) {
                         Navigator.pushReplacement(

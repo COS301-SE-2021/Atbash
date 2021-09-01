@@ -137,6 +137,29 @@ class MessageService {
     return message;
   }
 
+  Future<void> setMessageDeleted(String messageId) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_DELETED} = 1, ${Message.COLUMN_CONTENTS} = '' where ${Message.COLUMN_ID} = ?",
+      [messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+  }
+
+  Future<void> setMessageReadReceipt(
+      String messageId, ReadReceipt readReceipt) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ?",
+      [readReceipt.index, messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+  }
+
   Future<void> deleteById(String id) async {
     final db = await databaseService.database;
 
@@ -157,6 +180,25 @@ class MessageService {
         whereArgs: [id],
       );
     });
+  }
+
+  Future<void> deleteAllByChatId(String chatId) async {
+    final db = await databaseService.database;
+    await db.delete(
+      Message.TABLE_NAME,
+      where: "${Message.COLUMN_CHAT_ID} = ?",
+      whereArgs: [chatId],
+    );
+  }
+
+  Future<void> setMessageLiked(String messageId, bool liked) async {
+    final db = await databaseService.database;
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_LIKED} = ? where ${Message.COLUMN_ID} = ?",
+      [liked ? 1 : 0, messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
   }
 }
 

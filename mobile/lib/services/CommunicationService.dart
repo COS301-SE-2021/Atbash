@@ -3,8 +3,12 @@ import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
+import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -12,23 +16,43 @@ import 'package:web_socket_channel/io.dart';
 class CommunicationService {
   final EncryptionService encryptionService;
   final UserService userService;
-  Future<String> userPhoneNumber;
+  final ChatService chatService;
+  final ContactService contactService;
+  final MessageService messageService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   List<void Function(Message message)> _onMessageListeners = [];
-  void Function(String messageId)? onDelete;
-  void Function(String contactPhoneNumber, String profileImage)? onProfileImage;
-  void Function(String contactPhoneNumber, String status)? onStatus;
-  void Function(String messageId)? onAck;
-  void Function(List<String> messageIds)? onAckSeen;
+  List<void Function(String messageId)> _onDeleteListeners = [];
+  List<void Function(String messageId)> _onAckListeners = [];
+  List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
 
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
-  CommunicationService(this.encryptionService, this.userService)
-      : userPhoneNumber = userService.getPhoneNumber() {
+  void disposeOnMessage(void Function(Message message) cb) =>
+      _onMessageListeners.remove(cb);
+
+  set onDelete(void Function(String messageId) cb) =>
+      _onDeleteListeners.add(cb);
+
+  void disposeOnDelete(void Function(String messageId) cb) =>
+      _onDeleteListeners.add(cb);
+
+  set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
+
+  void disposeOnAck(void Function(String messageId) cb) =>
+      _onAckListeners.add(cb);
+
+  set onAckSeen(void Function(List<String> messageIds) cb) =>
+      _onAckSeenListeners.add(cb);
+
+  void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
+      _onAckSeenListeners.add(cb);
+
+  CommunicationService(this.encryptionService, this.userService,
+      this.chatService, this.contactService, this.messageService) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -100,13 +124,28 @@ class CommunicationService {
             tags: [],
           );
 
-          _onMessageListeners.forEach((listener) => listener(message));
+          chatService.existsById(chatId).then((chatExists) {
+            if (!chatExists) {
+              final chat = Chat(
+                id: chatId,
+                contactPhoneNumber: senderPhoneNumber,
+                chatType: ChatType.general,
+              );
+              chatService.insert(chat);
+            }
+
+            messageService.insert(message);
+            sendAck(id, senderPhoneNumber);
+            _onMessageListeners.forEach((listener) => listener(message));
+          });
           break;
+
         case "delete":
           final messageId = decryptedContents["messageId"] as String;
-          final onDelete = this.onDelete;
-          if (onDelete != null) onDelete(messageId);
+          messageService.setMessageDeleted(messageId);
+          _onDeleteListeners.forEach((listener) => listener(messageId));
           break;
+
         case "profileImage":
           final imageId = decryptedContents["imageId"] as String;
           final base16Key = decryptedContents["key"] as String;
@@ -118,29 +157,50 @@ class CommunicationService {
           final image =
               await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
 
-          final onProfileImage = this.onProfileImage;
-          if (onProfileImage != null && image != null)
-            onProfileImage(senderPhoneNumber, image);
+          if (image != null) {
+            contactService.setContactProfileImage(senderPhoneNumber, image);
+          }
           break;
+
         case "status":
           final status = decryptedContents["status"] as String;
-          final onStatus = this.onStatus;
-          if (onStatus != null) onStatus(senderPhoneNumber, status);
+          contactService.setContactStatus(senderPhoneNumber, status);
           break;
+
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
-          final onAck = this.onAck;
-          if (onAck != null) onAck(messageId);
+          messageService.setMessageReadReceipt(
+              messageId, ReadReceipt.delivered);
+          _onAckListeners.forEach((listener) => listener(messageId));
           break;
+
         case "ackSeen":
           final messageIds = (decryptedContents["messageIds"] as List)
               .map((e) => e as String)
               .toList();
 
-          final onAckSeen = this.onAckSeen;
-          if (onAckSeen != null) onAckSeen(messageIds);
+          messageIds.forEach((id) =>
+              messageService.setMessageReadReceipt(id, ReadReceipt.seen));
+
+          _onAckSeenListeners.forEach((listener) => listener(messageIds));
           break;
+
         case "requestStatus":
+          final status = await userService.getStatus();
+          sendStatus(status, senderPhoneNumber);
+          break;
+
+        case "requestProfileImage":
+          final profileImage = await userService.getProfileImage();
+
+          if (profileImage != null) {
+            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+          }
+          break;
+
+        case "like":
+          messageService.setMessageLiked(
+              decryptedContents["messageID"], decryptedContents["liked"]);
           break;
       }
     }
@@ -165,9 +225,7 @@ class CommunicationService {
 
         final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
 
-        final onProfileImage = this.onProfileImage;
-        if (onProfileImage != null)
-          onProfileImage(senderPhoneNumber, decryptedImage);
+        return decryptedImage;
       } else {
         print("${response.statusCode} - ${response.body}");
       }
@@ -190,6 +248,25 @@ class CommunicationService {
     final contents = jsonEncode({
       "type": "delete",
       "messageId": messageId,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendLiked(Message message, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "like",
+      "messageId": message.id,
+      "liked": message.liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendStatus(String status, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "status",
+      "status": status,
     });
 
     _queueForSending(contents, recipientPhoneNumber);
@@ -252,14 +329,19 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> requestStatus(String contactPhoneNumber) async {
+  Future<void> sendRequestStatus(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestStatus"});
+    _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
+    final contents = jsonEncode({"type": "requestProfileImage"});
     _queueForSending(contents, contactPhoneNumber);
   }
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
       {String? id}) async {
-    final userPhoneNumber = await this.userPhoneNumber;
+    final userPhoneNumber = await userService.getPhoneNumber();
 
     final payload = MessagePayload(
       id: id ?? Uuid().v4(),

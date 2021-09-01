@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ProfileSettingsPageController.dart';
 import 'package:mobile/pages/HomePage.dart';
@@ -26,7 +28,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
 
-  //TODO add birthday selector
   late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
 
@@ -144,7 +145,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                   ),
                   SizedBox(
-                    height: 60,
+                    height: 40,
                   ),
                   Text("Birthday"),
                   TextButton(

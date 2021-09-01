@@ -95,8 +95,6 @@ void _registerServices() async {
   GetIt.I.registerSingleton(settingsService);
 
   GetIt.I.registerSingleton(communicationService);
-
-  await communicationService.goOnline();
 }
 
 EncryptionService _initialiseEncryptionService(

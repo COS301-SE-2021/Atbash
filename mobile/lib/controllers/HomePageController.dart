@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -17,6 +18,10 @@ class HomePageController {
   final HomePageModel model = HomePageModel();
 
   HomePageController() {
+    final CommunicationService communicationService = GetIt.I.get();
+
+    communicationService.goOnline();
+
     contactService.onChanged(reload);
     chatService.onChanged(reload);
     navigationObserver.onRoutePop(reload);

@@ -28,6 +28,8 @@ class ChatPageController {
 
     communicationService.onAckSeen = _onAckSeen;
 
+    communicationService.onMessageLiked(_onMessageLiked);
+
     chatService.fetchById(chatId).then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
@@ -87,6 +89,10 @@ class ChatPageController {
     } on ContactWithPhoneNumberDoesNotExistException {}
   }
 
+  void _onMessageLiked(String messageID, bool liked) {
+    model.setLikedById(messageID, liked);
+  }
+
   void dispose() {
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
@@ -123,6 +129,12 @@ class ChatPageController {
       messageService.setMessageDeleted(id);
       model.setDeletedById(id);
     });
+  }
+
+  void likeMessage(String messageId, bool liked) {
+    communicationService.sendLiked(messageId, liked, contactPhoneNumber);
+    messageService.setMessageLiked(messageId, liked);
+    model.setLikedById(messageId, liked);
   }
 
   void addSenderAsContact(String displayName) {

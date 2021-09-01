@@ -55,4 +55,11 @@ abstract class _ChatPageModel with Store {
       message.contents = "";
     });
   }
+
+  @action
+  void setLikedById(String messageID, bool liked) {
+    messages.where((message) => message.id == messageID).forEach((message) {
+      message.liked = liked;
+    });
+  }
 }

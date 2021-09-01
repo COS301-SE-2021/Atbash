@@ -29,6 +29,8 @@ class CommunicationService {
   List<void Function(String messageId)> _onDeleteListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
+  List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
+      [];
 
   set onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -40,18 +42,24 @@ class CommunicationService {
       _onDeleteListeners.add(cb);
 
   void disposeOnDelete(void Function(String messageId) cb) =>
-      _onDeleteListeners.add(cb);
+      _onDeleteListeners.remove(cb);
 
   set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
   void disposeOnAck(void Function(String messageId) cb) =>
-      _onAckListeners.add(cb);
+      _onAckListeners.remove(cb);
 
   set onAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
-      _onAckSeenListeners.add(cb);
+      _onAckSeenListeners.remove(cb);
+
+  void onMessageLiked(void Function(String messageID, bool liked) cb) =>
+      _onMessageLikedListeners.add(cb);
+
+  void disposeOnMessageLiked(void Function(String messageID, bool liked) cb) =>
+      _onMessageLikedListeners.remove(cb);
 
   CommunicationService(
       this.encryptionService,
@@ -214,6 +222,15 @@ class CommunicationService {
             }
           }
           break;
+
+        case "like":
+          final messageId = decryptedContents["messageId"] as String;
+          final liked = decryptedContents["liked"] as bool;
+
+          messageService.setMessageLiked(messageId, liked);
+          _onMessageLikedListeners
+              .forEach((listener) => listener(messageId, liked));
+          break;
       }
     }
   }
@@ -260,6 +277,17 @@ class CommunicationService {
     final contents = jsonEncode({
       "type": "delete",
       "messageId": messageId,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendLiked(
+      String messageId, bool liked, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "like",
+      "messageId": messageId,
+      "liked": liked,
     });
 
     _queueForSending(contents, recipientPhoneNumber);

@@ -25,10 +25,6 @@ class CommunicationService {
 
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
-  List<void Function(String contactPhoneNumber, String profileImage)>
-      _onProfileImageListeners = [];
-  List<void Function(String contactPhoneNumber, String status)>
-      _onStatusListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
 
@@ -43,21 +39,6 @@ class CommunicationService {
 
   void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
-
-  set onProfileImage(
-          void Function(String contactPhoneNumber, String profileImage) cb) =>
-      _onProfileImageListeners.add(cb);
-
-  void disposeOnProfileImage(
-          void Function(String contactPhoneNumber, String profileImage) cb) =>
-      _onProfileImageListeners.add(cb);
-
-  set onStatus(void Function(String contactPhoneNumber, String status) cb) =>
-      _onStatusListeners.add(cb);
-
-  void disposeOnStatus(
-          void Function(String contactPhoneNumber, String status) cb) =>
-      _onStatusListeners.add(cb);
 
   set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
@@ -183,8 +164,7 @@ class CommunicationService {
 
         case "status":
           final status = decryptedContents["status"] as String;
-          _onStatusListeners
-              .forEach((listener) => listener(senderPhoneNumber, status));
+          contactService.setContactStatus(senderPhoneNumber, status);
           break;
 
         case "ack":
@@ -204,7 +184,18 @@ class CommunicationService {
 
           _onAckSeenListeners.forEach((listener) => listener(messageIds));
           break;
+
         case "requestStatus":
+          final status = await userService.getStatus();
+          sendStatus(status, senderPhoneNumber);
+          break;
+
+        case "requestProfileImage":
+          final profileImage = await userService.getProfileImage();
+
+          if (profileImage != null) {
+            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+          }
           break;
       }
     }
@@ -252,6 +243,15 @@ class CommunicationService {
     final contents = jsonEncode({
       "type": "delete",
       "messageId": messageId,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendStatus(String status, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "status",
+      "status": status,
     });
 
     _queueForSending(contents, recipientPhoneNumber);
@@ -314,8 +314,13 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> requestStatus(String contactPhoneNumber) async {
+  Future<void> sendRequestStatus(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestStatus"});
+    _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
+    final contents = jsonEncode({"type": "requestProfileImage"});
     _queueForSending(contents, contactPhoneNumber);
   }
 

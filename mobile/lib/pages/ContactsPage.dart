@@ -226,6 +226,38 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   InkWell _createContactItem(Contact contact) {
+    Widget contactDetails = Text(
+      contact.displayName.isNotEmpty
+          ? contact.displayName
+          : contact.phoneNumber,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 18.0),
+    );
+
+    if (contact.status.isNotEmpty)
+      contactDetails = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 5,
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              contact.displayName.isNotEmpty
+                  ? contact.displayName
+                  : contact.phoneNumber,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 18.0),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(contact.status),
+          ),
+        ],
+      );
+
     return InkWell(
       onTap: () {
         controller.startChat(contact, ChatType.general).then((chat) =>
@@ -244,13 +276,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      contact.displayName.isNotEmpty
-                          ? contact.displayName
-                          : contact.phoneNumber,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 18.0),
-                    ),
+                    child: contactDetails,
                   ),
                 ),
               ],

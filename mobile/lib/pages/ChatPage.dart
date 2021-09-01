@@ -239,6 +239,12 @@ class _ChatPageState extends State<ChatPage> {
     Clipboard.setData(ClipboardData(text: result));
   }
 
+  void _likeMessage(Message message) {
+    if (!message.isIncoming) return;
+
+    controller.likeMessage(message.id, !message.liked);
+  }
+
   SafeArea _buildBody() {
     return SafeArea(
       child: Column(

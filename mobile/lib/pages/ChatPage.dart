@@ -503,7 +503,8 @@ class ChatCard extends StatelessWidget {
                   child: Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+                        padding: EdgeInsets.fromLTRB(
+                            _message.liked ? 20 : 8, 25, 8, 8),
                         child: Text(
                           _message.deleted
                               ? "This message was deleted"
@@ -530,6 +531,19 @@ class ChatCard extends StatelessWidget {
                           child: _readReceipt(),
                         ),
                       ),
+                      if (_message.liked)
+                        Positioned(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(2, 25, 0, 0),
+                            child: Icon(
+                              Icons.favorite,
+                              size: 16,
+                              color: _message.isIncoming
+                                  ? Constants.orange
+                                  : Constants.darkGrey,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

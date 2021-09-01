@@ -248,6 +248,16 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendLiked(Message message, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "like",
+      "messageId": message.id,
+      "liked": message.liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
   Future<void> sendStatus(String status, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "status",

@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/controllers/ContactInfoPageController.dart';
 import 'package:mobile/pages/ContactEditPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactInfoPage extends StatefulWidget {
-  final Contact contact;
+  final String phoneNumber;
 
   const ContactInfoPage({
     Key? key,
-    required this.contact,
+    required this.phoneNumber,
   }) : super(key: key);
 
   @override
-  _ContactInfoPageState createState() => _ContactInfoPageState();
+  _ContactInfoPageState createState() =>
+      _ContactInfoPageState(phoneNumber: phoneNumber);
 }
 
 class _ContactInfoPageState extends State<ContactInfoPage> {
+  final ContactInfoPageController controller;
+
+  _ContactInfoPageState({required String phoneNumber})
+      : controller = ContactInfoPageController(phoneNumber: phoneNumber);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,11 +36,14 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ContactEditPage(contact: widget.contact),
-              ),
-            );
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        ContactEditPage(phoneNumber: controller.phoneNumber),
+                  ),
+                )
+                .then((_) => this.controller.reload());
           },
           icon: Icon(Icons.edit),
         )
@@ -50,28 +59,36 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 16.0),
             child: AvatarIcon.fromString(
-              widget.contact.profileImage,
+              controller.model.profilePicture,
               radius: MediaQuery.of(context).size.width * 0.35,
             ),
           ),
-          Text(
-            widget.contact.displayName,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+          Observer(
+            builder: (context) {
+              return Text(
+                controller.model.contactName,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+              );
+            },
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Observer(
+            builder: (context) {
+              return Text(
+                controller.model.status,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18),
+              );
+            },
           ),
           SizedBox(
             height: 10,
           ),
           Text(
-            widget.contact.status,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Text(
-            widget.contact.phoneNumber,
+            controller.phoneNumber,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,

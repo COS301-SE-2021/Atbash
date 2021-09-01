@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
@@ -21,17 +21,19 @@ import 'package:flutter/services.dart';
 import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
-  final Chat chat;
+  final String chatId;
 
-  const ChatPage({Key? key, required this.chat}) : super(key: key);
+  const ChatPage({Key? key, required this.chatId}) : super(key: key);
 
   @override
-  _ChatPageState createState() => _ChatPageState();
+  _ChatPageState createState() => _ChatPageState(chatId: chatId);
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final MessagesModel messagesModel = GetIt.I.get();
-  final UserModel userModel = GetIt.I.get();
+  final ChatPageController controller;
+
+  _ChatPageState({required String chatId})
+      : controller = ChatPageController(chatId: chatId);
 
   List<Tuple<Message, bool>> _messages = [];
   late final ReactionDisposer _messagesDisposer;
@@ -44,11 +46,10 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    messagesModel.enterChat(widget.chat);
-
     _messagesDisposer = autorun((_) {
       setState(() {
-        _messages = messagesModel.messages.map((m) => Tuple(m, false)).toList();
+        _messages =
+            controller.model.messages.map((m) => Tuple(m, false)).toList();
       });
     });
   }
@@ -58,6 +59,7 @@ class _ChatPageState extends State<ChatPage> {
     super.dispose();
 
     _messagesDisposer();
+    controller.dispose();
   }
 
   @override
@@ -99,12 +101,8 @@ class _ChatPageState extends State<ChatPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Observer(builder: (_) {
-          final contact = widget.chat.contact;
-
           return Text(
-            contact != null && contact.displayName.isNotEmpty
-                ? contact.displayName
-                : widget.chat.contactPhoneNumber,
+            controller.model.contactTitle,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontSize: 16,
@@ -113,11 +111,11 @@ class _ChatPageState extends State<ChatPage> {
           );
         }),
         Observer(builder: (_) {
-          final contact = widget.chat.contact;
+          final status = controller.model.contactStatus;
 
-          if (contact != null && contact.status.isNotEmpty) {
+          if (status.isNotEmpty) {
             return Text(
-              contact.status,
+              controller.model.contactStatus,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
@@ -137,7 +135,7 @@ class _ChatPageState extends State<ChatPage> {
         children: [
           Observer(
             builder: (_) =>
-                AvatarIcon.fromString(widget.chat.contact?.profileImage),
+                AvatarIcon.fromString(controller.model.contactProfileImage),
           ),
           SizedBox(
             width: 16,
@@ -176,8 +174,7 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
       ).then((confirmed) {
         if (confirmed == true) {
-          selectedMessagesIds
-              .forEach((id) => messagesModel.deleteMessageLocally(id));
+          controller.deleteMessagesLocally(selectedMessagesIds);
           _stopSelecting();
         }
       });
@@ -187,11 +184,10 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          selectedMessagesIds.forEach((id) => messagesModel
-              .sendDeleteMessageRequest(id, widget.chat.contactPhoneNumber));
-        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
           selectedMessagesIds
-              .forEach((id) => messagesModel.deleteMessageLocally(id));
+              .forEach((id) => controller.deleteMessagesRemotely([id]));
+        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+          controller.deleteMessagesLocally(selectedMessagesIds);
         }
 
         if (response != DeleteMessagesResponse.CANCEL) {
@@ -208,7 +204,7 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete this message. Are you sure?",
       ).then((confirmed) {
         if (confirmed == true) {
-          messagesModel.deleteMessageLocally(message.id);
+          controller.deleteMessagesLocally([message.id]);
         }
       });
     } else {
@@ -217,12 +213,10 @@ class _ChatPageState extends State<ChatPage> {
         "You are about to delete this message. Are you sure?",
       ).then((response) {
         if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-          messagesModel.sendDeleteMessageRequest(
-              message.id, widget.chat.contactPhoneNumber);
+          controller.deleteMessagesRemotely([message.id]);
         } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
-          messagesModel.deleteMessageLocally(message.id);
+          controller.deleteMessagesLocally([message.id]);
         }
-        // setState(() {});
       });
     }
   }
@@ -332,7 +326,6 @@ class _ChatPageState extends State<ChatPage> {
   ChatCard _buildMessage(Tuple<Message, bool> message) {
     return ChatCard(
       message.first,
-      contactPhoneNumber: widget.chat.contactPhoneNumber,
       onTap: () {
         if (_selecting) {
           setState(() {
@@ -414,19 +407,11 @@ class _ChatPageState extends State<ChatPage> {
 
     _inputController.text = "";
 
-    userModel.phoneNumber.then((userPhoneNumber) {
-      if (userPhoneNumber == null) {
-        throw StateError(
-            "User phone number was null when trying to send a message");
-      }
-
-      messagesModel.sendMessage(widget.chat, contents);
-    });
+    controller.sendMessage(contents);
   }
 }
 
 class ChatCard extends StatelessWidget {
-  final String contactPhoneNumber;
   final Message _message;
   final void Function() onTap;
   final void Function() onSelect;
@@ -435,7 +420,6 @@ class ChatCard extends StatelessWidget {
 
   ChatCard(
     this._message, {
-    required this.contactPhoneNumber,
     required this.onTap,
     required this.onSelect,
     required this.onDelete,

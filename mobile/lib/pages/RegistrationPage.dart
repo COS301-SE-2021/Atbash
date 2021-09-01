@@ -2,8 +2,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_it/get_it.dart';
-import 'package:mobile/models/UserModel.dart';
+import 'package:mobile/controllers/RegistrationPageController.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/util/Utils.dart';
 
@@ -17,7 +16,10 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final UserModel userModel = GetIt.I.get();
+  final RegistrationPageController controller;
+
+  _RegistrationPageState() : controller = RegistrationPageController();
+
   final _phoneNumberController = TextEditingController();
 
   bool loading = false;
@@ -133,7 +135,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    userModel.register(phoneNumber).then((successful) {
+    controller.register(phoneNumber).then((successful) {
       if (successful) {
         Navigator.pushReplacement(
             context,

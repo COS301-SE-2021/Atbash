@@ -5,10 +5,6 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
-import 'package:mobile/models/ChatListModel.dart';
-import 'package:mobile/models/ContactListModel.dart';
-import 'package:mobile/models/MessagesModel.dart';
-import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -18,9 +14,8 @@ import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/RegistrationService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
-
-import 'models/UserModel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +29,7 @@ void main() async {
 
 class AtbashApp extends StatelessWidget {
   final RegistrationService registrationService = GetIt.I.get();
+  final NavigationObserver navigationObserver = GetIt.I.get();
 
   final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -58,6 +54,7 @@ class AtbashApp extends StatelessWidget {
 
         return MaterialApp(
           title: "Atbash",
+          navigatorObservers: [navigationObserver],
           theme: ThemeData(primarySwatch: Colors.orange),
           navigatorKey: _navigatorKey,
           home: page,
@@ -68,41 +65,36 @@ class AtbashApp extends StatelessWidget {
 }
 
 void _registerServices() async {
+  final navigationObserver = NavigationObserver();
+  GetIt.I.registerSingleton(navigationObserver);
+
   final databaseService = DatabaseService();
   final encryptionService = _initialiseEncryptionService(databaseService);
+
   final registrationService = RegistrationService(encryptionService);
+
+  GetIt.I.registerSingleton(registrationService);
 
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
   final userService = UserService();
+  final settingsService = SettingsService();
   final communicationService = CommunicationService(
     encryptionService,
     userService,
+    chatService,
+    contactService,
+    messageService,
   );
-
-  GetIt.I.registerSingleton(databaseService);
-  GetIt.I.registerSingleton(encryptionService);
-  GetIt.I.registerSingleton(registrationService);
 
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
+  GetIt.I.registerSingleton(userService);
+  GetIt.I.registerSingleton(settingsService);
+
   GetIt.I.registerSingleton(communicationService);
-
-  final userModel = UserModel();
-  final settingsModel = SettingsModel();
-  final chatListModel = ChatListModel();
-  final contactListModel = ContactListModel();
-  final messagesModel = MessagesModel();
-
-  GetIt.I.registerSingleton(userModel);
-  GetIt.I.registerSingleton(settingsModel);
-  GetIt.I.registerSingleton(chatListModel);
-  GetIt.I.registerSingleton(contactListModel);
-  GetIt.I.registerSingleton(messagesModel);
-
-  await settingsModel.init();
 }
 
 EncryptionService _initialiseEncryptionService(
@@ -124,4 +116,17 @@ EncryptionService _initialiseEncryptionService(
     preKeyStoreService,
     sessionStoreService,
   );
+}
+
+class NavigationObserver extends NavigatorObserver {
+  List<void Function()> _onRoutePopListeners = [];
+
+  void onRoutePop(void Function() cb) => _onRoutePopListeners.add(cb);
+
+  void disposeOnRoutePop(void Function() cb) => _onRoutePopListeners.remove(cb);
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    _onRoutePopListeners.forEach((listener) => listener());
+  }
 }

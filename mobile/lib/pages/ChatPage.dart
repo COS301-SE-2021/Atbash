@@ -7,6 +7,7 @@ import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
@@ -125,19 +126,32 @@ class _ChatPageState extends State<ChatPage> {
 
     return AppBar(
       titleSpacing: 0,
-      title: Row(
-        children: [
-          Observer(
-            builder: (_) =>
-                AvatarIcon.fromString(controller.model.contactProfileImage),
-          ),
-          SizedBox(
-            width: 16,
-          ),
-          Expanded(
-            child: titleBar,
-          ),
-        ],
+      title: InkWell(
+        highlightColor: _selecting ? Colors.transparent : null,
+        splashFactory: _selecting ? NoSplash.splashFactory : null,
+        enableFeedback: _selecting ? false : true,
+        onTap: () {
+          if (!_selecting)
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactInfoPage(
+                        phoneNumber: controller.contactPhoneNumber)));
+        },
+        child: Row(
+          children: [
+            Observer(
+              builder: (_) =>
+                  AvatarIcon.fromString(controller.model.contactProfileImage),
+            ),
+            SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: titleBar,
+            ),
+          ],
+        ),
       ),
       actions: [
         if (_selecting)

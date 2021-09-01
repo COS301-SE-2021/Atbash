@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Message.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -14,6 +15,7 @@ class HomePageController {
   final ChatService chatService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final MessageService messageService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final HomePageModel model = HomePageModel();
 
@@ -24,6 +26,7 @@ class HomePageController {
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);
+    communicationService.onMessage = _onMessage;
     navigationObserver.onRoutePop(reload);
     reload();
   }
@@ -32,6 +35,11 @@ class HomePageController {
     navigationObserver.disposeOnRoutePop(reload);
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
+    communicationService.disposeOnMessage(_onMessage);
+  }
+
+  void _onMessage(Message m) {
+    reload();
   }
 
   void reload() {

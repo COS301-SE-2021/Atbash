@@ -5,7 +5,6 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
-import 'package:mobile/models/SettingsModel.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -17,8 +16,6 @@ import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
-
-import 'models/UserModel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,13 +96,6 @@ void _registerServices() async {
   GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(communicationService);
 
-  final userModel = UserModel();
-  final settingsModel = SettingsModel();
-
-  GetIt.I.registerSingleton(userModel);
-  GetIt.I.registerSingleton(settingsModel);
-
-  await settingsModel.init();
   await communicationService.goOnline();
 }
 

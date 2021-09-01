@@ -183,6 +183,7 @@ class CommunicationService {
 
         case "status":
           final status = decryptedContents["status"] as String;
+          contactService.setContactStatus(senderPhoneNumber, status);
           _onStatusListeners
               .forEach((listener) => listener(senderPhoneNumber, status));
           break;

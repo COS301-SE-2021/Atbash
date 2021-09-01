@@ -225,6 +225,22 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                     ),
                   ),
+                ),
+                SizedBox(
+                  width: 12,
+                ),
+                InkWell(
+                  onTap: () {
+                    //TODO Add functionality for broadcast message button
+                  },
+                  child: Container(
+                    child: Text("Broadcast Message"),
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: Colors.white,
+                    ),
+                  ),
                 )
               ],
             ),

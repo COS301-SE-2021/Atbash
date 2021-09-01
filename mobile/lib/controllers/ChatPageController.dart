@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -32,6 +33,7 @@ class ChatPageController {
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
       model.contactStatus = chat.contact?.status ?? "";
       model.contactProfileImage = chat.contact?.profileImage ?? "";
+      model.contactSaved = chat.contact != null;
     });
 
     messageService.fetchAllByChatId(chatId).then((messages) {
@@ -108,5 +110,22 @@ class ChatPageController {
       messageService.setMessageDeleted(id);
       model.setDeletedById(id);
     });
+  }
+
+  void addSenderAsContact(String displayName) {
+    final contact = Contact(
+      phoneNumber: contactPhoneNumber,
+      displayName: displayName,
+      status: "",
+      profileImage: "",
+    );
+
+    contactService.insert(contact);
+
+    communicationService.sendRequestProfileImage(contactPhoneNumber);
+    communicationService.sendRequestStatus(contactPhoneNumber);
+
+    model.contactSaved = true;
+    model.contactTitle = displayName;
   }
 }

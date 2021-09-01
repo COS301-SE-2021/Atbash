@@ -319,6 +319,11 @@ class CommunicationService {
     _queueForSending(contents, contactPhoneNumber);
   }
 
+  Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
+    final contents = jsonEncode({"type": "requestProfileImage"});
+    _queueForSending(contents, contactPhoneNumber);
+  }
+
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
       {String? id}) async {
     final userPhoneNumber = await userService.getPhoneNumber();

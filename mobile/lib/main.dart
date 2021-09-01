@@ -86,6 +86,7 @@ void _registerServices() async {
     chatService,
     contactService,
     messageService,
+    settingsService
   );
 
   GetIt.I.registerSingleton(chatService);

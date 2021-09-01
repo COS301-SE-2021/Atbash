@@ -197,6 +197,11 @@ class CommunicationService {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
+
+        case "like":
+          messageService.setMessageLiked(
+              decryptedContents["messageID"], decryptedContents["liked"]);
+          break;
       }
     }
   }

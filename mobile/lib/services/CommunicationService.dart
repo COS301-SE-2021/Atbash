@@ -221,21 +221,15 @@ class CommunicationService {
           break;
 
         case "requestStatus":
-          bool shareStatus = await settingsService.getShareStatus();
-          if (!shareStatus) {
-            final status = await userService.getStatus();
-            sendStatus(status, senderPhoneNumber);
-          }
+          final status = await userService.getStatus();
+          sendStatus(status, senderPhoneNumber);
           break;
 
         case "requestProfileImage":
-          bool shareImage = await settingsService.getShareProfilePicture();
-          if (!shareImage) {
-            final profileImage = await userService.getProfileImage();
+          final profileImage = await userService.getProfileImage();
 
-            if (profileImage != null) {
-              sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
-            }
+          if (profileImage != null) {
+            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
 
@@ -321,12 +315,14 @@ class CommunicationService {
       "type": "status",
       "status": status,
     });
-
-    _queueForSending(contents, recipientPhoneNumber);
+    bool shareStatus = await settingsService.getShareStatus();
+    if (!shareStatus) _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
+    bool shareImage = await settingsService.getShareProfilePicture();
+    if (shareImage) return;
     final base16Key = SecureRandom(32).base16;
     final base16IV = SecureRandom(16).base16;
 

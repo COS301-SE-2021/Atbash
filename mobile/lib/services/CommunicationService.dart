@@ -182,19 +182,23 @@ class CommunicationService {
           break;
 
         case "ackSeen":
-          final messageIds = (decryptedContents["messageIds"] as List)
-              .map((e) => e as String)
-              .toList();
+          bool shareReceipts = await settingsService.getShareReadReceipts();
+          if (!shareReceipts) {
+            final messageIds = (decryptedContents["messageIds"] as List)
+                .map((e) => e as String)
+                .toList();
 
-          messageIds.forEach((id) =>
-              messageService.setMessageReadReceipt(id, ReadReceipt.seen));
+            messageIds.forEach((id) =>
+                messageService.setMessageReadReceipt(id, ReadReceipt.seen));
 
-          _onAckSeenListeners.forEach((listener) => listener(messageIds));
+            _onAckSeenListeners.forEach((listener) => listener(messageIds));
+          }
+
           break;
 
         case "requestStatus":
           bool shareStatus = await settingsService.getShareStatus();
-          if (shareStatus) {
+          if (!shareStatus) {
             final status = await userService.getStatus();
             sendStatus(status, senderPhoneNumber);
           }
@@ -202,7 +206,7 @@ class CommunicationService {
 
         case "requestProfileImage":
           bool shareImage = await settingsService.getShareProfilePicture();
-          if (shareImage) {
+          if (!shareImage) {
             final profileImage = await userService.getProfileImage();
 
             if (profileImage != null) {
@@ -325,7 +329,7 @@ class CommunicationService {
     });
 
     bool shareReceipts = await settingsService.getShareReadReceipts();
-    if (shareReceipts) _queueForSending(contents, recipientPhoneNumber);
+    if (!shareReceipts) _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendRequestStatus(String contactPhoneNumber) async {

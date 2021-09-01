@@ -207,8 +207,10 @@ class CommunicationService {
           break;
 
         case "like":
-          messageService.setMessageLiked(
-              decryptedContents["messageID"], decryptedContents["liked"]);
+          final messageId = decryptedContents["messageId"] as String;
+          final liked = decryptedContents["liked"] as bool;
+
+          messageService.setMessageLiked(messageId, liked);
           _onMessageLikedListeners.forEach((listener) => listener);
           break;
       }

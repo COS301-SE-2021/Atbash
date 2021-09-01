@@ -257,6 +257,15 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendStatus(String status, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "status",
+      "status": status,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
     final base16Key = SecureRandom(32).base16;

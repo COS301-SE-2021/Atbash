@@ -30,6 +30,11 @@ class ProfileSettingsPageController {
   void setStatus(String status) {
     model.status = status;
     userService.setStatus(status);
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendStatus(status, contact.phoneNumber);
+      });
+    });
   }
 
   void setBirthday(DateTime birthday) {

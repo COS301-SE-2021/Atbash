@@ -147,12 +147,24 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     height: 60,
                   ),
                   Text("Birthday"),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 80),
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.datetime,
-                    ),
+                  TextButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(
+                        context,
+                        showTitleActions: true,
+                        minTime: DateTime(1900, 1, 1),
+                        maxTime: DateTime.now(),
+                        onConfirm: (date) {
+                          //TODO: Update user's birthday and send to all listeners.
+                          setState(() {
+                            _birthdayController.text =
+                                DateFormat.yMMMd().format(date);
+                          });
+                        },
+                        currentTime: DateTime.now(),
+                      );
+                    },
+                    child: Text(_birthdayController.text),
                   ),
                   SizedBox(
                     height: 20,

@@ -190,6 +190,16 @@ class MessageService {
       whereArgs: [chatId],
     );
   }
+
+  Future<void> setMessageLiked(String messageId, bool liked) async {
+    final db = await databaseService.database;
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_LIKED} = ? where ${Message.COLUMN_ID} = ?",
+      [liked ? 1 : 0, messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+  }
 }
 
 class MessageNotFoundException implements Exception {}

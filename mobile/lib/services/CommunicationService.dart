@@ -204,7 +204,18 @@ class CommunicationService {
 
           _onAckSeenListeners.forEach((listener) => listener(messageIds));
           break;
+
         case "requestStatus":
+          final status = await userService.getStatus();
+          sendStatus(status, senderPhoneNumber);
+          break;
+
+        case "requestProfileImage":
+          final profileImage = await userService.getProfileImage();
+
+          if (profileImage != null) {
+            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+          }
           break;
       }
     }

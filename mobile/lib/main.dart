@@ -70,7 +70,6 @@ void _registerServices() async {
 
   final databaseService = DatabaseService();
   final encryptionService = _initialiseEncryptionService(databaseService);
-  final registrationService = RegistrationService(encryptionService);
 
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
@@ -85,15 +84,12 @@ void _registerServices() async {
     messageService,
   );
 
-  GetIt.I.registerSingleton(databaseService);
-  GetIt.I.registerSingleton(encryptionService);
-  GetIt.I.registerSingleton(registrationService);
-
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
+
   GetIt.I.registerSingleton(communicationService);
 
   await communicationService.goOnline();

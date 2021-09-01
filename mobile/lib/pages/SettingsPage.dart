@@ -124,7 +124,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setSharedProfilePicture(newValue);
                 },
                 title: Text(
-                  "Profile photo",
+                  "Don't share profile photo",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -141,7 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setShareStatus(newValue);
                 },
                 title: Text(
-                  "Status",
+                  "Don't share status",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -158,7 +158,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setShareReadReceipts(newValue);
                 },
                 title: Text(
-                  "Read receipts",
+                  "Don't share read receipts",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(

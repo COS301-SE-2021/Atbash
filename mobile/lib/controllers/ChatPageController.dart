@@ -27,6 +27,8 @@ class ChatPageController {
 
     communicationService.onAckSeen = _onAckSeen;
 
+    communicationService.onMessageLiked(_onMessageLiked);
+
     chatService.fetchById(chatId).then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
@@ -71,6 +73,10 @@ class ChatPageController {
     messageIds.forEach((id) {
       model.setReadReceiptById(id, ReadReceipt.seen);
     });
+  }
+
+  void _onMessageLiked(String messageID, bool liked) {
+    model.setLikedById(messageID, liked);
   }
 
   void dispose() {

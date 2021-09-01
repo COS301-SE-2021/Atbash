@@ -36,6 +36,8 @@ class ChatPageController {
       model.contactSaved = chat.contact != null;
     });
 
+    contactService.onChanged(_onContactChanged);
+
     messageService.fetchAllByChatId(chatId).then((messages) {
       final unseenMessagesIds = messages
           .where((message) =>
@@ -75,11 +77,22 @@ class ChatPageController {
     });
   }
 
+  void _onContactChanged() {
+    try {
+      contactService.fetchByPhoneNumber(contactPhoneNumber).then((contact) {
+        model.contactTitle = contact.displayName;
+        model.contactStatus = contact.status;
+        model.contactProfileImage = contact.profileImage;
+      });
+    } on ContactWithPhoneNumberDoesNotExistException {}
+  }
+
   void dispose() {
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    contactService.disposeOnChanged(_onContactChanged);
   }
 
   void sendMessage(String contents) {

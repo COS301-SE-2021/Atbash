@@ -25,10 +25,6 @@ class CommunicationService {
 
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
-  List<void Function(String contactPhoneNumber, String profileImage)>
-      _onProfileImageListeners = [];
-  List<void Function(String contactPhoneNumber, String status)>
-      _onStatusListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
 
@@ -43,21 +39,6 @@ class CommunicationService {
 
   void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
-
-  set onProfileImage(
-          void Function(String contactPhoneNumber, String profileImage) cb) =>
-      _onProfileImageListeners.add(cb);
-
-  void disposeOnProfileImage(
-          void Function(String contactPhoneNumber, String profileImage) cb) =>
-      _onProfileImageListeners.add(cb);
-
-  set onStatus(void Function(String contactPhoneNumber, String status) cb) =>
-      _onStatusListeners.add(cb);
-
-  void disposeOnStatus(
-          void Function(String contactPhoneNumber, String status) cb) =>
-      _onStatusListeners.add(cb);
 
   set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
@@ -184,8 +165,6 @@ class CommunicationService {
         case "status":
           final status = decryptedContents["status"] as String;
           contactService.setContactStatus(senderPhoneNumber, status);
-          _onStatusListeners
-              .forEach((listener) => listener(senderPhoneNumber, status));
           break;
 
         case "ack":

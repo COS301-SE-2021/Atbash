@@ -116,8 +116,9 @@ class ChatPageController {
     });
   }
 
-  void likeMessage(String messageID, bool liked) {
-    messageService.setMessageLiked(messageID, liked);
-    model.setLikedById(messageID, liked);
+  void likeMessage(String messageId, bool liked) {
+    communicationService.sendLiked(messageId, liked, contactPhoneNumber);
+    messageService.setMessageLiked(messageId, liked);
+    model.setLikedById(messageId, liked);
   }
 }

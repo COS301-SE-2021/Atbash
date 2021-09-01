@@ -262,11 +262,12 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendLiked(Message message, String recipientPhoneNumber) async {
+  Future<void> sendLiked(
+      String messageId, bool liked, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "like",
-      "messageId": message.id,
-      "liked": message.liked,
+      "messageId": messageId,
+      "liked": liked,
     });
 
     _queueForSending(contents, recipientPhoneNumber);

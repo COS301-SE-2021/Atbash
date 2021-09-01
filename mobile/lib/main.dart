@@ -71,6 +71,10 @@ void _registerServices() async {
   final databaseService = DatabaseService();
   final encryptionService = _initialiseEncryptionService(databaseService);
 
+  final registrationService = RegistrationService(encryptionService);
+
+  GetIt.I.registerSingleton(registrationService);
+
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);

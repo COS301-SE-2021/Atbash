@@ -27,6 +27,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
+  final _birthdayController = TextEditingController();
 
   late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
@@ -34,6 +35,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   @override
   void initState() {
     super.initState();
+
+    //TODO: Set birthdayControllers text to stored birthday.
+    _birthdayController.text = "Select Birthday";
 
     _userDisposer = autorun((_) {
       _displayNameController.text = controller.model.displayName;

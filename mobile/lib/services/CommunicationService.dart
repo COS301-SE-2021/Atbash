@@ -211,7 +211,8 @@ class CommunicationService {
           final liked = decryptedContents["liked"] as bool;
 
           messageService.setMessageLiked(messageId, liked);
-          _onMessageLikedListeners.forEach((listener) => listener);
+          _onMessageLikedListeners
+              .forEach((listener) => listener(messageId, liked));
           break;
       }
     }

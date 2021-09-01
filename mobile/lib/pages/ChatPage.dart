@@ -10,9 +10,6 @@ import 'package:mobile/dialogs/ForwardDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/models/ContactListModel.dart';
-import 'package:mobile/models/MessagesModel.dart';
-import 'package:mobile/models/UserModel.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
@@ -347,6 +344,7 @@ class _ChatPageState extends State<ChatPage> {
       },
       onDelete: () => _deleteSingleMessage(message.first),
       selected: _selecting && message.second,
+      onDoubleTap: () => _likeMessage(message.first),
     );
   }
 
@@ -423,6 +421,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onSelect;
   final void Function() onDelete;
   final bool selected;
+  final void Function() onDoubleTap;
 
   ChatCard(
     this._message, {
@@ -430,6 +429,7 @@ class ChatCard extends StatelessWidget {
     required this.onSelect,
     required this.onDelete,
     required this.selected,
+    required this.onDoubleTap,
   });
 
   final dateFormatter = DateFormat("Hm");
@@ -453,81 +453,85 @@ class ChatCard extends StatelessWidget {
           alignment: alignment,
           child: Padding(
             padding: padding,
-            child: FocusedMenuHolder(
-              animateMenuItems: false,
-              blurSize: 2,
-              blurBackgroundColor: Constants.black,
-              menuWidth: MediaQuery.of(context).size.width * 0.4,
-              onPressed: onTap,
-              menuItemExtent: 40,
-              menuItems: [
-                FocusedMenuItem(
-                    title: Text("Select"),
-                    onPressed: onSelect,
-                    trailingIcon: Icon(Icons.check_box_outline_blank)),
-                if (!_message.deleted)
+            child: InkWell(
+              onDoubleTap: onDoubleTap,
+              child: FocusedMenuHolder(
+                animateMenuItems: false,
+                blurSize: 2,
+                blurBackgroundColor: Constants.black,
+                menuWidth: MediaQuery.of(context).size.width * 0.4,
+                onPressed: onTap,
+                menuItemExtent: 40,
+                menuItems: [
                   FocusedMenuItem(
-                      title: Text("Tag"),
-                      onPressed: () {},
-                      trailingIcon: Icon(Icons.tag)),
-                if (!_message.deleted)
+                      title: Text("Select"),
+                      onPressed: onSelect,
+                      trailingIcon: Icon(Icons.check_box_outline_blank)),
+                  if (!_message.deleted)
+                    FocusedMenuItem(
+                        title: Text("Tag"),
+                        onPressed: () {},
+                        trailingIcon: Icon(Icons.tag)),
+                  if (!_message.deleted)
+                    FocusedMenuItem(
+                        title: Text("Forward"),
+                        onPressed: () {
+                          //TODO: Send message to forwarded contacts.
+                          showForwardDialog(context).then((forwardContacts) {});
+                        },
+                        trailingIcon: Icon(Icons.forward)),
+                  if (!_message.deleted)
+                    FocusedMenuItem(
+                        title: Text("Copy"),
+                        onPressed: () => Clipboard.setData(
+                            ClipboardData(text: _message.contents)),
+                        trailingIcon: Icon(Icons.copy)),
                   FocusedMenuItem(
-                      title: Text("Forward"),
-                      onPressed: () {
-                        //TODO: Send message to forwarded contacts.
-                        showForwardDialog(context).then((forwardContacts) {});
-                      },
-                      trailingIcon: Icon(Icons.forward)),
-                if (!_message.deleted)
-                  FocusedMenuItem(
-                      title: Text("Copy"),
-                      onPressed: () => Clipboard.setData(
-                          ClipboardData(text: _message.contents)),
-                      trailingIcon: Icon(Icons.copy)),
-                FocusedMenuItem(
-                    title: Text(
-                      "Delete",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: onDelete,
-                    trailingIcon: Icon(
-                      Icons.delete,
-                      color: Constants.white,
-                    ),
-                    backgroundColor: Colors.redAccent),
-              ],
-              child: Card(
-                color: color.withOpacity(0.8),
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-                      child: Text(
-                        _message.deleted
-                            ? "This message was deleted"
-                            : _message.contents,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontStyle: _message.deleted ? FontStyle.italic : null,
-                        ),
+                      title: Text(
+                        "Delete",
+                        style: TextStyle(color: Colors.white),
                       ),
-                    ),
-                    Positioned(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      onPressed: onDelete,
+                      trailingIcon: Icon(
+                        Icons.delete,
+                        color: Constants.white,
+                      ),
+                      backgroundColor: Colors.redAccent),
+                ],
+                child: Card(
+                  color: color.withOpacity(0.8),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
                         child: Text(
-                          dateFormatter.format(_message.timestamp),
-                          style: TextStyle(fontSize: 11, color: Colors.white),
+                          _message.deleted
+                              ? "This message was deleted"
+                              : _message.contents,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontStyle:
+                                _message.deleted ? FontStyle.italic : null,
+                          ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                        child: _readReceipt(),
+                      Positioned(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            dateFormatter.format(_message.timestamp),
+                            style: TextStyle(fontSize: 11, color: Colors.white),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
+                          child: _readReceipt(),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

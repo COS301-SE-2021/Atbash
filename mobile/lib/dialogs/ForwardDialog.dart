@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/models/ContactListModel.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
@@ -19,15 +18,13 @@ class _ForwardDialog extends StatefulWidget {
 }
 
 class __ForwardDialogState extends State<_ForwardDialog> {
-  final ContactListModel _contactListModel = GetIt.I.get();
-
   final List<Contact> _selectedContacts = [];
 
   String query = "";
 
   @override
   Widget build(BuildContext context) {
-    List<Contact> contacts = _contactListModel.contacts;
+    List<Contact> contacts = [];
 
     return AlertDialog(
         actions: [

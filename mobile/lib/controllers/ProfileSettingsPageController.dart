@@ -2,10 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ProfileSettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/util/Utils.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:contacts_service/contacts_service.dart' as ImportContact;
 
 class ProfileSettingsPageController {
   final UserService userService = GetIt.I.get();
@@ -51,5 +55,33 @@ class ProfileSettingsPageController {
             base64Encode(picture), contact.phoneNumber);
       });
     });
+  }
+
+  Future<void> _addContact(String number, String name) async {
+    Contact contact = new Contact(
+        phoneNumber: number, displayName: name, status: "", profileImage: "");
+    await contactService.insert(contact);
+    communicationService.sendRequestStatus(number);
+    communicationService.sendRequestProfileImage(number);
+  }
+
+  Future<void> importContacts() async {
+    PermissionStatus contactPermission = await Permission.contacts.request();
+    if (contactPermission.isGranted) {
+      Iterable<ImportContact.Contact> contacts =
+          await ImportContact.ContactsService.getContacts();
+
+      contacts.forEach((contact) async {
+        final Iterable<ImportContact.Item>? contactPhones = contact.phones;
+        if (contactPhones != null) {
+          String? mobileNumber = contactPhones.first.value;
+          String? name = contact.displayName;
+          if (mobileNumber != null && name != null) {
+            String phoneNumber = "+" + cullToE164(mobileNumber);
+            _addContact(phoneNumber, name).catchError((_) {});
+          }
+        }
+      });
+    }
   }
 }

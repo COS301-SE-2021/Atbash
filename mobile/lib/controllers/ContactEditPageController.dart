@@ -15,7 +15,6 @@ class ContactEditPageController {
     contactService.fetchByPhoneNumber(phoneNumber).then((contact) {
       this.contact = contact;
       model.contactName = contact.displayName;
-      print(contact.displayName + " Name");
       model.contactBirthday = contact.birthday;
     });
   }

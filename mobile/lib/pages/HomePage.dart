@@ -242,7 +242,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   List<InkWell> _buildChatList(bool filtered) {
-    List<Chat> chats = controller.model.chats;
+    List<Chat> chats = controller.model.orderedChats;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();

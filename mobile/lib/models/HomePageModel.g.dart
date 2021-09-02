@@ -9,6 +9,14 @@ part of 'HomePageModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$HomePageModel on _HomePageModel, Store {
+  Computed<List<Chat>>? _$orderedChatsComputed;
+
+  @override
+  List<Chat> get orderedChats =>
+      (_$orderedChatsComputed ??= Computed<List<Chat>>(() => super.orderedChats,
+              name: '_HomePageModel.orderedChats'))
+          .value;
+
   final _$userDisplayNameAtom = Atom(name: '_HomePageModel.userDisplayName');
 
   @override
@@ -111,7 +119,8 @@ mixin _$HomePageModel on _HomePageModel, Store {
 userDisplayName: ${userDisplayName},
 userStatus: ${userStatus},
 userProfileImage: ${userProfileImage},
-chats: ${chats}
+chats: ${chats},
+orderedChats: ${orderedChats}
     ''';
   }
 }

@@ -43,7 +43,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
+    _inputController.text = controller.getTypedMessage();
     _messagesDisposer = autorun((_) {
       setState(() {
         _messages =
@@ -55,7 +55,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     super.dispose();
-
+    controller.storeTypedMessage(_inputController.text);
     _messagesDisposer();
     controller.dispose();
   }

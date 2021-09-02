@@ -28,8 +28,10 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   }
 
   Widget _buildBody() {
-    return ListView.builder(itemBuilder: (BuildContext context, int index) {
-      return Container();
-    });
+    return ListView.builder(
+        itemCount: 1,
+        itemBuilder: (BuildContext context, int index) {
+          return Container();
+        });
   }
 }

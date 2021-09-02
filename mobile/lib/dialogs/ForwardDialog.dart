@@ -5,27 +5,32 @@ import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
 
-Future<List<Contact>?> showForwardDialog(BuildContext context) {
+Future<List<Contact>?> showForwardDialog(
+    BuildContext context, List<Contact> contacts) {
   return showDialog<List<Contact>>(
     context: context,
-    builder: (context) => _ForwardDialog(),
+    builder: (context) => ForwardDialog(
+      contacts: contacts,
+    ),
   );
 }
 
-class _ForwardDialog extends StatefulWidget {
+class ForwardDialog extends StatefulWidget {
+  final List<Contact> contacts;
+
+  const ForwardDialog({Key? key, required this.contacts}) : super(key: key);
+
   @override
-  __ForwardDialogState createState() => __ForwardDialogState();
+  _ForwardDialogState createState() => _ForwardDialogState();
 }
 
-class __ForwardDialogState extends State<_ForwardDialog> {
+class _ForwardDialogState extends State<ForwardDialog> {
   final List<Contact> _selectedContacts = [];
 
   String query = "";
 
   @override
   Widget build(BuildContext context) {
-    List<Contact> contacts = [];
-
     return AlertDialog(
         actions: [
           TextButton(
@@ -57,7 +62,7 @@ class __ForwardDialogState extends State<_ForwardDialog> {
               Expanded(
                 child: TextField(
                   onChanged: (String input) {
-                    _searchContacts(input, contacts);
+                    _searchContacts(input, widget.contacts);
                   },
                   expands: false,
                   decoration: InputDecoration(
@@ -80,9 +85,9 @@ class __ForwardDialogState extends State<_ForwardDialog> {
           height: 320,
           width: 200,
           child: ListView.builder(
-              itemCount: contacts.length,
+              itemCount: widget.contacts.length,
               itemBuilder: (BuildContext context, int index) {
-                return _buildContactItem(contacts[index]);
+                return _buildContactItem(widget.contacts[index]);
               }),
         ));
   }

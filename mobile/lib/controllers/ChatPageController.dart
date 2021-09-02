@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatPageModel.dart';
+import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -13,6 +14,7 @@ class ChatPageController {
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final MessageService messageService = GetIt.I.get();
+  final ChatCacheService chatCacheService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -152,5 +154,13 @@ class ChatPageController {
 
     model.contactSaved = true;
     model.contactTitle = displayName;
+  }
+
+  void storeTypedMessage(String message){
+    chatCacheService.put(chatId, message);
+  }
+
+  String getTypedMessage(){
+    return chatCacheService.get(chatId);
   }
 }

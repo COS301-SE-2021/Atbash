@@ -7,6 +7,7 @@ import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
+import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -80,20 +81,21 @@ void _registerServices() async {
   final messageService = MessageService(databaseService);
   final userService = UserService();
   final settingsService = SettingsService();
+  final chatCacheService = ChatCacheService();
   final communicationService = CommunicationService(
-    encryptionService,
-    userService,
-    chatService,
-    contactService,
-    messageService,
-    settingsService
-  );
+      encryptionService,
+      userService,
+      chatService,
+      contactService,
+      messageService,
+      settingsService);
 
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
+  GetIt.I.registerSingleton(chatCacheService);
 
   GetIt.I.registerSingleton(communicationService);
 }

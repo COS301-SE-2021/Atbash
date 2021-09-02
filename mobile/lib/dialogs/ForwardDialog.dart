@@ -28,6 +28,13 @@ class _ForwardDialogState extends State<ForwardDialog> {
   final List<Contact> _selectedContacts = [];
 
   String query = "";
+  List<Contact> contacts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    contacts = widget.contacts;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +69,7 @@ class _ForwardDialogState extends State<ForwardDialog> {
               Expanded(
                 child: TextField(
                   onChanged: (String input) {
-                    _searchContacts(input, widget.contacts);
+                    _searchContacts(input, contacts);
                   },
                   expands: false,
                   decoration: InputDecoration(
@@ -85,14 +92,15 @@ class _ForwardDialogState extends State<ForwardDialog> {
           height: 320,
           width: 200,
           child: ListView.builder(
-              itemCount: widget.contacts.length,
+              itemCount: contacts.length,
               itemBuilder: (BuildContext context, int index) {
-                return _buildContactItem(widget.contacts[index]);
+                return _buildContactItem(contacts[index],
+                    _selectedContacts.contains(contacts[index]));
               }),
         ));
   }
 
-  Widget _buildContactItem(Contact contact) {
+  Widget _buildContactItem(Contact contact, bool selected) {
     Widget widget;
 
     if (contact.status != "")
@@ -136,12 +144,13 @@ class _ForwardDialogState extends State<ForwardDialog> {
   }
 
   void _searchContacts(String query, List<Contact> contacts) {
-    final filteredContacts = contacts.where((contact) {
+    final filteredContacts = widget.contacts.where((contact) {
       return contact.displayName.toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
       this.query = query;
+      this.contacts = filteredContacts;
       //TODO: Update contacts state variable.
     });
   }

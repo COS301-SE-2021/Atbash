@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
+import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -182,6 +183,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 trailing: Icon(Icons.arrow_forward_rounded),
                 onTap: () {
                   //TODO Transfer to blocked contacts page
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BlockedContactsPage()));
                 },
                 dense: true,
               ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ContactEditPageController.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobx/mobx.dart';
@@ -19,6 +21,9 @@ class ContactEditPage extends StatefulWidget {
 class _ContactEditPageState extends State<ContactEditPage> {
   final ContactEditPageController controller;
   final _displayNameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _birthdayController = TextEditingController();
+
   late final ReactionDisposer _contactDisposer;
 
   _ContactEditPageState({required String phoneNumber})
@@ -29,7 +34,13 @@ class _ContactEditPageState extends State<ContactEditPage> {
     super.initState();
 
     _contactDisposer = autorun((_) {
+      final contactBirthday = controller.model.contactBirthday;
+
+      _phoneNumberController.text = controller.model.contactPhoneNumber;
       _displayNameController.text = controller.model.contactName;
+      _birthdayController.text = contactBirthday == null
+          ? "Select birthday"
+          : DateFormat.yMMMd().format(contactBirthday);
     });
   }
 
@@ -41,8 +52,6 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    _displayNameController.text = controller.model.contactName;
-
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -67,7 +76,52 @@ class _ContactEditPageState extends State<ContactEditPage> {
             SizedBox(
               height: 50,
             ),
-            //TODO Add birthday as an option to update
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              child: Text(
+                "Edit number:",
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 60),
+              alignment: Alignment.center,
+              child: TextField(
+                controller: _phoneNumberController,
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            //If we want to allow editing of birthdays again uncomment this code.
+
+            // Container(
+            //   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+            //   child: Text(
+            //     "Edit birthday:",
+            //     style: TextStyle(fontSize: 20),
+            //     textAlign: TextAlign.center,
+            //   ),
+            // ),
+            // TextButton(
+            //   onPressed: () {
+            //     DatePicker.showDatePicker(
+            //       context,
+            //       showTitleActions: true,
+            //       minTime: DateTime(1900, 1, 1),
+            //       maxTime: DateTime.now(),
+            //       onConfirm: (date) {
+            //         //TODO: Update birthday in database.
+            //         setState(() {
+            //           _birthdayController.text =
+            //               DateFormat.yMMMd().format(date);
+            //         });
+            //       },
+            //       currentTime: DateTime.now(),
+            //     );
+            //   },
+            //   child: Text(_birthdayController.text),
+            // ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 160),
               child: ElevatedButton(

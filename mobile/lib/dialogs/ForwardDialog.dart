@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -118,9 +117,15 @@ class _ForwardDialogState extends State<ForwardDialog> {
       children: [
         InkWell(
           onTap: () {
-            _selectedContacts.add(contact);
+            setState(() {
+              if (_selectedContacts.contains(contact))
+                _selectedContacts.remove(contact);
+              else
+                _selectedContacts.add(contact);
+            });
           },
           child: Container(
+            color: selected ? Constants.orange.withOpacity(0.4) : null,
             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             child: Row(
               children: [

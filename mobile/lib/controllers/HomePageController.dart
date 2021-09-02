@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
@@ -65,7 +66,9 @@ class HomePageController {
         .getProfileImage()
         .then((profileImage) => model.userProfileImage = profileImage);
 
-    chatService.fetchAll().then((chats) => model.replaceChats(chats));
+    chatService
+        .fetchByChatType(ChatType.general)
+        .then((chats) => model.replaceChats(chats));
   }
 
   void deleteChat(String chatId) {

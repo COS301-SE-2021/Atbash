@@ -9,5 +9,8 @@ abstract class _ContactEditPageModel with Store {
   String contactName = "";
 
   @observable
+  String contactPhoneNumber = "";
+
+  @observable
   DateTime? contactBirthday;
 }

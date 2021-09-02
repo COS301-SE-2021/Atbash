@@ -392,6 +392,8 @@ class _ChatPageState extends State<ChatPage> {
       onDelete: () => _deleteSingleMessage(message.first),
       selected: _selecting && message.second,
       onDoubleTap: () => _likeMessage(message.first),
+      onForwardPressed: () =>
+          controller.forwardMessage(context, message.first.contents),
     );
   }
 
@@ -469,6 +471,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDelete;
   final bool selected;
   final void Function() onDoubleTap;
+  final void Function() onForwardPressed;
 
   ChatCard(
     this._message, {
@@ -477,6 +480,7 @@ class ChatCard extends StatelessWidget {
     required this.onDelete,
     required this.selected,
     required this.onDoubleTap,
+    required this.onForwardPressed,
   });
 
   final dateFormatter = DateFormat("Hm");
@@ -524,7 +528,7 @@ class ChatCard extends StatelessWidget {
                         title: Text("Forward"),
                         onPressed: () {
                           //TODO: Send message to forwarded contacts.
-                          showForwardDialog(context).then((forwardContacts) {});
+                          onForwardPressed();
                         },
                         trailingIcon: Icon(Icons.forward)),
                   if (!_message.deleted)

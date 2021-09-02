@@ -340,8 +340,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   String _chatDateString(int index) {
-    String ans = "";
-
     int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
             1000 /
             60 /
@@ -370,7 +368,9 @@ class _ChatPageState extends State<ChatPage> {
       return DateFormat("EEE, dd MMM").format(_messages[index].first.timestamp);
     }
 
-    return ans;
+    //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
+
+    return "";
   }
 
   ChatCard _buildMessage(Tuple<Message, bool> message) {

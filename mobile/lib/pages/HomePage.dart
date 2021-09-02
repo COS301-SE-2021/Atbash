@@ -190,53 +190,12 @@ class _HomePageState extends State<HomePage> {
 
   SafeArea _buildBody() {
     return SafeArea(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            color: Colors.orange,
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    //TODO Add functionality for chats button
-                  },
-                  child: Container(
-                    child: Text("Chats"),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                InkWell(
-                  onTap: () {
-                    //TODO Add functionality for private chats button
-                  },
-                  child: Container(
-                    child: Text("Private Chats"),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Expanded(child: Observer(
-            builder: (context) {
-              return ListView(
-                children: _buildChatList(_searching),
-              );
-            },
-          )),
-        ],
+      child: Observer(
+        builder: (context) {
+          return ListView(
+            children: _buildChatList(_searching),
+          );
+        },
       ),
     );
   }

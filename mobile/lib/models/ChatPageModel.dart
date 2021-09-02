@@ -1,3 +1,4 @@
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobx/mobx.dart';
 
@@ -17,6 +18,9 @@ abstract class _ChatPageModel with Store {
 
   @observable
   bool contactSaved = false;
+
+  @observable
+  ChatType chatType = ChatType.private;
 
   @observable
   ObservableList<Message> messages = <Message>[].asObservable();

@@ -32,24 +32,24 @@ class CommunicationService {
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
 
-  set onMessage(void Function(Message message) cb) =>
+  void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
   void disposeOnMessage(void Function(Message message) cb) =>
       _onMessageListeners.remove(cb);
 
-  set onDelete(void Function(String messageId) cb) =>
+  void onDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
 
   void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.remove(cb);
 
-  set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
+  void onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
   void disposeOnAck(void Function(String messageId) cb) =>
       _onAckListeners.remove(cb);
 
-  set onAckSeen(void Function(List<String> messageIds) cb) =>
+  void onAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
@@ -139,31 +139,41 @@ class CommunicationService {
 
       switch (type) {
         case "message":
-          final chatId = decryptedContents["chatId"] as String;
+          final chatTypeStr = decryptedContents["chatType"] as String;
+          final chatType =
+              ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final text = decryptedContents["text"] as String;
 
-          final message = Message(
-            id: id,
-            chatId: chatId,
-            isIncoming: true,
-            otherPartyPhoneNumber: senderPhoneNumber,
-            contents: text,
-            timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-            readReceipt: ReadReceipt.delivered,
-            deleted: false,
-            liked: false,
-            tags: [],
-          );
-
-          chatService.existsById(chatId).then((chatExists) {
-            if (!chatExists) {
+          chatService
+              .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
+              .then((exists) async {
+            if (!exists) {
               final chat = Chat(
-                id: chatId,
+                id: Uuid().v4(),
                 contactPhoneNumber: senderPhoneNumber,
-                chatType: ChatType.general,
+                chatType: chatType,
               );
-              chatService.insert(chat);
+
+              await chatService.insert(chat);
             }
+
+            String chatId = await chatService.findIdByPhoneNumberAndChatType(
+              senderPhoneNumber,
+              chatType,
+            );
+
+            final message = Message(
+              id: id,
+              chatId: chatId,
+              isIncoming: true,
+              otherPartyPhoneNumber: senderPhoneNumber,
+              contents: text,
+              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+              readReceipt: ReadReceipt.delivered,
+              deleted: false,
+              liked: false,
+              tags: [],
+            );
 
             messageService.insert(message);
             sendAck(id, senderPhoneNumber);
@@ -280,10 +290,11 @@ class CommunicationService {
     await delete(uri);
   }
 
-  Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
+  Future<void> sendMessage(
+      Message message, ChatType chatType, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "message",
-      "chatId": message.chatId,
+      "chatType": chatType.toString(),
       "text": message.contents,
     });
 

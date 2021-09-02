@@ -85,7 +85,7 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             },
           ),
           SizedBox(
-            height: 10,
+            height: 30,
           ),
           Text(
             controller.phoneNumber,
@@ -93,6 +93,14 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             style: TextStyle(
               fontSize: 16,
             ),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          Text(
+            //TODO: Implement retrieving birthday from database.
+            "11 September 2000",
+            textAlign: TextAlign.center,
           ),
         ],
       );

@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatPageModel.dart';
@@ -19,25 +20,28 @@ class ChatPageController {
   final ChatPageModel model = ChatPageModel();
 
   final String chatId;
+  late final Future<Chat> chat;
   late final String contactPhoneNumber;
 
   ChatPageController({required this.chatId}) {
-    communicationService.onMessage = _onMessage;
+    communicationService.onMessage(_onMessage);
 
-    communicationService.onDelete = _onDelete;
+    communicationService.onDelete(_onDelete);
 
-    communicationService.onAck = _onAck;
+    communicationService.onAck(_onAck);
 
-    communicationService.onAckSeen = _onAckSeen;
+    communicationService.onAckSeen(_onAckSeen);
 
     communicationService.onMessageLiked(_onMessageLiked);
 
-    chatService.fetchById(chatId).then((chat) {
+    chat = chatService.fetchById(chatId);
+    chat.then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
       model.contactStatus = chat.contact?.status ?? "";
       model.contactProfileImage = chat.contact?.profileImage ?? "";
       model.contactSaved = chat.contact != null;
+      model.chatType = chat.chatType;
     });
 
     contactService.onChanged(_onContactChanged);
@@ -103,7 +107,7 @@ class ChatPageController {
     contactService.disposeOnChanged(_onContactChanged);
   }
 
-  void sendMessage(String contents) {
+  void sendMessage(String contents) async {
     final message = Message(
       id: Uuid().v4(),
       chatId: chatId,
@@ -113,7 +117,9 @@ class ChatPageController {
       timestamp: DateTime.now(),
     );
 
-    communicationService.sendMessage(message, contactPhoneNumber);
+    final chatType = (await chat).chatType;
+
+    communicationService.sendMessage(message, chatType, contactPhoneNumber);
     messageService.insert(message);
     model.addMessage(message);
   }

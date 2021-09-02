@@ -16,6 +16,7 @@ class ContactEditPageController {
       this.contact = contact;
       model.contactName = contact.displayName;
       model.contactBirthday = contact.birthday;
+      model.contactPhoneNumber = contact.phoneNumber;
     });
   }
 

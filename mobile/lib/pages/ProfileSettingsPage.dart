@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ProfileSettingsPageController.dart';
 import 'package:mobile/pages/HomePage.dart';
@@ -20,7 +21,6 @@ class ProfileSettingsPage extends StatefulWidget {
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
-  late bool isFirstTime;
   final ProfileSettingsPageController controller;
 
   _ProfileSettingsPageState({ProfileSettingsPageController? controller})
@@ -29,8 +29,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
+  final _birthdayController = TextEditingController();
 
-  //TODO add birthday selector
   late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
 
@@ -38,7 +38,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   void initState() {
     super.initState();
 
+    //TODO: Set birthdayControllers text to stored birthday.
+
     _userDisposer = autorun((_) {
+      _birthdayController.text = "Select Birthday";
       _displayNameController.text = controller.model.displayName;
       _statusController.text = controller.model.status;
       setState(() {
@@ -119,45 +122,63 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 40,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _displayNameController,
-                        decoration: InputDecoration(
-                          hintText: "Display Name",
-                        ),
-                        textAlign: TextAlign.center,
-                        key: Key("displayNameText"),
+                    child: TextField(
+                      controller: _displayNameController,
+                      decoration: InputDecoration(
+                        hintText: "Display Name",
                       ),
+                      textAlign: TextAlign.center,
+                      key: Key("displayNameText"),
                     ),
                   ),
                   SizedBox(
                     height: 10,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 80,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _statusController,
-                        decoration: InputDecoration(
-                          hintText: "Status",
-                        ),
-                        textAlign: TextAlign.center,
-                        key: Key("statusText"),
+                    child: TextField(
+                      controller: _statusController,
+                      decoration: InputDecoration(
+                        hintText: "Status",
                       ),
+                      textAlign: TextAlign.center,
+                      key: Key("statusText"),
                     ),
                   ),
                   SizedBox(
-                    height: 60,
+                    height: 40,
                   ),
-                  //TODO add birthday input field
+                  Text("Birthday"),
+                  TextButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(
+                        context,
+                        showTitleActions: true,
+                        minTime: DateTime(1900, 1, 1),
+                        maxTime: DateTime.now(),
+                        onConfirm: (date) {
+                          //TODO: Update user's birthday and send to all listeners.
+                          setState(() {
+                            _birthdayController.text =
+                                DateFormat.yMMMd().format(date);
+                          });
+                        },
+                        currentTime: DateTime.now(),
+                      );
+                    },
+                    child: Text(_birthdayController.text),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),

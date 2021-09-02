@@ -1,31 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 import '../constants.dart';
 
-Future<List<Contact>?> showForwardDialog(BuildContext context) {
+Future<List<Contact>?> showForwardDialog(
+    BuildContext context, List<Contact> contacts) {
   return showDialog<List<Contact>>(
     context: context,
-    builder: (context) => _ForwardDialog(),
+    builder: (context) => ForwardDialog(
+      contacts: contacts,
+    ),
   );
 }
 
-class _ForwardDialog extends StatefulWidget {
+class ForwardDialog extends StatefulWidget {
+  final List<Contact> contacts;
+
+  const ForwardDialog({Key? key, required this.contacts}) : super(key: key);
+
   @override
-  __ForwardDialogState createState() => __ForwardDialogState();
+  _ForwardDialogState createState() => _ForwardDialogState();
 }
 
-class __ForwardDialogState extends State<_ForwardDialog> {
+class _ForwardDialogState extends State<ForwardDialog> {
   final List<Contact> _selectedContacts = [];
 
   String query = "";
+  List<Contact> contacts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    contacts = widget.contacts;
+  }
 
   @override
   Widget build(BuildContext context) {
-    List<Contact> contacts = [];
-
     return AlertDialog(
         actions: [
           TextButton(
@@ -82,12 +93,13 @@ class __ForwardDialogState extends State<_ForwardDialog> {
           child: ListView.builder(
               itemCount: contacts.length,
               itemBuilder: (BuildContext context, int index) {
-                return _buildContactItem(contacts[index]);
+                return _buildContactItem(contacts[index],
+                    _selectedContacts.contains(contacts[index]));
               }),
         ));
   }
 
-  Widget _buildContactItem(Contact contact) {
+  Widget _buildContactItem(Contact contact, bool selected) {
     Widget widget;
 
     if (contact.status != "")
@@ -105,9 +117,15 @@ class __ForwardDialogState extends State<_ForwardDialog> {
       children: [
         InkWell(
           onTap: () {
-            _selectedContacts.add(contact);
+            setState(() {
+              if (_selectedContacts.contains(contact))
+                _selectedContacts.remove(contact);
+              else
+                _selectedContacts.add(contact);
+            });
           },
           child: Container(
+            color: selected ? Constants.orange.withOpacity(0.4) : null,
             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 0),
             child: Row(
               children: [
@@ -131,12 +149,13 @@ class __ForwardDialogState extends State<_ForwardDialog> {
   }
 
   void _searchContacts(String query, List<Contact> contacts) {
-    final filteredContacts = contacts.where((contact) {
+    final filteredContacts = widget.contacts.where((contact) {
       return contact.displayName.toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
       this.query = query;
+      this.contacts = filteredContacts;
       //TODO: Update contacts state variable.
     });
   }

@@ -346,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       message != null
                           ? Text(
-                              dateFormatter.format(message.timestamp),
+                              _createMessageDate(message.timestamp),
                             )
                           : SizedBox.shrink(),
                       _buildReadReceipt(),
@@ -376,4 +376,24 @@ class _HomePageState extends State<HomePage> {
       child: Icon(Icons.chat),
     );
   }
+}
+
+String _createMessageDate(DateTime timestamp) {
+  int messageDay =
+      (timestamp.millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+
+  int today =
+      (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+
+  print((DateTime.now().millisecondsSinceEpoch));
+
+  if (today == messageDay) return DateFormat.Hm().format(timestamp);
+
+  if (today - messageDay == 1) return "Yesterday";
+
+  if (today - messageDay < 7) return DateFormat.EEEE().format(timestamp);
+
+  //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
+
+  return DateFormat("y/MM/dd").format(timestamp);
 }

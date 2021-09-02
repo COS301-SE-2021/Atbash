@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ForwardDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -162,11 +164,49 @@ class ChatPageController {
     model.contactTitle = displayName;
   }
 
-  void storeTypedMessage(String message){
+  void storeTypedMessage(String message) {
     chatCacheService.put(chatId, message);
   }
 
-  String getTypedMessage(){
+  String getTypedMessage() {
     return chatCacheService.get(chatId);
+  }
+
+  void forwardMessage(BuildContext context, String message) {
+    contactService.fetchAll().then((contacts) {
+      showForwardDialog(context, contacts).then((forwardContacts) async {
+        if (forwardContacts == null) return;
+
+        final allChats = await chatService.fetchAll();
+
+        final contactsWithNoChats = forwardContacts.where((contact) => !allChats
+            .any((chat) => chat.contactPhoneNumber == contact.phoneNumber));
+
+        await Future.wait(contactsWithNoChats.map((contact) async {
+          final newChat = Chat(
+              id: Uuid().v4(),
+              contactPhoneNumber: contact.phoneNumber,
+              chatType: ChatType.general);
+          await chatService.insert(newChat);
+        }));
+
+        final allNumberChats = await chatService.fetchIdsByContactPhoneNumbers(
+            forwardContacts.map((e) => e.phoneNumber).toList());
+
+        allNumberChats.forEach((element) {
+          final newMessage = Message(
+              id: Uuid().v4(),
+              chatId: element.second,
+              isIncoming: false,
+              otherPartyPhoneNumber: element.first,
+              contents: message,
+              timestamp: DateTime.now());
+
+          communicationService.sendMessage(
+              newMessage, ChatType.general, element.first);
+          messageService.insert(newMessage);
+        });
+      });
+    });
   }
 }

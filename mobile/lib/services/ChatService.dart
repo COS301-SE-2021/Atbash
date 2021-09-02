@@ -1,5 +1,6 @@
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/util/Tuple.dart';
 
 class ChatService {
   final DatabaseService databaseService;
@@ -53,6 +54,22 @@ class ChatService {
         throw ChatNotFoundException();
       }
     }
+  }
+
+  Future<List<Tuple<String, String>>> fetchIdsByContactPhoneNumbers(
+      List<String> numbers) async {
+    final db = await databaseService.database;
+
+    final where = "(" + numbers.map((e) => "?").join(",") + ")";
+
+    final response = await db.query(Chat.TABLE_NAME,
+        where: "${Chat.COLUMN_CONTACT_PHONE_NUMBER} in $where",
+        whereArgs: numbers);
+
+    return response
+        .map((e) => Tuple(e[Chat.COLUMN_CONTACT_PHONE_NUMBER] as String,
+            e[Chat.COLUMN_ID] as String))
+        .toList();
   }
 
   Future<List<Chat>> fetchByChatType(ChatType chatType) async {

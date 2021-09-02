@@ -24,6 +24,22 @@ mixin _$ContactEditPageModel on _ContactEditPageModel, Store {
     });
   }
 
+  final _$contactPhoneNumberAtom =
+      Atom(name: '_ContactEditPageModel.contactPhoneNumber');
+
+  @override
+  String get contactPhoneNumber {
+    _$contactPhoneNumberAtom.reportRead();
+    return super.contactPhoneNumber;
+  }
+
+  @override
+  set contactPhoneNumber(String value) {
+    _$contactPhoneNumberAtom.reportWrite(value, super.contactPhoneNumber, () {
+      super.contactPhoneNumber = value;
+    });
+  }
+
   final _$contactBirthdayAtom =
       Atom(name: '_ContactEditPageModel.contactBirthday');
 
@@ -44,6 +60,7 @@ mixin _$ContactEditPageModel on _ContactEditPageModel, Store {
   String toString() {
     return '''
 contactName: ${contactName},
+contactPhoneNumber: ${contactPhoneNumber},
 contactBirthday: ${contactBirthday}
     ''';
   }

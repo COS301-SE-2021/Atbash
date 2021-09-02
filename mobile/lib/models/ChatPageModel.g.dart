@@ -144,6 +144,17 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   }
 
   @override
+  void setLikedById(String messageID, bool liked) {
+    final _$actionInfo = _$_ChatPageModelActionController.startAction(
+        name: '_ChatPageModel.setLikedById');
+    try {
+      return super.setLikedById(messageID, liked);
+    } finally {
+      _$_ChatPageModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contactTitle: ${contactTitle},

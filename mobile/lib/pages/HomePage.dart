@@ -385,8 +385,6 @@ String _createMessageDate(DateTime timestamp) {
   int today =
       (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
 
-  print((DateTime.now().millisecondsSinceEpoch));
-
   if (today == messageDay) return DateFormat.Hm().format(timestamp);
 
   if (today - messageDay == 1) return "Yesterday";

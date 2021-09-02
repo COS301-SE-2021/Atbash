@@ -20,13 +20,13 @@ class ChatPageController {
   late final String contactPhoneNumber;
 
   ChatPageController({required this.chatId}) {
-    communicationService.onMessage = _onMessage;
+    communicationService.onMessage(_onMessage);
 
-    communicationService.onDelete = _onDelete;
+    communicationService.onDelete(_onDelete);
 
-    communicationService.onAck = _onAck;
+    communicationService.onAck(_onAck);
 
-    communicationService.onAckSeen = _onAckSeen;
+    communicationService.onAckSeen(_onAckSeen);
 
     communicationService.onMessageLiked(_onMessageLiked);
 

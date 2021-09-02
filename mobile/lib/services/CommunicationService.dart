@@ -32,24 +32,24 @@ class CommunicationService {
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
 
-  set onMessage(void Function(Message message) cb) =>
+  void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
   void disposeOnMessage(void Function(Message message) cb) =>
       _onMessageListeners.remove(cb);
 
-  set onDelete(void Function(String messageId) cb) =>
+  void onDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
 
   void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.remove(cb);
 
-  set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
+  void onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
   void disposeOnAck(void Function(String messageId) cb) =>
       _onAckListeners.remove(cb);
 
-  set onAckSeen(void Function(List<String> messageIds) cb) =>
+  void onAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>

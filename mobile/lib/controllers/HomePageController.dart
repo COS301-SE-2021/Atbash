@@ -26,9 +26,9 @@ class HomePageController {
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);
-    communicationService.onMessage = _onMessage;
-    communicationService.onAck = _onAck;
-    communicationService.onAckSeen = _onAckSeen;
+    communicationService.onMessage(_onMessage);
+    communicationService.onAck(_onAck);
+    communicationService.onAckSeen(_onAckSeen);
     navigationObserver.onRoutePop(reload);
     reload();
   }

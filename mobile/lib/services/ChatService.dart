@@ -55,6 +55,25 @@ class ChatService {
     }
   }
 
+  Future<List<Chat>> fetchByChatType(ChatType chatType) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawQuery(
+      "select * from chat left join message on message_id = (select message_id from message where message_chat_id = chat_id order by message_timestamp desc limit 1) left join contact on chat_contact_phone_number = contact_phone_number where chat_type = ?;",
+      [chatType.index],
+    );
+
+    final chats = <Chat>[];
+    response.forEach((element) {
+      final chat = Chat.fromMap(element);
+      if (chat != null) {
+        chats.add(chat);
+      }
+    });
+
+    return chats;
+  }
+
   Future<Chat> insert(Chat chat) async {
     final db = await databaseService.database;
 

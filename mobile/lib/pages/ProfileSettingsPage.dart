@@ -37,9 +37,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     super.initState();
 
     //TODO: Set birthdayControllers text to stored birthday.
-    _birthdayController.text = "Select Birthday";
 
     _userDisposer = autorun((_) {
+      _birthdayController.text = "Select Birthday";
       _displayNameController.text = controller.model.displayName;
       _statusController.text = controller.model.status;
       setState(() {

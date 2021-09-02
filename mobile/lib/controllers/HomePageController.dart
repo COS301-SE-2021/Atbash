@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/HomePageModel.dart';
@@ -26,7 +27,9 @@ class HomePageController {
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);
-    communicationService.onMessage = _onMessage;
+    communicationService.onMessage(_onMessage);
+    communicationService.onAck(_onAck);
+    communicationService.onAckSeen(_onAckSeen);
     navigationObserver.onRoutePop(reload);
     reload();
   }
@@ -36,9 +39,19 @@ class HomePageController {
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
     communicationService.disposeOnMessage(_onMessage);
+    communicationService.disposeOnAck(_onAck);
+    communicationService.disposeOnAckSeen(_onAckSeen);
   }
 
   void _onMessage(Message m) {
+    reload();
+  }
+
+  void _onAck(String messageId) {
+    reload();
+  }
+
+  void _onAckSeen(List<String> messageIds) {
     reload();
   }
 
@@ -53,7 +66,9 @@ class HomePageController {
         .getProfileImage()
         .then((profileImage) => model.userProfileImage = profileImage);
 
-    chatService.fetchAll().then((chats) => model.replaceChats(chats));
+    chatService
+        .fetchByChatType(ChatType.general)
+        .then((chats) => model.replaceChats(chats));
   }
 
   void deleteChat(String chatId) {

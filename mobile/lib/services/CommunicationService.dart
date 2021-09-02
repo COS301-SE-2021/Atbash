@@ -32,24 +32,24 @@ class CommunicationService {
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
 
-  set onMessage(void Function(Message message) cb) =>
+  void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
   void disposeOnMessage(void Function(Message message) cb) =>
       _onMessageListeners.remove(cb);
 
-  set onDelete(void Function(String messageId) cb) =>
+  void onDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.add(cb);
 
   void disposeOnDelete(void Function(String messageId) cb) =>
       _onDeleteListeners.remove(cb);
 
-  set onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
+  void onAck(void Function(String messageId) cb) => _onAckListeners.add(cb);
 
   void disposeOnAck(void Function(String messageId) cb) =>
       _onAckListeners.remove(cb);
 
-  set onAckSeen(void Function(List<String> messageIds) cb) =>
+  void onAckSeen(void Function(List<String> messageIds) cb) =>
       _onAckSeenListeners.add(cb);
 
   void disposeOnAckSeen(void Function(List<String> messageIds) cb) =>
@@ -89,6 +89,8 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
+    _fetchUnreadMessages(encodedPhoneNumber);
+
     channel?.sink.close();
     channel = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
@@ -100,8 +102,22 @@ class CommunicationService {
     });
   }
 
+  Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {
+    final uri = Uri.parse(
+        Constants.httpUrl + "message?phoneNumber=$encodedPhoneNumber");
+    final response = await get(uri);
+
+    if (response.statusCode == 200) {
+      final messages = jsonDecode(response.body) as List;
+      messages.forEach((message) async => await _handleEvent(message));
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
+  }
+
   Future<void> _handleEvent(dynamic event) async {
-    final Map<String, Object?> parsedEvent = jsonDecode(event);
+    final Map<String, Object?> parsedEvent =
+        event is Map ? event : jsonDecode(event);
 
     final id = parsedEvent["id"] as String?;
     final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
@@ -123,31 +139,41 @@ class CommunicationService {
 
       switch (type) {
         case "message":
-          final chatId = decryptedContents["chatId"] as String;
+          final chatTypeStr = decryptedContents["chatType"] as String;
+          final chatType =
+              ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final text = decryptedContents["text"] as String;
 
-          final message = Message(
-            id: id,
-            chatId: chatId,
-            isIncoming: true,
-            otherPartyPhoneNumber: senderPhoneNumber,
-            contents: text,
-            timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-            readReceipt: ReadReceipt.delivered,
-            deleted: false,
-            liked: false,
-            tags: [],
-          );
-
-          chatService.existsById(chatId).then((chatExists) {
-            if (!chatExists) {
+          chatService
+              .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
+              .then((exists) async {
+            if (!exists) {
               final chat = Chat(
-                id: chatId,
+                id: Uuid().v4(),
                 contactPhoneNumber: senderPhoneNumber,
-                chatType: ChatType.general,
+                chatType: chatType,
               );
-              chatService.insert(chat);
+
+              await chatService.insert(chat);
             }
+
+            String chatId = await chatService.findIdByPhoneNumberAndChatType(
+              senderPhoneNumber,
+              chatType,
+            );
+
+            final message = Message(
+              id: id,
+              chatId: chatId,
+              isIncoming: true,
+              otherPartyPhoneNumber: senderPhoneNumber,
+              contents: text,
+              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+              readReceipt: ReadReceipt.delivered,
+              deleted: false,
+              liked: false,
+              tags: [],
+            );
 
             messageService.insert(message);
             sendAck(id, senderPhoneNumber);
@@ -205,21 +231,15 @@ class CommunicationService {
           break;
 
         case "requestStatus":
-          bool shareStatus = await settingsService.getShareStatus();
-          if (!shareStatus) {
-            final status = await userService.getStatus();
-            sendStatus(status, senderPhoneNumber);
-          }
+          final status = await userService.getStatus();
+          sendStatus(status, senderPhoneNumber);
           break;
 
         case "requestProfileImage":
-          bool shareImage = await settingsService.getShareProfilePicture();
-          if (!shareImage) {
-            final profileImage = await userService.getProfileImage();
+          final profileImage = await userService.getProfileImage();
 
-            if (profileImage != null) {
-              sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
-            }
+          if (profileImage != null) {
+            sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
 
@@ -232,6 +252,8 @@ class CommunicationService {
               .forEach((listener) => listener(messageId, liked));
           break;
       }
+
+      await _deleteMessageFromServer(id);
     }
   }
 
@@ -263,10 +285,16 @@ class CommunicationService {
     }
   }
 
-  Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
+  Future<void> _deleteMessageFromServer(String id) async {
+    final uri = Uri.parse(Constants.httpUrl + "message/$id");
+    await delete(uri);
+  }
+
+  Future<void> sendMessage(
+      Message message, ChatType chatType, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "message",
-      "chatId": message.chatId,
+      "chatType": chatType.toString(),
       "text": message.contents,
     });
 
@@ -298,12 +326,14 @@ class CommunicationService {
       "type": "status",
       "status": status,
     });
-
-    _queueForSending(contents, recipientPhoneNumber);
+    bool shareStatus = await settingsService.getShareStatus();
+    if (!shareStatus) _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
+    bool shareImage = await settingsService.getShareProfilePicture();
+    if (shareImage) return;
     final base16Key = SecureRandom(32).base16;
     final base16IV = SecureRandom(16).base16;
 

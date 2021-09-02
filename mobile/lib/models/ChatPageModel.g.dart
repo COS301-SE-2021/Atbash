@@ -70,6 +70,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$chatTypeAtom = Atom(name: '_ChatPageModel.chatType');
+
+  @override
+  ChatType get chatType {
+    _$chatTypeAtom.reportRead();
+    return super.chatType;
+  }
+
+  @override
+  set chatType(ChatType value) {
+    _$chatTypeAtom.reportWrite(value, super.chatType, () {
+      super.chatType = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -144,12 +159,24 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   }
 
   @override
+  void setLikedById(String messageID, bool liked) {
+    final _$actionInfo = _$_ChatPageModelActionController.startAction(
+        name: '_ChatPageModel.setLikedById');
+    try {
+      return super.setLikedById(messageID, liked);
+    } finally {
+      _$_ChatPageModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contactTitle: ${contactTitle},
 contactStatus: ${contactStatus},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
+chatType: ${chatType},
 messages: ${messages}
     ''';
   }

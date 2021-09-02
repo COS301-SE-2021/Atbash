@@ -190,75 +190,18 @@ class _HomePageState extends State<HomePage> {
 
   SafeArea _buildBody() {
     return SafeArea(
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            color: Colors.orange,
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () {
-                    //TODO Add functionality for chats button
-                  },
-                  child: Container(
-                    child: Text("Chats"),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                InkWell(
-                  onTap: () {
-                    //TODO Add functionality for private chats button
-                  },
-                  child: Container(
-                    child: Text("Private Chats"),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                InkWell(
-                  onTap: () {
-                    //TODO Add functionality for broadcast message button
-                  },
-                  child: Container(
-                    child: Text("Broadcast Message"),
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: Colors.white,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Expanded(child: Observer(
-            builder: (context) {
-              return ListView(
-                children: _buildChatList(_searching),
-              );
-            },
-          )),
-        ],
+      child: Observer(
+        builder: (context) {
+          return ListView(
+            children: _buildChatList(_searching),
+          );
+        },
       ),
     );
   }
 
   List<InkWell> _buildChatList(bool filtered) {
-    List<Chat> chats = controller.model.chats;
+    List<Chat> chats = controller.model.orderedChats;
 
     if (filtered) {
       final filterQuery = _filterQuery.toLowerCase();
@@ -298,16 +241,41 @@ class _HomePageState extends State<HomePage> {
       }
     }
 
+    Container? _buildOutgoingReadReceipt(Message message) {
+      if (message.isIncoming) {
+        return null;
+      }
+
+      final readReceipt = message.readReceipt;
+
+      var icon = Icons.clear;
+      if (readReceipt == ReadReceipt.delivered) {
+        icon = Icons.done;
+      } else if (readReceipt == ReadReceipt.seen) {
+        icon = Icons.done_all;
+      }
+
+      return Container(
+        margin: const EdgeInsets.only(right: 4),
+        child: Icon(icon, size: 15, color: Colors.black),
+      );
+    }
+
     Widget _buildRecentMessage() {
       if (message != null) {
-        return Text(
-          message.deleted ? "This message was deleted" : message.contents,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 12,
-            color: Constants.darkGrey,
-          ),
+        return Row(
+          children: [
+            _buildOutgoingReadReceipt(message) ?? SizedBox.shrink(),
+            Text(
+              message.deleted ? "This message was deleted" : message.contents,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Constants.darkGrey,
+              ),
+            )
+          ],
         );
       } else {
         return SizedBox.shrink();

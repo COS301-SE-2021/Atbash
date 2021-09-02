@@ -49,6 +49,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CountryCodePicker(
+                    showDropDownButton: true,
+                    padding: EdgeInsets.zero,
                     showFlag: false,
                     initialSelection: selectedDialCode,
                     onChanged: (countryCode) {

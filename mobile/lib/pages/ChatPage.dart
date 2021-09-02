@@ -8,6 +8,7 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Tuple.dart';
@@ -43,7 +44,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-
+    _inputController.text = controller.getTypedMessage();
     _messagesDisposer = autorun((_) {
       setState(() {
         _messages =
@@ -55,7 +56,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void dispose() {
     super.dispose();
-
+    controller.storeTypedMessage(_inputController.text);
     _messagesDisposer();
     controller.dispose();
   }
@@ -186,6 +187,13 @@ class _ChatPageState extends State<ChatPage> {
             },
             icon: Icon(Icons.copy),
           ),
+        if (!_selecting)
+          Observer(builder: (_) {
+            if (controller.model.chatType != ChatType.private)
+              return IconButton(onPressed: () {}, icon: Icon(Icons.lock));
+            else
+              return SizedBox.shrink();
+          })
       ],
     );
   }

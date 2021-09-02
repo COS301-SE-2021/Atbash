@@ -22,7 +22,7 @@ class AvatarIcon extends StatelessWidget {
       final image = MemoryImage(imageData);
       return CircleAvatar(radius: radius, backgroundImage: image);
     } else {
-      return CircledIcon(Colors.black, Icons.person, radius: radius);
+      return CircledIcon(Colors.black, Icons.person, radius: radius + 8);
     }
   }
 }

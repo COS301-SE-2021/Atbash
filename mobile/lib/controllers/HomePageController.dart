@@ -27,6 +27,8 @@ class HomePageController {
     contactService.onChanged(reload);
     chatService.onChanged(reload);
     communicationService.onMessage = _onMessage;
+    communicationService.onAck = _onAck;
+    communicationService.onAckSeen = _onAckSeen;
     navigationObserver.onRoutePop(reload);
     reload();
   }
@@ -36,9 +38,19 @@ class HomePageController {
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
     communicationService.disposeOnMessage(_onMessage);
+    communicationService.disposeOnAck(_onAck);
+    communicationService.disposeOnAckSeen(_onAckSeen);
   }
 
   void _onMessage(Message m) {
+    reload();
+  }
+
+  void _onAck(String messageId) {
+    reload();
+  }
+
+  void _onAckSeen(List<String> messageIds) {
     reload();
   }
 

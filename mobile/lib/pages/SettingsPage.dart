@@ -194,16 +194,15 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: Icon(
-                  Icons.contact_phone,
+                  Icons.import_contacts,
                   color: Constants.orange,
                 ),
                 title: Text(
-                  "Change Number",
+                  "Import Contacts",
                   style: TextStyle(fontSize: 16),
                 ),
-                trailing: Icon(Icons.arrow_forward_rounded),
                 onTap: () {
-                  //TODO Change Number Logic
+                  controller.importContacts();
                 },
                 dense: true,
               ),

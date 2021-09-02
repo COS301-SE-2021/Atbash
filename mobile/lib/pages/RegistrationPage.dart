@@ -61,7 +61,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     },
                   ),
                   Container(
-                    width: 160,
+                    width: 140,
                     child: TextField(
                       cursorColor: Constants.darkGrey.withOpacity(0.6),
                       cursorHeight: 20,

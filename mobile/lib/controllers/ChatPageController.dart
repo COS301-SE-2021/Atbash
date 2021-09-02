@@ -39,6 +39,7 @@ class ChatPageController {
       model.contactStatus = chat.contact?.status ?? "";
       model.contactProfileImage = chat.contact?.profileImage ?? "";
       model.contactSaved = chat.contact != null;
+      model.chatType = chat.chatType;
     });
 
     contactService.onChanged(_onContactChanged);

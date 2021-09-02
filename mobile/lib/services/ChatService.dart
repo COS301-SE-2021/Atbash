@@ -104,6 +104,19 @@ class ChatService {
     return response.isNotEmpty;
   }
 
+  Future<bool> existsByPhoneNumberAndChatType(
+      String phoneNumber, ChatType chatType) async {
+    final db = await databaseService.database;
+    final response = await db.query(
+      Chat.TABLE_NAME,
+      where:
+          "${Chat.COLUMN_CONTACT_PHONE_NUMBER} = ? and ${Chat.COLUMN_CHAT_TYPE} = ?",
+      whereArgs: [phoneNumber, chatType.index],
+    );
+
+    return response.isNotEmpty;
+  }
+
   void _notifyListeners() {
     _onChangedListeners.forEach((listener) => listener());
   }

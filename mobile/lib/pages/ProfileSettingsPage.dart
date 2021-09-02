@@ -12,17 +12,19 @@ import 'package:mobx/mobx.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
   final bool setup;
+  final ProfileSettingsPageController? controller;
 
-  const ProfileSettingsPage({Key? key, required this.setup}) : super(key: key);
+  const ProfileSettingsPage({Key? key, required this.setup, this.controller}) : super(key: key);
 
   @override
-  _ProfileSettingsPageState createState() => _ProfileSettingsPageState();
+  _ProfileSettingsPageState createState() => _ProfileSettingsPageState(controller: controller);
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final ProfileSettingsPageController controller;
 
-  _ProfileSettingsPageState() : controller = ProfileSettingsPageController();
+  _ProfileSettingsPageState({ProfileSettingsPageController? controller})
+      : controller = controller ?? ProfileSettingsPageController();
 
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
@@ -82,6 +84,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     Text(
                       "Please provide a name as well as an optional profile picture and status.",
                       textAlign: TextAlign.center,
+                      key: Key('infoText'),
                     ),
                   SizedBox(
                     height: 30,
@@ -130,6 +133,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         hintText: "Display Name",
                       ),
                       textAlign: TextAlign.center,
+                      key: Key("displayNameText"),
                     ),
                   ),
                   SizedBox(
@@ -146,6 +150,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         hintText: "Status",
                       ),
                       textAlign: TextAlign.center,
+                      key: Key("statusText"),
                     ),
                   ),
                   SizedBox(
@@ -199,6 +204,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               return AlertDialog(
                                 title: Text(
                                     "If you wish to import your contact list, please grant the app permission in the next popup."),
+                                key: Key("alertDialog"),
                               );
                             }).then((_) {
                           controller.importContacts().then((_) =>
@@ -212,6 +218,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       }
                     },
                     child: Text(widget.setup ? "Next" : "Save"),
+                    key: Key('button'),
                   ),
                 ],
               ),

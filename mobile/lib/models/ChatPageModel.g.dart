@@ -70,6 +70,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$chatTypeAtom = Atom(name: '_ChatPageModel.chatType');
+
+  @override
+  ChatType get chatType {
+    _$chatTypeAtom.reportRead();
+    return super.chatType;
+  }
+
+  @override
+  set chatType(ChatType value) {
+    _$chatTypeAtom.reportWrite(value, super.chatType, () {
+      super.chatType = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -161,6 +176,7 @@ contactTitle: ${contactTitle},
 contactStatus: ${contactStatus},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
+chatType: ${chatType},
 messages: ${messages}
     ''';
   }

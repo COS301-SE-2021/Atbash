@@ -1,11 +1,19 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/SettingsPageModel.dart';
+import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/util/Utils.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:contacts_service/contacts_service.dart' as ImportContact;
 
 class SettingsPageController {
   final SettingsService settingsService = GetIt.I.get();
   final UserService userService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final SettingsPageModel model = SettingsPageModel();
 
@@ -89,5 +97,33 @@ class SettingsPageController {
   void setAutoDownloadMedia(bool value) {
     model.autoDownloadMedia = value;
     settingsService.setAutoDownloadMedia(value);
+  }
+
+  Future<void> _addContact(String number, String name) async {
+    Contact contact = new Contact(
+        phoneNumber: number, displayName: name, status: "", profileImage: "");
+    await contactService.insert(contact);
+    communicationService.sendRequestStatus(number);
+    communicationService.sendRequestProfileImage(number);
+  }
+
+  Future<void> importContacts() async {
+    PermissionStatus contactPermission = await Permission.contacts.request();
+    if (contactPermission.isGranted) {
+      Iterable<ImportContact.Contact> contacts =
+          await ImportContact.ContactsService.getContacts();
+
+      contacts.forEach((contact) async {
+        final Iterable<ImportContact.Item>? contactPhones = contact.phones;
+        if (contactPhones != null) {
+          String? mobileNumber = contactPhones.first.value;
+          String? name = contact.displayName;
+          if (mobileNumber != null && name != null) {
+            String phoneNumber = "+" + cullToE164(mobileNumber);
+            _addContact(phoneNumber, name).catchError((_) {});
+          }
+        }
+      });
+    }
   }
 }

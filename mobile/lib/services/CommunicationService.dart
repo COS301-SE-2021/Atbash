@@ -139,31 +139,41 @@ class CommunicationService {
 
       switch (type) {
         case "message":
-          final chatId = decryptedContents["chatId"] as String;
+          final chatTypeStr = decryptedContents["chatType"] as String;
+          final chatType =
+              ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final text = decryptedContents["text"] as String;
 
-          final message = Message(
-            id: id,
-            chatId: chatId,
-            isIncoming: true,
-            otherPartyPhoneNumber: senderPhoneNumber,
-            contents: text,
-            timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-            readReceipt: ReadReceipt.delivered,
-            deleted: false,
-            liked: false,
-            tags: [],
-          );
-
-          chatService.existsById(chatId).then((chatExists) {
-            if (!chatExists) {
+          chatService
+              .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
+              .then((exists) async {
+            if (!exists) {
               final chat = Chat(
-                id: chatId,
+                id: Uuid().v4(),
                 contactPhoneNumber: senderPhoneNumber,
-                chatType: ChatType.general,
+                chatType: chatType,
               );
-              chatService.insert(chat);
+
+              await chatService.insert(chat);
             }
+
+            String chatId = await chatService.findIdByPhoneNumberAndChatType(
+              senderPhoneNumber,
+              chatType,
+            );
+
+            final message = Message(
+              id: id,
+              chatId: chatId,
+              isIncoming: true,
+              otherPartyPhoneNumber: senderPhoneNumber,
+              contents: text,
+              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+              readReceipt: ReadReceipt.delivered,
+              deleted: false,
+              liked: false,
+              tags: [],
+            );
 
             messageService.insert(message);
             sendAck(id, senderPhoneNumber);
@@ -280,10 +290,11 @@ class CommunicationService {
     await delete(uri);
   }
 
-  Future<void> sendMessage(Message message, String recipientPhoneNumber) async {
+  Future<void> sendMessage(
+      Message message, ChatType chatType, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "message",
-      "chatId": message.chatId,
+      "chatType": chatType.toString(),
       "text": message.contents,
     });
 

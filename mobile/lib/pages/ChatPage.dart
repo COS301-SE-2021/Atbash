@@ -343,22 +343,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   String _chatDateString(int index) {
+    int numMillisPerDay = 1000 * 60 * 60 * 24;
+
     int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
-            1000 /
-            60 /
-            60 /
-            24)
+            numMillisPerDay)
         .floor();
     int prevDay = index == _messages.length - 1
         ? 0
         : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
-                1000 /
-                60 /
-                60 /
-                24)
+                numMillisPerDay)
             .floor();
     int today =
-        (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+        (DateTime.now().millisecondsSinceEpoch / numMillisPerDay).floor();
 
     if (curDay > prevDay) {
       if (curDay == today) return "Today";

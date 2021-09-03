@@ -345,6 +345,7 @@ class _ChatPageState extends State<ChatPage> {
 
   String _chatDateString(int index) {
     int numMillisPerDay = 1000 * 60 * 60 * 24;
+    //int numMillisPerYear = numMillisPerDay * 365;
 
     int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
             numMillisPerDay)
@@ -354,6 +355,15 @@ class _ChatPageState extends State<ChatPage> {
         : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
                 numMillisPerDay)
             .floor();
+    // int curYear = (_messages[index].first.timestamp.millisecondsSinceEpoch /
+    //         numMillisPerYear)
+    //     .floor();
+    // int prevYear = index == _messages.length - 1
+    //     ? DateTime.now().year
+    //     : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+    //             numMillisPerYear)
+    //         .floor();
+
     int today =
         (DateTime.now().millisecondsSinceEpoch / numMillisPerDay).floor();
 

@@ -549,54 +549,55 @@ class ChatCard extends StatelessWidget {
                       ),
                       backgroundColor: Colors.redAccent),
                 ],
-                child: Card(
-                  color: color.withOpacity(0.8),
-                  child: Stack(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                            _message.liked ? 20 : 8, 25, 8, 8),
-                        child: Text(
-                          _message.deleted
-                              ? "This message was deleted"
-                              : _message.contents,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontStyle:
-                                _message.deleted ? FontStyle.italic : null,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(
-                            dateFormatter.format(_message.timestamp),
-                            style: TextStyle(fontSize: 11, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                          child: _readReceipt(),
-                        ),
-                      ),
-                      if (_message.liked)
-                        Positioned(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(2, 25, 0, 0),
-                            child: Icon(
-                              Icons.favorite,
-                              size: 16,
-                              color: _message.isIncoming
-                                  ? Constants.orange
-                                  : Constants.darkGrey,
+                child: Stack(
+                  children: [
+                    Card(
+                      color: color.withOpacity(0.8),
+                      child: Stack(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
+                            child: Text(
+                              _message.deleted
+                                  ? "This message was deleted"
+                                  : _message.contents,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontStyle:
+                                    _message.deleted ? FontStyle.italic : null,
+                              ),
                             ),
                           ),
+                          Positioned(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                dateFormatter.format(_message.timestamp),
+                                style: TextStyle(
+                                    fontSize: 11, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
+                              child: _readReceipt(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_message.liked)
+                      Positioned(
+                        child: Icon(
+                          Icons.favorite,
+                          size: 15,
+                          color: _message.isIncoming
+                              ? Constants.orange
+                              : Constants.darkGrey,
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
             ),

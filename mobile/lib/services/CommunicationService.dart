@@ -189,6 +189,24 @@ class CommunicationService {
           _onDeleteListeners.forEach((listener) => listener(messageId));
           break;
 
+        case "like":
+          final messageId = decryptedContents["messageId"] as String;
+          final liked = decryptedContents["liked"] as bool;
+
+          messageService.setMessageLiked(messageId, liked);
+          _onMessageLikedListeners
+              .forEach((listener) => listener(messageId, liked));
+          break;
+
+        case "online":
+          final online = decryptedContents["online"] as bool;
+          if (online) {
+            memoryStoreService.addOnlineContact(senderPhoneNumber);
+          } else {
+            memoryStoreService.removeOnlineContact(senderPhoneNumber);
+          }
+          break;
+
         case "profileImage":
           final imageId = decryptedContents["imageId"] as String;
           final base16Key = decryptedContents["key"] as String;
@@ -240,15 +258,6 @@ class CommunicationService {
           if (profileImage != null) {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
-          break;
-
-        case "like":
-          final messageId = decryptedContents["messageId"] as String;
-          final liked = decryptedContents["liked"] as bool;
-
-          messageService.setMessageLiked(messageId, liked);
-          _onMessageLikedListeners
-              .forEach((listener) => listener(messageId, liked));
           break;
       }
 

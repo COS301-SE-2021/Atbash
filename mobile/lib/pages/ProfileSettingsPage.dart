@@ -14,10 +14,12 @@ class ProfileSettingsPage extends StatefulWidget {
   final bool setup;
   final ProfileSettingsPageController? controller;
 
-  const ProfileSettingsPage({Key? key, required this.setup, this.controller}) : super(key: key);
+  const ProfileSettingsPage({Key? key, required this.setup, this.controller})
+      : super(key: key);
 
   @override
-  _ProfileSettingsPageState createState() => _ProfileSettingsPageState(controller: controller);
+  _ProfileSettingsPageState createState() =>
+      _ProfileSettingsPageState(controller: controller);
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
@@ -29,7 +31,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
-  final _birthdayController = TextEditingController();
+  DateTime? chosenBirthday;
 
   late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
@@ -38,10 +40,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   void initState() {
     super.initState();
 
-    //TODO: Set birthdayControllers text to stored birthday.
-
     _userDisposer = autorun((_) {
-      _birthdayController.text = "Select Birthday";
+      chosenBirthday = controller.model.birthday;
       _displayNameController.text = controller.model.displayName;
       _statusController.text = controller.model.status;
       setState(() {
@@ -165,16 +165,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         minTime: DateTime(1900, 1, 1),
                         maxTime: DateTime.now(),
                         onConfirm: (date) {
-                          //TODO: Update user's birthday and send to all listeners.
                           setState(() {
-                            _birthdayController.text =
-                                DateFormat.yMMMd().format(date);
+                            chosenBirthday = date;
                           });
                         },
                         currentTime: DateTime.now(),
                       );
                     },
-                    child: Text(_birthdayController.text),
+                    child: Text(_chosenBirthdayToString()),
                   ),
                   SizedBox(
                     height: 20,
@@ -189,6 +187,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       final status = _statusController.text;
                       final profileImage =
                           _selectedProfileImage ?? Uint8List(0);
+                      final birthday = chosenBirthday;
 
                       if (displayName.isNotEmpty)
                         controller.setDisplayName(displayName);
@@ -196,6 +195,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       if (status.isNotEmpty) controller.setStatus(status);
 
                       controller.setProfilePicture(profileImage);
+
+                      if (birthday != null) controller.setBirthday(birthday);
 
                       if (widget.setup) {
                         showDialog(
@@ -227,6 +228,16 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         ),
       ),
     );
+  }
+
+  String _chosenBirthdayToString() {
+    final birthday = chosenBirthday;
+
+    if (birthday != null) {
+      return DateFormat.yMMMd().format(birthday);
+    } else {
+      return "Select Birthday";
+    }
   }
 
   Future _loadPicker(ImageSource source) async {

@@ -13,7 +13,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/EncryptionService.dart';
-import 'package:mobile/services/MediaEncryptionService.dart';
+import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
@@ -83,7 +83,7 @@ void _registerServices() async {
   final userService = UserService();
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
-  final mediaEncryptionService = MediaEncryptionService();
+  final mediaEncryptionService = MediaService();
   final communicationService = CommunicationService(
     encryptionService,
     userService,

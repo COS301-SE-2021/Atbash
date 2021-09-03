@@ -8,7 +8,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
-import 'package:mobile/services/MediaEncryptionService.dart';
+import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -22,7 +22,7 @@ class CommunicationService {
   final ContactService contactService;
   final MessageService messageService;
   final SettingsService settingsService;
-  final MediaEncryptionService mediaEncryptionService;
+  final MediaService mediaEncryptionService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();

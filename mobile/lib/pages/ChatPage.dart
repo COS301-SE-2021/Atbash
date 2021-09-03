@@ -572,7 +572,7 @@ class ChatCard extends StatelessWidget {
                       child: Stack(
                         children: [
                           Padding(
-                            padding: EdgeInsets.fromLTRB(_message.liked ? 20 : 8, 25, 8, 8),
+                            padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
                             child: _renderMessageContents(),
                           ),
                           Positioned(

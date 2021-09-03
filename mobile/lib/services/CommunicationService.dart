@@ -147,41 +147,37 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final text = decryptedContents["text"] as String;
 
-          chatService
-              .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
-              .then((exists) async {
-            if (!exists) {
-              final chat = Chat(
-                id: Uuid().v4(),
-                contactPhoneNumber: senderPhoneNumber,
-                chatType: chatType,
-              );
+          _handleMessage(
+            senderPhoneNumber: senderPhoneNumber,
+            chatType: chatType,
+            id: id,
+            contents: text,
+            timestamp: DateTime.now(),
+          );
+          break;
 
-              await chatService.insert(chat);
-            }
+        case "imageMessage":
+          final chatTypeStr = decryptedContents["chatType"] as String;
+          final chatType =
+              ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
 
-            String chatId = await chatService.findIdByPhoneNumberAndChatType(
-              senderPhoneNumber,
-              chatType,
-            );
+          final imageId = decryptedContents["imageId"];
+          final base16Key = decryptedContents["key"];
+          final base16IV = decryptedContents["iv"];
 
-            final message = Message(
+          final image =
+              await mediaService.fetchMedia(imageId, base16Key, base16IV);
+
+          if (image != null) {
+            _handleMessage(
+              senderPhoneNumber: senderPhoneNumber,
+              chatType: chatType,
               id: id,
-              chatId: chatId,
-              isIncoming: true,
-              otherPartyPhoneNumber: senderPhoneNumber,
-              contents: text,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-              readReceipt: ReadReceipt.delivered,
-              deleted: false,
-              liked: false,
-              tags: [],
+              contents: image,
+              timestamp: DateTime.now(),
+              isMedia: true,
             );
-
-            messageService.insert(message);
-            sendAck(id, senderPhoneNumber);
-            _onMessageListeners.forEach((listener) => listener(message));
-          });
+          }
           break;
 
         case "delete":

@@ -6,7 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
@@ -269,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (selectedMessages.isNotEmpty) {
       String result = "";
-      final format = DateFormat("dd/MM HH:mm");
+      final format = intl.DateFormat("dd/MM HH:mm");
 
       selectedMessages.reversed.forEach((message) {
         if (!message.first.deleted) {
@@ -345,6 +345,7 @@ class _ChatPageState extends State<ChatPage> {
 
   String _chatDateString(int index) {
     int numMillisPerDay = 1000 * 60 * 60 * 24;
+    //int numMillisPerYear = numMillisPerDay * 365;
 
     int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
             numMillisPerDay)
@@ -354,6 +355,15 @@ class _ChatPageState extends State<ChatPage> {
         : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
                 numMillisPerDay)
             .floor();
+    // int curYear = (_messages[index].first.timestamp.millisecondsSinceEpoch /
+    //         numMillisPerYear)
+    //     .floor();
+    // int prevYear = index == _messages.length - 1
+    //     ? DateTime.now().year
+    //     : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+    //             numMillisPerYear)
+    //         .floor();
+
     int today =
         (DateTime.now().millisecondsSinceEpoch / numMillisPerDay).floor();
 
@@ -363,9 +373,14 @@ class _ChatPageState extends State<ChatPage> {
       if (today - curDay == 1) return "Yesterday";
 
       if (today - curDay < 7)
-        return DateFormat("EEEE").format(_messages[index].first.timestamp);
+        return intl.DateFormat("EEEE").format(_messages[index].first.timestamp);
 
-      return DateFormat("EEE, dd MMM").format(_messages[index].first.timestamp);
+      //TODO: Order by year if it goes too far back
+      // if (prevYear < curYear)
+      //   return intl.DateFormat.yMMMd().format(_messages[index].first.timestamp);
+
+      return intl.DateFormat("EEE, dd MMM")
+          .format(_messages[index].first.timestamp);
     }
 
     //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
@@ -499,114 +514,141 @@ class ChatCard extends StatelessWidget {
     required this.onForwardPressed,
   });
 
-  final dateFormatter = DateFormat("Hm");
+  final dateFormatter = intl.DateFormat("Hm");
 
   @override
   Widget build(BuildContext context) {
-    var alignment = Alignment.centerRight;
-    var padding = EdgeInsets.only(left: 100, right: 20);
-    var color = Constants.orange;
-
-    if (_message.isIncoming) {
-      alignment = Alignment.centerLeft;
-      padding = padding.flipped;
-      color = Constants.darkGrey;
-    }
-
     return Observer(builder: (context) {
       return Container(
-        color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
+        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
         child: Align(
-          alignment: alignment,
-          child: Padding(
-            padding: padding,
-            child: InkWell(
-              onDoubleTap: onDoubleTap,
-              child: FocusedMenuHolder(
-                animateMenuItems: false,
-                blurSize: 2,
-                blurBackgroundColor: Constants.black,
-                menuWidth: MediaQuery.of(context).size.width * 0.4,
-                onPressed: onTap,
-                menuItemExtent: 40,
-                menuItems: [
-                  FocusedMenuItem(
-                      title: Text("Select"),
-                      onPressed: onSelect,
-                      trailingIcon: Icon(Icons.check_box_outline_blank)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Tag"),
-                        onPressed: () {},
-                        trailingIcon: Icon(Icons.tag)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Forward"),
-                        onPressed: () {
-                          //TODO: Send message to forwarded contacts.
-                          onForwardPressed();
-                        },
-                        trailingIcon: Icon(Icons.forward)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Copy"),
-                        onPressed: () => Clipboard.setData(
-                            ClipboardData(text: _message.contents)),
-                        trailingIcon: Icon(Icons.copy)),
-                  FocusedMenuItem(
-                      title: Text(
-                        "Delete",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: onDelete,
-                      trailingIcon: Icon(
-                        Icons.delete,
-                        color: Constants.white,
-                      ),
-                      backgroundColor: Colors.redAccent),
-                ],
-                child: Stack(
-                  children: [
-                    Card(
-                      color: color.withOpacity(0.8),
-                      child: Stack(
+          alignment: _message.isIncoming
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: _message.isIncoming
+                        ? Constants.darkGrey.withOpacity(0.88)
+                        : Constants.orange.withOpacity(0.88),
+                  ),
+                  child: InkWell(
+                    onDoubleTap: onDoubleTap,
+                    child: FocusedMenuHolder(
+                      animateMenuItems: false,
+                      blurSize: 2,
+                      blurBackgroundColor: Constants.black,
+                      menuWidth: MediaQuery.of(context).size.width * 0.4,
+                      onPressed: onTap,
+                      menuItemExtent: 40,
+                      menuItems: [
+                        FocusedMenuItem(
+                            title: Text("Select"),
+                            onPressed: onSelect,
+                            trailingIcon: Icon(Icons.check_box_outline_blank)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Tag"),
+                              onPressed: () {},
+                              trailingIcon: Icon(Icons.tag)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Forward"),
+                              onPressed: () {
+                                onForwardPressed();
+                              },
+                              trailingIcon: Icon(Icons.forward)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Copy"),
+                              onPressed: () => Clipboard.setData(
+                                  ClipboardData(text: _message.contents)),
+                              trailingIcon: Icon(Icons.copy)),
+                        FocusedMenuItem(
+                            title: Text(
+                              "Delete",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: onDelete,
+                            trailingIcon: Icon(
+                              Icons.delete,
+                              color: Constants.white,
+                            ),
+                            backgroundColor: Colors.redAccent),
+                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
+                          //if(isForwarded)
+                          // Container(
+                          //   child: Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.reply,
+                          //         textDirection: TextDirection.rtl,
+                          //         size: 16,
+                          //         color: Colors.white.withOpacity(0.69),
+                          //       ),
+                          //       Text(
+                          //         "Forwarded",
+                          //         style: TextStyle(
+                          //             fontSize: 12,
+                          //             color: Colors.white.withOpacity(0.69)),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                          Container(
                             child: _renderMessageContents(),
-                          ),
-                          Positioned(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                dateFormatter.format(_message.timestamp),
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.white),
-                              ),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.7,
                             ),
                           ),
-                          Positioned(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                              child: _readReceipt(),
+                          Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  dateFormatter.format(_message.timestamp),
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                if (!_message.isIncoming)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 2),
+                                    child: _readReceipt(),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (_message.liked)
-                      Positioned(
-                        child: Icon(
-                          Icons.favorite,
-                          size: 15,
-                          color: _message.isIncoming
-                              ? Constants.orange
-                              : Constants.darkGrey,
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
+                if (_message.liked)
+                  Container(
+                    alignment: _message.isIncoming
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                    child: Icon(
+                      Icons.favorite,
+                      size: 16,
+                      color: _message.isIncoming
+                          ? Constants.orange
+                          : Constants.darkGrey,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

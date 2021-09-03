@@ -8,6 +8,7 @@ import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
+import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -22,6 +23,7 @@ class CommunicationService {
   final MessageService messageService;
   final SettingsService settingsService;
   final MediaService mediaService;
+  final MemoryStoreService memoryStoreService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -70,6 +72,7 @@ class CommunicationService {
     this.messageService,
     this.settingsService,
     this.mediaService,
+    this.memoryStoreService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 

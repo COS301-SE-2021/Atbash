@@ -328,7 +328,7 @@ class CommunicationService {
         "iv": mediaUpload.base16IV,
       });
 
-      _queueForSending(contents, recipientPhoneNumber);
+      _queueForSending(contents, recipientPhoneNumber, id: message.id);
     }
   }
 

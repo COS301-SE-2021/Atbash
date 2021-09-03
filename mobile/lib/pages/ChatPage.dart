@@ -518,110 +518,119 @@ class ChatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var alignment = Alignment.centerRight;
-    var padding = EdgeInsets.only(left: 100, right: 20);
-    var color = Constants.orange;
-
-    if (_message.isIncoming) {
-      alignment = Alignment.centerLeft;
-      padding = padding.flipped;
-      color = Constants.darkGrey;
-    }
-
     return Observer(builder: (context) {
       return Container(
-        color: selected ? Color.fromRGBO(116, 152, 214, 0.3) : null,
+        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
         child: Align(
-          alignment: alignment,
-          child: Padding(
-            padding: padding,
-            child: InkWell(
-              onDoubleTap: onDoubleTap,
-              child: FocusedMenuHolder(
-                animateMenuItems: false,
-                blurSize: 2,
-                blurBackgroundColor: Constants.black,
-                menuWidth: MediaQuery.of(context).size.width * 0.4,
-                onPressed: onTap,
-                menuItemExtent: 40,
-                menuItems: [
-                  FocusedMenuItem(
-                      title: Text("Select"),
-                      onPressed: onSelect,
-                      trailingIcon: Icon(Icons.check_box_outline_blank)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Tag"),
-                        onPressed: () {},
-                        trailingIcon: Icon(Icons.tag)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Forward"),
-                        onPressed: () {
-                          //TODO: Send message to forwarded contacts.
-                          onForwardPressed();
-                        },
-                        trailingIcon: Icon(Icons.forward)),
-                  if (!_message.deleted)
-                    FocusedMenuItem(
-                        title: Text("Copy"),
-                        onPressed: () => Clipboard.setData(
-                            ClipboardData(text: _message.contents)),
-                        trailingIcon: Icon(Icons.copy)),
-                  FocusedMenuItem(
-                      title: Text(
-                        "Delete",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: onDelete,
-                      trailingIcon: Icon(
-                        Icons.delete,
-                        color: Constants.white,
-                      ),
-                      backgroundColor: Colors.redAccent),
-                ],
-                child: Stack(
-                  children: [
-                    Card(
-                      color: color.withOpacity(0.8),
-                      child: Stack(
+          alignment: _message.isIncoming
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: _message.isIncoming
+                        ? Constants.darkGrey.withOpacity(0.88)
+                        : Constants.orange.withOpacity(0.88),
+                  ),
+                  child: InkWell(
+                    onDoubleTap: onDoubleTap,
+                    child: FocusedMenuHolder(
+                      animateMenuItems: false,
+                      blurSize: 2,
+                      blurBackgroundColor: Constants.black,
+                      menuWidth: MediaQuery.of(context).size.width * 0.4,
+                      onPressed: onTap,
+                      menuItemExtent: 40,
+                      menuItems: [
+                        FocusedMenuItem(
+                            title: Text("Select"),
+                            onPressed: onSelect,
+                            trailingIcon: Icon(Icons.check_box_outline_blank)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Tag"),
+                              onPressed: () {},
+                              trailingIcon: Icon(Icons.tag)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Forward"),
+                              onPressed: () {
+                                onForwardPressed();
+                              },
+                              trailingIcon: Icon(Icons.forward)),
+                        if (!_message.deleted)
+                          FocusedMenuItem(
+                              title: Text("Copy"),
+                              onPressed: () => Clipboard.setData(
+                                  ClipboardData(text: _message.contents)),
+                              trailingIcon: Icon(Icons.copy)),
+                        FocusedMenuItem(
+                            title: Text(
+                              "Delete",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: onDelete,
+                            trailingIcon: Icon(
+                              Icons.delete,
+                              color: Constants.white,
+                            ),
+                            backgroundColor: Colors.redAccent),
+                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Padding(
                             padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
                             child: _renderMessageContents(),
-                          ),
-                          Positioned(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                dateFormatter.format(_message.timestamp),
-                                style: TextStyle(
-                                    fontSize: 11, color: Colors.white),
-                              ),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.7,
                             ),
                           ),
-                          Positioned(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                              child: _readReceipt(),
+                          Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  dateFormatter.format(_message.timestamp),
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                if (!_message.isIncoming)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 2),
+                                    child: _readReceipt(),
+                                  ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    if (_message.liked)
-                      Positioned(
-                        child: Icon(
-                          Icons.favorite,
-                          size: 15,
-                          color: _message.isIncoming
-                              ? Constants.orange
-                              : Constants.darkGrey,
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
+                if (_message.liked)
+                  Container(
+                    alignment: _message.isIncoming
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                    child: Icon(
+                      Icons.favorite,
+                      size: 16,
+                      color: _message.isIncoming
+                          ? Constants.orange
+                          : Constants.darkGrey,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

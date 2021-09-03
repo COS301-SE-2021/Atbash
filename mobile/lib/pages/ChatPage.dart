@@ -583,8 +583,26 @@ class ChatCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
+                          //if(isForwarded)
+                          // Container(
+                          //   child: Row(
+                          //     children: [
+                          //       Icon(
+                          //         Icons.reply,
+                          //         textDirection: TextDirection.rtl,
+                          //         size: 16,
+                          //         color: Colors.white.withOpacity(0.69),
+                          //       ),
+                          //       Text(
+                          //         "Forwarded",
+                          //         style: TextStyle(
+                          //             fontSize: 12,
+                          //             color: Colors.white.withOpacity(0.69)),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                          Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,

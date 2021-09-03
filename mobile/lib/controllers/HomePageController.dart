@@ -24,6 +24,11 @@ class HomePageController {
     final CommunicationService communicationService = GetIt.I.get();
 
     communicationService.goOnline();
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(true, contact.phoneNumber);
+      });
+    });
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);
@@ -35,6 +40,12 @@ class HomePageController {
   }
 
   void dispose() {
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(false, contact.phoneNumber);
+      });
+    });
+
     navigationObserver.disposeOnRoutePop(reload);
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);

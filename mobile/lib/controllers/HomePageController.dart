@@ -24,11 +24,6 @@ class HomePageController {
     final CommunicationService communicationService = GetIt.I.get();
 
     communicationService.goOnline();
-    contactService.fetchAll().then((contacts) {
-      contacts.forEach((contact) {
-        communicationService.sendOnlineStatus(true, contact.phoneNumber);
-      });
-    });
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);
@@ -40,18 +35,28 @@ class HomePageController {
   }
 
   void dispose() {
-    contactService.fetchAll().then((contacts) {
-      contacts.forEach((contact) {
-        communicationService.sendOnlineStatus(false, contact.phoneNumber);
-      });
-    });
-
     navigationObserver.disposeOnRoutePop(reload);
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+  }
+
+  void sendOnline() {
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(true, contact.phoneNumber);
+      });
+    });
+  }
+
+  void sendOffline() {
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(false, contact.phoneNumber);
+      });
+    });
   }
 
   void _onMessage(Message m) {

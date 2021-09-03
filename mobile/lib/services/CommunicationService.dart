@@ -355,6 +355,16 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendOnlineStatus(
+      bool online, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "online",
+      "online": online,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
   Future<void> sendStatus(String status, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "status",

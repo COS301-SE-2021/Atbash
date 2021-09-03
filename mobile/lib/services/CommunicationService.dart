@@ -8,6 +8,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
+import 'package:mobile/services/MediaEncryptionService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -21,6 +22,7 @@ class CommunicationService {
   final ContactService contactService;
   final MessageService messageService;
   final SettingsService settingsService;
+  final MediaEncryptionService mediaEncryptionService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -62,12 +64,14 @@ class CommunicationService {
       _onMessageLikedListeners.remove(cb);
 
   CommunicationService(
-      this.encryptionService,
-      this.userService,
-      this.chatService,
-      this.contactService,
-      this.messageService,
-      this.settingsService) {
+    this.encryptionService,
+    this.userService,
+    this.chatService,
+    this.contactService,
+    this.messageService,
+    this.settingsService,
+    this.mediaEncryptionService,
+  ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(

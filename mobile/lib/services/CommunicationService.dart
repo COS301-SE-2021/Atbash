@@ -22,7 +22,7 @@ class CommunicationService {
   final ContactService contactService;
   final MessageService messageService;
   final SettingsService settingsService;
-  final MediaService mediaEncryptionService;
+  final MediaService mediaService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -70,7 +70,7 @@ class CommunicationService {
     this.contactService,
     this.messageService,
     this.settingsService,
-    this.mediaEncryptionService,
+    this.mediaService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -338,39 +338,18 @@ class CommunicationService {
       String profileImageBase64, String recipientPhoneNumber) async {
     bool shareImage = await settingsService.getShareProfilePicture();
     if (shareImage) return;
-    final base16Key = SecureRandom(32).base16;
-    final base16IV = SecureRandom(16).base16;
 
-    final key = Key.fromBase16(base16Key);
-    final iv = IV.fromBase16(base16IV);
+    final mediaUpload = await mediaService.uploadMedia(profileImageBase64);
 
-    final encryptor = Encrypter(AES(key));
+    if (mediaUpload != null) {
+      final contents = jsonEncode({
+        "type": "profileImage",
+        "key": mediaUpload.base16Key,
+        "iv": mediaUpload.base16IV,
+        "imageId": mediaUpload.mediaId,
+      });
 
-    final mediaId = Uuid().v4();
-    final encryptedImage = encryptor.encrypt(profileImageBase64, iv: iv);
-
-    final uri = Uri.parse(Constants.httpUrl + "upload");
-    final body = {"mediaId": mediaId, "method": "PUT"};
-    final response = await post(uri, body: jsonEncode(body));
-
-    if (response.statusCode == 200) {
-      final uploadUrl = Uri.parse(response.body);
-      final uploadResponse = await put(uploadUrl, body: encryptedImage.base64);
-
-      if (uploadResponse.statusCode == 200) {
-        final contents = jsonEncode({
-          "type": "profileImage",
-          "key": base16Key,
-          "iv": base16IV,
-          "imageId": mediaId,
-        });
-
-        _queueForSending(contents, recipientPhoneNumber);
-      } else {
-        print("${uploadResponse.statusCode} - ${uploadResponse.body}");
-      }
-    } else {
-      print("${response.statusCode} - ${response.body}");
+      _queueForSending(contents, recipientPhoneNumber);
     }
   }
 

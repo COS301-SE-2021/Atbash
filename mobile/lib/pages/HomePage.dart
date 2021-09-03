@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/controllers/HomePageController.dart';
+import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
@@ -339,7 +342,15 @@ class _HomePageState extends State<HomePage> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                   child: AvatarIcon.fromString(
-                      contact != null ? contact.profileImage : ""),
+                    contact != null ? contact.profileImage : "",
+                    onTap: () {
+                      final profileImage = contact?.profileImage;
+                      if (profileImage != null) {
+                        final profileImageBytes = base64Decode(profileImage);
+                        showImageViewDialog(context, profileImageBytes);
+                      }
+                    },
+                  ),
                 ),
                 Expanded(
                   child: Column(

@@ -142,6 +142,11 @@ class ChatPageController {
 
     model.addMessage(message);
     messageService.insert(message);
+    communicationService.sendImage(
+      message,
+      ChatType.general,
+      contactPhoneNumber,
+    );
   }
 
   void deleteMessagesLocally(List<String> ids) {

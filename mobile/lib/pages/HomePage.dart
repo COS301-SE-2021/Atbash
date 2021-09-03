@@ -22,7 +22,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final controller = HomePageController();
   final DateFormat dateFormatter = DateFormat.Hm();
 
@@ -36,14 +36,31 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance?.addObserver(this);
+
     _searchFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     super.dispose();
+
+    WidgetsBinding.instance?.removeObserver(this);
+
     _searchFocusNode.dispose();
     controller.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      controller.sendOffline();
+    } else {
+      controller.sendOnline();
+    }
   }
 
   @override

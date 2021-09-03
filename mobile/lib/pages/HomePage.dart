@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> {
         return Row(
           children: [
             _buildOutgoingReadReceipt(message) ?? SizedBox.shrink(),
-            _buildMessagePreview(message),
+            Expanded(child: _buildMessagePreview(message)),
           ],
         );
       } else {

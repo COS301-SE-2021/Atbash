@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
@@ -196,11 +195,8 @@ class CommunicationService {
           final base16Key = decryptedContents["key"] as String;
           final base16IV = decryptedContents["iv"] as String;
 
-          final key = Key.fromBase16(base16Key);
-          final iv = IV.fromBase16(base16IV);
-
           final image =
-              await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
+              await mediaService.fetchMedia(imageId, base16Key, base16IV);
 
           if (image != null) {
             contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -258,34 +254,6 @@ class CommunicationService {
       }
 
       await _deleteMessageFromServer(id);
-    }
-  }
-
-  Future<String?> _fetchProfileImage(
-      String senderPhoneNumber, String mediaId, Key key, IV iv) async {
-    final uri = Uri.parse(Constants.httpUrl + "upload");
-    final body = {"mediaId": mediaId, "method": "GET"};
-    final response = await post(uri, body: jsonEncode(body));
-
-    if (response.statusCode == 200) {
-      print("received mediaUrl");
-
-      final mediaUrl = Uri.parse(response.body);
-      final mediaResponse = await get(mediaUrl);
-
-      if (mediaResponse.statusCode == 200) {
-        print("received image");
-
-        final encryptor = Encrypter(AES(key));
-
-        final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
-
-        return decryptedImage;
-      } else {
-        print("${response.statusCode} - ${response.body}");
-      }
-    } else {
-      print("${response.statusCode} - ${response.body}");
     }
   }
 

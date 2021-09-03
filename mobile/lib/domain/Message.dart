@@ -39,7 +39,7 @@ class Message extends _Message with _$Message {
       COLUMN_OTHER_PARTY_PHONE: otherPartyPhoneNumber,
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
-      COLUMN_IS_MEDIA: isMedia,
+      COLUMN_IS_MEDIA: isMedia ? 1 : 0,
       COLUMN_READ_RECEIPT: readReceipt.index,
       COLUMN_DELETED: deleted ? 1 : 0,
       COLUMN_LIKED: liked ? 1 : 0,

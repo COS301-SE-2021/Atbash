@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
@@ -123,6 +126,20 @@ class ChatPageController {
 
     communicationService.sendMessage(message, chatType, contactPhoneNumber);
     messageService.insert(message);
+    model.addMessage(message);
+  }
+
+  void sendImage(Uint8List imageBytes) async {
+    final message = Message(
+      id: Uuid().v4(),
+      chatId: chatId,
+      isIncoming: false,
+      otherPartyPhoneNumber: contactPhoneNumber,
+      contents: base64Encode(imageBytes),
+      timestamp: DateTime.now(),
+      isMedia: true,
+    );
+
     model.addMessage(message);
   }
 

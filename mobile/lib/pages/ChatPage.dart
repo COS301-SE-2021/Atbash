@@ -6,7 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
@@ -269,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
 
     if (selectedMessages.isNotEmpty) {
       String result = "";
-      final format = DateFormat("dd/MM HH:mm");
+      final format = intl.DateFormat("dd/MM HH:mm");
 
       selectedMessages.reversed.forEach((message) {
         if (!message.first.deleted) {
@@ -363,9 +363,14 @@ class _ChatPageState extends State<ChatPage> {
       if (today - curDay == 1) return "Yesterday";
 
       if (today - curDay < 7)
-        return DateFormat("EEEE").format(_messages[index].first.timestamp);
+        return intl.DateFormat("EEEE").format(_messages[index].first.timestamp);
 
-      return DateFormat("EEE, dd MMM").format(_messages[index].first.timestamp);
+      //TODO: Order by year if it goes too far back
+      // if (prevYear < curYear)
+      //   return intl.DateFormat.yMMMd().format(_messages[index].first.timestamp);
+
+      return intl.DateFormat("EEE, dd MMM")
+          .format(_messages[index].first.timestamp);
     }
 
     //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
@@ -499,7 +504,7 @@ class ChatCard extends StatelessWidget {
     required this.onForwardPressed,
   });
 
-  final dateFormatter = DateFormat("Hm");
+  final dateFormatter = intl.DateFormat("Hm");
 
   @override
   Widget build(BuildContext context) {

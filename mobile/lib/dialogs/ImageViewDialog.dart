@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 
 void showImageViewDialog(BuildContext context, Uint8List imageBytes) {
   showDialog(
-      context: context,
-      builder: (_) {
-        return _ImageViewDialog(imageBytes: imageBytes);
-      });
+    context: context,
+    builder: (_) => _ImageViewDialog(imageBytes: imageBytes),
+  );
 }
 
 class _ImageViewDialog extends StatelessWidget {

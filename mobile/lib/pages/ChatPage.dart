@@ -569,16 +569,7 @@ class ChatCard extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                             _message.liked ? 20 : 8, 25, 8, 8),
-                        child: Text(
-                          _message.deleted
-                              ? "This message was deleted"
-                              : _message.contents,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontStyle:
-                                _message.deleted ? FontStyle.italic : null,
-                          ),
-                        ),
+                        child: _renderMessageContents(),
                       ),
                       Positioned(
                         child: Padding(
@@ -617,6 +608,23 @@ class ChatCard extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _renderMessageContents() {
+    if (_message.isMedia) {
+      return Image.memory(
+        base64Decode(_message.contents),
+        height: 200,
+      );
+    } else {
+      return Text(
+        _message.deleted ? "This message was deleted" : _message.contents,
+        style: TextStyle(
+          color: Colors.white,
+          fontStyle: _message.deleted ? FontStyle.italic : null,
+        ),
+      );
+    }
   }
 
   Icon? _readReceipt() {

@@ -12,21 +12,24 @@ class Message extends _Message with _$Message {
     required String otherPartyPhoneNumber,
     required String contents,
     required DateTime timestamp,
+    bool isMedia = false,
     ReadReceipt readReceipt = ReadReceipt.undelivered,
     bool deleted = false,
     bool liked = false,
     List<Tag> tags = const [],
   }) : super(
-            id: id,
-            chatId: chatId,
-            isIncoming: isIncoming,
-            otherPartyPhoneNumber: otherPartyPhoneNumber,
-            contents: contents,
-            timestamp: timestamp,
-            readReceipt: readReceipt,
-            deleted: deleted,
-            liked: liked,
-            tags: tags);
+          id: id,
+          chatId: chatId,
+          isIncoming: isIncoming,
+          otherPartyPhoneNumber: otherPartyPhoneNumber,
+          contents: contents,
+          timestamp: timestamp,
+          isMedia: isMedia,
+          readReceipt: readReceipt,
+          deleted: deleted,
+          liked: liked,
+          tags: tags,
+        );
 
   Map<String, Object> toMap() {
     return {
@@ -36,6 +39,7 @@ class Message extends _Message with _$Message {
       COLUMN_OTHER_PARTY_PHONE: otherPartyPhoneNumber,
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
+      COLUMN_IS_MEDIA: isMedia,
       COLUMN_READ_RECEIPT: readReceipt.index,
       COLUMN_DELETED: deleted ? 1 : 0,
       COLUMN_LIKED: liked ? 1 : 0,
@@ -49,6 +53,7 @@ class Message extends _Message with _$Message {
     final otherPartyPhoneNumber = map[COLUMN_OTHER_PARTY_PHONE] as String?;
     final contents = map[COLUMN_CONTENTS] as String?;
     final timestamp = map[COLUMN_TIMESTAMP] as int?;
+    final isMedia = map[COLUMN_IS_MEDIA] as int?;
     final readReceipt = map[COLUMN_READ_RECEIPT] as int?;
     final deleted = map[COLUMN_DELETED] as int?;
     final liked = map[COLUMN_LIKED] as int?;
@@ -59,6 +64,7 @@ class Message extends _Message with _$Message {
         otherPartyPhoneNumber != null &&
         contents != null &&
         timestamp != null &&
+        isMedia != null &&
         readReceipt != null &&
         deleted != null &&
         liked != null) {
@@ -69,6 +75,7 @@ class Message extends _Message with _$Message {
         otherPartyPhoneNumber: otherPartyPhoneNumber,
         contents: contents,
         timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+        isMedia: isMedia != 0,
         readReceipt: ReadReceipt.values[readReceipt],
         deleted: deleted != 0,
         liked: liked != 0,
@@ -84,6 +91,7 @@ class Message extends _Message with _$Message {
   static const String COLUMN_OTHER_PARTY_PHONE = "message_other_party_phone";
   static const String COLUMN_CONTENTS = "message_contents";
   static const String COLUMN_TIMESTAMP = "message_timestamp";
+  static const String COLUMN_IS_MEDIA = "message_is_media";
   static const String COLUMN_READ_RECEIPT = "message_read_receipt";
   static const String COLUMN_DELETED = "message_deleted";
   static const String COLUMN_LIKED = "message_liked";
@@ -94,6 +102,7 @@ class Message extends _Message with _$Message {
       "$COLUMN_OTHER_PARTY_PHONE text not null,"
       "$COLUMN_CONTENTS text not null,"
       "$COLUMN_TIMESTAMP int not null,"
+      "$COLUMN_IS_MEDIA tinyint not null,"
       "$COLUMN_READ_RECEIPT int not null,"
       "$COLUMN_DELETED tinyint not null,"
       "$COLUMN_LIKED tinyint not null"
@@ -114,6 +123,8 @@ abstract class _Message with Store {
 
   final DateTime timestamp;
 
+  final bool isMedia;
+
   @observable
   ReadReceipt readReceipt;
 
@@ -133,6 +144,7 @@ abstract class _Message with Store {
     required this.otherPartyPhoneNumber,
     required this.contents,
     required this.timestamp,
+    required this.isMedia,
     required this.readReceipt,
     required this.deleted,
     required this.liked,

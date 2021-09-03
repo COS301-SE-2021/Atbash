@@ -39,6 +39,37 @@ class MediaService {
       print("${response.statusCode} - ${response.body}");
     }
   }
+
+  Future<String?> fetchMedia(
+      String mediaId, String base16Key, String base16IV) async {
+    final key = Key.fromBase16(base16Key);
+    final iv = IV.fromBase16(base16IV);
+
+    final uri = Uri.parse(Constants.httpUrl + "upload");
+    final body = {"mediaId": mediaId, "method": "GET"};
+    final response = await post(uri, body: jsonEncode(body));
+
+    if (response.statusCode == 200) {
+      print("received mediaUrl");
+
+      final mediaUrl = Uri.parse(response.body);
+      final mediaResponse = await get(mediaUrl);
+
+      if (mediaResponse.statusCode == 200) {
+        print("received image");
+
+        final encryptor = Encrypter(AES(key));
+
+        final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
+
+        return decryptedImage;
+      } else {
+        print("${response.statusCode} - ${response.body}");
+      }
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
+  }
 }
 
 class MediaUpload {

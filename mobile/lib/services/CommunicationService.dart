@@ -273,6 +273,23 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber, id: message.id);
   }
 
+  Future<void> sendImage(
+      Message message, ChatType chatType, String recipientPhoneNumber) async {
+    final mediaUpload = await mediaService.uploadMedia(message.contents);
+
+    if (mediaUpload != null) {
+      final contents = jsonEncode({
+        "type": "imageMessage",
+        "chatType": chatType.toString(),
+        "imageId": mediaUpload.mediaId,
+        "key": mediaUpload.base16Key,
+        "iv": mediaUpload.base16IV,
+      });
+
+      _queueForSending(contents, recipientPhoneNumber);
+    }
+  }
+
   Future<void> sendDelete(String messageId, String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "delete",

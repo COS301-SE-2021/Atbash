@@ -257,6 +257,52 @@ class CommunicationService {
     }
   }
 
+  Future<void> _handleMessage({
+    required String senderPhoneNumber,
+    required ChatType chatType,
+    required String id,
+    required String contents,
+    required DateTime timestamp,
+    bool isMedia = false,
+  }) async {
+    chatService
+        .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
+        .then((exists) async {
+      if (!exists) {
+        final chat = Chat(
+          id: Uuid().v4(),
+          contactPhoneNumber: senderPhoneNumber,
+          chatType: chatType,
+        );
+
+        await chatService.insert(chat);
+      }
+
+      String chatId = await chatService.findIdByPhoneNumberAndChatType(
+        senderPhoneNumber,
+        chatType,
+      );
+
+      final message = Message(
+        id: id,
+        chatId: chatId,
+        isIncoming: true,
+        otherPartyPhoneNumber: senderPhoneNumber,
+        contents: contents,
+        timestamp: timestamp,
+        isMedia: isMedia,
+        readReceipt: ReadReceipt.delivered,
+        deleted: false,
+        liked: false,
+        tags: [],
+      );
+
+      messageService.insert(message);
+      sendAck(id, senderPhoneNumber);
+      _onMessageListeners.forEach((listener) => listener(message));
+    });
+  }
+
   Future<void> _deleteMessageFromServer(String id) async {
     final uri = Uri.parse(Constants.httpUrl + "message/$id");
     await delete(uri);

@@ -8,6 +8,7 @@ import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
+import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -22,6 +23,7 @@ class CommunicationService {
   final MessageService messageService;
   final SettingsService settingsService;
   final MediaService mediaService;
+  final MemoryStoreService memoryStoreService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -70,6 +72,7 @@ class CommunicationService {
     this.messageService,
     this.settingsService,
     this.mediaService,
+    this.memoryStoreService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -186,6 +189,24 @@ class CommunicationService {
           _onDeleteListeners.forEach((listener) => listener(messageId));
           break;
 
+        case "like":
+          final messageId = decryptedContents["messageId"] as String;
+          final liked = decryptedContents["liked"] as bool;
+
+          messageService.setMessageLiked(messageId, liked);
+          _onMessageLikedListeners
+              .forEach((listener) => listener(messageId, liked));
+          break;
+
+        case "online":
+          final online = decryptedContents["online"] as bool;
+          if (online) {
+            memoryStoreService.addOnlineContact(senderPhoneNumber);
+          } else {
+            memoryStoreService.removeOnlineContact(senderPhoneNumber);
+          }
+          break;
+
         case "profileImage":
           final imageId = decryptedContents["imageId"] as String;
           final base16Key = decryptedContents["key"] as String;
@@ -237,15 +258,6 @@ class CommunicationService {
           if (profileImage != null) {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
-          break;
-
-        case "like":
-          final messageId = decryptedContents["messageId"] as String;
-          final liked = decryptedContents["liked"] as bool;
-
-          messageService.setMessageLiked(messageId, liked);
-          _onMessageLikedListeners
-              .forEach((listener) => listener(messageId, liked));
           break;
       }
 
@@ -347,6 +359,16 @@ class CommunicationService {
       "type": "like",
       "messageId": messageId,
       "liked": liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendOnlineStatus(
+      bool online, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "online",
+      "online": online,
     });
 
     _queueForSending(contents, recipientPhoneNumber);

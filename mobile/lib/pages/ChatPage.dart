@@ -114,16 +114,12 @@ class _ChatPageState extends State<ChatPage> {
           );
         }),
         Observer(builder: (_) {
-          final status = controller.model.contactStatus;
+          final online = controller.model.online;
 
-          if (status.isNotEmpty) {
+          if (online) {
             return Text(
-              controller.model.contactStatus,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black,
-              ),
+              "Online",
+              style: TextStyle(fontSize: 12, color: Colors.black),
             );
           } else {
             return SizedBox.shrink();

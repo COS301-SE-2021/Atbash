@@ -24,6 +24,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$onlineAtom = Atom(name: '_ChatPageModel.online');
+
+  @override
+  bool get online {
+    _$onlineAtom.reportRead();
+    return super.online;
+  }
+
+  @override
+  set online(bool value) {
+    _$onlineAtom.reportWrite(value, super.online, () {
+      super.online = value;
+    });
+  }
+
   final _$contactStatusAtom = Atom(name: '_ChatPageModel.contactStatus');
 
   @override
@@ -173,6 +188,7 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   String toString() {
     return '''
 contactTitle: ${contactTitle},
+online: ${online},
 contactStatus: ${contactStatus},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},

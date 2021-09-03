@@ -12,6 +12,7 @@ import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:uuid/uuid.dart';
 
@@ -21,6 +22,7 @@ class ChatPageController {
   final CommunicationService communicationService = GetIt.I.get();
   final MessageService messageService = GetIt.I.get();
   final ChatCacheService chatCacheService = GetIt.I.get();
+  final MemoryStoreService memoryStoreService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -47,6 +49,11 @@ class ChatPageController {
       model.contactProfileImage = chat.contact?.profileImage ?? "";
       model.contactSaved = chat.contact != null;
       model.chatType = chat.chatType;
+
+      if (memoryStoreService.isContactOnline(contactPhoneNumber)) {
+        _onOnline(true);
+      }
+      memoryStoreService.onContactOnline(contactPhoneNumber, _onOnline);
     });
 
     contactService.onChanged(_onContactChanged);
@@ -66,6 +73,10 @@ class ChatPageController {
 
       model.replaceMessages(messages);
     });
+  }
+
+  void _onOnline(bool online) {
+    model.online = online;
   }
 
   void _onMessage(Message message) {
@@ -110,6 +121,7 @@ class ChatPageController {
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
     contactService.disposeOnChanged(_onContactChanged);
+    memoryStoreService.disposeOnContactOnline(_onOnline);
   }
 
   void sendMessage(String contents) async {

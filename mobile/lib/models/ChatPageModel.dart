@@ -11,6 +11,9 @@ abstract class _ChatPageModel with Store {
   String contactTitle = "";
 
   @observable
+  bool online = false;
+
+  @observable
   String contactStatus = "";
 
   @observable

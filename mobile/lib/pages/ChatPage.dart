@@ -1,11 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
+import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
@@ -339,22 +344,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   String _chatDateString(int index) {
+    int numMillisPerDay = 1000 * 60 * 60 * 24;
+
     int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
-            1000 /
-            60 /
-            60 /
-            24)
+            numMillisPerDay)
         .floor();
     int prevDay = index == _messages.length - 1
         ? 0
         : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
-                1000 /
-                60 /
-                60 /
-                24)
+                numMillisPerDay)
             .floor();
     int today =
-        (DateTime.now().millisecondsSinceEpoch / 1000 / 60 / 60 / 24).floor();
+        (DateTime.now().millisecondsSinceEpoch / numMillisPerDay).floor();
 
     if (curDay > prevDay) {
       if (curDay == today) return "Today";
@@ -380,6 +381,10 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             message.second = !message.second;
           });
+        } else {
+          if (message.first.isMedia) {
+            showImageViewDialog(context, base64Decode(message.first.contents));
+          }
         }
       },
       onSelect: () {
@@ -407,7 +412,7 @@ class _ChatPageState extends State<ChatPage> {
                 top: 10,
                 left: 5,
               ),
-              onPressed: () {},
+              onPressed: _sendImage,
               icon: Icon(
                 Icons.add_circle_outline,
                 color: Constants.white,
@@ -462,6 +467,16 @@ class _ChatPageState extends State<ChatPage> {
     _inputController.text = "";
 
     controller.sendMessage(contents);
+  }
+
+  void _sendImage() async {
+    final pickedImage =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      final file = File(pickedImage.path);
+      final imageBytes = await file.readAsBytes();
+      controller.sendImage(imageBytes);
+    }
   }
 }
 
@@ -558,16 +573,7 @@ class ChatCard extends StatelessWidget {
                         children: [
                           Padding(
                             padding: EdgeInsets.fromLTRB(8, 25, 8, 8),
-                            child: Text(
-                              _message.deleted
-                                  ? "This message was deleted"
-                                  : _message.contents,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontStyle:
-                                    _message.deleted ? FontStyle.italic : null,
-                              ),
-                            ),
+                            child: _renderMessageContents(),
                           ),
                           Positioned(
                             child: Padding(
@@ -606,6 +612,23 @@ class ChatCard extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _renderMessageContents() {
+    if (_message.isMedia) {
+      return Image.memory(
+        base64Decode(_message.contents),
+        height: 200,
+      );
+    } else {
+      return Text(
+        _message.deleted ? "This message was deleted" : _message.contents,
+        style: TextStyle(
+          color: Colors.white,
+          fontStyle: _message.deleted ? FontStyle.italic : null,
+        ),
+      );
+    }
   }
 
   Icon? _readReceipt() {

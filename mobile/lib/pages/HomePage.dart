@@ -261,20 +261,34 @@ class _HomePageState extends State<HomePage> {
       );
     }
 
+    Text _buildMessagePreview(Message message) {
+      var preview = "";
+
+      if (message.deleted) {
+        preview = "This message was deleted";
+      } else if (message.isMedia) {
+        preview = "\u{1f4f7} Photo";
+      } else {
+        preview = message.contents;
+      }
+
+      return Text(
+        preview,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          color: Constants.darkGrey,
+        ),
+      );
+    }
+
     Widget _buildRecentMessage() {
       if (message != null) {
         return Row(
           children: [
             _buildOutgoingReadReceipt(message) ?? SizedBox.shrink(),
-            Text(
-              message.deleted ? "This message was deleted" : message.contents,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                color: Constants.darkGrey,
-              ),
-            )
+            Expanded(child: _buildMessagePreview(message)),
           ],
         );
       } else {

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:encrypt/encrypt.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
@@ -8,6 +7,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
+import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -21,6 +21,7 @@ class CommunicationService {
   final ContactService contactService;
   final MessageService messageService;
   final SettingsService settingsService;
+  final MediaService mediaService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -62,12 +63,14 @@ class CommunicationService {
       _onMessageLikedListeners.remove(cb);
 
   CommunicationService(
-      this.encryptionService,
-      this.userService,
-      this.chatService,
-      this.contactService,
-      this.messageService,
-      this.settingsService) {
+    this.encryptionService,
+    this.userService,
+    this.chatService,
+    this.contactService,
+    this.messageService,
+    this.settingsService,
+    this.mediaService,
+  ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -144,41 +147,37 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final text = decryptedContents["text"] as String;
 
-          chatService
-              .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
-              .then((exists) async {
-            if (!exists) {
-              final chat = Chat(
-                id: Uuid().v4(),
-                contactPhoneNumber: senderPhoneNumber,
-                chatType: chatType,
-              );
+          _handleMessage(
+            senderPhoneNumber: senderPhoneNumber,
+            chatType: chatType,
+            id: id,
+            contents: text,
+            timestamp: DateTime.now(),
+          );
+          break;
 
-              await chatService.insert(chat);
-            }
+        case "imageMessage":
+          final chatTypeStr = decryptedContents["chatType"] as String;
+          final chatType =
+              ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
 
-            String chatId = await chatService.findIdByPhoneNumberAndChatType(
-              senderPhoneNumber,
-              chatType,
-            );
+          final imageId = decryptedContents["imageId"];
+          final base16Key = decryptedContents["key"];
+          final base16IV = decryptedContents["iv"];
 
-            final message = Message(
+          final image =
+              await mediaService.fetchMedia(imageId, base16Key, base16IV);
+
+          if (image != null) {
+            _handleMessage(
+              senderPhoneNumber: senderPhoneNumber,
+              chatType: chatType,
               id: id,
-              chatId: chatId,
-              isIncoming: true,
-              otherPartyPhoneNumber: senderPhoneNumber,
-              contents: text,
-              timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-              readReceipt: ReadReceipt.delivered,
-              deleted: false,
-              liked: false,
-              tags: [],
+              contents: image,
+              timestamp: DateTime.now(),
+              isMedia: true,
             );
-
-            messageService.insert(message);
-            sendAck(id, senderPhoneNumber);
-            _onMessageListeners.forEach((listener) => listener(message));
-          });
+          }
           break;
 
         case "delete":
@@ -192,11 +191,8 @@ class CommunicationService {
           final base16Key = decryptedContents["key"] as String;
           final base16IV = decryptedContents["iv"] as String;
 
-          final key = Key.fromBase16(base16Key);
-          final iv = IV.fromBase16(base16IV);
-
           final image =
-              await _fetchProfileImage(senderPhoneNumber, imageId, key, iv);
+              await mediaService.fetchMedia(imageId, base16Key, base16IV);
 
           if (image != null) {
             contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -257,32 +253,50 @@ class CommunicationService {
     }
   }
 
-  Future<String?> _fetchProfileImage(
-      String senderPhoneNumber, String mediaId, Key key, IV iv) async {
-    final uri = Uri.parse(Constants.httpUrl + "upload");
-    final body = {"mediaId": mediaId, "method": "GET"};
-    final response = await post(uri, body: jsonEncode(body));
+  Future<void> _handleMessage({
+    required String senderPhoneNumber,
+    required ChatType chatType,
+    required String id,
+    required String contents,
+    required DateTime timestamp,
+    bool isMedia = false,
+  }) async {
+    chatService
+        .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
+        .then((exists) async {
+      if (!exists) {
+        final chat = Chat(
+          id: Uuid().v4(),
+          contactPhoneNumber: senderPhoneNumber,
+          chatType: chatType,
+        );
 
-    if (response.statusCode == 200) {
-      print("received mediaUrl");
-
-      final mediaUrl = Uri.parse(response.body);
-      final mediaResponse = await get(mediaUrl);
-
-      if (mediaResponse.statusCode == 200) {
-        print("received image");
-
-        final encryptor = Encrypter(AES(key));
-
-        final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
-
-        return decryptedImage;
-      } else {
-        print("${response.statusCode} - ${response.body}");
+        await chatService.insert(chat);
       }
-    } else {
-      print("${response.statusCode} - ${response.body}");
-    }
+
+      String chatId = await chatService.findIdByPhoneNumberAndChatType(
+        senderPhoneNumber,
+        chatType,
+      );
+
+      final message = Message(
+        id: id,
+        chatId: chatId,
+        isIncoming: true,
+        otherPartyPhoneNumber: senderPhoneNumber,
+        contents: contents,
+        timestamp: timestamp,
+        isMedia: isMedia,
+        readReceipt: ReadReceipt.delivered,
+        deleted: false,
+        liked: false,
+        tags: [],
+      );
+
+      messageService.insert(message);
+      sendAck(id, senderPhoneNumber);
+      _onMessageListeners.forEach((listener) => listener(message));
+    });
   }
 
   Future<void> _deleteMessageFromServer(String id) async {
@@ -299,6 +313,23 @@ class CommunicationService {
     });
 
     _queueForSending(contents, recipientPhoneNumber, id: message.id);
+  }
+
+  Future<void> sendImage(
+      Message message, ChatType chatType, String recipientPhoneNumber) async {
+    final mediaUpload = await mediaService.uploadMedia(message.contents);
+
+    if (mediaUpload != null) {
+      final contents = jsonEncode({
+        "type": "imageMessage",
+        "chatType": chatType.toString(),
+        "imageId": mediaUpload.mediaId,
+        "key": mediaUpload.base16Key,
+        "iv": mediaUpload.base16IV,
+      });
+
+      _queueForSending(contents, recipientPhoneNumber, id: message.id);
+    }
   }
 
   Future<void> sendDelete(String messageId, String recipientPhoneNumber) async {
@@ -334,39 +365,18 @@ class CommunicationService {
       String profileImageBase64, String recipientPhoneNumber) async {
     bool shareImage = await settingsService.getShareProfilePicture();
     if (shareImage) return;
-    final base16Key = SecureRandom(32).base16;
-    final base16IV = SecureRandom(16).base16;
 
-    final key = Key.fromBase16(base16Key);
-    final iv = IV.fromBase16(base16IV);
+    final mediaUpload = await mediaService.uploadMedia(profileImageBase64);
 
-    final encryptor = Encrypter(AES(key));
+    if (mediaUpload != null) {
+      final contents = jsonEncode({
+        "type": "profileImage",
+        "key": mediaUpload.base16Key,
+        "iv": mediaUpload.base16IV,
+        "imageId": mediaUpload.mediaId,
+      });
 
-    final mediaId = Uuid().v4();
-    final encryptedImage = encryptor.encrypt(profileImageBase64, iv: iv);
-
-    final uri = Uri.parse(Constants.httpUrl + "upload");
-    final body = {"mediaId": mediaId, "method": "PUT"};
-    final response = await post(uri, body: jsonEncode(body));
-
-    if (response.statusCode == 200) {
-      final uploadUrl = Uri.parse(response.body);
-      final uploadResponse = await put(uploadUrl, body: encryptedImage.base64);
-
-      if (uploadResponse.statusCode == 200) {
-        final contents = jsonEncode({
-          "type": "profileImage",
-          "key": base16Key,
-          "iv": base16IV,
-          "imageId": mediaId,
-        });
-
-        _queueForSending(contents, recipientPhoneNumber);
-      } else {
-        print("${uploadResponse.statusCode} - ${uploadResponse.body}");
-      }
-    } else {
-      print("${response.statusCode} - ${response.body}");
+      _queueForSending(contents, recipientPhoneNumber);
     }
   }
 

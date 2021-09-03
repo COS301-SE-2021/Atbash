@@ -141,6 +141,7 @@ class ChatPageController {
     );
 
     model.addMessage(message);
+    messageService.insert(message);
   }
 
   void deleteMessagesLocally(List<String> ids) {

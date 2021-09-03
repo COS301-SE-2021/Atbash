@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
+import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
@@ -380,6 +381,10 @@ class _ChatPageState extends State<ChatPage> {
           setState(() {
             message.second = !message.second;
           });
+        } else {
+          if (message.first.isMedia) {
+            showImageViewDialog(context, base64Decode(message.first.contents));
+          }
         }
       },
       onSelect: () {

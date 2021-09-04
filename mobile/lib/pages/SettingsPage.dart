@@ -4,6 +4,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/pages/WallpaperPage.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -196,6 +197,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   "Account",
                   style: TextStyle(fontSize: 20),
                 ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.wallpaper,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Change Wallpaper",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => WallpaperPage()),
+                  );
+                },
+                dense: true,
               ),
               ListTile(
                 leading: Icon(

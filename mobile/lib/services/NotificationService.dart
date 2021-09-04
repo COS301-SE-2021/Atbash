@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -25,5 +27,38 @@ class NotificationService {
     } else {
       return permissionGranted;
     }
+  }
+
+  void showNotification({
+    required String title,
+    required String body,
+    bool withSound = false,
+  }) {
+    final androidNotificationDetails = AndroidNotificationDetails(
+      "message",
+      "Messages",
+      "Triggered when receiving a message",
+      importance: Importance.high,
+      priority: Priority.high,
+      playSound: withSound,
+    );
+
+    final iosNotificationDetails = IOSNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: withSound,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+      iOS: iosNotificationDetails,
+    );
+
+    _lnp.show(
+      Random().nextInt(25000),
+      title,
+      body,
+      notificationDetails,
+    );
   }
 }

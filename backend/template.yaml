@@ -90,6 +90,9 @@ Resources:
             WriteCapacityUnits: 5
           Projection:
             ProjectionType: ALL
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   UsersTable:
     Type: AWS::DynamoDB::Table
@@ -106,6 +109,9 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableUsers
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   MessagesTable:
     Type: AWS::DynamoDB::Table
@@ -134,6 +140,9 @@ Resources:
             WriteCapacityUnits: 5
           Projection:
             ProjectionType: ALL
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   MediaStorageBucket:
     Type: AWS::S3::Bucket

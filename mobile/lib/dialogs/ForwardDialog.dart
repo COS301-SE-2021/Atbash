@@ -5,19 +5,23 @@ import 'package:mobile/widgets/AvatarIcon.dart';
 import '../constants.dart';
 
 Future<List<Contact>?> showForwardDialog(
-    BuildContext context, List<Contact> contacts) {
+    BuildContext context, List<Contact> contacts, String currentContactName) {
   return showDialog<List<Contact>>(
     context: context,
     builder: (context) => ForwardDialog(
       contacts: contacts,
+      currentContactName: currentContactName,
     ),
   );
 }
 
 class ForwardDialog extends StatefulWidget {
   final List<Contact> contacts;
+  final String currentContactName;
 
-  const ForwardDialog({Key? key, required this.contacts}) : super(key: key);
+  const ForwardDialog(
+      {Key? key, required this.contacts, required this.currentContactName})
+      : super(key: key);
 
   @override
   _ForwardDialogState createState() => _ForwardDialogState();
@@ -28,11 +32,15 @@ class _ForwardDialogState extends State<ForwardDialog> {
 
   String query = "";
   List<Contact> contacts = [];
+  List<Contact> queriedContacts = [];
 
   @override
   void initState() {
     super.initState();
     contacts = widget.contacts;
+    contacts.removeWhere(
+        (contact) => contact.displayName == widget.currentContactName);
+    queriedContacts = contacts;
   }
 
   @override
@@ -68,7 +76,7 @@ class _ForwardDialogState extends State<ForwardDialog> {
               Expanded(
                 child: TextField(
                   onChanged: (String input) {
-                    _searchContacts(input, contacts);
+                    _searchContacts(input);
                   },
                   expands: false,
                   decoration: InputDecoration(
@@ -91,10 +99,10 @@ class _ForwardDialogState extends State<ForwardDialog> {
           height: 320,
           width: 200,
           child: ListView.builder(
-              itemCount: contacts.length,
+              itemCount: queriedContacts.length,
               itemBuilder: (BuildContext context, int index) {
-                return _buildContactItem(contacts[index],
-                    _selectedContacts.contains(contacts[index]));
+                return _buildContactItem(queriedContacts[index],
+                    _selectedContacts.contains(queriedContacts[index]));
               }),
         ));
   }
@@ -148,15 +156,14 @@ class _ForwardDialogState extends State<ForwardDialog> {
     );
   }
 
-  void _searchContacts(String query, List<Contact> contacts) {
-    final filteredContacts = widget.contacts.where((contact) {
+  void _searchContacts(String query) {
+    final filteredContacts = contacts.where((contact) {
       return contact.displayName.toLowerCase().contains(query.toLowerCase());
     }).toList();
 
     setState(() {
       this.query = query;
-      this.contacts = filteredContacts;
-      //TODO: Update contacts state variable.
+      this.queriedContacts = filteredContacts;
     });
   }
 }

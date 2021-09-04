@@ -14,6 +14,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatPageController {
@@ -23,6 +24,7 @@ class ChatPageController {
   final MessageService messageService = GetIt.I.get();
   final ChatCacheService chatCacheService = GetIt.I.get();
   final MemoryStoreService memoryStoreService = GetIt.I.get();
+  final SettingsService settingsService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -76,6 +78,10 @@ class ChatPageController {
 
       model.replaceMessages(messages);
     });
+
+    settingsService
+        .getWallpaperImage()
+        .then((value) => model.wallpaperImage = value);
   }
 
   void _onOnline(bool online) {

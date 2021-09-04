@@ -733,7 +733,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref AtbashREST
-      RouteKey: 'POST /user/online'
+      RouteKey: 'GET /user/{phoneNumber}/online'
       OperationName: IsContactOnlineRoute
       AuthorizationType: NONE
       Target: !Join

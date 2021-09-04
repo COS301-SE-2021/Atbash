@@ -106,6 +106,23 @@ class CommunicationService {
     channel?.stream.listen((event) async {
       await _handleEvent(event);
     });
+
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        final encodedContactPhoneNumber =
+            Uri.encodeQueryComponent(contact.phoneNumber);
+        final uri = Uri.parse(
+            Constants.httpUrl + "user/$encodedContactPhoneNumber/online");
+        get(uri).then((response) {
+          if (response.statusCode == 200) {
+            final online = response.body == "true";
+            if (online) {
+              memoryStoreService.addOnlineContact(contact.phoneNumber);
+            }
+          }
+        });
+      });
+    });
   }
 
   Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {

@@ -7,15 +7,15 @@ class SettingsService {
     await _storage.write(key: "settings_safe_search_pin", value: pin);
   }
 
-  Future<void> addBlockedNumber(String number)async{
+  Future<void> addBlockedNumber(String number) async {
     //TODO Implement functionality
   }
 
-  Future<void> removeBlockedNumber(String number)async{
+  Future<void> removeBlockedNumber(String number) async {
     //TODO Implement functionality
   }
 
-  Future<List<String>> fetchAllBlockedNumbers()async{
+  Future<List<String>> fetchAllBlockedNumbers() async {
     //TODO Implement functionality
     return [];
   }
@@ -118,5 +118,13 @@ class SettingsService {
   Future<void> setAutoDownloadMedia(bool value) async {
     await _storage.write(
         key: "settings_auto_download_media", value: value ? "true" : "false");
+  }
+
+  Future<String?> getWallpaperImage() async {
+    return await _storage.read(key: "settings_wallpaper");
+  }
+
+  Future<void> setWallpaperImage(String imageBase64) async {
+    await _storage.write(key: "settings_wallpaper", value: imageBase64);
   }
 }

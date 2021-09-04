@@ -40,15 +40,26 @@ class _ChatPageState extends State<ChatPage> {
 
   List<Tuple<Message, bool>> _messages = [];
   late final ReactionDisposer _messagesDisposer;
+  late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
+  ImageProvider? backgroundImage;
+
   @override
   void initState() {
     super.initState();
     _inputController.text = controller.getTypedMessage();
+
+    _backgroundDisposer =
+        reaction((_) => controller.model.wallpaperImage, (wallpaperImage) {
+      if (wallpaperImage != null) {
+        backgroundImage = MemoryImage(base64Decode(wallpaperImage as String));
+      }
+    });
+
     _messagesDisposer = autorun((_) {
       setState(() {
         _messages =
@@ -61,6 +72,7 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     super.dispose();
     controller.storeTypedMessage(_inputController.text);
+    _backgroundDisposer();
     _messagesDisposer();
     controller.dispose();
   }
@@ -79,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
       child: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/wallpaper.jpg"),
+            image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
             fit: BoxFit.cover,
           ),
         ),

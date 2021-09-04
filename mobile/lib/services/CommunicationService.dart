@@ -10,6 +10,7 @@ import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
@@ -24,6 +25,7 @@ class CommunicationService {
   final SettingsService settingsService;
   final MediaService mediaService;
   final MemoryStoreService memoryStoreService;
+  final NotificationService notificationService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -73,6 +75,7 @@ class CommunicationService {
     this.settingsService,
     this.mediaService,
     this.memoryStoreService,
+    this.notificationService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 

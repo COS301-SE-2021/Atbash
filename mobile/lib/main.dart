@@ -16,6 +16,7 @@ import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -86,6 +87,7 @@ void _registerServices() async {
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
   final memoryStoreService = MemoryStoreService();
+  final notificationService = NotificationService();
   final communicationService = CommunicationService(
     encryptionService,
     userService,
@@ -95,6 +97,7 @@ void _registerServices() async {
     settingsService,
     mediaEncryptionService,
     memoryStoreService,
+    notificationService,
   );
 
   GetIt.I.registerSingleton(chatService);
@@ -105,6 +108,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(chatCacheService);
   GetIt.I.registerSingleton(mediaEncryptionService);
   GetIt.I.registerSingleton(memoryStoreService);
+  GetIt.I.registerSingleton(notificationService);
 
   GetIt.I.registerSingleton(communicationService);
 }

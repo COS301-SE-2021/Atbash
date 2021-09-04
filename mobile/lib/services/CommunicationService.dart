@@ -328,7 +328,37 @@ class CommunicationService {
       messageService.insert(message);
       sendAck(id, senderPhoneNumber);
       _onMessageListeners.forEach((listener) => listener(message));
+
+      _notifyUser(
+        senderPhoneNumber: senderPhoneNumber,
+        messageContents: contents,
+        isMedia: isMedia,
+      );
     });
+  }
+
+  void _notifyUser({
+    required String senderPhoneNumber,
+    required String messageContents,
+    required bool isMedia,
+  }) async {
+    String title = senderPhoneNumber;
+
+    try {
+      final contact =
+          await contactService.fetchByPhoneNumber(senderPhoneNumber);
+      title = contact.displayName;
+    } on ContactWithPhoneNumberDoesNotExistException {}
+
+    String body = "";
+
+    if (isMedia) {
+      body = "\u{1f4f7} Photo";
+    } else {
+      body = messageContents;
+    }
+
+    notificationService.showNotification(title: title, body: body);
   }
 
   Future<void> _deleteMessageFromServer(String id) async {

@@ -195,9 +195,11 @@ class ChatPageController {
     return chatCacheService.get(chatId);
   }
 
-  void forwardMessage(BuildContext context, String message) {
+  void forwardMessage(
+      BuildContext context, String message, String contactName, bool isMedia) {
     contactService.fetchAll().then((contacts) {
-      showForwardDialog(context, contacts).then((forwardContacts) async {
+      showForwardDialog(context, contacts, contactName)
+          .then((forwardContacts) async {
         if (forwardContacts == null) return;
 
         final allChats = await chatService.fetchAll();
@@ -223,7 +225,8 @@ class ChatPageController {
               isIncoming: false,
               otherPartyPhoneNumber: element.first,
               contents: message,
-              timestamp: DateTime.now());
+              timestamp: DateTime.now(),
+              isMedia: isMedia);
 
           communicationService.sendMessage(
               newMessage, ChatType.general, element.first);

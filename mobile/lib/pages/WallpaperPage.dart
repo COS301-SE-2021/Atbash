@@ -20,6 +20,26 @@ class _WallpaperPageState extends State<WallpaperPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Choose a Wallpaper"),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final pickedImage =
+                  await ImagePicker().getImage(source: ImageSource.gallery);
+
+              if (pickedImage != null) {
+                final imageBytes = await pickedImage.readAsBytes();
+                controller.setWallpaper(base64Encode(imageBytes));
+              }
+            },
+            icon: Icon(Icons.edit),
+          ),
+          IconButton(
+            onPressed: () {
+              controller.saveChosenWallpaper();
+            },
+            icon: Icon(Icons.done),
+          ),
+        ],
       ),
       body: Observer(
         builder: (_) {
@@ -43,18 +63,6 @@ class _WallpaperPageState extends State<WallpaperPage> {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final pickedImage =
-              await ImagePicker().getImage(source: ImageSource.gallery);
-
-          if (pickedImage != null) {
-            final imageBytes = await pickedImage.readAsBytes();
-            controller.setWallpaper(base64Encode(imageBytes));
-          }
-        },
-        child: Icon(Icons.edit),
       ),
     );
   }

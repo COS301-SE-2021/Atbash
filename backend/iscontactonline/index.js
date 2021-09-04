@@ -3,7 +3,7 @@ exports.handler = async event => {
     const {phoneNumber} = event.pathParameters
 
     try {
-        const online = isContactOnline(phoneNumber)
+        const online = await isContactOnline(phoneNumber)
 
         return {statusCode: 200, body: JSON.stringify(online)}
     } catch (error) {

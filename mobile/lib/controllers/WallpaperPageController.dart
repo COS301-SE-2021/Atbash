@@ -1,4 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/models/WallpaperPageModel.dart';
 import 'package:mobile/services/SettingsService.dart';
 
@@ -21,6 +24,21 @@ class WallpaperPageController {
     final chosenWallpaper = model.wallpaperImage;
     if (chosenWallpaper != null) {
       settingsService.setWallpaperImage(chosenWallpaper);
+    }
+  }
+
+  Future<void> confirmSaveWallpaper(BuildContext context) async {
+    final currentlyDisplayedWallpaper = model.wallpaperImage;
+    final savedWallpaper = await settingsService.getWallpaperImage();
+
+    if (currentlyDisplayedWallpaper != savedWallpaper &&
+        currentlyDisplayedWallpaper != null) {
+      final confirmation = await showConfirmDialog(context,
+          "You have not saved your wallpaper choice. Do you wish to save now?");
+
+      if (confirmation == true) {
+        await settingsService.setWallpaperImage(currentlyDisplayedWallpaper);
+      }
     }
   }
 }

@@ -17,6 +17,9 @@ abstract class _ChatPageModel with Store {
   String contactStatus = "";
 
   @observable
+  String? wallpaperImage;
+
+  @observable
   String contactProfileImage = "";
 
   @observable

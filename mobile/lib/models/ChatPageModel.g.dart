@@ -54,6 +54,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$wallpaperImageAtom = Atom(name: '_ChatPageModel.wallpaperImage');
+
+  @override
+  String? get wallpaperImage {
+    _$wallpaperImageAtom.reportRead();
+    return super.wallpaperImage;
+  }
+
+  @override
+  set wallpaperImage(String? value) {
+    _$wallpaperImageAtom.reportWrite(value, super.wallpaperImage, () {
+      super.wallpaperImage = value;
+    });
+  }
+
   final _$contactProfileImageAtom =
       Atom(name: '_ChatPageModel.contactProfileImage');
 
@@ -190,6 +205,7 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
 contactTitle: ${contactTitle},
 online: ${online},
 contactStatus: ${contactStatus},
+wallpaperImage: ${wallpaperImage},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
 chatType: ${chatType},

@@ -41,6 +41,9 @@ class ChatPageController {
 
     communicationService.onMessageLiked(_onMessageLiked);
 
+    communicationService.shouldBlockNotifications =
+        (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
+
     chat = chatService.fetchById(chatId);
     chat.then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
@@ -120,6 +123,7 @@ class ChatPageController {
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    communicationService.shouldBlockNotifications = (phoneNumber) => false;
     contactService.disposeOnChanged(_onContactChanged);
     memoryStoreService.disposeOnContactOnline(_onOnline);
   }

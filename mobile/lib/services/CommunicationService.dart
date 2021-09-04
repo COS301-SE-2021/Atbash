@@ -10,6 +10,7 @@ import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
@@ -24,6 +25,7 @@ class CommunicationService {
   final SettingsService settingsService;
   final MediaService mediaService;
   final MemoryStoreService memoryStoreService;
+  final NotificationService notificationService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -34,6 +36,8 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  bool Function(String incomingPhoneNumber) shouldBlockNotifications =
+      (number) => false;
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -73,6 +77,7 @@ class CommunicationService {
     this.settingsService,
     this.mediaService,
     this.memoryStoreService,
+    this.notificationService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -325,7 +330,41 @@ class CommunicationService {
       messageService.insert(message);
       sendAck(id, senderPhoneNumber);
       _onMessageListeners.forEach((listener) => listener(message));
+
+      _notifyUser(
+        senderPhoneNumber: senderPhoneNumber,
+        messageContents: contents,
+        isMedia: isMedia,
+      );
     });
+  }
+
+  void _notifyUser({
+    required String senderPhoneNumber,
+    required String messageContents,
+    required bool isMedia,
+  }) async {
+    if (shouldBlockNotifications(senderPhoneNumber)) {
+      return;
+    }
+
+    String title = senderPhoneNumber;
+
+    try {
+      final contact =
+          await contactService.fetchByPhoneNumber(senderPhoneNumber);
+      title = contact.displayName;
+    } on ContactWithPhoneNumberDoesNotExistException {}
+
+    String body = "";
+
+    if (isMedia) {
+      body = "\u{1f4f7} Photo";
+    } else {
+      body = messageContents;
+    }
+
+    notificationService.showNotification(title: title, body: body);
   }
 
   Future<void> _deleteMessageFromServer(String id) async {

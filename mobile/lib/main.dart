@@ -111,6 +111,8 @@ void _registerServices() async {
   GetIt.I.registerSingleton(notificationService);
 
   GetIt.I.registerSingleton(communicationService);
+
+  await notificationService.init();
 }
 
 EncryptionService _initialiseEncryptionService(

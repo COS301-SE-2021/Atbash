@@ -20,8 +20,7 @@ class _WallpaperPageState extends State<WallpaperPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await controller.confirmSaveWallpaper(context);
-        return true;
+        return await controller.confirmPop(context);
       },
       child: Scaffold(
         appBar: AppBar(

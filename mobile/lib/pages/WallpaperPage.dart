@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile/controllers/WallpaperPageController.dart';
+import 'package:mobile/util/Utils.dart';
 
 class WallpaperPage extends StatefulWidget {
   const WallpaperPage({Key? key}) : super(key: key);
@@ -41,6 +42,8 @@ class _WallpaperPageState extends State<WallpaperPage> {
             IconButton(
               onPressed: () {
                 controller.saveChosenWallpaper();
+
+                showSnackBar(context, "Saved", duration: Duration(seconds: 2));
               },
               icon: Icon(Icons.done),
             ),

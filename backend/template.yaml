@@ -406,6 +406,7 @@ Resources:
       Environment:
         Variables:
           TABLE_CONNECTIONS: !Ref TableConnections
+          INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref TableConnections

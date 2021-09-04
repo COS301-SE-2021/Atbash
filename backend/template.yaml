@@ -387,6 +387,29 @@ Resources:
       FunctionName: !Ref GetRSAPublicKeyFunction
       Principal: apigateway.amazonaws.com
 
+  IsContactOnlineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: iscontactonline/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableConnections
+
+  IsContactOnlinePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref IsContactOnlineFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -692,6 +715,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt GetRSAPublicKeyFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  IsContactOnlineRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /user/online'
+      OperationName: IsContactOnlineRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref IsContactOnlineIntegration
+  IsContactOnlineIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - IsContactOnlineFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt IsContactOnlineFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

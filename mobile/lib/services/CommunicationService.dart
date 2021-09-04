@@ -36,6 +36,8 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  bool Function(String incomingPhoneNumber) shouldBlockNotifications =
+      (number) => false;
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -342,6 +344,10 @@ class CommunicationService {
     required String messageContents,
     required bool isMedia,
   }) async {
+    if (shouldBlockNotifications(senderPhoneNumber)) {
+      return;
+    }
+
     String title = senderPhoneNumber;
 
     try {

@@ -81,7 +81,7 @@ class SettingsPageController {
 
   void setDisableNotifications(bool value) {
     model.showNotifications = value;
-    settingsService.setShowNotifications(value);
+    settingsService.setDisableNotifications(value);
   }
 
   void setPlayNotificationSound(bool value) {

@@ -81,7 +81,7 @@ class SettingsService {
     return showNotifications;
   }
 
-  Future<void> setShowNotifications(bool value) async {
+  Future<void> setDisableNotifications(bool value) async {
     await _storage.write(
         key: "settings_show_notifications", value: value ? "true" : "false");
   }

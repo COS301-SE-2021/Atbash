@@ -89,7 +89,7 @@ class SettingsPageController {
     settingsService.setPlayNotificationSound(value);
   }
 
-  void setShowMessagePreview(bool value) {
+  void setDisableMessagePreview(bool value) {
     model.showMessagePreview = value;
     settingsService.setShowMessagePreview(value);
   }

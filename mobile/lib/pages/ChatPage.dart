@@ -147,7 +147,11 @@ class _ChatPageState extends State<ChatPage> {
           if (!controller.model.contactSaved) {
             return IconButton(
               onPressed: () {
-                showInputDialog(context, "Name?").then((name) {
+                showInputDialog(
+                  context,
+                  "Add Contact",
+                  hint: "Enter contact name",
+                ).then((name) {
                   if (name != null) {
                     controller.addSenderAsContact(name);
                   }

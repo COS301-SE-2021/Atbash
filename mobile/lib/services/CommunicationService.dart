@@ -170,6 +170,7 @@ class CommunicationService {
           final chatTypeStr = decryptedContents["chatType"] as String;
           final chatType =
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+          final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
 
           _handleMessage(
@@ -178,6 +179,7 @@ class CommunicationService {
             id: id,
             contents: text,
             timestamp: DateTime.now(),
+            forwarded: forwarded,
           );
           break;
 
@@ -185,6 +187,7 @@ class CommunicationService {
           final chatTypeStr = decryptedContents["chatType"] as String;
           final chatType =
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+          final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
           final imageId = decryptedContents["imageId"];
           final base16Key = decryptedContents["key"];
@@ -201,6 +204,7 @@ class CommunicationService {
               contents: image,
               timestamp: DateTime.now(),
               isMedia: true,
+              forwarded: forwarded,
             );
           }
           break;
@@ -294,6 +298,7 @@ class CommunicationService {
     required String contents,
     required DateTime timestamp,
     bool isMedia = false,
+    bool forwarded = false,
   }) async {
     chatService
         .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
@@ -321,6 +326,7 @@ class CommunicationService {
         contents: contents,
         timestamp: timestamp,
         isMedia: isMedia,
+        forwarded: forwarded,
         readReceipt: ReadReceipt.delivered,
         deleted: false,
         liked: false,
@@ -377,6 +383,7 @@ class CommunicationService {
     final contents = jsonEncode({
       "type": "message",
       "chatType": chatType.toString(),
+      "forwarded": message.forwarded,
       "text": message.contents,
     });
 
@@ -391,6 +398,7 @@ class CommunicationService {
       final contents = jsonEncode({
         "type": "imageMessage",
         "chatType": chatType.toString(),
+        "forwarded": message.forwarded,
         "imageId": mediaUpload.mediaId,
         "key": mediaUpload.base16Key,
         "iv": mediaUpload.base16IV,

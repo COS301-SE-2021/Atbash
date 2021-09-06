@@ -13,6 +13,7 @@ class Message extends _Message with _$Message {
     required String contents,
     required DateTime timestamp,
     bool isMedia = false,
+    bool forwarded = false,
     ReadReceipt readReceipt = ReadReceipt.undelivered,
     bool deleted = false,
     bool liked = false,
@@ -25,6 +26,7 @@ class Message extends _Message with _$Message {
           contents: contents,
           timestamp: timestamp,
           isMedia: isMedia,
+          forwarded: forwarded,
           readReceipt: readReceipt,
           deleted: deleted,
           liked: liked,
@@ -40,6 +42,7 @@ class Message extends _Message with _$Message {
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
       COLUMN_IS_MEDIA: isMedia ? 1 : 0,
+      COLUMN_FORWARDED: forwarded ? 1 : 0,
       COLUMN_READ_RECEIPT: readReceipt.index,
       COLUMN_DELETED: deleted ? 1 : 0,
       COLUMN_LIKED: liked ? 1 : 0,
@@ -54,6 +57,7 @@ class Message extends _Message with _$Message {
     final contents = map[COLUMN_CONTENTS] as String?;
     final timestamp = map[COLUMN_TIMESTAMP] as int?;
     final isMedia = map[COLUMN_IS_MEDIA] as int?;
+    final forwarded = map[COLUMN_FORWARDED] as int?;
     final readReceipt = map[COLUMN_READ_RECEIPT] as int?;
     final deleted = map[COLUMN_DELETED] as int?;
     final liked = map[COLUMN_LIKED] as int?;
@@ -65,6 +69,7 @@ class Message extends _Message with _$Message {
         contents != null &&
         timestamp != null &&
         isMedia != null &&
+        forwarded != null &&
         readReceipt != null &&
         deleted != null &&
         liked != null) {
@@ -76,6 +81,7 @@ class Message extends _Message with _$Message {
         contents: contents,
         timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
         isMedia: isMedia != 0,
+        forwarded: forwarded != 0,
         readReceipt: ReadReceipt.values[readReceipt],
         deleted: deleted != 0,
         liked: liked != 0,
@@ -92,6 +98,7 @@ class Message extends _Message with _$Message {
   static const String COLUMN_CONTENTS = "message_contents";
   static const String COLUMN_TIMESTAMP = "message_timestamp";
   static const String COLUMN_IS_MEDIA = "message_is_media";
+  static const String COLUMN_FORWARDED = "message_forwarded";
   static const String COLUMN_READ_RECEIPT = "message_read_receipt";
   static const String COLUMN_DELETED = "message_deleted";
   static const String COLUMN_LIKED = "message_liked";
@@ -103,6 +110,7 @@ class Message extends _Message with _$Message {
       "$COLUMN_CONTENTS text not null,"
       "$COLUMN_TIMESTAMP int not null,"
       "$COLUMN_IS_MEDIA tinyint not null,"
+      "$COLUMN_FORWARDED tinyint not null,"
       "$COLUMN_READ_RECEIPT int not null,"
       "$COLUMN_DELETED tinyint not null,"
       "$COLUMN_LIKED tinyint not null"
@@ -125,6 +133,8 @@ abstract class _Message with Store {
 
   final bool isMedia;
 
+  final bool forwarded;
+
   @observable
   ReadReceipt readReceipt;
 
@@ -145,6 +155,7 @@ abstract class _Message with Store {
     required this.contents,
     required this.timestamp,
     required this.isMedia,
+    required this.forwarded,
     required this.readReceipt,
     required this.deleted,
     required this.liked,

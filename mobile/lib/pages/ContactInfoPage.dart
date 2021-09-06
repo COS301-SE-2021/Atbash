@@ -6,22 +6,27 @@ import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactInfoPage extends StatefulWidget {
   final String phoneNumber;
+  final ContactInfoPageController? controller;
 
   const ContactInfoPage({
     Key? key,
     required this.phoneNumber,
+    this.controller,
   }) : super(key: key);
 
   @override
-  _ContactInfoPageState createState() =>
-      _ContactInfoPageState(phoneNumber: phoneNumber);
+  _ContactInfoPageState createState() => _ContactInfoPageState(
+        phoneNumber: phoneNumber,
+      );
 }
 
 class _ContactInfoPageState extends State<ContactInfoPage> {
   final ContactInfoPageController controller;
 
-  _ContactInfoPageState({required String phoneNumber})
-      : controller = ContactInfoPageController(phoneNumber: phoneNumber);
+  _ContactInfoPageState(
+      {required String phoneNumber, ContactInfoPageController? controller})
+      : controller =
+            controller ?? ContactInfoPageController(phoneNumber: phoneNumber);
 
   @override
   Widget build(BuildContext context) {

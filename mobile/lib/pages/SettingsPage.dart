@@ -268,9 +268,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SwitchListTile(
                 value: controller.model.playNotificationSound,
-                onChanged: (bool newValue) {
-                  controller.setPlayNotificationSound(newValue);
-                },
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setPlayNotificationSound(newValue);
+                      },
                 title: Text(
                   "Notification sounds",
                   style: TextStyle(fontSize: 16),

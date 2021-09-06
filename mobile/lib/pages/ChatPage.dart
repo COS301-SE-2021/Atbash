@@ -591,25 +591,25 @@ class ChatCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          //if(isForwarded)
-                          // Container(
-                          //   child: Row(
-                          //     children: [
-                          //       Icon(
-                          //         Icons.reply,
-                          //         textDirection: TextDirection.rtl,
-                          //         size: 16,
-                          //         color: Colors.white.withOpacity(0.69),
-                          //       ),
-                          //       Text(
-                          //         "Forwarded",
-                          //         style: TextStyle(
-                          //             fontSize: 12,
-                          //             color: Colors.white.withOpacity(0.69)),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
+                          if (_message.forwarded && _message.isIncoming)
+                            Container(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.reply,
+                                    textDirection: TextDirection.rtl,
+                                    size: 16,
+                                    color: Colors.white.withOpacity(0.69),
+                                  ),
+                                  Text(
+                                    "Forwarded",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.69)),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(

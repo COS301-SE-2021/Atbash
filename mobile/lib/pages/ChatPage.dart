@@ -52,7 +52,9 @@ class _ChatPageState extends State<ChatPage> {
     _backgroundDisposer =
         reaction((_) => controller.model.wallpaperImage, (wallpaperImage) {
       if (wallpaperImage != null) {
-        backgroundImage = MemoryImage(base64Decode(wallpaperImage as String));
+        setState(() {
+          backgroundImage = MemoryImage(base64Decode(wallpaperImage as String));
+        });
       }
     });
   }

@@ -91,7 +91,7 @@ class SettingsPageController {
 
   void setDisableMessagePreview(bool value) {
     model.disableMessagePreview = value;
-    settingsService.setShowMessagePreview(value);
+    settingsService.setDisableMessagePreview(value);
   }
 
   void setAutoDownloadMedia(bool value) {

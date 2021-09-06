@@ -104,7 +104,7 @@ class SettingsService {
     return showMessagePreview;
   }
 
-  Future<void> setShowMessagePreview(bool value) async {
+  Future<void> setDisableMessagePreview(bool value) async {
     await _storage.write(
         key: "settings_show_message_preview", value: value ? "true" : "false");
   }

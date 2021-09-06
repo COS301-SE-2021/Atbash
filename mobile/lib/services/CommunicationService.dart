@@ -353,6 +353,9 @@ class CommunicationService {
     if (shouldBlockNotifications(senderPhoneNumber)) {
       return;
     }
+    if (await settingsService.getDisableNotifications()) {
+      return;
+    }
 
     String title = senderPhoneNumber;
 

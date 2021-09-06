@@ -326,6 +326,7 @@ class CommunicationService {
         contents: contents,
         timestamp: timestamp,
         isMedia: isMedia,
+        forwarded: forwarded,
         readReceipt: ReadReceipt.delivered,
         deleted: false,
         liked: false,

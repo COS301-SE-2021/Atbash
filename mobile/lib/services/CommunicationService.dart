@@ -156,10 +156,19 @@ class CommunicationService {
         senderPhoneNumber != null &&
         timestamp != null &&
         encryptedContents != null) {
+
       // TODO re-enable decryption
-      final Map<String, Object?> decryptedContents = jsonDecode(
-          await encryptionService.decryptMessageContents(
-              encryptedContents, senderPhoneNumber));
+      /// Providing soft-fail for decryption
+      String decryptedContentsEncoded = "";
+      try {
+        decryptedContentsEncoded = await encryptionService.decryptMessageContents(
+            encryptedContents, senderPhoneNumber);
+      }
+      on Exception catch (exception){
+        print(exception.toString());
+        return;
+      }
+      final Map<String, Object?> decryptedContents = jsonDecode(decryptedContentsEncoded);
 
       // final decryptedContents = jsonDecode(encryptedContents);
 

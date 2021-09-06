@@ -79,7 +79,7 @@ class SettingsPageController {
     settingsService.setShareReadReceipts(value);
   }
 
-  void setShowNotifications(bool value) {
+  void setDisableNotifications(bool value) {
     model.showNotifications = value;
     settingsService.setShowNotifications(value);
   }

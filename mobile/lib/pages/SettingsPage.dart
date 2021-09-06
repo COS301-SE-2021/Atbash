@@ -252,12 +252,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: controller.model.showNotifications,
+                value: controller.model.disableNotifications,
                 onChanged: (bool newValue) {
-                  controller.setShowNotifications(newValue);
+                  controller.setDisableNotifications(newValue);
                 },
                 title: Text(
-                  "Show notifications",
+                  "Disable notifications",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -268,9 +268,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SwitchListTile(
                 value: controller.model.playNotificationSound,
-                onChanged: (bool newValue) {
-                  controller.setPlayNotificationSound(newValue);
-                },
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setPlayNotificationSound(newValue);
+                      },
                 title: Text(
                   "Notification sounds",
                   style: TextStyle(fontSize: 16),
@@ -282,12 +284,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
-                value: controller.model.showMessagePreview,
-                onChanged: (bool newValue) {
-                  controller.setShowMessagePreview(newValue);
-                },
+                value: controller.model.disableMessagePreview,
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setDisableMessagePreview(newValue);
+                      },
                 title: Text(
-                  "Message preview",
+                  "Disable message preview",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(

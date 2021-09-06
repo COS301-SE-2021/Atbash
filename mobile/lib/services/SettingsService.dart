@@ -75,13 +75,13 @@ class SettingsService {
         key: "settings_share_read_receipts", value: value ? "true" : "false");
   }
 
-  Future<bool> getShowNotifications() async {
+  Future<bool> getDisableNotifications() async {
     final bool showNotifications =
         await _storage.read(key: "settings_show_notifications") == "true";
     return showNotifications;
   }
 
-  Future<void> setShowNotifications(bool value) async {
+  Future<void> setDisableNotifications(bool value) async {
     await _storage.write(
         key: "settings_show_notifications", value: value ? "true" : "false");
   }
@@ -98,13 +98,13 @@ class SettingsService {
         value: value ? "true" : "false");
   }
 
-  Future<bool> getShowMessagePreview() async {
+  Future<bool> getDisableMessagePreview() async {
     final bool showMessagePreview =
         await _storage.read(key: "settings_show_message_preview") == "true";
     return showMessagePreview;
   }
 
-  Future<void> setShowMessagePreview(bool value) async {
+  Future<void> setDisableMessagePreview(bool value) async {
     await _storage.write(
         key: "settings_show_message_preview", value: value ? "true" : "false");
   }

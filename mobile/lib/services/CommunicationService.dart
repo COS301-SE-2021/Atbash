@@ -353,6 +353,9 @@ class CommunicationService {
     if (shouldBlockNotifications(senderPhoneNumber)) {
       return;
     }
+    if (await settingsService.getDisableNotifications()) {
+      return;
+    }
 
     String title = senderPhoneNumber;
 
@@ -362,12 +365,13 @@ class CommunicationService {
       title = contact.displayName;
     } on ContactWithPhoneNumberDoesNotExistException {}
 
-    String body = "";
-
-    if (isMedia) {
-      body = "\u{1f4f7} Photo";
-    } else {
-      body = messageContents;
+    String body = "New message";
+    if (!(await settingsService.getDisableMessagePreview())) {
+      if (isMedia) {
+        body = "\u{1f4f7} Photo";
+      } else {
+        body = messageContents;
+      }
     }
 
     notificationService.showNotification(title: title, body: body);

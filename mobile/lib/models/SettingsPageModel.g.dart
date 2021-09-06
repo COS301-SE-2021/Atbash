@@ -137,15 +137,15 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
       Atom(name: '_SettingsPageModel.showNotifications');
 
   @override
-  bool get showNotifications {
+  bool get disableNotifications {
     _$showNotificationsAtom.reportRead();
-    return super.showNotifications;
+    return super.disableNotifications;
   }
 
   @override
-  set showNotifications(bool value) {
-    _$showNotificationsAtom.reportWrite(value, super.showNotifications, () {
-      super.showNotifications = value;
+  set disableNotifications(bool value) {
+    _$showNotificationsAtom.reportWrite(value, super.disableNotifications, () {
+      super.disableNotifications = value;
     });
   }
 
@@ -170,15 +170,16 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
       Atom(name: '_SettingsPageModel.showMessagePreview');
 
   @override
-  bool get showMessagePreview {
+  bool get disableMessagePreview {
     _$showMessagePreviewAtom.reportRead();
-    return super.showMessagePreview;
+    return super.disableMessagePreview;
   }
 
   @override
-  set showMessagePreview(bool value) {
-    _$showMessagePreviewAtom.reportWrite(value, super.showMessagePreview, () {
-      super.showMessagePreview = value;
+  set disableMessagePreview(bool value) {
+    _$showMessagePreviewAtom.reportWrite(value, super.disableMessagePreview,
+        () {
+      super.disableMessagePreview = value;
     });
   }
 
@@ -209,9 +210,9 @@ safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},
 shareStatus: ${shareStatus},
 shareReadReceipts: ${shareReadReceipts},
-showNotifications: ${showNotifications},
+showNotifications: ${disableNotifications},
 playNotificationSound: ${playNotificationSound},
-showMessagePreview: ${showMessagePreview},
+showMessagePreview: ${disableMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}
     ''';
   }

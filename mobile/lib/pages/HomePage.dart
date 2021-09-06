@@ -10,10 +10,9 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
-
-import '../constants.dart';
-import 'ContactsPage.dart';
-import 'SettingsPage.dart';
+import 'package:mobile/constants.dart';
+import 'package:mobile/pages/ContactsPage.dart';
+import 'package:mobile/pages/SettingsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

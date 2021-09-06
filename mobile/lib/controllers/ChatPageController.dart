@@ -82,6 +82,10 @@ class ChatPageController {
     settingsService
         .getWallpaperImage()
         .then((value) => model.wallpaperImage = value);
+
+    settingsService.getBlurImages().then((value) {
+      model.blurImages = value;
+    });
   }
 
   void _onOnline(bool online) {

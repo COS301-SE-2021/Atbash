@@ -29,6 +29,9 @@ abstract class _ChatPageModel with Store {
   ChatType chatType = ChatType.private;
 
   @observable
+  bool blurImages = true;
+
+  @observable
   ObservableList<Message> messages = <Message>[].asObservable();
 
   @action

@@ -115,6 +115,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$blurImagesAtom = Atom(name: '_ChatPageModel.blurImages');
+
+  @override
+  bool get blurImages {
+    _$blurImagesAtom.reportRead();
+    return super.blurImages;
+  }
+
+  @override
+  set blurImages(bool value) {
+    _$blurImagesAtom.reportWrite(value, super.blurImages, () {
+      super.blurImages = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -209,6 +224,7 @@ wallpaperImage: ${wallpaperImage},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
 chatType: ${chatType},
+blurImages: ${blurImages},
 messages: ${messages}
     ''';
   }

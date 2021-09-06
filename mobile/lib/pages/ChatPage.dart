@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -306,6 +307,7 @@ class _ChatPageState extends State<ChatPage> {
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () =>
           controller.forwardMessage(context, message.contents),
+      blurImages: controller.model.blurImages,
     );
   }
 
@@ -394,6 +396,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDelete;
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
+  final bool blurImages;
 
   ChatCard(
     this._message, {
@@ -401,6 +404,7 @@ class ChatCard extends StatelessWidget {
     required this.onDelete,
     required this.onDoubleTap,
     required this.onForwardPressed,
+    this.blurImages = false,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -543,6 +547,27 @@ class ChatCard extends StatelessWidget {
 
   Widget _renderMessageContents() {
     if (_message.isMedia) {
+      if (blurImages) {
+        return Row(
+          children: [
+            Text(
+              "View image",
+              style: TextStyle(
+                color: Colors.white,
+                fontStyle: _message.deleted ? FontStyle.italic : null,
+              ),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+            Icon(
+              Icons.remove_red_eye,
+              size: 14,
+              color: Colors.white,
+            ),
+          ],
+        );
+      }
       return Image.memory(
         base64Decode(_message.contents),
         height: 200,

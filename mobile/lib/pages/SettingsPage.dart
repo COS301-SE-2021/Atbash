@@ -257,7 +257,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setShowNotifications(newValue);
                 },
                 title: Text(
-                  "Show notifications",
+                  "Disable notifications",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(

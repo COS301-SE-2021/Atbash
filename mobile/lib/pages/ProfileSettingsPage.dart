@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ProfileSettingsPageController.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
@@ -113,7 +114,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
                         onPressed: () {
-                          _imgFromCamera(context);
+                          _loadPicker(ImageSource.camera);
                         },
                         icon: Icon(Icons.photo_camera),
                       ),
@@ -199,20 +200,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       if (birthday != null) controller.setBirthday(birthday);
 
                       if (widget.setup) {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext buildContext) {
-                              return AlertDialog(
-                                title: Text(
-                                    "If you wish to import your contact list, please grant the app permission in the next popup."),
-                                key: Key("alertDialog"),
-                              );
-                            }).then((_) {
-                          controller.importContacts().then((_) =>
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomePage())));
+                        showConfirmDialog(
+                          context,
+                          "Do you want to import your phone's contacts?",
+                          positive: "Yes",
+                          negative: "No",
+                        ).then((response) async {
+                          if (response == true) {
+                            await controller.importContacts();
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                              ),
+                            );
+                          }
                         });
                       } else {
                         Navigator.pop(context);
@@ -248,21 +250,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       setState(() {
         _selectedProfileImage = imageBytes;
       });
-    }
-  }
-
-  Future _imgFromCamera(BuildContext context) async {
-    try {
-      //TODO implement this setState for taking pictures
-      // setState(() {
-      //   if (pickedFile != null) {
-      //     _image = File(pickedFile.path);
-      //   } else {
-      //     print('No image selected.');
-      //   }
-      // });
-    } catch (e) {
-      showAlertDialog(context);
     }
   }
 

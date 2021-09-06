@@ -84,10 +84,10 @@ class CommunicationService {
     _messageQueue.stream.listen(
       (payload) async {
         // TODO re-enable encryption
-        // final encryptedContents = await encryptionService.encryptMessageContent(
-        //     payload.contents, payload.recipientPhoneNumber);
-        //
-        // payload.contents = encryptedContents;
+        final encryptedContents = await encryptionService.encryptMessageContent(
+            payload.contents, payload.recipientPhoneNumber);
+
+        payload.contents = encryptedContents;
 
         await post(uri, body: jsonEncode(payload.asMap));
       },
@@ -157,11 +157,11 @@ class CommunicationService {
         timestamp != null &&
         encryptedContents != null) {
       // TODO re-enable decryption
-      // final Map<String, Object?> decryptedContents = jsonDecode(
-      //     await encryptionService.decryptMessageContents(
-      //         encryptedContents, senderPhoneNumber));
+      final Map<String, Object?> decryptedContents = jsonDecode(
+          await encryptionService.decryptMessageContents(
+              encryptedContents, senderPhoneNumber));
 
-      final decryptedContents = jsonDecode(encryptedContents);
+      // final decryptedContents = jsonDecode(encryptedContents);
 
       final type = decryptedContents["type"] as String?;
 
@@ -189,9 +189,9 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
-          final imageId = decryptedContents["imageId"];
-          final base16Key = decryptedContents["key"];
-          final base16IV = decryptedContents["iv"];
+          final imageId = decryptedContents["imageId"] as String;
+          final base16Key = decryptedContents["key"] as String;
+          final base16IV = decryptedContents["iv"] as String;
 
           final image =
               await mediaService.fetchMedia(imageId, base16Key, base16IV);

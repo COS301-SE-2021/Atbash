@@ -75,7 +75,7 @@ class SettingsService {
         key: "settings_share_read_receipts", value: value ? "true" : "false");
   }
 
-  Future<bool> getShowNotifications() async {
+  Future<bool> getDisableNotifications() async {
     final bool showNotifications =
         await _storage.read(key: "settings_show_notifications") == "true";
     return showNotifications;

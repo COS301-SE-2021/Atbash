@@ -29,7 +29,7 @@ class SettingsPageController {
         .getShareReadReceipts()
         .then((value) => model.shareReadReceipts = value);
     settingsService
-        .getShowNotifications()
+        .getDisableNotifications()
         .then((value) => model.showNotifications = value);
     settingsService
         .getPlayNotificationSound()

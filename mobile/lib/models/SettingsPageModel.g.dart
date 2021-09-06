@@ -170,15 +170,16 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
       Atom(name: '_SettingsPageModel.showMessagePreview');
 
   @override
-  bool get showMessagePreview {
+  bool get disableMessagePreview {
     _$showMessagePreviewAtom.reportRead();
-    return super.showMessagePreview;
+    return super.disableMessagePreview;
   }
 
   @override
-  set showMessagePreview(bool value) {
-    _$showMessagePreviewAtom.reportWrite(value, super.showMessagePreview, () {
-      super.showMessagePreview = value;
+  set disableMessagePreview(bool value) {
+    _$showMessagePreviewAtom.reportWrite(value, super.disableMessagePreview,
+        () {
+      super.disableMessagePreview = value;
     });
   }
 
@@ -211,7 +212,7 @@ shareStatus: ${shareStatus},
 shareReadReceipts: ${shareReadReceipts},
 showNotifications: ${disableNotifications},
 playNotificationSound: ${playNotificationSound},
-showMessagePreview: ${showMessagePreview},
+showMessagePreview: ${disableMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}
     ''';
   }

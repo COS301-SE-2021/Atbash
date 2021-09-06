@@ -38,7 +38,7 @@ abstract class _SettingsPageModel with Store {
   bool playNotificationSound = false;
 
   @observable
-  bool showMessagePreview = false;
+  bool disableMessagePreview = false;
 
   @observable
   bool autoDownloadMedia = false;

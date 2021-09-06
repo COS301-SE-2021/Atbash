@@ -240,12 +240,14 @@ class ChatPageController {
 
         allNumberChats.forEach((element) {
           final newMessage = Message(
-              id: Uuid().v4(),
-              chatId: element.second,
-              isIncoming: false,
-              otherPartyPhoneNumber: element.first,
-              contents: message,
-              timestamp: DateTime.now());
+            id: Uuid().v4(),
+            chatId: element.second,
+            isIncoming: false,
+            otherPartyPhoneNumber: element.first,
+            contents: message,
+            timestamp: DateTime.now(),
+            forwarded: true,
+          );
 
           communicationService.sendMessage(
               newMessage, ChatType.general, element.first);

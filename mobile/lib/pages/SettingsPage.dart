@@ -285,9 +285,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SwitchListTile(
                 value: controller.model.disableMessagePreview,
-                onChanged: (bool newValue) {
-                  controller.setDisableMessagePreview(newValue);
-                },
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setDisableMessagePreview(newValue);
+                      },
                 title: Text(
                   "Disable message preview",
                   style: TextStyle(fontSize: 16),

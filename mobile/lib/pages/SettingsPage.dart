@@ -287,7 +287,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setShowMessagePreview(newValue);
                 },
                 title: Text(
-                  "Message preview",
+                  "Disable message preview",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(

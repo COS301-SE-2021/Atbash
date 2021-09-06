@@ -91,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setBlurImages(newValue);
                 },
                 title: Text(
-                  "Blur images",
+                  "Hide images",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Blur images by default. Images can still be viewed if selected"),
+                    "Hide images by default. Images can still be viewed if selected"),
               ),
               SwitchListTile(
                 value: controller.model.safeMode,

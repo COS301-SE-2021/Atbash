@@ -542,12 +542,24 @@ class ChatCard extends StatelessWidget {
   Widget _renderMessageContents() {
     if (_message.isMedia) {
       if (blurImages) {
-        return Text(
-          "Image is blurred, click to view",
-          style: TextStyle(
-            color: Colors.white,
-            fontStyle: _message.deleted ? FontStyle.italic : null,
-          ),
+        return Row(
+          children: [
+            Text(
+              "View image",
+              style: TextStyle(
+                color: Colors.white,
+                fontStyle: _message.deleted ? FontStyle.italic : null,
+              ),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+            Icon(
+              Icons.remove_red_eye,
+              size: 14,
+              color: Colors.white,
+            ),
+          ],
         );
       }
       return Image.memory(

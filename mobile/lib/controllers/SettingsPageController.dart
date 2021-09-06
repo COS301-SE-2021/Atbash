@@ -35,7 +35,7 @@ class SettingsPageController {
         .getPlayNotificationSound()
         .then((value) => model.playNotificationSound = value);
     settingsService
-        .getShowMessagePreview()
+        .getDisableMessagePreview()
         .then((value) => model.disableMessagePreview = value);
     settingsService
         .getAutoDownloadMedia()

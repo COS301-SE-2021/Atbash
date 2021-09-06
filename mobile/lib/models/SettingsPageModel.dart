@@ -32,7 +32,7 @@ abstract class _SettingsPageModel with Store {
   bool shareReadReceipts = false;
 
   @observable
-  bool showNotifications = false;
+  bool disableNotifications = false;
 
   @observable
   bool playNotificationSound = false;

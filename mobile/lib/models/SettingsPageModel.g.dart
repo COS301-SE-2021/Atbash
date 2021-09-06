@@ -137,15 +137,15 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
       Atom(name: '_SettingsPageModel.showNotifications');
 
   @override
-  bool get showNotifications {
+  bool get disableNotifications {
     _$showNotificationsAtom.reportRead();
-    return super.showNotifications;
+    return super.disableNotifications;
   }
 
   @override
-  set showNotifications(bool value) {
-    _$showNotificationsAtom.reportWrite(value, super.showNotifications, () {
-      super.showNotifications = value;
+  set disableNotifications(bool value) {
+    _$showNotificationsAtom.reportWrite(value, super.disableNotifications, () {
+      super.disableNotifications = value;
     });
   }
 
@@ -209,7 +209,7 @@ safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},
 shareStatus: ${shareStatus},
 shareReadReceipts: ${shareReadReceipts},
-showNotifications: ${showNotifications},
+showNotifications: ${disableNotifications},
 playNotificationSound: ${playNotificationSound},
 showMessagePreview: ${showMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}

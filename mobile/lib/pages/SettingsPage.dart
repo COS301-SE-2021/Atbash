@@ -252,7 +252,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: controller.model.showNotifications,
+                value: controller.model.disableNotifications,
                 onChanged: (bool newValue) {
                   controller.setDisableNotifications(newValue);
                 },

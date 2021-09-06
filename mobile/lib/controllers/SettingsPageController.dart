@@ -30,7 +30,7 @@ class SettingsPageController {
         .then((value) => model.shareReadReceipts = value);
     settingsService
         .getDisableNotifications()
-        .then((value) => model.showNotifications = value);
+        .then((value) => model.disableNotifications = value);
     settingsService
         .getPlayNotificationSound()
         .then((value) => model.playNotificationSound = value);
@@ -80,7 +80,7 @@ class SettingsPageController {
   }
 
   void setDisableNotifications(bool value) {
-    model.showNotifications = value;
+    model.disableNotifications = value;
     settingsService.setDisableNotifications(value);
   }
 

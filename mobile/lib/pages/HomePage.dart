@@ -227,7 +227,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       chats = chats
           .where((c) =>
               c.contactPhoneNumber.contains(filterQuery) ||
-              c.contact?.displayName.contains(filterQuery) == true)
+              c.contact?.displayName.toLowerCase().contains(filterQuery) ==
+                  true)
           .toList();
     }
 

@@ -43,7 +43,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.zero,
+          width: MediaQuery.of(context).size.width * 4 / 5,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
             color: Constants.darkGrey.withOpacity(0.5),
@@ -57,7 +57,6 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
               Expanded(
                 child: TextField(
                   onChanged: (String input) {},
-                  expands: false,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -74,6 +73,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
           ),
         ),
         ListView.builder(
+            shrinkWrap: true,
             itemCount: 5,
             itemBuilder: (BuildContext context, int index) {
               return _buildContactItem();

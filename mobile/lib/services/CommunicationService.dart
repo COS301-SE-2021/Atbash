@@ -83,10 +83,11 @@ class CommunicationService {
 
     _messageQueue.stream.listen(
       (payload) async {
-        final encryptedContents = await encryptionService.encryptMessageContent(
-            payload.contents, payload.recipientPhoneNumber);
-
-        payload.contents = encryptedContents;
+        // TODO re-enable encryption
+        // final encryptedContents = await encryptionService.encryptMessageContent(
+        //     payload.contents, payload.recipientPhoneNumber);
+        //
+        // payload.contents = encryptedContents;
 
         await post(uri, body: jsonEncode(payload.asMap));
       },
@@ -155,8 +156,12 @@ class CommunicationService {
         senderPhoneNumber != null &&
         timestamp != null &&
         encryptedContents != null) {
-      final decryptedContents = jsonDecode(await encryptionService
-          .decryptMessageContents(encryptedContents, senderPhoneNumber));
+      // TODO re-enable decryption
+      // final Map<String, Object?> decryptedContents = jsonDecode(
+      //     await encryptionService.decryptMessageContents(
+      //         encryptedContents, senderPhoneNumber));
+
+      final decryptedContents = jsonDecode(encryptedContents);
 
       final type = decryptedContents["type"] as String?;
 

@@ -165,10 +165,13 @@ class CommunicationService {
             encryptedContents, senderPhoneNumber);
       }
       on Exception catch (exception){
+        print("Failed to decrypt message");
         print(exception.toString());
         return;
       }
+      print("Decrypted message: " + jsonDecode(decryptedContentsEncoded).toString());
       final Map<String, Object?> decryptedContents = jsonDecode(decryptedContentsEncoded);
+      // final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
 
       // final decryptedContents = jsonDecode(encryptedContents);
 

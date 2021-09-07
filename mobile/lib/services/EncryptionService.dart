@@ -3,6 +3,7 @@ import 'dart:convert';
 // import 'package:crypto/crypto.dart'; //For Hmac function
 // import 'dart:math';
 
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -54,7 +55,28 @@ class EncryptionService {
     final serializedCipherMessage = ciphertext.serialize();
     final encodedSerializedCipherMessage = base64Encode(serializedCipherMessage);
 
-    return encodedSerializedCipherMessage;
+    // return encodedSerializedCipherMessage;
+
+    print("Created type: " + ciphertext.getType().toString());
+
+    final mNumber = await _storage.read(key: "m_number");
+    int number = 1;
+    if (mNumber == null) {
+      await _storage.write(key: "m_number", value: "1");
+    } else {
+      number = int.parse(mNumber) + 1;
+      await _storage.write(key: "m_number", value: number.toString());
+    }
+
+    var data = {
+      "type": ciphertext.getType(),
+      "m_number": number,
+      "message": encodedSerializedCipherMessage,
+    };
+
+    print("Sending message number: " + number.toString() + " Content: " + messageContent);
+
+    return jsonEncode(data);
   }
 
   Future<String> decryptMessageContents(String encryptedContents,
@@ -65,6 +87,15 @@ class EncryptionService {
       throw InvalidNumberException("Cannot decrypt own encrypted message.");
     }
 
+    final Map<String, Object?> data = jsonDecode(encryptedContents);
+
+    int mType = data["type"] as int;
+    int mNumber = data["m_number"] as int;
+    encryptedContents = data["message"] as String;
+
+    print("Decrypting message number: " + mNumber.toString());
+    print("Decrypting message type: " + mType.toString());
+
     String plaintext = "Failed to decrypt...";
     try {
       print("Decrypting CipherTextMessage");
@@ -73,23 +104,36 @@ class EncryptionService {
 
       CiphertextMessage? reconstructedCipherMessage;
       print("Trying to reconstruct CipherTextMessage");
-      try {
+      if(mType == CiphertextMessage.prekeyType){
         reconstructedCipherMessage = PreKeySignalMessage(decodedEncryptedContents);
-        print("Success1");
-        plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
-            reconstructedCipherMessage);
-      } catch (error){
-        try {
-          reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
-          print("Success2");
-          plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
-              reconstructedCipherMessage);
-        } catch (error){
-          print("Failed");
-          reconstructedCipherMessage = null;
-          throw error;
-        }
+      } else if (mType == CiphertextMessage.whisperType){
+        reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
+      } else {
+        print("Failed");
+        return plaintext;
       }
+      plaintext = await _decryptCipherTextMessage(senderPhoneNumber, reconstructedCipherMessage);
+      return jsonDecode(plaintext);
+      // try {
+      //   print("Trying1...");
+      //   reconstructedCipherMessage = PreKeySignalMessage(decodedEncryptedContents);
+      //   print("Success1");
+      //   plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+      //       reconstructedCipherMessage);
+      // } catch (error){
+      //   print(error);
+      //   try {
+      //     print("Trying2...");
+      //     reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
+      //     print("Success2");
+      //     plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+      //         reconstructedCipherMessage);
+      //   } catch (error){
+      //     print("Failed");
+      //     reconstructedCipherMessage = null;
+      //     throw error;
+      //   }
+      // }
 
     } on InvalidMessageException catch (e) {
       throw DecryptionErrorException(e.detailMessage);

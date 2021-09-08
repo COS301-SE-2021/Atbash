@@ -4,9 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
-import 'package:mobile/dialogs/InfoDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -50,7 +48,6 @@ class ChatPageController {
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 
-    print(privateChat);
     if (privateChat != null) {
       chat = Future.value(privateChat);
     } else {
@@ -296,21 +293,6 @@ class ChatPageController {
   }
 
   void startPrivateChat(BuildContext context) async {
-    communicationService.onStopPrivateChat = (String senderPhoneNumber) async {
-      print("Hello");
-      String body = "";
-      try {
-        final contact =
-            await contactService.fetchByPhoneNumber(senderPhoneNumber);
-        body = "${contact.displayName} has ended the private chat";
-      } on ContactWithPhoneNumberDoesNotExistException {
-        body = "$senderPhoneNumber has ended the private chat";
-      }
-      await showInfoDialog(context, body);
-      Navigator.pop(context);
-    };
-    print("Controller" +
-        (communicationService.onStopPrivateChat?.toString() ?? "null"));
     communicationService.sendStartPrivateChat(contactPhoneNumber);
     Contact? contact;
     try {

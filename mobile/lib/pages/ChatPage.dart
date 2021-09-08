@@ -182,7 +182,6 @@ class _ChatPageState extends State<ChatPage> {
           if (controller.model.chatType != ChatType.private)
             return IconButton(
               onPressed: () {
-                //TODO implement private chats
                 controller.startPrivateChat(context);
               },
               icon: Icon(Icons.lock),

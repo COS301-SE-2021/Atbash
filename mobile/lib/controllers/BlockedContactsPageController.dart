@@ -20,20 +20,13 @@ class BlockedContactsPageController {
 
   void addNumber(String number) {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
-    try {
-      blockedNumbersService.insert(blockedNumber);
-      model.blockedNumbers.add(blockedNumber);
-    } on duplicateBlockedNumberException {
-      //:TODO display error message
-    }
+    blockedNumbersService.insert(blockedNumber);
+    model.blockedNumbers.add(blockedNumber);
   }
 
   void deleteNumber(String number) {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
-    try {
-      blockedNumbersService.delete(blockedNumber.phoneNumber);
-      model.blockedNumbers.remove(blockedNumber);
-    } on blockedNumberDoesNotExistException {}
-    //TODO: Display error message
+    blockedNumbersService.delete(blockedNumber.phoneNumber);
+    model.blockedNumbers.remove(blockedNumber);
   }
 }

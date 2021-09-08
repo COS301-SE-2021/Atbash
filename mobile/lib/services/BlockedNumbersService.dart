@@ -20,17 +20,13 @@ class BlockedNumbersService {
     final numbers = <BlockedNumber>[];
     response.forEach((e) {
       final blockedNumber = BlockedNumber.fromMap(e);
-      if(blockedNumber != null)
-        numbers.add(blockedNumber);
+      if (blockedNumber != null) numbers.add(blockedNumber);
     });
 
     return numbers;
   }
 
-  Future<List<BlockedNumber>> insert(BlockedNumber blockedNumber)
-  {
-
-  }
+  Future<List<BlockedNumber>> insert(BlockedNumber blockedNumber) {}
 
   void _notifyListeners() {
     _onChangedListeners.forEach((listener) => listener);

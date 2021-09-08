@@ -305,8 +305,8 @@ class _ChatPageState extends State<ChatPage> {
       },
       onDelete: () => _deleteSingleMessage(message),
       onDoubleTap: () => _likeMessage(message),
-      onForwardPressed: () =>
-          controller.forwardMessage(context, message.contents),
+      onForwardPressed: () => controller.forwardMessage(
+          context, message.contents, controller.model.contactTitle),
       blurImages: controller.model.blurImages,
     );
   }

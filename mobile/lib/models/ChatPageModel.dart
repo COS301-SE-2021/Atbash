@@ -11,7 +11,13 @@ abstract class _ChatPageModel with Store {
   String contactTitle = "";
 
   @observable
+  bool online = false;
+
+  @observable
   String contactStatus = "";
+
+  @observable
+  String? wallpaperImage;
 
   @observable
   String contactProfileImage = "";
@@ -21,6 +27,9 @@ abstract class _ChatPageModel with Store {
 
   @observable
   ChatType chatType = ChatType.private;
+
+  @observable
+  bool blurImages = true;
 
   @observable
   ObservableList<Message> messages = <Message>[].asObservable();

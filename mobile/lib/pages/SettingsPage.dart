@@ -4,6 +4,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/pages/WallpaperPage.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -90,7 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setBlurImages(newValue);
                 },
                 title: Text(
-                  "Blur images",
+                  "Hide images",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -99,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Blur images by default. Images can still be viewed if selected"),
+                    "Hide images by default. Images can still be viewed if selected"),
               ),
               SwitchListTile(
                 value: controller.model.safeMode,
@@ -199,6 +200,23 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               ListTile(
                 leading: Icon(
+                  Icons.wallpaper,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Change Wallpaper",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => WallpaperPage()),
+                  );
+                },
+                dense: true,
+              ),
+              ListTile(
+                leading: Icon(
                   Icons.import_contacts,
                   color: Constants.orange,
                 ),
@@ -234,12 +252,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
-                value: controller.model.showNotifications,
+                value: controller.model.disableNotifications,
                 onChanged: (bool newValue) {
-                  controller.setShowNotifications(newValue);
+                  controller.setDisableNotifications(newValue);
                 },
                 title: Text(
-                  "Show notifications",
+                  "Disable notifications",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -250,9 +268,11 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SwitchListTile(
                 value: controller.model.playNotificationSound,
-                onChanged: (bool newValue) {
-                  controller.setPlayNotificationSound(newValue);
-                },
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setPlayNotificationSound(newValue);
+                      },
                 title: Text(
                   "Notification sounds",
                   style: TextStyle(fontSize: 16),
@@ -264,12 +284,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
-                value: controller.model.showMessagePreview,
-                onChanged: (bool newValue) {
-                  controller.setShowMessagePreview(newValue);
-                },
+                value: controller.model.disableMessagePreview,
+                onChanged: controller.model.disableNotifications
+                    ? null
+                    : (bool newValue) {
+                        controller.setDisableMessagePreview(newValue);
+                      },
                 title: Text(
-                  "Message preview",
+                  "Disable message preview",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(

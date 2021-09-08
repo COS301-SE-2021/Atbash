@@ -43,6 +43,22 @@ class HomePageController {
     communicationService.disposeOnAckSeen(_onAckSeen);
   }
 
+  void sendOnline() {
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(true, contact.phoneNumber);
+      });
+    });
+  }
+
+  void sendOffline() {
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendOnlineStatus(false, contact.phoneNumber);
+      });
+    });
+  }
+
   void _onMessage(Message m) {
     reload();
   }

@@ -8,7 +8,9 @@ import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
+import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:uuid/uuid.dart';
@@ -22,6 +24,8 @@ class CommunicationService {
   final MessageService messageService;
   final SettingsService settingsService;
   final MediaService mediaService;
+  final MemoryStoreService memoryStoreService;
+  final NotificationService notificationService;
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -32,6 +36,8 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  bool Function(String incomingPhoneNumber) shouldBlockNotifications =
+      (number) => false;
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -70,6 +76,8 @@ class CommunicationService {
     this.messageService,
     this.settingsService,
     this.mediaService,
+    this.memoryStoreService,
+    this.notificationService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -102,6 +110,23 @@ class CommunicationService {
 
     channel?.stream.listen((event) async {
       await _handleEvent(event);
+    });
+
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        final encodedContactPhoneNumber =
+            Uri.encodeQueryComponent(contact.phoneNumber);
+        final uri = Uri.parse(
+            Constants.httpUrl + "user/$encodedContactPhoneNumber/online");
+        get(uri).then((response) {
+          if (response.statusCode == 200) {
+            final online = response.body == "true";
+            if (online) {
+              memoryStoreService.addOnlineContact(contact.phoneNumber);
+            }
+          }
+        });
+      });
     });
   }
 
@@ -145,6 +170,7 @@ class CommunicationService {
           final chatTypeStr = decryptedContents["chatType"] as String;
           final chatType =
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+          final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
 
           _handleMessage(
@@ -153,6 +179,7 @@ class CommunicationService {
             id: id,
             contents: text,
             timestamp: DateTime.now(),
+            forwarded: forwarded,
           );
           break;
 
@@ -160,6 +187,7 @@ class CommunicationService {
           final chatTypeStr = decryptedContents["chatType"] as String;
           final chatType =
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+          final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
           final imageId = decryptedContents["imageId"];
           final base16Key = decryptedContents["key"];
@@ -176,6 +204,7 @@ class CommunicationService {
               contents: image,
               timestamp: DateTime.now(),
               isMedia: true,
+              forwarded: forwarded,
             );
           }
           break;
@@ -184,6 +213,24 @@ class CommunicationService {
           final messageId = decryptedContents["messageId"] as String;
           messageService.setMessageDeleted(messageId);
           _onDeleteListeners.forEach((listener) => listener(messageId));
+          break;
+
+        case "like":
+          final messageId = decryptedContents["messageId"] as String;
+          final liked = decryptedContents["liked"] as bool;
+
+          messageService.setMessageLiked(messageId, liked);
+          _onMessageLikedListeners
+              .forEach((listener) => listener(messageId, liked));
+          break;
+
+        case "online":
+          final online = decryptedContents["online"] as bool;
+          if (online) {
+            memoryStoreService.addOnlineContact(senderPhoneNumber);
+          } else {
+            memoryStoreService.removeOnlineContact(senderPhoneNumber);
+          }
           break;
 
         case "profileImage":
@@ -238,15 +285,6 @@ class CommunicationService {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
-
-        case "like":
-          final messageId = decryptedContents["messageId"] as String;
-          final liked = decryptedContents["liked"] as bool;
-
-          messageService.setMessageLiked(messageId, liked);
-          _onMessageLikedListeners
-              .forEach((listener) => listener(messageId, liked));
-          break;
       }
 
       await _deleteMessageFromServer(id);
@@ -260,6 +298,7 @@ class CommunicationService {
     required String contents,
     required DateTime timestamp,
     bool isMedia = false,
+    bool forwarded = false,
   }) async {
     chatService
         .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
@@ -287,6 +326,7 @@ class CommunicationService {
         contents: contents,
         timestamp: timestamp,
         isMedia: isMedia,
+        forwarded: forwarded,
         readReceipt: ReadReceipt.delivered,
         deleted: false,
         liked: false,
@@ -296,7 +336,45 @@ class CommunicationService {
       messageService.insert(message);
       sendAck(id, senderPhoneNumber);
       _onMessageListeners.forEach((listener) => listener(message));
+
+      _notifyUser(
+        senderPhoneNumber: senderPhoneNumber,
+        messageContents: contents,
+        isMedia: isMedia,
+      );
     });
+  }
+
+  void _notifyUser({
+    required String senderPhoneNumber,
+    required String messageContents,
+    required bool isMedia,
+  }) async {
+    if (shouldBlockNotifications(senderPhoneNumber)) {
+      return;
+    }
+    if (await settingsService.getDisableNotifications()) {
+      return;
+    }
+
+    String title = senderPhoneNumber;
+
+    try {
+      final contact =
+          await contactService.fetchByPhoneNumber(senderPhoneNumber);
+      title = contact.displayName;
+    } on ContactWithPhoneNumberDoesNotExistException {}
+
+    String body = "New message";
+    if (!(await settingsService.getDisableMessagePreview())) {
+      if (isMedia) {
+        body = "\u{1f4f7} Photo";
+      } else {
+        body = messageContents;
+      }
+    }
+
+    notificationService.showNotification(title: title, body: body);
   }
 
   Future<void> _deleteMessageFromServer(String id) async {
@@ -309,6 +387,7 @@ class CommunicationService {
     final contents = jsonEncode({
       "type": "message",
       "chatType": chatType.toString(),
+      "forwarded": message.forwarded,
       "text": message.contents,
     });
 
@@ -323,6 +402,7 @@ class CommunicationService {
       final contents = jsonEncode({
         "type": "imageMessage",
         "chatType": chatType.toString(),
+        "forwarded": message.forwarded,
         "imageId": mediaUpload.mediaId,
         "key": mediaUpload.base16Key,
         "iv": mediaUpload.base16IV,
@@ -347,6 +427,16 @@ class CommunicationService {
       "type": "like",
       "messageId": messageId,
       "liked": liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendOnlineStatus(
+      bool online, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "online",
+      "online": online,
     });
 
     _queueForSending(contents, recipientPhoneNumber);

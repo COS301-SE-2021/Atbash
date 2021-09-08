@@ -12,7 +12,9 @@ import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatPageController {
@@ -21,6 +23,8 @@ class ChatPageController {
   final CommunicationService communicationService = GetIt.I.get();
   final MessageService messageService = GetIt.I.get();
   final ChatCacheService chatCacheService = GetIt.I.get();
+  final MemoryStoreService memoryStoreService = GetIt.I.get();
+  final SettingsService settingsService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -39,6 +43,9 @@ class ChatPageController {
 
     communicationService.onMessageLiked(_onMessageLiked);
 
+    communicationService.shouldBlockNotifications =
+        (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
+
     chat = chatService.fetchById(chatId);
     chat.then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
@@ -47,6 +54,11 @@ class ChatPageController {
       model.contactProfileImage = chat.contact?.profileImage ?? "";
       model.contactSaved = chat.contact != null;
       model.chatType = chat.chatType;
+
+      if (memoryStoreService.isContactOnline(contactPhoneNumber)) {
+        _onOnline(true);
+      }
+      memoryStoreService.onContactOnline(contactPhoneNumber, _onOnline);
     });
 
     contactService.onChanged(_onContactChanged);
@@ -66,6 +78,18 @@ class ChatPageController {
 
       model.replaceMessages(messages);
     });
+
+    settingsService
+        .getWallpaperImage()
+        .then((value) => model.wallpaperImage = value);
+
+    settingsService.getBlurImages().then((value) {
+      model.blurImages = value;
+    });
+  }
+
+  void _onOnline(bool online) {
+    model.online = online;
   }
 
   void _onMessage(Message message) {
@@ -109,7 +133,9 @@ class ChatPageController {
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    communicationService.shouldBlockNotifications = (phoneNumber) => false;
     contactService.disposeOnChanged(_onContactChanged);
+    memoryStoreService.disposeOnContactOnline(_onOnline);
   }
 
   void sendMessage(String contents) async {
@@ -195,11 +221,9 @@ class ChatPageController {
     return chatCacheService.get(chatId);
   }
 
-  void forwardMessage(
-      BuildContext context, String message, String contactName, bool isMedia) {
+  void forwardMessage(BuildContext context, String message) {
     contactService.fetchAll().then((contacts) {
-      showForwardDialog(context, contacts, contactName)
-          .then((forwardContacts) async {
+      showForwardDialog(context, contacts).then((forwardContacts) async {
         if (forwardContacts == null) return;
 
         final allChats = await chatService.fetchAll();
@@ -226,8 +250,7 @@ class ChatPageController {
             otherPartyPhoneNumber: element.first,
             contents: message,
             timestamp: DateTime.now(),
-            isMedia: isMedia,
-            // isForwarded: true,
+            forwarded: true,
           );
 
           communicationService.sendMessage(

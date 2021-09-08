@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
-Future<String?> showInputDialog(BuildContext context, String message) {
+Future<String?> showInputDialog(BuildContext context, String message,
+    {String hint = ""}) {
   return showDialog(
     context: context,
     barrierDismissible: false,
-    builder: (_) => _InputDialog(message),
+    builder: (_) => _InputDialog(message, hint),
   );
 }
 
 class _InputDialog extends StatelessWidget {
   final String message;
+  final String hint;
   final inputController = TextEditingController();
 
-  _InputDialog(this.message);
+  _InputDialog(this.message, this.hint);
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +22,9 @@ class _InputDialog extends StatelessWidget {
       title: Text(message),
       content: TextField(
         controller: inputController,
+        decoration: InputDecoration(
+          hintText: hint,
+        ),
       ),
       actions: [
         TextButton(

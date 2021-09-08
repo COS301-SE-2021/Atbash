@@ -10,10 +10,9 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
-
-import '../constants.dart';
-import 'ContactsPage.dart';
-import 'SettingsPage.dart';
+import 'package:mobile/constants.dart';
+import 'package:mobile/pages/ContactsPage.dart';
+import 'package:mobile/pages/SettingsPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,7 +21,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final controller = HomePageController();
   final DateFormat dateFormatter = DateFormat.Hm();
 
@@ -36,14 +35,31 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    WidgetsBinding.instance?.addObserver(this);
+
     _searchFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     super.dispose();
+
+    WidgetsBinding.instance?.removeObserver(this);
+
     _searchFocusNode.dispose();
     controller.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      controller.sendOffline();
+    } else {
+      controller.sendOnline();
+    }
   }
 
   @override
@@ -210,8 +226,11 @@ class _HomePageState extends State<HomePage> {
       final filterQuery = _filterQuery.toLowerCase();
       chats = chats
           .where((c) =>
-              c.contactPhoneNumber.contains(filterQuery) ||
-              c.contact?.displayName.contains(filterQuery) == true)
+              c.contactPhoneNumber.contains(filterQuery
+                  .replaceAll(RegExp("^0"), "")
+                  .replaceAll("[^0-9]", "")) ||
+              c.contact?.displayName.toLowerCase().contains(filterQuery) ==
+                  true)
           .toList();
     }
 

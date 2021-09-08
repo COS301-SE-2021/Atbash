@@ -1,4 +1,3 @@
-import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -18,7 +17,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 14, onCreate: (db, version) async {
+    return openDatabase(path, version: 13, onCreate: (db, version) async {
       await _createTables(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
       await _dropTables(db);
@@ -37,8 +36,7 @@ class DatabaseService {
       db.execute("drop table if exists ${SignedPreKeyDBRecord.TABLE_NAME};"),
       db.execute("drop table if exists ${TrustedKeyDBRecord.TABLE_NAME};"),
       db.execute(
-          "drop table if exists ${Message.TABLE_NAME}_${Tag.TABLE_NAME};"),
-      db.execute("drop table if exists ${BlockedNumber.TABLE_NAME};"),
+          "drop table if exists ${Message.TABLE_NAME}_${Tag.TABLE_NAME};")
     ]);
   }
 
@@ -52,7 +50,6 @@ class DatabaseService {
       db.execute(SessionDBRecord.CREATE_TABLE),
       db.execute(SignedPreKeyDBRecord.CREATE_TABLE),
       db.execute(TrustedKeyDBRecord.CREATE_TABLE),
-      db.execute(BlockedNumber.CREATE_TABLE),
     ]);
 
     await db.execute("create table ${Message.TABLE_NAME}_${Tag.TABLE_NAME} ("

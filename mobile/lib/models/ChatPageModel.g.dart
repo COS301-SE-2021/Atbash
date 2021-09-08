@@ -24,6 +24,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$onlineAtom = Atom(name: '_ChatPageModel.online');
+
+  @override
+  bool get online {
+    _$onlineAtom.reportRead();
+    return super.online;
+  }
+
+  @override
+  set online(bool value) {
+    _$onlineAtom.reportWrite(value, super.online, () {
+      super.online = value;
+    });
+  }
+
   final _$contactStatusAtom = Atom(name: '_ChatPageModel.contactStatus');
 
   @override
@@ -36,6 +51,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   set contactStatus(String value) {
     _$contactStatusAtom.reportWrite(value, super.contactStatus, () {
       super.contactStatus = value;
+    });
+  }
+
+  final _$wallpaperImageAtom = Atom(name: '_ChatPageModel.wallpaperImage');
+
+  @override
+  String? get wallpaperImage {
+    _$wallpaperImageAtom.reportRead();
+    return super.wallpaperImage;
+  }
+
+  @override
+  set wallpaperImage(String? value) {
+    _$wallpaperImageAtom.reportWrite(value, super.wallpaperImage, () {
+      super.wallpaperImage = value;
     });
   }
 
@@ -82,6 +112,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   set chatType(ChatType value) {
     _$chatTypeAtom.reportWrite(value, super.chatType, () {
       super.chatType = value;
+    });
+  }
+
+  final _$blurImagesAtom = Atom(name: '_ChatPageModel.blurImages');
+
+  @override
+  bool get blurImages {
+    _$blurImagesAtom.reportRead();
+    return super.blurImages;
+  }
+
+  @override
+  set blurImages(bool value) {
+    _$blurImagesAtom.reportWrite(value, super.blurImages, () {
+      super.blurImages = value;
     });
   }
 
@@ -173,10 +218,13 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   String toString() {
     return '''
 contactTitle: ${contactTitle},
+online: ${online},
 contactStatus: ${contactStatus},
+wallpaperImage: ${wallpaperImage},
 contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
 chatType: ${chatType},
+blurImages: ${blurImages},
 messages: ${messages}
     ''';
   }

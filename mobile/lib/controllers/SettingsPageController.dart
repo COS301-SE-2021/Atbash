@@ -29,14 +29,14 @@ class SettingsPageController {
         .getShareReadReceipts()
         .then((value) => model.shareReadReceipts = value);
     settingsService
-        .getShowNotifications()
-        .then((value) => model.showNotifications = value);
+        .getDisableNotifications()
+        .then((value) => model.disableNotifications = value);
     settingsService
         .getPlayNotificationSound()
         .then((value) => model.playNotificationSound = value);
     settingsService
-        .getShowMessagePreview()
-        .then((value) => model.showMessagePreview = value);
+        .getDisableMessagePreview()
+        .then((value) => model.disableMessagePreview = value);
     settingsService
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
@@ -79,9 +79,9 @@ class SettingsPageController {
     settingsService.setShareReadReceipts(value);
   }
 
-  void setShowNotifications(bool value) {
-    model.showNotifications = value;
-    settingsService.setShowNotifications(value);
+  void setDisableNotifications(bool value) {
+    model.disableNotifications = value;
+    settingsService.setDisableNotifications(value);
   }
 
   void setPlayNotificationSound(bool value) {
@@ -89,9 +89,9 @@ class SettingsPageController {
     settingsService.setPlayNotificationSound(value);
   }
 
-  void setShowMessagePreview(bool value) {
-    model.showMessagePreview = value;
-    settingsService.setShowMessagePreview(value);
+  void setDisableMessagePreview(bool value) {
+    model.disableMessagePreview = value;
+    settingsService.setDisableMessagePreview(value);
   }
 
   void setAutoDownloadMedia(bool value) {

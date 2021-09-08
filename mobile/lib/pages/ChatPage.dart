@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -15,8 +16,6 @@ import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
-import 'package:mobile/util/Tuple.dart';
-import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/services.dart';
@@ -38,22 +37,26 @@ class _ChatPageState extends State<ChatPage> {
   _ChatPageState({required String chatId})
       : controller = ChatPageController(chatId: chatId);
 
-  List<Tuple<Message, bool>> _messages = [];
-  late final ReactionDisposer _messagesDisposer;
+  late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
+  ImageProvider? backgroundImage;
+
   @override
   void initState() {
     super.initState();
     _inputController.text = controller.getTypedMessage();
-    _messagesDisposer = autorun((_) {
-      setState(() {
-        _messages =
-            controller.model.messages.map((m) => Tuple(m, false)).toList();
-      });
+
+    _backgroundDisposer =
+        reaction((_) => controller.model.wallpaperImage, (wallpaperImage) {
+      if (wallpaperImage != null) {
+        setState(() {
+          backgroundImage = MemoryImage(base64Decode(wallpaperImage as String));
+        });
+      }
     });
   }
 
@@ -61,42 +64,25 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     super.dispose();
     controller.storeTypedMessage(_inputController.text);
-    _messagesDisposer();
+    _backgroundDisposer();
     controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selecting) {
-          _stopSelecting();
-          return false;
-        }
-
-        return true;
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/wallpaper.jpg"),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: _buildAppBar(context),
-          body: _buildBody(),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
+          fit: BoxFit.cover,
         ),
       ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: _buildAppBar(context),
+        body: _buildBody(),
+      ),
     );
-  }
-
-  void _stopSelecting() {
-    setState(() {
-      _selecting = false;
-      _messages.forEach((m) => m.second = false);
-    });
   }
 
   AppBar _buildAppBar(BuildContext context) {
@@ -114,16 +100,12 @@ class _ChatPageState extends State<ChatPage> {
           );
         }),
         Observer(builder: (_) {
-          final status = controller.model.contactStatus;
+          final online = controller.model.online;
 
-          if (status.isNotEmpty) {
+          if (online) {
             return Text(
-              controller.model.contactStatus,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.black,
-              ),
+              "Online",
+              style: TextStyle(fontSize: 12, color: Colors.black),
             );
           } else {
             return SizedBox.shrink();
@@ -162,82 +144,34 @@ class _ChatPageState extends State<ChatPage> {
         ),
       ),
       actions: [
-        if (!_selecting)
-          Observer(builder: (_) {
-            if (!controller.model.contactSaved) {
-              return IconButton(
-                onPressed: () {
-                  showInputDialog(context, "Name?").then((name) {
-                    if (name != null) {
-                      controller.addSenderAsContact(name);
-                    }
-                  });
-                },
-                icon: Icon(Icons.person_add),
-              );
-            } else {
-              return SizedBox.shrink();
-            }
-          }),
-        if (_selecting)
-          IconButton(
-            onPressed: () => _deleteMessages(context),
-            icon: Icon(Icons.delete),
-          ),
-        if (_selecting)
-          IconButton(
-            onPressed: () {
-              _copyMessages();
-            },
-            icon: Icon(Icons.copy),
-          ),
-        if (!_selecting)
-          Observer(builder: (_) {
-            if (controller.model.chatType != ChatType.private)
-              return IconButton(onPressed: () {}, icon: Icon(Icons.lock));
-            else
-              return SizedBox.shrink();
-          })
+        Observer(builder: (_) {
+          if (!controller.model.contactSaved) {
+            return IconButton(
+              onPressed: () {
+                showInputDialog(
+                  context,
+                  "Add Contact",
+                  hint: "Enter contact name",
+                ).then((name) {
+                  if (name != null) {
+                    controller.addSenderAsContact(name);
+                  }
+                });
+              },
+              icon: Icon(Icons.person_add),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
+        }),
+        Observer(builder: (_) {
+          if (controller.model.chatType != ChatType.private)
+            return IconButton(onPressed: () {}, icon: Icon(Icons.lock));
+          else
+            return SizedBox.shrink();
+        })
       ],
     );
-  }
-
-  void _deleteMessages(BuildContext context) {
-    final selectedMessages = _messages.where((m) => m.second);
-    if (selectedMessages.isNotEmpty) {
-      final selectedMessagesIds =
-          selectedMessages.map((e) => e.first.id).toList();
-
-      if (selectedMessages.any((m) => m.first.isIncoming || m.first.deleted)) {
-        showConfirmDialog(
-          context,
-          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-        ).then((confirmed) {
-          if (confirmed == true) {
-            controller.deleteMessagesLocally(selectedMessagesIds);
-            _stopSelecting();
-          }
-        });
-      } else {
-        showConfirmDeleteDialog(
-          context,
-          "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
-        ).then((response) {
-          if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-            selectedMessagesIds
-                .forEach((id) => controller.deleteMessagesRemotely([id]));
-          } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
-            controller.deleteMessagesLocally(selectedMessagesIds);
-          }
-
-          if (response != DeleteMessagesResponse.CANCEL) {
-            _stopSelecting();
-          }
-        });
-      }
-    } else {
-      showSnackBar(context, "No messages selected");
-    }
   }
 
   void _deleteSingleMessage(Message message) {
@@ -264,29 +198,6 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  void _copyMessages() {
-    final selectedMessages = _messages.where((m) => m.second).toList();
-
-    if (selectedMessages.isNotEmpty) {
-      String result = "";
-      final format = intl.DateFormat("dd/MM HH:mm");
-
-      selectedMessages.reversed.forEach((message) {
-        if (!message.first.deleted) {
-          result +=
-              "[${format.format(message.first.timestamp)}] ${message.first.contents}\n";
-        }
-      });
-
-      result = result.substring(0, result.length - 1);
-
-      Clipboard.setData(ClipboardData(text: result));
-      _stopSelecting();
-    } else {
-      showSnackBar(context, "No messages selected");
-    }
-  }
-
   void _likeMessage(Message message) {
     if (!message.isIncoming) return;
 
@@ -305,16 +216,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildMessages() {
-    return NotificationListener<ScrollEndNotification>(
-      onNotification: (scrollEnd) {
-        final metrics = scrollEnd.metrics;
-        if (metrics.pixels.floor() == metrics.maxScrollExtent.floor()) {
-          // TODO tell model to fetch more messages
-        }
-        return true;
-      },
-      child: ListView.builder(
-        itemCount: _messages.length,
+    return Observer(builder: (_) {
+      return ListView.builder(
+        itemCount: controller.model.messages.length,
         itemBuilder: (_, index) {
           String dateString = _chatDateString(index);
 
@@ -332,27 +236,29 @@ class _ChatPageState extends State<ChatPage> {
                     dateString,
                   ),
                 ),
-                _buildMessage(_messages[index]),
+                _buildMessage(controller.model.messages[index]),
               ],
             );
-          return _buildMessage(_messages[index]);
+          return _buildMessage(controller.model.messages[index]);
         },
         controller: _scrollController,
         reverse: true,
-      ),
-    );
+      );
+    });
   }
 
   String _chatDateString(int index) {
     int numMillisPerDay = 1000 * 60 * 60 * 24;
     //int numMillisPerYear = numMillisPerDay * 365;
 
-    int curDay = (_messages[index].first.timestamp.millisecondsSinceEpoch /
-            numMillisPerDay)
-        .floor();
-    int prevDay = index == _messages.length - 1
+    int curDay =
+        (controller.model.messages[index].timestamp.millisecondsSinceEpoch /
+                numMillisPerDay)
+            .floor();
+    int prevDay = index == controller.model.messages.length - 1
         ? 0
-        : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+        : (controller.model.messages[index + 1].timestamp
+                    .millisecondsSinceEpoch /
                 numMillisPerDay)
             .floor();
     // int curYear = (_messages[index].first.timestamp.millisecondsSinceEpoch /
@@ -373,14 +279,15 @@ class _ChatPageState extends State<ChatPage> {
       if (today - curDay == 1) return "Yesterday";
 
       if (today - curDay < 7)
-        return intl.DateFormat("EEEE").format(_messages[index].first.timestamp);
+        return intl.DateFormat("EEEE")
+            .format(controller.model.messages[index].timestamp);
 
       //TODO: Order by year if it goes too far back
       // if (prevYear < curYear)
       //   return intl.DateFormat.yMMMd().format(_messages[index].first.timestamp);
 
       return intl.DateFormat("EEE, dd MMM")
-          .format(_messages[index].first.timestamp);
+          .format(controller.model.messages[index].timestamp);
     }
 
     //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
@@ -388,34 +295,19 @@ class _ChatPageState extends State<ChatPage> {
     return "";
   }
 
-  ChatCard _buildMessage(Tuple<Message, bool> message) {
+  ChatCard _buildMessage(Message message) {
     return ChatCard(
-      message.first,
+      message,
       onTap: () {
-        if (_selecting) {
-          setState(() {
-            message.second = !message.second;
-          });
-        } else {
-          if (message.first.isMedia) {
-            showImageViewDialog(context, base64Decode(message.first.contents));
-          }
+        if (message.isMedia) {
+          showImageViewDialog(context, base64Decode(message.contents));
         }
       },
-      onSelect: () {
-        setState(() {
-          _selecting = true;
-          message.second = true;
-        });
-      },
-      onDelete: () => _deleteSingleMessage(message.first),
-      selected: _selecting && message.second,
-      onDoubleTap: () => _likeMessage(message.first),
-      onForwardPressed: () => controller.forwardMessage(
-          context,
-          message.first.contents,
-          controller.model.contactTitle,
-          message.first.isMedia),
+      onDelete: () => _deleteSingleMessage(message),
+      onDoubleTap: () => _likeMessage(message),
+      onForwardPressed: () =>
+          controller.forwardMessage(context, message.contents),
+      blurImages: controller.model.blurImages,
     );
   }
 
@@ -501,20 +393,18 @@ class _ChatPageState extends State<ChatPage> {
 class ChatCard extends StatelessWidget {
   final Message _message;
   final void Function() onTap;
-  final void Function() onSelect;
   final void Function() onDelete;
-  final bool selected;
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
+  final bool blurImages;
 
   ChatCard(
     this._message, {
     required this.onTap,
-    required this.onSelect,
     required this.onDelete,
-    required this.selected,
     required this.onDoubleTap,
     required this.onForwardPressed,
+    this.blurImages = false,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -549,10 +439,6 @@ class ChatCard extends StatelessWidget {
                       onPressed: onTap,
                       menuItemExtent: 40,
                       menuItems: [
-                        FocusedMenuItem(
-                            title: Text("Select"),
-                            onPressed: onSelect,
-                            trailingIcon: Icon(Icons.check_box_outline_blank)),
                         if (!_message.deleted)
                           FocusedMenuItem(
                               title: Text("Tag"),
@@ -586,25 +472,25 @@ class ChatCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          //if(isForwarded)
-                          // Container(
-                          //   child: Row(
-                          //     children: [
-                          //       Icon(
-                          //         Icons.reply,
-                          //         textDirection: TextDirection.rtl,
-                          //         size: 16,
-                          //         color: Colors.white.withOpacity(0.69),
-                          //       ),
-                          //       Text(
-                          //         "Forwarded",
-                          //         style: TextStyle(
-                          //             fontSize: 12,
-                          //             color: Colors.white.withOpacity(0.69)),
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
+                          if (_message.forwarded && _message.isIncoming)
+                            Container(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.reply,
+                                    textDirection: TextDirection.rtl,
+                                    size: 16,
+                                    color: Colors.white.withOpacity(0.69),
+                                  ),
+                                  Text(
+                                    "Forwarded",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.69)),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(
@@ -661,6 +547,27 @@ class ChatCard extends StatelessWidget {
 
   Widget _renderMessageContents() {
     if (_message.isMedia) {
+      if (blurImages) {
+        return Row(
+          children: [
+            Text(
+              "View image",
+              style: TextStyle(
+                color: Colors.white,
+                fontStyle: _message.deleted ? FontStyle.italic : null,
+              ),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+            Icon(
+              Icons.remove_red_eye,
+              size: 14,
+              color: Colors.white,
+            ),
+          ],
+        );
+      }
       return Image.memory(
         base64Decode(_message.contents),
         height: 200,

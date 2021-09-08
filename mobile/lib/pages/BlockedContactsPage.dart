@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/controllers/BlockedContactsPageController.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
 
@@ -74,15 +75,16 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
         ),
         ListView.builder(
             shrinkWrap: true,
-            itemCount: 5,
+            itemCount: controller.model.blockedNumbers.length,
             itemBuilder: (BuildContext context, int index) {
-              return _buildContactItem();
+              return _buildContactItem(
+                  controller.model.blockedNumbers[index].phoneNumber);
             }),
       ],
     );
   }
 
-  Widget _buildContactItem() {
+  Widget _buildContactItem(String blockedNumber) {
     return Container(
       child: Column(
         children: [
@@ -94,19 +96,12 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    "Number or Name",
+                    blockedNumber,
                     textAlign: TextAlign.left,
                   ),
                 ),
-                // Expanded(
-                //   flex: 1,
-                //   child: Text(
-                //     "Blocked X days ago",
-                //     textAlign: TextAlign.center,
-                //   ),
-                // ),
                 IconButton(
-                  onPressed: () => _removeBlockedContact(),
+                  onPressed: () => _removeBlockedContact(blockedNumber),
                   icon: Icon(Icons.cancel),
                   splashRadius: 24,
                 )
@@ -122,13 +117,18 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
     );
   }
 
-  void _addBlockedContact() {
-    final newBlockedNumber =
-        showInputDialog(context, "Please enter the number you wish to block.");
-    //TODO: Add a blocked contact.
+  void _addBlockedContact() async {
+    final input = await showInputDialog(
+        context, "Please enter the number you wish to block.");
+    if (input != null)
+      controller.addNumber(input).catchError((_) {
+        showSnackBar(context, "This number has already been blocked.");
+      });
   }
 
-  void _removeBlockedContact() {
-    //TODO: Remove blocked contact.
+  void _removeBlockedContact(String blockedNumber) {
+    controller.deleteNumber(blockedNumber).catchError((_) {
+      showSnackBar(context, "The number you tried to remove is not blocked.");
+    });
   }
 }

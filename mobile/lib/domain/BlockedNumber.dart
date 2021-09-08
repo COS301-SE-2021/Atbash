@@ -9,7 +9,7 @@ class BlockedNumber {
     };
   }
 
-  BlockedNumber? fromMap(Map<String, Object?> map) {
+  static BlockedNumber? fromMap(Map<String, Object?> map) {
     final phoneNumber = map[COLUMN_PHONE_NUMBER] as String?;
 
     if (phoneNumber != null) {

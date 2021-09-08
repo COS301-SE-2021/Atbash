@@ -1,4 +1,4 @@
-import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobx/mobx.dart';
 
 part 'BlockedContactsPageModel.g.dart';
@@ -8,5 +8,5 @@ class BlockedContactsPageModel = _BlockedContactsPageModel
 
 abstract class _BlockedContactsPageModel with Store {
   @observable
-  List<Contact> contacts = [];
+  List<BlockedNumber> blockedNumbers = [];
 }

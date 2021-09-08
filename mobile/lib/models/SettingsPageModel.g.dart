@@ -133,18 +133,19 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
-  final _$showNotificationsAtom =
-      Atom(name: '_SettingsPageModel.showNotifications');
+  final _$disableNotificationsAtom =
+      Atom(name: '_SettingsPageModel.disableNotifications');
 
   @override
   bool get disableNotifications {
-    _$showNotificationsAtom.reportRead();
+    _$disableNotificationsAtom.reportRead();
     return super.disableNotifications;
   }
 
   @override
   set disableNotifications(bool value) {
-    _$showNotificationsAtom.reportWrite(value, super.disableNotifications, () {
+    _$disableNotificationsAtom.reportWrite(value, super.disableNotifications,
+        () {
       super.disableNotifications = value;
     });
   }
@@ -166,18 +167,18 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
-  final _$showMessagePreviewAtom =
-      Atom(name: '_SettingsPageModel.showMessagePreview');
+  final _$disableMessagePreviewAtom =
+      Atom(name: '_SettingsPageModel.disableMessagePreview');
 
   @override
   bool get disableMessagePreview {
-    _$showMessagePreviewAtom.reportRead();
+    _$disableMessagePreviewAtom.reportRead();
     return super.disableMessagePreview;
   }
 
   @override
   set disableMessagePreview(bool value) {
-    _$showMessagePreviewAtom.reportWrite(value, super.disableMessagePreview,
+    _$disableMessagePreviewAtom.reportWrite(value, super.disableMessagePreview,
         () {
       super.disableMessagePreview = value;
     });
@@ -210,9 +211,9 @@ safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},
 shareStatus: ${shareStatus},
 shareReadReceipts: ${shareReadReceipts},
-showNotifications: ${disableNotifications},
+disableNotifications: ${disableNotifications},
 playNotificationSound: ${playNotificationSound},
-showMessagePreview: ${disableMessagePreview},
+disableMessagePreview: ${disableMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}
     ''';
   }

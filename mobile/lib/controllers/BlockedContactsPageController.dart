@@ -18,15 +18,15 @@ class BlockedContactsPageController {
     });
   }
 
-  void addNumber(String number) {
+  Future<void> addNumber(String number) async {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
-    blockedNumbersService.insert(blockedNumber);
+    await blockedNumbersService.insert(blockedNumber);
     model.blockedNumbers.add(blockedNumber);
   }
 
-  void deleteNumber(String number) {
+  Future<void> deleteNumber(String number) async {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
-    blockedNumbersService.delete(blockedNumber.phoneNumber);
+    await blockedNumbersService.delete(blockedNumber.phoneNumber);
     model.blockedNumbers.remove(blockedNumber);
   }
 }

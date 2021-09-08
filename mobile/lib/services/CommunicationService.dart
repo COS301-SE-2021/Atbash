@@ -36,6 +36,8 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
+  void Function(String senderPhoneNumber)? onStopPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
 
@@ -285,6 +287,33 @@ class CommunicationService {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
+        case "startPrivateChat":
+          String body = "";
+          try {
+            final contact =
+                await contactService.fetchByPhoneNumber(senderPhoneNumber);
+            body = "${contact.displayName} wants to chat privately.";
+          } on DuplicateContactPhoneNumberException {
+            body = "$senderPhoneNumber wants to chat privately.";
+          }
+
+          final payload = {
+            "type": "privateChat",
+            "senderPhoneNumber": senderPhoneNumber,
+          };
+
+          notificationService.showNotification(
+              title: "Incoming private chat",
+              body: body,
+              payload: jsonEncode(payload));
+          _onPrivateChatListeners
+              .forEach((listener) => listener(senderPhoneNumber));
+          break;
+        case "stopPrivateChat":
+          print("Im here");
+          print("Communication Service" + (onStopPrivateChat.toString()));
+          onStopPrivateChat?.call(senderPhoneNumber);
+          break;
       }
 
       await _deleteMessageFromServer(id);
@@ -333,7 +362,7 @@ class CommunicationService {
         tags: [],
       );
 
-      messageService.insert(message);
+      if (chatType == ChatType.general) messageService.insert(message);
       sendAck(id, senderPhoneNumber);
       _onMessageListeners.forEach((listener) => listener(message));
 
@@ -498,6 +527,16 @@ class CommunicationService {
   Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestProfileImage"});
     _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendStartPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "startPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendStopPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "stopPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,

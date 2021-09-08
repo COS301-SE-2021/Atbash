@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/encryption/services/IdentityKeyStoreService.dart';
 import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
+import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/ChatCacheService.dart';
@@ -20,6 +25,9 @@ import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:uuid/uuid.dart';
+
+import 'domain/Contact.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +42,8 @@ void main() async {
 class AtbashApp extends StatelessWidget {
   final RegistrationService registrationService = GetIt.I.get();
   final NavigationObserver navigationObserver = GetIt.I.get();
+  final NotificationService notificationService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
 
   final GlobalKey<NavigatorState> _navigatorKey;
 

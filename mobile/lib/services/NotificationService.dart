@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
   final _lnp = FlutterLocalNotificationsPlugin();
+  void Function(String? payload)? onNotificationPressed;
 
   Future<bool> init() async {
     final androidInitSettings = AndroidInitializationSettings("atbash_64");
@@ -20,7 +23,12 @@ class NotificationService {
       iOS: iosInitSettings,
     );
 
-    final permissionGranted = await _lnp.initialize(initSettings);
+    final permissionGranted = await _lnp.initialize(
+      initSettings,
+      onSelectNotification: (payload) async {
+        onNotificationPressed?.call(payload);
+      },
+    );
 
     if (permissionGranted == null) {
       return false;
@@ -33,6 +41,7 @@ class NotificationService {
     required String title,
     required String body,
     bool withSound = false,
+    String? payload,
   }) {
     final androidNotificationDetails = AndroidNotificationDetails(
       "message",
@@ -59,6 +68,7 @@ class NotificationService {
       title,
       body,
       notificationDetails,
+      payload: payload,
     );
   }
 }

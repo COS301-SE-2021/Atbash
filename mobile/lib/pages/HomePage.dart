@@ -3,16 +3,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/controllers/HomePageController.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
 import 'package:mobile/pages/SettingsPage.dart';
+import 'package:uuid/uuid.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -24,6 +29,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final controller = HomePageController();
   final DateFormat dateFormatter = DateFormat.Hm();
+  final NotificationService notificationService = GetIt.I.get();
+  final ContactService contactService = GetIt.I.get();
 
   bool _searching = false;
   String _filterQuery = "";
@@ -34,6 +41,37 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+
+    notificationService.onNotificationPressed = (String? payload) async {
+      if (payload != null) {
+        final map = jsonDecode(payload);
+        Contact? contact;
+        try {
+          contact =
+              await contactService.fetchByPhoneNumber(map["senderPhoneNumber"]);
+        } on ContactWithPhoneNumberDoesNotExistException {
+          contact = null;
+        }
+
+        if (map["type"] == "privateChat") {
+          final Chat chat = Chat(
+            id: Uuid().v4(),
+            contactPhoneNumber: map["senderPhoneNumber"],
+            chatType: ChatType.private,
+            contact: contact,
+          );
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChatPage.privateChat(
+                privateChat: chat,
+                chatId: chat.id,
+              ),
+            ),
+          );
+        }
+      }
+    };
 
     WidgetsBinding.instance?.addObserver(this);
 

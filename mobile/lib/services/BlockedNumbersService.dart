@@ -43,9 +43,29 @@ class BlockedNumbersService {
     return blockedNumber;
   }
 
+  Future<void> delete(String number) async {
+    final db = await databaseService.database;
+
+    await db.transaction((txn) async {
+      final existingNumber = await txn.query(BlockedNumber.TABLE_NAME,
+          where: "${BlockedNumber.COLUMN_PHONE_NUMBER} = ?",
+          whereArgs: [number]);
+
+      if (existingNumber.isEmpty) throw blockedNumberDoesNotExistException();
+
+      await txn.delete(BlockedNumber.TABLE_NAME,
+          where: "${BlockedNumber.COLUMN_PHONE_NUMBER} =?",
+          whereArgs: [number]);
+    });
+
+    _notifyListeners();
+  }
+
   void _notifyListeners() {
     _onChangedListeners.forEach((listener) => listener);
   }
 }
 
 class duplicateBlockedNumberException implements Exception {}
+
+class blockedNumberDoesNotExistException implements Exception {}

@@ -26,9 +26,26 @@ class BlockedNumbersService {
     return numbers;
   }
 
-  Future<List<BlockedNumber>> insert(BlockedNumber blockedNumber) {}
+  Future<BlockedNumber> insert(BlockedNumber blockedNumber) async {
+    final db = await databaseService.database;
+
+    await db.transaction((txn) async {
+      final existingNumber = await txn.query(BlockedNumber.TABLE_NAME,
+          where: "${BlockedNumber.COLUMN_PHONE_NUMBER} = ?",
+          whereArgs: [blockedNumber.phoneNumber]);
+
+      if (existingNumber.isNotEmpty) throw duplicateBlockedNumberException();
+
+      await txn.insert(BlockedNumber.TABLE_NAME, blockedNumber.toMap());
+    });
+
+    _notifyListeners();
+    return blockedNumber;
+  }
 
   void _notifyListeners() {
     _onChangedListeners.forEach((listener) => listener);
   }
 }
+
+class duplicateBlockedNumberException implements Exception {}

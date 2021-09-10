@@ -28,7 +28,7 @@ class RegistrationService {
 
   final _storage = FlutterSecureStorage();
 
-  Future<bool> register(String phoneNumber, String deviceToken) async {
+  Future<bool> register(String phoneNumber) async {
     // final url = Uri.parse("https://" + baseURL + "accounts/code/$verificationCode");
 
     final url = Uri.parse(Constants.httpUrl + "register");
@@ -54,7 +54,6 @@ class RegistrationService {
         "n": pubRsaKey.n,
         "e": pubRsaKey.publicExponent
       },
-      "deviceToken": deviceToken,
       "signalingKey": "",
     };
 

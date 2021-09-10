@@ -143,13 +143,14 @@ const authenticateRSAKey = (rsaPublicKey) => {
   if(anyUndefined(rsaPublicKey.n, rsaPublicKey.e) || anyBlank(rsaPublicKey.n, rsaPublicKey.e)){
     return false;
   }
-  if(typeof rsaPublicKey.n !== "bigint" && typeof rsaPublicKey.n !== "number"){
+  let numN = new BigInteger(rsaPublicKey.n);
+  numN = numN.abs();
+  let numE = new BigInteger(rsaPublicKey.e);
+  numE = numE.abs();
+  if(numN.toString() !== rsaPublicKey.n){
     return false;
   }
-  if(typeof rsaPublicKey.e !== "bigint" && typeof rsaPublicKey.e !== "number"){
-    return false;
-  }
-  if(rsaPublicKey.n <= 0 || rsaPublicKey.e <= 0){
+  if(numE.toString() !== rsaPublicKey.e){
     return false;
   }
   return true;

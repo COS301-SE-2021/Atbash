@@ -36,8 +36,6 @@ class RegistrationService {
     throwIfNot(Validations().numberIsValid(phoneNumber),
         new InvalidNumberException("Invalid number provided in requestRegistrationCode method"));
 
-    //Todo: Add device token validation
-
     // final phoneNumber = await getUserPhoneNumber();
     final registrationId = generateRegistrationId(false);
     final aesKey = generateRandomBytes(32);

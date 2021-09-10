@@ -74,12 +74,12 @@ exports.handler = async event => {
   let authToken = bytesToBase64(unencodedAuthToken);
 
   try {
-    await addUser(registrationId, phoneNumber, rsaPublicKey, deviceToken, authToken)
+    await addUser(registrationId, phoneNumber, rsaPublicKey, authToken)
   } catch (error) {
     return {statusCode: 500, body: JSON.stringify(error)}
   }
 
-  var crypt = new JSEncrypt();
+  let crypt = new JSEncrypt();
   crypt.setKey({
     n: new BigInteger(rsaPublicKey.n),
     e: new BigInteger(rsaPublicKey.e),

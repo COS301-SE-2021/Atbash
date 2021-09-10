@@ -3,7 +3,7 @@ const AWS = require("aws-sdk")
 const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
 
 
-exports.addUser = async (registrationId, phoneNumber, rsaPublicKey, deviceToken, authToken) => {
+exports.addUser = async (registrationId, phoneNumber, rsaPublicKey, authToken) => {
   try {
     await db.put({
       TableName: process.env.TABLE_USERS,

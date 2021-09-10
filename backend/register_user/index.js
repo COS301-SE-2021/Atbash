@@ -26,12 +26,12 @@ exports.handler = async event => {
   // output += "\n\n" + bodyString + "\n\n";
   // console.log(bodyString)
 
-  const {registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey} = bodyJson; //JSON.parse(event.body)
+  const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson; //JSON.parse(event.body)
 
   console.log("RequestBody: ");
   console.log(event.body);
 
-  if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey)) {
+  if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, signalingKey)) {
     return {statusCode: 400, body: "Invalid request body."}
   }
 
@@ -44,10 +44,6 @@ exports.handler = async event => {
     }
   } catch (error) {
     return {statusCode: 400, body: "Invalid phone number."}
-  }
-
-  if(!authenticateToken(deviceToken)){
-    return {statusCode: 400, body: "Invalid device token."}
   }
 
   if(!authenticateRSAKey(rsaPublicKey)){
@@ -131,12 +127,6 @@ const authenticateSignature = (body) => {
   }
 
   return true;
-}
-
-const authenticateToken = (token) => {
-  //Better implementation?
-  if(token.length > 2) return true;
-  else return false;
 }
 
 const authenticateRSAKey = (rsaPublicKey) => {

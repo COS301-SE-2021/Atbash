@@ -15,10 +15,11 @@ import 'package:mobile/exceptions/RegistrationErrorException.dart';
 import 'package:mobile/util/Validations.dart';
 import 'EncryptionService.dart';
 
-import 'package:rsa_encrypt/rsa_encrypt.dart' as rsa;
+// import 'package:rsa_encrypt/rsa_encrypt.dart' as rsa;
 // import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:pointycastle/asymmetric/api.dart';
-import 'package:pointycastle/export.dart';
+// import 'package:pointycastle/asymmetric/api.dart';
+// import 'package:pointycastle/export.dart';
+import 'package:crypton/crypton.dart';
 
 class RegistrationService {
   RegistrationService(this._encryptionService);
@@ -43,36 +44,16 @@ class RegistrationService {
     final hmacSha256 = Hmac(sha256, aesKey);
     var signalingKeyBytesBuilder = BytesBuilder();
 
-    // final values = List<int>.generate(24, (i) => _random.nextInt(256));
-    // final devicePassword = Uint8List.fromList(values);
-    //
-    // final authTokenEncoded =
-    //     _generateAuthenticationToken(phoneNumber, devicePassword);
-
-    final rsaHelper = rsa.RsaKeyHelper();
-    final keyPair = await rsaHelper.computeRSAKeyPair(rsaHelper.getSecureRandom());
-
-    final publicKeyStr = rsaHelper.encodePublicKeyToPemPKCS1(keyPair.publicKey as RSAPublicKey);
-    final privateKeyStr = rsaHelper.encodePrivateKeyToPemPKCS1(keyPair.privateKey as RSAPrivateKey);
-
-    //await _encryptionService.generateInitialKeyBundle(registrationId);
-
-    //final identityKeyPair = await _databaseService.fetchIdentityKP();
-
-    // if(identityKeyPair == null){
-    //   throw new InvalidNumberException("Failed to acquire IdentityKeyPair from database.");
-    // }
-
-    // var data = {
-    //   "registrationId": registrationId,
-    //   "deviceToken": deviceToken,
-    //   "signalingKey": "",
-    // };
+    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
     var data = {
       "registrationId": registrationId,
       "phoneNumber": phoneNumber,
-      "rsaPublicKey": publicKeyStr,
+      "rsaPublicKey": {
+        "n": pubRsaKey.n,
+        "e": pubRsaKey.publicExponent
+      },
       "deviceToken": deviceToken,
       "signalingKey": "",
     };
@@ -92,38 +73,27 @@ class RegistrationService {
 
     if (response.statusCode == 200) {
       final responseBodyJson = jsonDecode(response.body);
-      final devicePassword = responseBodyJson["password"] as String?;
+      final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
-      if(devicePassword == null){
+      if(encryptedDevicePassword == null){
         throw new RegistrationErrorException("Server response was in an invalid format. Response body: " + response.body);
       }
       if(formattedPhoneNumber != null){
         phoneNumber = formattedPhoneNumber;
       }
 
-      //Method 1
-      final encodedPassword = base64Decode(devicePassword);
-      var cipher = new RSAEngine()..init(false, new PrivateKeyParameter<RSAPrivateKey>(keyPair.privateKey as RSAPrivateKey));
-      final unencryptedPassword = cipher.process(encodedPassword);
+      final base64DevicePassword = rsaKeypair.privateKey.decrypt(encryptedDevicePassword);
+      final devicePassword = base64Decode(base64DevicePassword);
 
-      //Method 2
-      // final encryptor = encrypt.Encrypter(encrypt.RSA(
-      //     publicKey: keyPair.publicKey as RSAPublicKey,
-      //     privateKey: keyPair.privateKey as RSAPrivateKey
-      // ));
-      // final unencryptedPassword = base64Decode(encryptor.decrypt64(devicePassword));
-
-      final authTokenEncoded = _generateAuthenticationToken(phoneNumber, unencryptedPassword);
+      final authTokenEncoded = _generateAuthenticationToken(phoneNumber, devicePassword);
 
       Future.wait([
         //_storage.write(key: "registration_id", value: registrationId.toString()),
         _storage.write(
             key: "device_password_base64",
-            value: base64.encode(unencryptedPassword)), //Necessary to convert to base64 here?
+            value: base64DevicePassword),
         _storage.write(
             key: "device_authentication_token_base64", value: authTokenEncoded),
-        _storage.write(key: "rsa_public_key", value: publicKeyStr),
-        _storage.write(key: "rsa_private_key", value: privateKeyStr),
         _storage.write(key: "phone_number", value: phoneNumber),
       ]);
 

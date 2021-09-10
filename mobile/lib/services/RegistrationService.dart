@@ -51,8 +51,8 @@ class RegistrationService {
       "registrationId": registrationId,
       "phoneNumber": phoneNumber,
       "rsaPublicKey": {
-        "n": pubRsaKey.n,
-        "e": pubRsaKey.publicExponent
+        "n": pubRsaKey.n.toString(),
+        "e": pubRsaKey.publicExponent.toString()
       },
       "signalingKey": "",
     };

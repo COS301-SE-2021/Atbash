@@ -7,7 +7,12 @@ import 'package:mobile/constants.dart';
 import 'package:uuid/uuid.dart';
 
 class MediaService {
+  ///This function encrypts the given media, uploads the encrypted content
+  ///to AWS and returns the media id along with the keys necessary to decrypt
+  ///the uploaded content
   Future<MediaUpload?> uploadMedia(String base64Media) async {
+    //Could use 128, 192 or 256 bits
+    //AesCbc, AesCtr and AesGcm
     final algorithm = AesGcm.with256bits();
     final secretKey = await algorithm.newSecretKey();
     final nonce = algorithm.newNonce();
@@ -43,6 +48,8 @@ class MediaService {
     }
   }
 
+  ///This method downloads the encrypted media from AWS, decrypts it using the
+  ///provided key and returns the decrypted media
   Future<String?> fetchMedia(
       String mediaId, String secretKeyBase64) async {
 
@@ -67,8 +74,6 @@ class MediaService {
           nonceLength: algorithm.nonceLength,
           macLength: algorithm.macAlgorithm.macLength,
         );
-        
-        // secretBox.checkMac(macAlgorithm: algorithm.macAlgorithm, secretKey: secretKey, aad: <int>[]);
 
         // Decrypt
         final decryptedImage = await algorithm.decrypt(

@@ -26,6 +26,8 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
+import 'package:synchronized/synchronized.dart';
+
 class EncryptionService {
   EncryptionService(this._signalProtocolStoreService, this._identityKeyStoreService, this._signedPreKeyStoreService, this._preKeyStoreService, this._sessionStoreService);
 
@@ -37,47 +39,57 @@ class EncryptionService {
 
   final _storage = FlutterSecureStorage();
 
+  var encryptionLock = new Lock();
+
   /// This method creates, serializes and returns a CipherTextMessage
   /// using the createCipherTextMessage function. The CipherTextMessage
   /// contains the encrypted message content as well other information
   /// needed by the signal algorithm
   Future<String> encryptMessageContent(String messageContent,
       String recipientNumber) async {
-    final thisUserNumber = await getUserPhoneNumber();
-    print("Encrypting message from: " + thisUserNumber + " to: " + recipientNumber);
+    ///This provides mutual exclusion for the encryptMessageContent function
+    return await encryptionLock.synchronized(() async {
 
-    if (recipientNumber == thisUserNumber) {
-      throw InvalidNumberException("Cannot create encrypted message to self.");
-    }
+      final thisUserNumber = await getUserPhoneNumber();
+      print("Encrypting message from: " + thisUserNumber + " to: " +
+          recipientNumber);
 
-    print("Creating CipherTextMessage");
-    CiphertextMessage ciphertext = await _createCipherTextMessage(
-        recipientNumber, jsonEncode(messageContent));
-    final serializedCipherMessage = ciphertext.serialize();
-    final encodedSerializedCipherMessage = base64Encode(serializedCipherMessage);
+      if (recipientNumber == thisUserNumber) {
+        throw InvalidNumberException(
+            "Cannot create encrypted message to self.");
+      }
 
-    // return encodedSerializedCipherMessage;
+      print("Creating CipherTextMessage");
+      CiphertextMessage ciphertext = await _createCipherTextMessage(
+          recipientNumber, jsonEncode(messageContent));
+      final serializedCipherMessage = ciphertext.serialize();
+      final encodedSerializedCipherMessage = base64Encode(
+          serializedCipherMessage);
 
-    print("Created type: " + ciphertext.getType().toString());
+      // return encodedSerializedCipherMessage;
 
-    final mNumber = await _storage.read(key: "m_number");
-    int number = 1;
-    if (mNumber == null) {
-      await _storage.write(key: "m_number", value: "1");
-    } else {
-      number = int.parse(mNumber) + 1;
-      await _storage.write(key: "m_number", value: number.toString());
-    }
+      print("Created type: " + ciphertext.getType().toString());
 
-    var data = {
-      "type": ciphertext.getType(),
-      "m_number": number,
-      "message": encodedSerializedCipherMessage,
-    };
+      final mNumber = await _storage.read(key: "m_number");
+      int number = 1;
+      if (mNumber == null) {
+        await _storage.write(key: "m_number", value: "1");
+      } else {
+        number = int.parse(mNumber) + 1;
+        await _storage.write(key: "m_number", value: number.toString());
+      }
 
-    print("Sending message number: " + number.toString() + " Content: " + messageContent);
+      var data = {
+        "type": ciphertext.getType(),
+        "m_number": number,
+        "message": encodedSerializedCipherMessage,
+      };
 
-    return jsonEncode(data);
+      print("Sending message number: " + number.toString() + " Content: " +
+          messageContent);
+
+      return jsonEncode(data);
+    });
   }
 
   /// This method takes in a serialized CipherTextMessage, decrypts it and
@@ -85,43 +97,54 @@ class EncryptionService {
   /// function.
   Future<String> decryptMessageContents(String encryptedContents,
       String senderPhoneNumber) async {
-    final thisUserNumber = await getUserPhoneNumber();
-    print("Decrypting message from: " + senderPhoneNumber + " to: " + thisUserNumber);
-    if (senderPhoneNumber == thisUserNumber) {
-      throw InvalidNumberException("Cannot decrypt own encrypted message.");
-    }
+    ///This provides mutual exclusion for the decryptMessageContents function
+    return await encryptionLock.synchronized(() async {
+      print("Entering encryptionLock");
 
-    final Map<String, Object?> data = jsonDecode(encryptedContents);
-
-    int mType = data["type"] as int;
-    int mNumber = data["m_number"] as int;
-    encryptedContents = data["message"] as String;
-
-    print("Decrypting message number: " + mNumber.toString());
-    print("Decrypting message type: " + mType.toString());
-
-    String plaintext = "Failed to decrypt...";
-    try {
-      print("Decrypting CipherTextMessage");
-      final decodedEncryptedContents = base64Decode(encryptedContents);
-      // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
-
-      CiphertextMessage? reconstructedCipherMessage;
-      print("Trying to reconstruct CipherTextMessage");
-      if(mType == CiphertextMessage.prekeyType){
-        reconstructedCipherMessage = PreKeySignalMessage(decodedEncryptedContents);
-      } else if (mType == CiphertextMessage.whisperType){
-        reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
-      } else {
-        print("Failed");
-        return plaintext;
+      final thisUserNumber = await getUserPhoneNumber();
+      print("Decrypting message from: " + senderPhoneNumber + " to: " +
+          thisUserNumber);
+      if (senderPhoneNumber == thisUserNumber) {
+        throw InvalidNumberException("Cannot decrypt own encrypted message.");
       }
-      plaintext = await _decryptCipherTextMessage(senderPhoneNumber, reconstructedCipherMessage);
 
-      return jsonDecode(plaintext);
-    } on InvalidMessageException catch (e) {
-      throw DecryptionErrorException(e.detailMessage);
-    }
+      final Map<String, Object?> data = jsonDecode(encryptedContents);
+
+      int mType = data["type"] as int;
+      int mNumber = data["m_number"] as int;
+      encryptedContents = data["message"] as String;
+
+      print("Decrypting message number: " + mNumber.toString());
+      print("Decrypting message type: " + mType.toString());
+
+      String plaintext = "Failed to decrypt...";
+      try {
+        print("Decrypting CipherTextMessage");
+        final decodedEncryptedContents = base64Decode(encryptedContents);
+        // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
+
+        CiphertextMessage? reconstructedCipherMessage;
+        print("Trying to reconstruct CipherTextMessage");
+        if (mType == CiphertextMessage.prekeyType) {
+          reconstructedCipherMessage =
+              PreKeySignalMessage(decodedEncryptedContents);
+        } else if (mType == CiphertextMessage.whisperType) {
+          reconstructedCipherMessage =
+              SignalMessage.fromSerialized(decodedEncryptedContents);
+        } else {
+          print("Failed");
+          return plaintext;
+        }
+        plaintext = await _decryptCipherTextMessage(
+            senderPhoneNumber, reconstructedCipherMessage);
+
+        print("Exiting encryptionLock");
+        return jsonDecode(plaintext);
+      } on InvalidMessageException catch (e) {
+        print("Exiting encryptionLock");
+        throw DecryptionErrorException(e.detailMessage);
+      }
+    });
   }
 
   /// This method creates a CipherTextMessage using the Signal library

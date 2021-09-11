@@ -83,7 +83,7 @@ class CommunicationService {
 
     _messageQueue.stream.listen(
       (payload) async {
-        // TODO re-enable encryption
+
         final encryptedContents = await encryptionService.encryptMessageContent(
             payload.contents, payload.recipientPhoneNumber);
 
@@ -100,7 +100,7 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
-    _fetchUnreadMessages(encodedPhoneNumber);
+    await _fetchUnreadMessages(encodedPhoneNumber);
 
     channel?.sink.close();
     channel = IOWebSocketChannel.connect(
@@ -112,7 +112,7 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    contactService.fetchAll().then((contacts) {
+    await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
         final encodedContactPhoneNumber =
             Uri.encodeQueryComponent(contact.phoneNumber);
@@ -185,7 +185,7 @@ class CommunicationService {
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
 
-          _handleMessage(
+          await _handleMessage(
             senderPhoneNumber: senderPhoneNumber,
             chatType: chatType,
             id: id,
@@ -310,49 +310,49 @@ class CommunicationService {
     bool isMedia = false,
     bool forwarded = false,
   }) async {
-    chatService
-        .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
-        .then((exists) async {
-      if (!exists) {
-        final chat = Chat(
-          id: Uuid().v4(),
-          contactPhoneNumber: senderPhoneNumber,
-          chatType: chatType,
-        );
 
-        await chatService.insert(chat);
-      }
 
-      String chatId = await chatService.findIdByPhoneNumberAndChatType(
-        senderPhoneNumber,
-        chatType,
+    final exists = await chatService.existsByPhoneNumberAndChatType(senderPhoneNumber, chatType);
+
+    if (!exists) {
+      final chat = Chat(
+        id: Uuid().v4(),
+        contactPhoneNumber: senderPhoneNumber,
+        chatType: chatType,
       );
 
-      final message = Message(
-        id: id,
-        chatId: chatId,
-        isIncoming: true,
-        otherPartyPhoneNumber: senderPhoneNumber,
-        contents: contents,
-        timestamp: timestamp,
-        isMedia: isMedia,
-        forwarded: forwarded,
-        readReceipt: ReadReceipt.delivered,
-        deleted: false,
-        liked: false,
-        tags: [],
-      );
+      await chatService.insert(chat);
+    }
 
-      messageService.insert(message);
-      sendAck(id, senderPhoneNumber);
-      _onMessageListeners.forEach((listener) => listener(message));
+    String chatId = await chatService.findIdByPhoneNumberAndChatType(
+      senderPhoneNumber,
+      chatType,
+    );
 
-      _notifyUser(
-        senderPhoneNumber: senderPhoneNumber,
-        messageContents: contents,
-        isMedia: isMedia,
-      );
-    });
+    final message = Message(
+      id: id,
+      chatId: chatId,
+      isIncoming: true,
+      otherPartyPhoneNumber: senderPhoneNumber,
+      contents: contents,
+      timestamp: timestamp,
+      isMedia: isMedia,
+      forwarded: forwarded,
+      readReceipt: ReadReceipt.delivered,
+      deleted: false,
+      liked: false,
+      tags: [],
+    );
+
+    await messageService.insert(message);
+    await sendAck(id, senderPhoneNumber);
+    _onMessageListeners.forEach((listener) => listener(message));
+
+    _notifyUser(
+      senderPhoneNumber: senderPhoneNumber,
+      messageContents: contents,
+      isMedia: isMedia,
+    );
   }
 
   void _notifyUser({
@@ -479,6 +479,7 @@ class CommunicationService {
   }
 
   Future<void> sendAck(String messageId, String recipientPhoneNumber) async {
+    print("Sending ack");
     final contents = jsonEncode({
       "type": "ack",
       "messageId": messageId,
@@ -489,6 +490,7 @@ class CommunicationService {
 
   Future<void> sendAckSeen(
       List<String> messageIds, String recipientPhoneNumber) async {
+    print("Sending ackSeen");
     final contents = jsonEncode({
       "type": "ackSeen",
       "messageIds": messageIds,

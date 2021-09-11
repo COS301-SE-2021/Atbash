@@ -26,9 +26,6 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
-///Use this rather: https://pub.dev/packages/libsignal_protocol_dart/install
-///instead of this: https://pub.dev/packages/cryptography
-
 class EncryptionService {
   EncryptionService(this._signalProtocolStoreService, this._identityKeyStoreService, this._signedPreKeyStoreService, this._preKeyStoreService, this._sessionStoreService);
 
@@ -40,6 +37,10 @@ class EncryptionService {
 
   final _storage = FlutterSecureStorage();
 
+  /// This method creates, serializes and returns a CipherTextMessage
+  /// using the createCipherTextMessage function. The CipherTextMessage
+  /// contains the encrypted message content as well other information
+  /// needed by the signal algorithm
   Future<String> encryptMessageContent(String messageContent,
       String recipientNumber) async {
     final thisUserNumber = await getUserPhoneNumber();
@@ -79,6 +80,9 @@ class EncryptionService {
     return jsonEncode(data);
   }
 
+  /// This method takes in a serialized CipherTextMessage, decrypts it and
+  /// extracts the decrypted message content using the decryptCipherTextMessage
+  /// function.
   Future<String> decryptMessageContents(String encryptedContents,
       String senderPhoneNumber) async {
     final thisUserNumber = await getUserPhoneNumber();
@@ -113,35 +117,14 @@ class EncryptionService {
         return plaintext;
       }
       plaintext = await _decryptCipherTextMessage(senderPhoneNumber, reconstructedCipherMessage);
-      return jsonDecode(plaintext);
-      // try {
-      //   print("Trying1...");
-      //   reconstructedCipherMessage = PreKeySignalMessage(decodedEncryptedContents);
-      //   print("Success1");
-      //   plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
-      //       reconstructedCipherMessage);
-      // } catch (error){
-      //   print(error);
-      //   try {
-      //     print("Trying2...");
-      //     reconstructedCipherMessage = SignalMessage.fromSerialized(decodedEncryptedContents);
-      //     print("Success2");
-      //     plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
-      //         reconstructedCipherMessage);
-      //   } catch (error){
-      //     print("Failed");
-      //     reconstructedCipherMessage = null;
-      //     throw error;
-      //   }
-      // }
 
+      return jsonDecode(plaintext);
     } on InvalidMessageException catch (e) {
       throw DecryptionErrorException(e.detailMessage);
     }
-
-    return jsonDecode(plaintext);
   }
 
+  /// This method creates a CipherTextMessage using the Signal library
   Future<CiphertextMessage> _createCipherTextMessage(String number,
       String plaintext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
@@ -165,6 +148,8 @@ class EncryptionService {
     return ciphertext;
   }
 
+  /// This method decrypts and extracts the plaintext from a CipherTextMessage
+  /// using the Signal library
   Future<String> _decryptCipherTextMessage(String number,
       CiphertextMessage ciphertext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
@@ -209,9 +194,8 @@ class EncryptionService {
     }
   }
 
-  //Generate Initial/Registration Key bundle
-  //Send public key bundle to Server
-  //Need to verify account before this
+  /// This method generates the initial batch of keypairs needed for the Signal
+  /// algorithm and stores the keys in the database
   Future<void> generateInitialKeyBundle(int registrationId) async {
     var identityKeyPair = generateIdentityKeyPair();
 
@@ -232,6 +216,7 @@ class EncryptionService {
 
   }
 
+  /// This method downloads the PreKeyBundle from the server for a particular number
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
     final url = Uri.parse(Constants.httpUrl + "keys/get");
 
@@ -274,6 +259,7 @@ class EncryptionService {
     }
   }
 
+  /// This method creates a new Signal session using the Signal library
   Future<void> createSession(SignalProtocolAddress address) async {
     PreKeyBundle? preKeyBundle = await getPreKeyBundle(address.getName()); //Name == number
 
@@ -306,16 +292,19 @@ class EncryptionService {
     }
   }
 
+  /// This method gets the users IdentityKeyPair
   Future<IdentityKeyPair> getIdentityKeyPair() async {
     return await _identityKeyStoreService.getIdentityKeyPair();
   }
 
+  /// This method gets the users LocalSignedPreKey
   Future<SignedPreKeyRecord?> fetchLocalSignedPreKey() async {
     int? id = await _signedPreKeyStoreService.fetchLocalSignedPreKeyID();
     if(id == null) return null;
     return await _signedPreKeyStoreService.loadSignedPreKey(id);
   }
 
+  /// This method gets the users PreKeys
   Future<List<PreKeyRecord>> loadPreKeys() async {
     return await _preKeyStoreService.loadPreKeys();
   }

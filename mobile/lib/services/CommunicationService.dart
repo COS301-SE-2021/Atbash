@@ -479,7 +479,6 @@ class CommunicationService {
   }
 
   Future<void> sendAck(String messageId, String recipientPhoneNumber) async {
-    print("Sending ack");
     final contents = jsonEncode({
       "type": "ack",
       "messageId": messageId,
@@ -490,7 +489,6 @@ class CommunicationService {
 
   Future<void> sendAckSeen(
       List<String> messageIds, String recipientPhoneNumber) async {
-    print("Sending ackSeen");
     final contents = jsonEncode({
       "type": "ackSeen",
       "messageIds": messageIds,

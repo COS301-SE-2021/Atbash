@@ -298,7 +298,6 @@ class EncryptionService {
       print("Processing preKeyBundle.");
       await sessionBuilder.processPreKeyBundle(preKeyBundle);
     } else {
-      //TODO: Throw and error here
       throw Exception("Error in createSession method");
     }
   }

@@ -157,7 +157,6 @@ class CommunicationService {
         timestamp != null &&
         encryptedContents != null) {
 
-      // TODO re-enable decryption
       /// Providing soft-fail for decryption
       String decryptedContentsEncoded = "";
       try {
@@ -171,10 +170,6 @@ class CommunicationService {
       }
       print("Decrypted message: " + jsonDecode(decryptedContentsEncoded).toString());
       final Map<String, Object?> decryptedContents = jsonDecode(decryptedContentsEncoded);
-      // final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
-
-      // final decryptedContents = jsonDecode(encryptedContents);
-
       final type = decryptedContents["type"] as String?;
 
       switch (type) {

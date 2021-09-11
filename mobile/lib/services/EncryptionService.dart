@@ -99,7 +99,6 @@ class EncryptionService {
       String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
-      print("Entering encryptionLock");
 
       final thisUserNumber = await getUserPhoneNumber();
       print("Decrypting message from: " + senderPhoneNumber + " to: " +
@@ -138,10 +137,8 @@ class EncryptionService {
         plaintext = await _decryptCipherTextMessage(
             senderPhoneNumber, reconstructedCipherMessage);
 
-        print("Exiting encryptionLock");
         return jsonDecode(plaintext);
       } on InvalidMessageException catch (e) {
-        print("Exiting encryptionLock");
         throw DecryptionErrorException(e.detailMessage);
       }
     });

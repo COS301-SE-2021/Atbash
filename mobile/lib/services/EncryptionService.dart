@@ -37,7 +37,11 @@ class EncryptionService {
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
 
+  //Todo: Use UserService for phone number
+
   final _storage = FlutterSecureStorage();
+
+  final int desiredStoredPreKeys = 140;
 
   Future<String> encryptMessageContent(String messageContent,
       String recipientNumber) async {
@@ -171,7 +175,7 @@ class EncryptionService {
   Future<void> generateInitialKeyBundle(int registrationId) async {
     var identityKeyPair = generateIdentityKeyPair();
 
-    var preKeys = generatePreKeys(0, 110);
+    var preKeys = generatePreKeys(0, desiredStoredPreKeys);
 
     var signedPreKey = generateSignedPreKey(identityKeyPair, 0);
 
@@ -183,9 +187,9 @@ class EncryptionService {
     await _signedPreKeyStoreService.storeSignedPreKey(signedPreKey.id, signedPreKey);
     await _signedPreKeyStoreService.storeLocalSignedPreKeyID(signedPreKey.id);
 
-    ///Store registrationId in FlutterSecureStorage??
     ///Store max pre key index in FlutterSecureStorage??
-
+    await setNumGeneratedPreKeys(desiredStoredPreKeys);
+    //await setNumServerPreKeys(desiredStoredPreKeys);
   }
 
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
@@ -249,6 +253,53 @@ class EncryptionService {
       throw Exception("Error in createSession method");
     }
   }
+
+  /// This method generates additional PreKeys
+  Future<void> generateAdditionalPreKeys(int numPreKeys) async {
+    final generatedKeys = await getNumGeneratedPreKeys();
+    var preKeys = generatePreKeys(generatedKeys, numPreKeys);
+
+    for (var p in preKeys) {
+      await _preKeyStoreService.storePreKey(p.id, p);
+    }
+
+    setNumGeneratedPreKeys(generatedKeys + numPreKeys);
+  }
+
+  /// This function records the number of prekeys that have been generated
+  Future<void> setNumGeneratedPreKeys(int index) async {
+    await _storage.write(key: "max_generated_prekey_index", value: index.toString());
+  }
+
+  /// This function retrieves the number of prekeys that have been generated
+  Future<int> getNumGeneratedPreKeys() async {
+    final indexStr = await _storage.read(key: "max_generated_prekey_index");
+    if (indexStr == null) {
+      await setNumGeneratedPreKeys(0);
+      return 0;
+    } else {
+      return int.parse(indexStr);
+    }
+  }
+
+  /// This function records the number of prekeys that have been sent to
+  /// the server
+  Future<void> setNumServerPreKeys(int index) async {
+    await _storage.write(key: "max_server_prekey_index", value: index.toString());
+  }
+
+  /// This function retrieves the number of prekeys that have been sent to
+  /// the server
+  Future<int> getNumServerPreKeys() async {
+    final indexStr = await _storage.read(key: "max_server_prekey_index");
+    if (indexStr == null) {
+      await setNumServerPreKeys(0);
+      return 0;
+    } else {
+      return int.parse(indexStr);
+    }
+  }
+
 
   /// Get the phone_number of the user from secure storage. If it is not set,
   /// the function throws a [StateError], since the phone_number of a logged-in

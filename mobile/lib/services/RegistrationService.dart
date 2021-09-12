@@ -16,10 +16,13 @@ import 'package:crypton/crypton.dart';
 import 'package:crypto/crypto.dart'; //For Hmac function
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
+import 'UserService.dart';
+
 class RegistrationService {
-  RegistrationService(this._encryptionService);
+  RegistrationService(this._encryptionService, this._userService);
 
   final EncryptionService _encryptionService;
+  final UserService _userService;
   final _storage = FlutterSecureStorage();
 
   ///This function creates a new Atbash account on the server which will be
@@ -119,7 +122,7 @@ class RegistrationService {
   Future<bool> registerKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
-    final phoneNumber = await _encryptionService.getUserPhoneNumber();
+    final phoneNumber = await _userService.getPhoneNumber();
     final authTokenEncoded =
         await _encryptionService.getDeviceAuthTokenEncoded();
 

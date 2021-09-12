@@ -29,14 +29,18 @@ import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
 import 'package:synchronized/synchronized.dart';
 
+import 'UserService.dart';
+
 class EncryptionService {
   EncryptionService(
+      this._userService,
       this._signalProtocolStoreService,
       this._identityKeyStoreService,
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
       this._sessionStoreService);
 
+  final UserService _userService;
   final SessionStoreService _sessionStoreService;
   final PreKeyStoreService _preKeyStoreService;
   final SignedPreKeyStoreService _signedPreKeyStoreService;
@@ -58,7 +62,7 @@ class EncryptionService {
       String messageContent, String recipientNumber) async {
     ///This provides mutual exclusion for the encryptMessageContent function
     return await encryptionLock.synchronized(() async {
-      final thisUserNumber = await getUserPhoneNumber();
+      final thisUserNumber = await _userService.getPhoneNumber();
       print("Encrypting message from: " +
           thisUserNumber +
           " to: " +
@@ -111,7 +115,7 @@ class EncryptionService {
       String encryptedContents, String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
-      final thisUserNumber = await getUserPhoneNumber();
+      final thisUserNumber = await _userService.getPhoneNumber();
       print("Decrypting message from: " +
           senderPhoneNumber +
           " to: " +
@@ -253,7 +257,7 @@ class EncryptionService {
 
     final authTokenEncoded = await getDeviceAuthTokenEncoded();
 
-    final phoneNumber = await getUserPhoneNumber();
+    final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
       //Todo: Implement Authorization header and place this there instead
@@ -324,6 +328,11 @@ class EncryptionService {
     }
   }
 
+  /// This method ...
+  Future<void> managePreKeys() async {
+
+  }
+
   /// This method generates additional PreKeys
   Future<void> generateAdditionalPreKeys(int numPreKeys) async {
     final generatedKeys = await getNumGeneratedPreKeys();
@@ -374,14 +383,14 @@ class EncryptionService {
   /// Get the phone_number of the user from secure storage. If it is not set,
   /// the function throws a [StateError], since the phone_number of a logged-in
   /// user is expected to be saved.
-  Future<String> getUserPhoneNumber() async {
-    final phoneNumber = await _storage.read(key: "phone_number");
-    if (phoneNumber == null) {
-      throw StateError("phone_number is not readable");
-    } else {
-      return phoneNumber;
-    }
-  }
+  // Future<String> getUserPhoneNumber() async {
+  //   final phoneNumber = await _storage.read(key: "phone_number");
+  //   if (phoneNumber == null) {
+  //     throw StateError("phone_number is not readable");
+  //   } else {
+  //     return phoneNumber;
+  //   }
+  // }
 
   /// This method gets the users IdentityKeyPair
   Future<IdentityKeyPair> getIdentityKeyPair() async {

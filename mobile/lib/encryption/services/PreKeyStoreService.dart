@@ -67,6 +67,31 @@ class PreKeyStoreService extends PreKeyStore {
     return list;
   }
 
+  /// Fetches a certain range of PreKeys
+  Future<List<PreKeyRecord>> loadPreKeysRange(int firstPreKeyId, int numberOfKeys) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      PreKeyDBRecord.TABLE_NAME,
+      where: "${PreKeyDBRecord.COLUMN_KEY_ID} > ? and ${PreKeyDBRecord.COLUMN_KEY_ID} < ?",
+      whereArgs: [firstPreKeyId-1, firstPreKeyId+numberOfKeys],
+    );
+
+    final list = <PreKeyRecord>[];
+
+    response.forEach((element) {
+      final record = PreKeyDBRecord.fromMap(element);
+      if (record != null) {
+        final preKeyRecord = PreKeyRecord.fromBuffer(record.serializedKey);
+
+        if (preKeyRecord is PreKeyRecord) {
+          list.add(preKeyRecord);
+        }
+      }
+    });
+
+    return list;
+  }
+
   ///Checks if PreKey exists in the database
   @override
   Future<bool> containsPreKey(int preKeyId) async {

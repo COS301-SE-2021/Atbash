@@ -51,6 +51,7 @@ class EncryptionService {
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
+  final int minServerStoredPreKeys = 100;
 
   var encryptionLock = new Lock();
 
@@ -328,9 +329,93 @@ class EncryptionService {
     }
   }
 
-  /// This method ...
+  /// This method gets the number of unused PreKeys on the server and
+  /// upload more if needed
   Future<void> managePreKeys() async {
+    final url = Uri.parse(Constants.httpUrl + "keys/getNumber");
 
+    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+
+    final phoneNumber = await _userService.getPhoneNumber();
+
+    var data = {
+      //Todo: Implement Authorization header and place this there instead
+      "authorization": "Bearer $authTokenEncoded",
+      "phoneNumber": phoneNumber
+    };
+
+    // final response = await http.post(url, body: jsonEncode(data), headers: {"Authorization": "Basic $authTokenEncoded"});
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      final Map<String, Object?> responseBody = jsonDecode(response.body);
+
+      final numKeys = responseBody["Keys"] as int?;
+
+      if(numKeys != null){
+        if(numKeys >= minServerStoredPreKeys){
+          //No need to do anything
+          return;
+        }
+        final requiredKeys = desiredStoredPreKeys - numKeys;
+        final numServerPreKeys = await getNumServerPreKeys();
+        final keysToGenerate = requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
+
+        if(keysToGenerate > 0){
+          await generateAdditionalPreKeys(keysToGenerate + 10); //Generate a few extra
+        }
+
+        final preKeys = await _preKeyStoreService.loadPreKeysRange(numServerPreKeys, requiredKeys);
+
+        if(preKeys.isEmpty){
+          // Soft fail
+          print("Failed to get generated prekeys from database.");
+        }
+
+        List<Map<String, Object>> preKeysArr = [];
+
+        for (var p in preKeys) {
+          preKeysArr.add({
+            "keyId": p.id,
+            "publicKey": base64Encode(p.getKeyPair().publicKey.serialize())
+          });
+        }
+
+        var data = {
+          //Todo: Implement Authorization header and place this there instead
+          "authorization": "Bearer $authTokenEncoded",
+          "phoneNumber": phoneNumber,
+          "preKeys": preKeysArr
+        };
+
+        // final response = await http.put(url,
+        //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
+        final response2 = await http.post(url, body: jsonEncode(data));
+
+        if (response2.statusCode == 200){
+          print("Successfully uploaded " + requiredKeys.toString() + " additional PreKeys");
+          return;
+        } else {
+          // Soft fail
+          print("Failed to upload additional PreKeys to server.");
+          print("Response code: " +
+              response2.statusCode.toString() +
+              ".\nReason: " +
+              response2.body);
+          return;
+        }
+      } else {
+        // Soft fail
+        print("Failed to get the number of PreKeys remaining on the server.");
+      }
+    } else {
+      // Soft fail
+      print("Failed to get the number of PreKeys remaining on the server.");
+      print("Response code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+    }
   }
 
   /// This method generates additional PreKeys
@@ -378,19 +463,6 @@ class EncryptionService {
       return int.parse(indexStr);
     }
   }
-
-
-  /// Get the phone_number of the user from secure storage. If it is not set,
-  /// the function throws a [StateError], since the phone_number of a logged-in
-  /// user is expected to be saved.
-  // Future<String> getUserPhoneNumber() async {
-  //   final phoneNumber = await _storage.read(key: "phone_number");
-  //   if (phoneNumber == null) {
-  //     throw StateError("phone_number is not readable");
-  //   } else {
-  //     return phoneNumber;
-  //   }
-  // }
 
   /// This method gets the users IdentityKeyPair
   Future<IdentityKeyPair> getIdentityKeyPair() async {

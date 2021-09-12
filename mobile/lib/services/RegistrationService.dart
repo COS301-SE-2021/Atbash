@@ -45,6 +45,7 @@ class RegistrationService {
     ///An RSA keypair is used so that the server can generate a token
     ///(that is used to verify the authenticity of requests)
     ///and send it back encrypted
+    /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
     RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
     final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 

@@ -350,7 +350,7 @@ class EncryptionService {
     if (response.statusCode == 200) {
       final Map<String, Object?> responseBody = jsonDecode(response.body);
 
-      final numKeys = responseBody["Keys"] as int?;
+      final numKeys = responseBody["keys"] as int?;
 
       if(numKeys != null){
         if(numKeys >= minServerStoredPreKeys){

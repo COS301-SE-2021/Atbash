@@ -4,9 +4,9 @@ part 'ContactInfoPageModel.g.dart';
 
 class ContactInfoPageModel = _ContactInfoPageModel with _$ContactInfoPageModel;
 
-abstract class _ContactInfoPageModel with Store{
+abstract class _ContactInfoPageModel with Store {
   @observable
-  String contactName ="";
+  String contactName = "";
 
   @observable
   String phoneNumber = "";

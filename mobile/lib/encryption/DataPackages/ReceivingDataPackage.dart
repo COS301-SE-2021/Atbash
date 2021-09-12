@@ -4,7 +4,8 @@ class ReceivingDataPackage {
   final int timestamp;
   final String encryptedContents;
 
-  ReceivingDataPackage(this.messageId, this.senderNumber, this.timestamp, this.encryptedContents);
+  ReceivingDataPackage(this.messageId, this.senderNumber, this.timestamp,
+      this.encryptedContents);
 
   ReceivingDataPackage.fromJson(Map<String, dynamic> json)
       : messageId = json['id'],
@@ -13,11 +14,11 @@ class ReceivingDataPackage {
         encryptedContents = json['contents'];
 
   Map<String, dynamic> toJson() => {
-    'id': messageId,
-    'senderPhoneNumber': senderNumber,
-    'timestamp': timestamp,
-    'contents': encryptedContents,
-  };
+        'id': messageId,
+        'senderPhoneNumber': senderNumber,
+        'timestamp': timestamp,
+        'contents': encryptedContents,
+      };
 }
 
 //Decoding

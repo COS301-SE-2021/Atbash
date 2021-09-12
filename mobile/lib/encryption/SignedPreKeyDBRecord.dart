@@ -6,9 +6,9 @@ class SignedPreKeyDBRecord {
   final Uint8List serializedKey;
 
   SignedPreKeyDBRecord(
-      this.signedPreKeyId,
-      this.serializedKey,
-      );
+    this.signedPreKeyId,
+    this.serializedKey,
+  );
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,8 +21,7 @@ class SignedPreKeyDBRecord {
     final keyID = map[SignedPreKeyDBRecord.COLUMN_KEY_ID];
     final keyEncoded = map[SignedPreKeyDBRecord.COLUMN_SERIALIZED_KEY];
 
-    if (keyID is int &&
-        keyEncoded is String) {
+    if (keyID is int && keyEncoded is String) {
       return SignedPreKeyDBRecord(
         keyID,
         base64.decode(keyEncoded),

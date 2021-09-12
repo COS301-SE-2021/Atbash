@@ -8,14 +8,15 @@ class SessionDBRecord {
   final Uint8List serializedSession;
 
   SessionDBRecord(
-      this.signalProtocolAddress,
-      this.serializedSession,
-      );
+    this.signalProtocolAddress,
+    this.serializedSession,
+  );
 
   Map<String, dynamic> toMap() {
     return {
       COLUMN_PROTOCOL_ADDRESS_NAME: this.signalProtocolAddress.getName(),
-      COLUMN_PROTOCOL_ADDRESS_DEVICE_ID: this.signalProtocolAddress.getDeviceId(),
+      COLUMN_PROTOCOL_ADDRESS_DEVICE_ID:
+          this.signalProtocolAddress.getDeviceId(),
       COLUMN_SERIALIZED_SESSION: base64.encode(this.serializedSession)
     };
   }
@@ -25,9 +26,7 @@ class SessionDBRecord {
     final deviceId = map[SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID];
     final sessionEncoded = map[SessionDBRecord.COLUMN_SERIALIZED_SESSION];
 
-    if (name is String &&
-        deviceId is int &&
-        sessionEncoded is String) {
+    if (name is String && deviceId is int && sessionEncoded is String) {
       return SessionDBRecord(
         SignalProtocolAddress(name, deviceId),
         base64.decode(sessionEncoded),
@@ -39,7 +38,8 @@ class SessionDBRecord {
 
   static const String TABLE_NAME = "session_db_record";
   static const String COLUMN_PROTOCOL_ADDRESS_NAME = "protocol_address_name";
-  static const String COLUMN_PROTOCOL_ADDRESS_DEVICE_ID = "protocol_address_device_id";
+  static const String COLUMN_PROTOCOL_ADDRESS_DEVICE_ID =
+      "protocol_address_device_id";
   static const String COLUMN_SERIALIZED_SESSION = "serialized_session";
 
   static const String CREATE_TABLE =

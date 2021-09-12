@@ -7,7 +7,10 @@ const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 // const crypto = require('crypto').webcrypto
 const getRandomValues = require('get-random-values');
 const {createHmac} = require('crypto');
-const NodeRSA = require('node-rsa')
+// const NodeRSA = require('node-rsa')
+
+const JSEncrypt = require('node-jsencrypt');
+const BigInteger = require('jsbn').BigInteger;
 
 const utf8Encoder = new TextEncoder();
 //const utf8Decoder = new TextDecoder();
@@ -23,12 +26,12 @@ exports.handler = async event => {
   // output += "\n\n" + bodyString + "\n\n";
   // console.log(bodyString)
 
-  const {registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey} = bodyJson; //JSON.parse(event.body)
+  const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson; //JSON.parse(event.body)
 
   console.log("RequestBody: ");
   console.log(event.body);
 
-  if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, deviceToken, signalingKey)) {
+  if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, signalingKey)) {
     return {statusCode: 400, body: "Invalid request body."}
   }
 
@@ -41,10 +44,6 @@ exports.handler = async event => {
     }
   } catch (error) {
     return {statusCode: 400, body: "Invalid phone number."}
-  }
-
-  if(!authenticateToken(deviceToken)){
-    return {statusCode: 400, body: "Invalid device token."}
   }
 
   if(!authenticateRSAKey(rsaPublicKey)){
@@ -75,20 +74,22 @@ exports.handler = async event => {
   let authToken = bytesToBase64(unencodedAuthToken);
 
   try {
-    await addUser(registrationId, phoneNumber, rsaPublicKey, deviceToken, authToken)
+    await addUser(registrationId, phoneNumber, rsaPublicKey, authToken)
   } catch (error) {
     return {statusCode: 500, body: JSON.stringify(error)}
   }
 
-  let key = new NodeRSA();
-  key.importKey(rsaPublicKey, "pkcs1-public-pem");
-
-  let base64EncodedPassword = key.encrypt(bytesToBase64(devicePassword), "base64", "base64");
+  let crypt = new JSEncrypt();
+  crypt.setKey({
+    n: new BigInteger(rsaPublicKey.n),
+    e: new BigInteger(rsaPublicKey.e),
+  });
+  let base64EncryptedPassword = crypt.encrypt(bytesToBase64(devicePassword));
 
   //output += additionalResponse;
   //return {statusCode: 200, body: output}
   // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
-  return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword})}
+  return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncryptedPassword})}
 }
 
 const authenticateSignature = (body) => {
@@ -128,14 +129,20 @@ const authenticateSignature = (body) => {
   return true;
 }
 
-const authenticateToken = (token) => {
-  //Need to provide proper implementation
-  if(token.length > 2) return true;
-  else return false;
-}
-
 const authenticateRSAKey = (rsaPublicKey) => {
-  //Need to provide proper implementation
+  if(anyUndefined(rsaPublicKey.n, rsaPublicKey.e) || anyBlank(rsaPublicKey.n, rsaPublicKey.e)){
+    return false;
+  }
+  let numN = new BigInteger(rsaPublicKey.n);
+  numN = numN.abs();
+  let numE = new BigInteger(rsaPublicKey.e);
+  numE = numE.abs();
+  if(numN.toString() !== rsaPublicKey.n){
+    return false;
+  }
+  if(numE.toString() !== rsaPublicKey.e){
+    return false;
+  }
   return true;
 }
 

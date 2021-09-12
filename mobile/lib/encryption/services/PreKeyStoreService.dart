@@ -82,8 +82,10 @@ class PreKeyStoreService extends PreKeyStore {
 
   /// Saves a PreKey to the database and returns.
   @override
-  Future<PreKeyDBRecord> storePreKey(int preKeyId, PreKeyRecord preKeyRecord) async {
-    PreKeyDBRecord preKeyDBRecord = PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
+  Future<PreKeyDBRecord> storePreKey(
+      int preKeyId, PreKeyRecord preKeyRecord) async {
+    PreKeyDBRecord preKeyDBRecord =
+        PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
     final db = await _databaseService.database;
 
     db.insert(PreKeyDBRecord.TABLE_NAME, preKeyDBRecord.toMap(),
@@ -103,5 +105,4 @@ class PreKeyStoreService extends PreKeyStore {
       whereArgs: [preKeyId],
     );
   }
-
 }

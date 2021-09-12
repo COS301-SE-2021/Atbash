@@ -2,5 +2,6 @@
 //not yet supported
 class UnsupportedCiphertextMessageType implements Exception {
   String cause;
+
   UnsupportedCiphertextMessageType(this.cause);
 }

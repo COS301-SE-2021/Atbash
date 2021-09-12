@@ -9,5 +9,4 @@ class SignedPreKeyPackage {
       : keyId = json['keyId'],
         publicKey = json['publicKey'],
         signature = json['signature'];
-
 }

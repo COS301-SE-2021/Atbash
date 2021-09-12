@@ -6,9 +6,9 @@ class PreKeyDBRecord {
   final Uint8List serializedKey;
 
   PreKeyDBRecord(
-      this.preKeyId,
-      this.serializedKey,
-      );
+    this.preKeyId,
+    this.serializedKey,
+  );
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,8 +21,7 @@ class PreKeyDBRecord {
     final keyID = map[PreKeyDBRecord.COLUMN_KEY_ID];
     final keyEncoded = map[PreKeyDBRecord.COLUMN_SERIALIZED_KEY];
 
-    if (keyID is int &&
-        keyEncoded is String) {
+    if (keyID is int && keyEncoded is String) {
       return PreKeyDBRecord(
         keyID,
         base64.decode(keyEncoded),

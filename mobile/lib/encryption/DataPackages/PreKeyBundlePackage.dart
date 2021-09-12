@@ -12,13 +12,16 @@ class PreKeyBundlePackage {
   final SignedPreKeyPackage signedPreKey;
   final PreKeyPackage preKey;
 
-  PreKeyBundlePackage(this.registrationId, this.deviceId, this.identityKey, this.signedPreKey, this.preKey);
+  PreKeyBundlePackage(this.registrationId, this.deviceId, this.identityKey,
+      this.signedPreKey, this.preKey);
 
   PreKeyBundlePackage.fromJson(Map<String, dynamic> json)
-      : identityKey = IdentityKey.fromBytes(base64Decode(json['identityKey']), 0),
+      : identityKey =
+            IdentityKey.fromBytes(base64Decode(json['identityKey']), 0),
         deviceId = json['deviceId'],
         registrationId = json['registrationId'],
-        signedPreKey = SignedPreKeyPackage.fromJson(json['signedPreKey']), //Unhandled Exception: type '_InternalLinkedHashMap<String, dynamic>' is not a subtype of type 'String'
+        signedPreKey = SignedPreKeyPackage.fromJson(json['signedPreKey']),
+        //Unhandled Exception: type '_InternalLinkedHashMap<String, dynamic>' is not a subtype of type 'String'
         preKey = PreKeyPackage.fromJson(json['preKey']);
 
   PreKeyBundle createPreKeyBundle() {

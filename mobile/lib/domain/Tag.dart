@@ -6,10 +6,7 @@ class Tag extends _Tag with _$Tag {
   Tag({
     required String id,
     required String name,
-  }) : super(
-      id: id,
-      name: name
-  );
+  }) : super(id: id, name: name);
 
   Map<String, Object> toMap() {
     return {
@@ -48,6 +45,4 @@ abstract class _Tag with Store {
     required this.id,
     required this.name,
   });
-
-
 }

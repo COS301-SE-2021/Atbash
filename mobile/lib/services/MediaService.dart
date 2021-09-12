@@ -50,9 +50,7 @@ class MediaService {
 
   ///This method downloads the encrypted media from AWS, decrypts it using the
   ///provided key and returns the decrypted media
-  Future<String?> fetchMedia(
-      String mediaId, String secretKeyBase64) async {
-
+  Future<String?> fetchMedia(String mediaId, String secretKeyBase64) async {
     final algorithm = AesGcm.with256bits();
     final secretKey = SecretKey(base64Decode(secretKeyBase64));
 

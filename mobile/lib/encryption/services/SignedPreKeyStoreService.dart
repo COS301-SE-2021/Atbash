@@ -37,12 +37,13 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   }
 
   Future<void> storeLocalSignedPreKeyID(int signedPreKeyId) async {
-    await _storage.write(key: "local_signed_prekey_id", value: signedPreKeyId.toString());
+    await _storage.write(
+        key: "local_signed_prekey_id", value: signedPreKeyId.toString());
   }
 
   Future<int?> fetchLocalSignedPreKeyID() async {
     final id = await _storage.read(key: "local_signed_prekey_id");
-    if(id == null) return null;
+    if (id == null) return null;
     return int.parse(id);
   }
 
@@ -79,7 +80,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
       final record = SignedPreKeyDBRecord.fromMap(element);
       if (record != null) {
         final signedPreKeyRecord =
-        SignedPreKeyRecord.fromSerialized(record.serializedKey);
+            SignedPreKeyRecord.fromSerialized(record.serializedKey);
 
         if (signedPreKeyRecord is SignedPreKeyRecord) {
           list.add(signedPreKeyRecord);
@@ -95,7 +96,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   Future<void> storeSignedPreKey(
       int signedPreKeyId, SignedPreKeyRecord record) async {
     SignedPreKeyDBRecord signedPreKeyDBRecord =
-    SignedPreKeyDBRecord(signedPreKeyId, record.serialize());
+        SignedPreKeyDBRecord(signedPreKeyId, record.serialize());
     final db = await _databaseService.database;
 
     db.insert(SignedPreKeyDBRecord.TABLE_NAME, signedPreKeyDBRecord.toMap(),
@@ -104,7 +105,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
 
   ///Checks if SignedPreKey exists in the database
   @override
-  Future<bool> containsSignedPreKey(int signedPreKeyId) async{
+  Future<bool> containsSignedPreKey(int signedPreKeyId) async {
     final db = await _databaseService.database;
     final response = await db.query(
       SignedPreKeyDBRecord.TABLE_NAME,
@@ -126,5 +127,4 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
       whereArgs: [signedPreKeyId],
     );
   }
-
 }

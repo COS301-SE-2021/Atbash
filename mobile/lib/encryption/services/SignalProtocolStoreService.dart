@@ -4,7 +4,8 @@ import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
 class SignalProtocolStoreService implements SignalProtocolStore {
-  SignalProtocolStoreService(this._preKeyStore, this._sessionStore, this._signedPreKeyStore, this._identityKeyStore);
+  SignalProtocolStoreService(this._preKeyStore, this._sessionStore,
+      this._signedPreKeyStore, this._identityKeyStore);
 
   final PreKeyStoreService _preKeyStore;
   final SessionStoreService _sessionStore;
@@ -21,12 +22,12 @@ class SignalProtocolStoreService implements SignalProtocolStore {
 
   @override
   Future<bool> saveIdentity(
-      SignalProtocolAddress address, IdentityKey? identityKey) async =>
+          SignalProtocolAddress address, IdentityKey? identityKey) async =>
       _identityKeyStore.saveIdentity(address, identityKey);
 
   @override
   Future<bool> isTrustedIdentity(SignalProtocolAddress address,
-      IdentityKey? identityKey, Direction direction) async =>
+          IdentityKey? identityKey, Direction direction) async =>
       _identityKeyStore.isTrustedIdentity(address, identityKey, direction);
 
   @override

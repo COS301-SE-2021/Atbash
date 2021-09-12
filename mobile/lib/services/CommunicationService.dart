@@ -83,7 +83,6 @@ class CommunicationService {
 
     _messageQueue.stream.listen(
       (payload) async {
-
         final encryptedContents = await encryptionService.encryptMessageContent(
             payload.contents, payload.recipientPhoneNumber);
 
@@ -156,20 +155,20 @@ class CommunicationService {
         senderPhoneNumber != null &&
         timestamp != null &&
         encryptedContents != null) {
-
       /// Providing soft-fail for decryption
       String decryptedContentsEncoded = "";
       try {
-        decryptedContentsEncoded = await encryptionService.decryptMessageContents(
-            encryptedContents, senderPhoneNumber);
-      }
-      on Exception catch (exception){
+        decryptedContentsEncoded = await encryptionService
+            .decryptMessageContents(encryptedContents, senderPhoneNumber);
+      } on Exception catch (exception) {
         print("Failed to decrypt message");
         print(exception.toString());
         return;
       }
-      print("Decrypted message: " + jsonDecode(decryptedContentsEncoded).toString());
-      final Map<String, Object?> decryptedContents = jsonDecode(decryptedContentsEncoded);
+      print("Decrypted message: " +
+          jsonDecode(decryptedContentsEncoded).toString());
+      final Map<String, Object?> decryptedContents =
+          jsonDecode(decryptedContentsEncoded);
       final type = decryptedContents["type"] as String?;
 
       switch (type) {
@@ -199,8 +198,7 @@ class CommunicationService {
           final imageId = decryptedContents["imageId"] as String;
           final secretKeyBase64 = decryptedContents["key"] as String;
 
-          final image =
-              await mediaService.fetchMedia(imageId, secretKeyBase64);
+          final image = await mediaService.fetchMedia(imageId, secretKeyBase64);
 
           if (image != null) {
             _handleMessage(
@@ -243,8 +241,7 @@ class CommunicationService {
           final imageId = decryptedContents["imageId"] as String;
           final secretKeyBase64 = decryptedContents["key"] as String;
 
-          final image =
-              await mediaService.fetchMedia(imageId, secretKeyBase64);
+          final image = await mediaService.fetchMedia(imageId, secretKeyBase64);
 
           if (image != null) {
             contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -305,9 +302,8 @@ class CommunicationService {
     bool isMedia = false,
     bool forwarded = false,
   }) async {
-
-
-    final exists = await chatService.existsByPhoneNumberAndChatType(senderPhoneNumber, chatType);
+    final exists = await chatService.existsByPhoneNumberAndChatType(
+        senderPhoneNumber, chatType);
 
     if (!exists) {
       final chat = Chat(

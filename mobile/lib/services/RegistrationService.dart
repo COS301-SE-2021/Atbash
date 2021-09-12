@@ -27,8 +27,10 @@ class RegistrationService {
   Future<bool> register(String phoneNumber) async {
     final url = Uri.parse(Constants.httpUrl + "register");
 
-    throwIfNot(Validations().numberIsValid(phoneNumber),
-        new InvalidNumberException("Invalid number provided in requestRegistrationCode method"));
+    throwIfNot(
+        Validations().numberIsValid(phoneNumber),
+        new InvalidNumberException(
+            "Invalid number provided in requestRegistrationCode method"));
 
     ///A MAC is used to prevent an attacker from editing the transmitted data
     ///The signalingKey contains the data for this
@@ -70,23 +72,26 @@ class RegistrationService {
       final responseBodyJson = jsonDecode(response.body);
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
-      if(encryptedDevicePassword == null){
-        throw new RegistrationErrorException("Server response was in an invalid format. Response body: " + response.body);
+      if (encryptedDevicePassword == null) {
+        throw new RegistrationErrorException(
+            "Server response was in an invalid format. Response body: " +
+                response.body);
       }
-      if(formattedPhoneNumber != null){
+      if (formattedPhoneNumber != null) {
         phoneNumber = formattedPhoneNumber;
       }
 
-      final base64DevicePassword = rsaKeypair.privateKey.decrypt(encryptedDevicePassword);
+      final base64DevicePassword =
+          rsaKeypair.privateKey.decrypt(encryptedDevicePassword);
       final devicePassword = base64Decode(base64DevicePassword);
 
-      final authTokenEncoded = _generateAuthenticationToken(phoneNumber, devicePassword);
+      final authTokenEncoded =
+          _generateAuthenticationToken(phoneNumber, devicePassword);
 
       Future.wait([
         //_storage.write(key: "registration_id", value: registrationId.toString()),
         _storage.write(
-            key: "device_password_base64",
-            value: base64DevicePassword),
+            key: "device_password_base64", value: base64DevicePassword),
         _storage.write(
             key: "device_authentication_token_base64", value: authTokenEncoded),
         _storage.write(key: "phone_number", value: phoneNumber),
@@ -96,8 +101,15 @@ class RegistrationService {
 
       return registerKeys();
     } else {
-      print("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
-      throw new RegistrationErrorException("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+      throw new RegistrationErrorException(
+          "Server request was unsuccessful.\nResponse code: " +
+              response.statusCode.toString() +
+              ".\nReason: " +
+              response.body);
       //return false;
     }
   }
@@ -108,15 +120,14 @@ class RegistrationService {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
     final phoneNumber = await _encryptionService.getUserPhoneNumber();
-    final authTokenEncoded = await _encryptionService.getDeviceAuthTokenEncoded();
+    final authTokenEncoded =
+        await _encryptionService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();
     final preKeys = await _encryptionService.loadPreKeys();
 
-    if (signedPreKey == null ||
-        preKeys.isEmpty ||
-        preKeys.length < 100) {
+    if (signedPreKey == null || preKeys.isEmpty || preKeys.length < 100) {
       return false;
     }
 
@@ -138,7 +149,7 @@ class RegistrationService {
       "signedPreKey": {
         "keyId": signedPreKey.id,
         "publicKey":
-        base64Encode(signedPreKey.getKeyPair().publicKey.serialize()),
+            base64Encode(signedPreKey.getKeyPair().publicKey.serialize()),
         "signature": base64Encode(signedPreKey.signature)
       }
     };
@@ -155,8 +166,15 @@ class RegistrationService {
       print("Successfully registered");
       return true;
     } else {
-      print("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
-      throw new RegistrationErrorException("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+      throw new RegistrationErrorException(
+          "Server request was unsuccessful.\nResponse code: " +
+              response.statusCode.toString() +
+              ".\nReason: " +
+              response.body);
       //return false;
     }
   }
@@ -196,29 +214,26 @@ class RegistrationService {
     return base64.encode(authBytesBuilder.toBytes());
   }
 
-
-
-
 // Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
-  //   throwIfNot(
-  //       Validations().numberIsValid(phoneNumber),
-  //       new InvalidNumberException(
-  //           "Invalid number provided in requestRegistrationCode method"));
-  //
-  //   final url =
-  //   Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
-  //
-  //   final response = await http.get(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     Future.wait([
-  //       _storage.write(key: "phone_number", value: phoneNumber),
-  //     ]);
-  //
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
+//   throwIfNot(
+//       Validations().numberIsValid(phoneNumber),
+//       new InvalidNumberException(
+//           "Invalid number provided in requestRegistrationCode method"));
+//
+//   final url =
+//   Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
+//
+//   final response = await http.get(url);
+//
+//   if (response.statusCode == 200) {
+//     Future.wait([
+//       _storage.write(key: "phone_number", value: phoneNumber),
+//     ]);
+//
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
 
 }

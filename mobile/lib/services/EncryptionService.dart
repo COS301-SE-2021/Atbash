@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:convert';
+
 // import 'package:crypto/crypto.dart'; //For Hmac function
 // import 'dart:math';
 
@@ -29,7 +30,12 @@ import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:synchronized/synchronized.dart';
 
 class EncryptionService {
-  EncryptionService(this._signalProtocolStoreService, this._identityKeyStoreService, this._signedPreKeyStoreService, this._preKeyStoreService, this._sessionStoreService);
+  EncryptionService(
+      this._signalProtocolStoreService,
+      this._identityKeyStoreService,
+      this._signedPreKeyStoreService,
+      this._preKeyStoreService,
+      this._sessionStoreService);
 
   final SessionStoreService _sessionStoreService;
   final PreKeyStoreService _preKeyStoreService;
@@ -45,13 +51,14 @@ class EncryptionService {
   /// using the createCipherTextMessage function. The CipherTextMessage
   /// contains the encrypted message content as well other information
   /// needed by the signal algorithm
-  Future<String> encryptMessageContent(String messageContent,
-      String recipientNumber) async {
+  Future<String> encryptMessageContent(
+      String messageContent, String recipientNumber) async {
     ///This provides mutual exclusion for the encryptMessageContent function
     return await encryptionLock.synchronized(() async {
-
       final thisUserNumber = await getUserPhoneNumber();
-      print("Encrypting message from: " + thisUserNumber + " to: " +
+      print("Encrypting message from: " +
+          thisUserNumber +
+          " to: " +
           recipientNumber);
 
       if (recipientNumber == thisUserNumber) {
@@ -63,8 +70,8 @@ class EncryptionService {
       CiphertextMessage ciphertext = await _createCipherTextMessage(
           recipientNumber, jsonEncode(messageContent));
       final serializedCipherMessage = ciphertext.serialize();
-      final encodedSerializedCipherMessage = base64Encode(
-          serializedCipherMessage);
+      final encodedSerializedCipherMessage =
+          base64Encode(serializedCipherMessage);
 
       // return encodedSerializedCipherMessage;
 
@@ -85,7 +92,9 @@ class EncryptionService {
         "message": encodedSerializedCipherMessage,
       };
 
-      print("Sending message number: " + number.toString() + " Content: " +
+      print("Sending message number: " +
+          number.toString() +
+          " Content: " +
           messageContent);
 
       return jsonEncode(data);
@@ -95,13 +104,14 @@ class EncryptionService {
   /// This method takes in a serialized CipherTextMessage, decrypts it and
   /// extracts the decrypted message content using the decryptCipherTextMessage
   /// function.
-  Future<String> decryptMessageContents(String encryptedContents,
-      String senderPhoneNumber) async {
+  Future<String> decryptMessageContents(
+      String encryptedContents, String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
-
       final thisUserNumber = await getUserPhoneNumber();
-      print("Decrypting message from: " + senderPhoneNumber + " to: " +
+      print("Decrypting message from: " +
+          senderPhoneNumber +
+          " to: " +
           thisUserNumber);
       if (senderPhoneNumber == thisUserNumber) {
         throw InvalidNumberException("Cannot decrypt own encrypted message.");
@@ -145,8 +155,8 @@ class EncryptionService {
   }
 
   /// This method creates a CipherTextMessage using the Signal library
-  Future<CiphertextMessage> _createCipherTextMessage(String number,
-      String plaintext) async {
+  Future<CiphertextMessage> _createCipherTextMessage(
+      String number, String plaintext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 
     if (!(await _signalProtocolStoreService.containsSession(address))) {
@@ -154,37 +164,33 @@ class EncryptionService {
       await createSession(address);
     }
 
-    var sessionCipher = SessionCipher(
-        _sessionStoreService,
-        _preKeyStoreService,
-        _signedPreKeyStoreService,
-        _identityKeyStoreService,
-        address);
+    var sessionCipher = SessionCipher(_sessionStoreService, _preKeyStoreService,
+        _signedPreKeyStoreService, _identityKeyStoreService, address);
 
     print("Encrypting plaintext with session");
-    final ciphertext = await sessionCipher.encrypt(
-        Uint8List.fromList(utf8.encode(plaintext)));
+    final ciphertext =
+        await sessionCipher.encrypt(Uint8List.fromList(utf8.encode(plaintext)));
 
     return ciphertext;
   }
 
   /// This method decrypts and extracts the plaintext from a CipherTextMessage
   /// using the Signal library
-  Future<String> _decryptCipherTextMessage(String number,
-      CiphertextMessage ciphertext) async {
+  Future<String> _decryptCipherTextMessage(
+      String number, CiphertextMessage ciphertext) async {
     final SignalProtocolAddress address = SignalProtocolAddress(number, 1);
 
     //Note: New session is created automatically
-    var sessionCipher = SessionCipher.fromStore(
-        _signalProtocolStoreService, address);
+    var sessionCipher =
+        SessionCipher.fromStore(_signalProtocolStoreService, address);
 
     //Todo: Handle this:
     ///Both methods below throw "InvalidMessageException" and "DuplicateMessageException"
     if (ciphertext.getType() == CiphertextMessage.prekeyType) {
       //Prekey signal message
       print("Message is PreKeySignalMessage");
-      final plaintextEncoded = await sessionCipher.decrypt(
-          ciphertext as PreKeySignalMessage);
+      final plaintextEncoded =
+          await sessionCipher.decrypt(ciphertext as PreKeySignalMessage);
       final plaintext = utf8.decode(plaintextEncoded);
       print("Decrypted plaintext: " + plaintext);
 
@@ -195,16 +201,16 @@ class EncryptionService {
       /// Need to handle this!!!
       //Plain signal message
       print("Message is plain SignalMessage");
-      final plaintextEncoded = await sessionCipher.decryptFromSignal(
-          ciphertext as SignalMessage);
+      final plaintextEncoded =
+          await sessionCipher.decryptFromSignal(ciphertext as SignalMessage);
       final plaintext = utf8.decode(plaintextEncoded);
 
       return plaintext;
     } else if (ciphertext.getType() == CiphertextMessage.senderKeyType) {
       throw UnsupportedCiphertextMessageType(
           "The CiphertextMessage of type \"senderKeyType\" is not supported. \nGroup messaging may be supported in the future.");
-    } else
-    if (ciphertext.getType() == CiphertextMessage.senderKeyDistributionType) {
+    } else if (ciphertext.getType() ==
+        CiphertextMessage.senderKeyDistributionType) {
       throw UnsupportedCiphertextMessageType(
           "The CiphertextMessage of type \"senderKeyDistributionType\" is not supported. \nGroup messaging may be supported in the future.");
     } else {
@@ -223,17 +229,18 @@ class EncryptionService {
 
     var signedPreKey = generateSignedPreKey(identityKeyPair, 0);
 
-    _identityKeyStoreService.setIdentityKPRegistrationId(identityKeyPair, registrationId);
+    _identityKeyStoreService.setIdentityKPRegistrationId(
+        identityKeyPair, registrationId);
 
     for (var p in preKeys) {
       await _preKeyStoreService.storePreKey(p.id, p);
     }
-    await _signedPreKeyStoreService.storeSignedPreKey(signedPreKey.id, signedPreKey);
+    await _signedPreKeyStoreService.storeSignedPreKey(
+        signedPreKey.id, signedPreKey);
     await _signedPreKeyStoreService.storeLocalSignedPreKeyID(signedPreKey.id);
 
     ///Store registrationId in FlutterSecureStorage??
     ///Store max pre key index in FlutterSecureStorage??
-
   }
 
   /// This method downloads the PreKeyBundle from the server for a particular number
@@ -259,10 +266,19 @@ class EncryptionService {
       print("Received PKBundle. Body: " + response.body);
 
       try {
-        preKeyBundlePackage = PreKeyBundlePackage.fromJson(jsonDecode(response.body));
+        preKeyBundlePackage =
+            PreKeyBundlePackage.fromJson(jsonDecode(response.body));
       } catch (error) {
-        print("Receive incorrectly formatted PreKeyBundle from server for number: $number. Error: " + error.toString() + ". Recieved body: " + response.body);
-        throw new InvalidPreKeyBundleFormat("Receive incorrectly formatted PreKeyBundle from server for number: $number. Error: " + error.toString() + ". Recieved body: " + response.body);
+        print(
+            "Receive incorrectly formatted PreKeyBundle from server for number: $number. Error: " +
+                error.toString() +
+                ". Recieved body: " +
+                response.body);
+        throw new InvalidPreKeyBundleFormat(
+            "Receive incorrectly formatted PreKeyBundle from server for number: $number. Error: " +
+                error.toString() +
+                ". Recieved body: " +
+                response.body);
       }
 
       PreKeyBundle preKeyBundle = preKeyBundlePackage.createPreKeyBundle();
@@ -271,17 +287,22 @@ class EncryptionService {
       return preKeyBundle;
     } else {
       print("Server request was unsuccessful.\nResponse code: " +
-          response.statusCode.toString() + ".\nReason: " + response.body);
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
       throw new PreKeyBundleFetchError(
           "Server request was unsuccessful.\nResponse code: " +
-              response.statusCode.toString() + ".\nReason: " + response.body);
+              response.statusCode.toString() +
+              ".\nReason: " +
+              response.body);
       //return null;
     }
   }
 
   /// This method creates a new Signal session using the Signal library
   Future<void> createSession(SignalProtocolAddress address) async {
-    PreKeyBundle? preKeyBundle = await getPreKeyBundle(address.getName()); //Name == number
+    PreKeyBundle? preKeyBundle =
+        await getPreKeyBundle(address.getName()); //Name == number
 
     if (preKeyBundle != null) {
       print("Building new session.");
@@ -319,7 +340,7 @@ class EncryptionService {
   /// This method gets the users LocalSignedPreKey
   Future<SignedPreKeyRecord?> fetchLocalSignedPreKey() async {
     int? id = await _signedPreKeyStoreService.fetchLocalSignedPreKeyID();
-    if(id == null) return null;
+    if (id == null) return null;
     return await _signedPreKeyStoreService.loadSignedPreKey(id);
   }
 
@@ -332,7 +353,8 @@ class EncryptionService {
   /// the function throws a [StateError], since the device_authentication_token_base64 is generated
   /// during registration and is expected to be saved.
   Future<String> getDeviceAuthTokenEncoded() async {
-    final token = await _storage.read(key: "device_authentication_token_base64");
+    final token =
+        await _storage.read(key: "device_authentication_token_base64");
     if (token == null) {
       throw StateError("device_authentication_token_base64 is not readable");
     } else {

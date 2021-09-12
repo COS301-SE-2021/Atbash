@@ -388,9 +388,11 @@ class EncryptionService {
           "preKeys": preKeysArr
         };
 
+        final url2 = Uri.parse(Constants.httpUrl + "keys/upload");
+
         // final response = await http.put(url,
         //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
-        final response2 = await http.post(url, body: jsonEncode(data));
+        final response2 = await http.post(url2, body: jsonEncode(data));
 
         if (response2.statusCode == 200){
           print("Successfully uploaded " + requiredKeys.toString() + " additional PreKeys");

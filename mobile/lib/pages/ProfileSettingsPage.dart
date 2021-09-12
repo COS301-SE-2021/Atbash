@@ -208,13 +208,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ).then((response) async {
                           if (response == true) {
                             await controller.importContacts();
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => HomePage(),
-                              ),
-                            );
                           }
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(),
+                            ),
+                          );
                         });
                       } else {
                         Navigator.pop(context);

@@ -1,22 +1,31 @@
 import 'dart:convert';
 
-import 'package:encrypt/encrypt.dart';
+// import 'package:encrypt/encrypt.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:uuid/uuid.dart';
 
 class MediaService {
+  ///This function encrypts the given media, uploads the encrypted content
+  ///to AWS and returns the media id along with the keys necessary to decrypt
+  ///the uploaded content
   Future<MediaUpload?> uploadMedia(String base64Media) async {
-    final base16Key = SecureRandom(32).base16;
-    final base16IV = SecureRandom(16).base16;
+    //Could use 128, 192 or 256 bits
+    //AesCbc, AesCtr and AesGcm
+    final algorithm = AesGcm.with256bits();
+    final secretKey = await algorithm.newSecretKey();
+    final nonce = algorithm.newNonce();
 
-    final key = Key.fromBase16(base16Key);
-    final iv = IV.fromBase16(base16IV);
+    // Encrypt
+    final secretBox = await algorithm.encrypt(
+      base64Decode(base64Media),
+      secretKey: secretKey,
+      nonce: nonce,
+    );
 
-    final encryptor = Encrypter(AES(key));
-
+    final encryptedMediaBase64 = base64Encode(secretBox.concatenation());
     final mediaId = Uuid().v4();
-    final encryptedMedia = encryptor.encrypt(base64Media, iv: iv);
 
     final uri = Uri.parse(Constants.httpUrl + "upload");
     final body = {"mediaId": mediaId, "method": "PUT"};
@@ -24,13 +33,12 @@ class MediaService {
 
     if (response.statusCode == 200) {
       final uploadUrl = Uri.parse(response.body);
-      final uploadResponse = await put(uploadUrl, body: encryptedMedia.base64);
+      final uploadResponse = await put(uploadUrl, body: encryptedMediaBase64);
 
       if (uploadResponse.statusCode == 200) {
         return MediaUpload(
           mediaId: mediaId,
-          base16Key: base16Key,
-          base16IV: base16IV,
+          secretKeyBase64: base64Encode(await secretKey.extractBytes()),
         );
       } else {
         print("${uploadResponse.statusCode} - ${uploadResponse.body}");
@@ -40,10 +48,11 @@ class MediaService {
     }
   }
 
-  Future<String?> fetchMedia(
-      String mediaId, String base16Key, String base16IV) async {
-    final key = Key.fromBase16(base16Key);
-    final iv = IV.fromBase16(base16IV);
+  ///This method downloads the encrypted media from AWS, decrypts it using the
+  ///provided key and returns the decrypted media
+  Future<String?> fetchMedia(String mediaId, String secretKeyBase64) async {
+    final algorithm = AesGcm.with256bits();
+    final secretKey = SecretKey(base64Decode(secretKeyBase64));
 
     final uri = Uri.parse(Constants.httpUrl + "upload");
     final body = {"mediaId": mediaId, "method": "GET"};
@@ -58,11 +67,19 @@ class MediaService {
       if (mediaResponse.statusCode == 200) {
         print("received image");
 
-        final encryptor = Encrypter(AES(key));
+        final secretBox = SecretBox.fromConcatenation(
+          base64Decode(mediaResponse.body),
+          nonceLength: algorithm.nonceLength,
+          macLength: algorithm.macAlgorithm.macLength,
+        );
 
-        final decryptedImage = encryptor.decrypt64(mediaResponse.body, iv: iv);
+        // Decrypt
+        final decryptedImage = await algorithm.decrypt(
+          secretBox,
+          secretKey: secretKey,
+        );
 
-        return decryptedImage;
+        return base64Encode(decryptedImage);
       } else {
         print("${response.statusCode} - ${response.body}");
       }
@@ -74,12 +91,10 @@ class MediaService {
 
 class MediaUpload {
   final String mediaId;
-  final String base16Key;
-  final String base16IV;
+  final String secretKeyBase64;
 
   MediaUpload({
     required this.mediaId,
-    required this.base16Key,
-    required this.base16IV,
+    required this.secretKeyBase64,
   });
 }

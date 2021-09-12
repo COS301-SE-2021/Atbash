@@ -83,11 +83,10 @@ class CommunicationService {
 
     _messageQueue.stream.listen(
       (payload) async {
-        // TODO re-enable encryption
-        // final encryptedContents = await encryptionService.encryptMessageContent(
-        //     payload.contents, payload.recipientPhoneNumber);
-        //
-        // payload.contents = encryptedContents;
+        final encryptedContents = await encryptionService.encryptMessageContent(
+            payload.contents, payload.recipientPhoneNumber);
+
+        payload.contents = encryptedContents;
 
         await post(uri, body: jsonEncode(payload.asMap));
       },
@@ -100,7 +99,7 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
-    _fetchUnreadMessages(encodedPhoneNumber);
+    await _fetchUnreadMessages(encodedPhoneNumber);
 
     channel?.sink.close();
     channel = IOWebSocketChannel.connect(
@@ -112,7 +111,7 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    contactService.fetchAll().then((contacts) {
+    await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
         final encodedContactPhoneNumber =
             Uri.encodeQueryComponent(contact.phoneNumber);
@@ -156,13 +155,20 @@ class CommunicationService {
         senderPhoneNumber != null &&
         timestamp != null &&
         encryptedContents != null) {
-      // TODO re-enable decryption
-      // final Map<String, Object?> decryptedContents = jsonDecode(
-      //     await encryptionService.decryptMessageContents(
-      //         encryptedContents, senderPhoneNumber));
-
-      final decryptedContents = jsonDecode(encryptedContents);
-
+      /// Providing soft-fail for decryption
+      String decryptedContentsEncoded = "";
+      try {
+        decryptedContentsEncoded = await encryptionService
+            .decryptMessageContents(encryptedContents, senderPhoneNumber);
+      } on Exception catch (exception) {
+        print("Failed to decrypt message");
+        print(exception.toString());
+        return;
+      }
+      print("Decrypted message: " +
+          jsonDecode(decryptedContentsEncoded).toString());
+      final Map<String, Object?> decryptedContents =
+          jsonDecode(decryptedContentsEncoded);
       final type = decryptedContents["type"] as String?;
 
       switch (type) {
@@ -173,7 +179,7 @@ class CommunicationService {
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
 
-          _handleMessage(
+          await _handleMessage(
             senderPhoneNumber: senderPhoneNumber,
             chatType: chatType,
             id: id,
@@ -189,12 +195,10 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
-          final imageId = decryptedContents["imageId"];
-          final base16Key = decryptedContents["key"];
-          final base16IV = decryptedContents["iv"];
+          final imageId = decryptedContents["imageId"] as String;
+          final secretKeyBase64 = decryptedContents["key"] as String;
 
-          final image =
-              await mediaService.fetchMedia(imageId, base16Key, base16IV);
+          final image = await mediaService.fetchMedia(imageId, secretKeyBase64);
 
           if (image != null) {
             _handleMessage(
@@ -235,11 +239,9 @@ class CommunicationService {
 
         case "profileImage":
           final imageId = decryptedContents["imageId"] as String;
-          final base16Key = decryptedContents["key"] as String;
-          final base16IV = decryptedContents["iv"] as String;
+          final secretKeyBase64 = decryptedContents["key"] as String;
 
-          final image =
-              await mediaService.fetchMedia(imageId, base16Key, base16IV);
+          final image = await mediaService.fetchMedia(imageId, secretKeyBase64);
 
           if (image != null) {
             contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -300,49 +302,48 @@ class CommunicationService {
     bool isMedia = false,
     bool forwarded = false,
   }) async {
-    chatService
-        .existsByPhoneNumberAndChatType(senderPhoneNumber, chatType)
-        .then((exists) async {
-      if (!exists) {
-        final chat = Chat(
-          id: Uuid().v4(),
-          contactPhoneNumber: senderPhoneNumber,
-          chatType: chatType,
-        );
+    final exists = await chatService.existsByPhoneNumberAndChatType(
+        senderPhoneNumber, chatType);
 
-        await chatService.insert(chat);
-      }
-
-      String chatId = await chatService.findIdByPhoneNumberAndChatType(
-        senderPhoneNumber,
-        chatType,
+    if (!exists) {
+      final chat = Chat(
+        id: Uuid().v4(),
+        contactPhoneNumber: senderPhoneNumber,
+        chatType: chatType,
       );
 
-      final message = Message(
-        id: id,
-        chatId: chatId,
-        isIncoming: true,
-        otherPartyPhoneNumber: senderPhoneNumber,
-        contents: contents,
-        timestamp: timestamp,
-        isMedia: isMedia,
-        forwarded: forwarded,
-        readReceipt: ReadReceipt.delivered,
-        deleted: false,
-        liked: false,
-        tags: [],
-      );
+      await chatService.insert(chat);
+    }
 
-      messageService.insert(message);
-      sendAck(id, senderPhoneNumber);
-      _onMessageListeners.forEach((listener) => listener(message));
+    String chatId = await chatService.findIdByPhoneNumberAndChatType(
+      senderPhoneNumber,
+      chatType,
+    );
 
-      _notifyUser(
-        senderPhoneNumber: senderPhoneNumber,
-        messageContents: contents,
-        isMedia: isMedia,
-      );
-    });
+    final message = Message(
+      id: id,
+      chatId: chatId,
+      isIncoming: true,
+      otherPartyPhoneNumber: senderPhoneNumber,
+      contents: contents,
+      timestamp: timestamp,
+      isMedia: isMedia,
+      forwarded: forwarded,
+      readReceipt: ReadReceipt.delivered,
+      deleted: false,
+      liked: false,
+      tags: [],
+    );
+
+    await messageService.insert(message);
+    await sendAck(id, senderPhoneNumber);
+    _onMessageListeners.forEach((listener) => listener(message));
+
+    _notifyUser(
+      senderPhoneNumber: senderPhoneNumber,
+      messageContents: contents,
+      isMedia: isMedia,
+    );
   }
 
   void _notifyUser({
@@ -404,8 +405,7 @@ class CommunicationService {
         "chatType": chatType.toString(),
         "forwarded": message.forwarded,
         "imageId": mediaUpload.mediaId,
-        "key": mediaUpload.base16Key,
-        "iv": mediaUpload.base16IV,
+        "key": mediaUpload.secretKeyBase64,
       });
 
       _queueForSending(contents, recipientPhoneNumber, id: message.id);
@@ -461,8 +461,7 @@ class CommunicationService {
     if (mediaUpload != null) {
       final contents = jsonEncode({
         "type": "profileImage",
-        "key": mediaUpload.base16Key,
-        "iv": mediaUpload.base16IV,
+        "key": mediaUpload.secretKeyBase64,
         "imageId": mediaUpload.mediaId,
       });
 

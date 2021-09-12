@@ -7,5 +7,4 @@ class PreKeyPackage {
   PreKeyPackage.fromJson(Map<String, dynamic> json)
       : keyId = json['keyId'],
         publicKey = json['publicKey'];
-
 }

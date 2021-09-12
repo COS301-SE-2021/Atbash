@@ -13,18 +13,21 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   final _storage = FlutterSecureStorage();
   final DatabaseService _databaseService;
 
-  IdentityKeyStoreService(this._databaseService){
+  IdentityKeyStoreService(this._databaseService) {
     _storage.read(key: "local_registration_id").then((value) {
-      if(value == null){
+      if (value == null) {
         final registrationId = generateRegistrationId(false);
-        _storage.write(key: "local_registration_id", value: registrationId.toString());
+        _storage.write(
+            key: "local_registration_id", value: registrationId.toString());
       }
     });
 
     _storage.read(key: "identity_key_pair").then((value) {
-      if(value == null){
+      if (value == null) {
         final identityKeyPair = generateIdentityKeyPair();
-        _storage.write(key: "identity_key_pair", value: base64.encode(identityKeyPair.serialize()));
+        _storage.write(
+            key: "identity_key_pair",
+            value: base64.encode(identityKeyPair.serialize()));
       }
     });
   }
@@ -38,20 +41,24 @@ class IdentityKeyStoreService extends IdentityKeyStore {
 
   ///The returned value should never be null
   @override
-  Future<IdentityKeyPair> getIdentityKeyPair() async
-  => _storage.read(key: "identity_key_pair").then((value)
-      => IdentityKeyPair.fromSerialized(base64.decode(value!)));
+  Future<IdentityKeyPair> getIdentityKeyPair() async => _storage
+      .read(key: "identity_key_pair")
+      .then((value) => IdentityKeyPair.fromSerialized(base64.decode(value!)));
 
   ///The returned value should never be null
   @override
-  Future<int> getLocalRegistrationId() async
-  => _storage.read(key: "local_registration_id").then((value)
-      => int.parse(value!));
+  Future<int> getLocalRegistrationId() async => _storage
+      .read(key: "local_registration_id")
+      .then((value) => int.parse(value!));
 
-  Future<void> setIdentityKPRegistrationId(IdentityKeyPair identityKeyPair, int registrationId) async {
+  Future<void> setIdentityKPRegistrationId(
+      IdentityKeyPair identityKeyPair, int registrationId) async {
     Future.wait([
-      _storage.write(key: "identity_key_pair", value: base64.encode(identityKeyPair.serialize())),
-      _storage.write(key: "local_registration_id", value: registrationId.toString()),
+      _storage.write(
+          key: "identity_key_pair",
+          value: base64.encode(identityKeyPair.serialize())),
+      _storage.write(
+          key: "local_registration_id", value: registrationId.toString()),
     ]);
   }
 
@@ -63,7 +70,8 @@ class IdentityKeyStoreService extends IdentityKeyStore {
       return false;
     }
     // ignore: avoid_dynamic_calls
-    return trusted == null || ListEquality().equals(trusted.serialize(), identityKey.serialize());
+    return trusted == null ||
+        ListEquality().equals(trusted.serialize(), identityKey.serialize());
   }
 
   @override
@@ -89,7 +97,7 @@ class IdentityKeyStoreService extends IdentityKeyStore {
     final response = await db.query(
       TrustedKeyDBRecord.TABLE_NAME,
       where:
-      "${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+          "${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${TrustedKeyDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
       whereArgs: [address.getName(), address.getDeviceId()],
     );
 
@@ -105,7 +113,8 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   /// Saves a TrustedKey to the database and returns.
   Future<TrustedKeyDBRecord> saveTrustedKey(
       SignalProtocolAddress address, IdentityKey identityKey) async {
-    TrustedKeyDBRecord trustedKey = TrustedKeyDBRecord(address, identityKey.serialize());
+    TrustedKeyDBRecord trustedKey =
+        TrustedKeyDBRecord(address, identityKey.serialize());
 
     final db = await _databaseService.database;
 
@@ -114,7 +123,4 @@ class IdentityKeyStoreService extends IdentityKeyStore {
 
     return trustedKey;
   }
-
-
-
 }

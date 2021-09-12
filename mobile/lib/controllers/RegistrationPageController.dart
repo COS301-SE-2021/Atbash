@@ -5,6 +5,6 @@ class RegistrationPageController {
   final RegistrationService registrationService = GetIt.I.get();
 
   Future<bool> register(String phoneNumber) {
-    return registrationService.register(phoneNumber, "abc");
+    return registrationService.register(phoneNumber);
   }
 }

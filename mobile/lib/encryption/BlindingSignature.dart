@@ -63,4 +63,47 @@ class BlindingSignature {
     _contentDigest.reset();
   }
 
+  Uint8List generateSignature(String msg){
+    Uint8List message = utf8.encode(msg) as Uint8List;
+
+    _contentDigest.reset();
+    _contentDigest.update(message, 0, message.length);
+    _contentDigest.doFinal(_mDash, _mDash.length - _hLen - _sLen);
+
+    if (_sLen != 0) {
+      if (!_sSet) {
+        _salt = _random.nextBytes(_sLen);
+      }
+
+      arrayCopy(_salt, 0, _mDash, _mDash.length - _sLen, _sLen);
+    }
+
+    var h = Uint8List(_hLen);
+
+    _contentDigest.update(_mDash, 0, _mDash.length);
+
+    _contentDigest.doFinal(h, 0);
+
+    _block[_block.length - _sLen - 1 - _hLen - 1] = 0x01;
+    arrayCopy(_salt, 0, _block, _block.length - _sLen - _hLen - 1, _sLen);
+
+    var dbMask = _maskGeneratorFunction1(h, 0, h.length, _block.length - _hLen - 1);
+    for (var i = 0; i != dbMask.length; i++) {
+      _block[i] ^= dbMask[i];
+    }
+
+    arrayCopy(h, 0, _block, _block.length - _hLen - 1, _hLen);
+
+    var firstByteMask = 0xff >> ((_block.length * 8) - _emBits);
+
+    _block[0] &= firstByteMask;
+    _block[_block.length - 1] = _trailer;
+
+    var b = _cipher.process(_block);
+
+    _clearBlock(_block);
+
+    return PSSSignature(b);
+  }
+
 }

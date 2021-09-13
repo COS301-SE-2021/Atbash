@@ -30,6 +30,10 @@ class BlindingSignature {
   late AsymmetricKeyParameter<RSAAsymmetricKey> _kParam;
   late RSAEngine _core;
 
-
+  BlindingSignature(this._contentDigest, this._mgfDigest, this._sLen,
+      {int trailer = TRAILER_IMPLICIT})
+      : _hLen = _contentDigest.digestSize,
+        _mgfhLen = _mgfDigest.digestSize,
+        _trailer = trailer;
 
 }

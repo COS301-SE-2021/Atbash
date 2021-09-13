@@ -2,8 +2,9 @@ import 'dart:typed_data';
 import 'dart:convert';
 
 // import 'package:crypto/crypto.dart'; //For Hmac function
-// import 'dart:math';
+import 'dart:math';
 
+// import 'package:cryptography/cryptography.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +27,9 @@ import 'package:mobile/encryption/services/IdentityKeyStoreService.dart';
 import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
+
+import 'package:pointycastle/export.dart' as Pointy;
+import 'package:pointycastle/src/utils.dart' as PointyUtils;
 
 import 'package:synchronized/synchronized.dart';
 
@@ -495,4 +499,53 @@ class EncryptionService {
       return token;
     }
   }
+
+  BigInt? generateBlindingFactor(Pointy.RSAPublicKey key) {
+    Random rng = Random.secure();
+    BigInt? m = key.n;
+
+    if(m == null) {
+      return null;
+    }
+
+    int length = m.bitLength - 1; // must be less than m.bitLength
+    BigInt factor;
+    BigInt gcd;
+
+    BigInt ZERO = BigInt.from(0);
+    BigInt ONE = BigInt.from(1);
+
+    do
+    {
+      factor = createRandomBigInteger(length, rng);
+      gcd = factor.gcd(m);
+    }
+    while (factor.compareTo(ZERO) == 0 || factor.compareTo(ONE) == 0 || gcd.compareTo(ONE) != 0);
+
+    return factor;
+  }
+
+  BigInt createRandomBigInteger(int numBits, Random rng){
+    int nBytes = (numBits / 8).ceil();
+
+    final builder = BytesBuilder();
+
+    // strip off any excess bits in the MSB
+    int xBits = 8 * nBytes - numBits;
+    int firstByte = rng.nextInt(256);
+    firstByte = firstByte & (255 >> xBits);
+    builder.addByte(firstByte);
+
+    for (var i = 1; i < nBytes; ++i) {
+      builder.addByte(rng.nextInt(256));
+    }
+    final bytes = builder.toBytes();
+    return PointyUtils.decodeBigIntWithSign(1, bytes);
+  }
+
+  // void createBlindedMessage(String msg, Pointy.RSAPublicKey key){
+  //   BigInt? blindingFactor = generateBlindingFactor(key);
+  // }
+
+
 }

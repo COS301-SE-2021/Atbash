@@ -11,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
+import 'package:mobile/exceptions/InvalidParametersException.dart';
 import 'package:mobile/exceptions/InvalidPreKeyBundleFormat.dart';
 import 'package:mobile/exceptions/PreKeyBundleFetchError.dart';
 import 'package:mobile/exceptions/UnsupportedCiphertextMessageType.dart';
@@ -500,12 +501,12 @@ class EncryptionService {
     }
   }
 
-  BigInt? generateBlindingFactor(Pointy.RSAPublicKey key) {
+  BigInt generateBlindingFactor(Pointy.RSAPublicKey key) {
     Random rng = Random.secure();
     BigInt? m = key.n;
 
     if(m == null) {
-      return null;
+      throw InvalidParametersException("Modulus cannot be null");
     }
 
     int length = m.bitLength - 1; // must be less than m.bitLength

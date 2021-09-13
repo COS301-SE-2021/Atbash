@@ -176,13 +176,27 @@ class BlindingSignature {
   /*
      * Blind message with the blind factor.
      */
-  BigInt blindMessage(BigInt msg)
+  BigInt _blindMessage(BigInt msg)
   {
     BigInt blindMsg = _blindingFactor;
     blindMsg = msg * (blindMsg.modPow(_kParam.key.exponent!, _kParam.key.n!));
     blindMsg = blindMsg % (_kParam.key.n!);
 
     return blindMsg;
+  }
+
+  /*
+     * Unblind the message blinded with the blind factor.
+     */
+  BigInt _unblindMessage(BigInt blindedMsg)
+  {
+    BigInt m = _kParam.key.n!;
+    BigInt msg = blindedMsg;
+    BigInt blindFactorInverse = _blindingFactor.modInverse(m);
+    msg = msg * blindFactorInverse;
+    msg = msg % m;
+
+    return msg;
   }
 
 }

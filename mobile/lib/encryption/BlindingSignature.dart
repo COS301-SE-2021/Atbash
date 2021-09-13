@@ -36,4 +36,31 @@ class BlindingSignature {
         _mgfhLen = _mgfDigest.digestSize,
         _trailer = trailer;
 
+  void init(bool forSigning, RSAPublicKey key, BigInt blindingFactor){
+    _sSet = false;
+    _salt = Uint8List(_sLen);
+    _mDash = Uint8List(8 + _sLen + _hLen);
+    _forSigning = forSigning;
+    _blindingFactor = blindingFactor;
+
+    AsymmetricKeyParameter<RSAAsymmetricKey> kParam = PublicKeyParameter(key);
+    _kParam = kParam;
+
+    //--RSABlindingEngine.init
+    _core = new RSAEngine();
+    _core.init(_forSigning, kParam);
+    //--RSABlindingEngine.init
+
+    _emBits = kParam.key.modulus!.bitLength - 1;
+
+    if (_emBits < (8 * _hLen + 8 * _sLen + 9))
+    {
+      throw new InvalidParametersException("key too small for specified hash and salt lengths");
+    }
+
+    _block = Uint8List((_emBits + 7) ~/ 8);
+
+    _contentDigest.reset();
+  }
+
 }

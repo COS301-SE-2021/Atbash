@@ -163,11 +163,11 @@ class BlindingSignature {
 
     if (_forSigning)
     {
-      msg = blindMessage(msg);
+      msg = _blindMessage(msg);
     }
     else
     {
-      msg = unblindMessage(msg);
+      msg = _unblindMessage(msg);
     }
 
     return _core.convertOutput_(msg);
@@ -192,7 +192,7 @@ class BlindingSignature {
   {
     BigInt m = _kParam.key.n!;
     BigInt msg = blindedMsg;
-    BigInt blindFactorInverse = _blindingFactor.modInverse(m);
+    BigInt blindFactorInverse = _blindingFactor.modInverse(m); //Is this the same as modOddInverse??
     msg = msg * blindFactorInverse;
     msg = msg % m;
 

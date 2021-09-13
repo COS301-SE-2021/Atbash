@@ -6,6 +6,7 @@ import 'package:pointycastle/src/impl/base_asymmetric_block_cipher.dart';
 import 'package:pointycastle/src/registry/registry.dart';
 import 'package:pointycastle/src/utils.dart' as utils;
 
+//A copy of RSAEngine to allow access to private methods
 class RSACoreEngine extends BaseAsymmetricBlockCipher{
   static final FactoryConfig factoryConfig =
   StaticFactoryConfig(AsymmetricBlockCipher, 'RSA', () => RSACoreEngine());
@@ -109,6 +110,10 @@ class RSACoreEngine extends BaseAsymmetricBlockCipher{
     }
 
     return res;
+  }
+
+  int convertOutput_(BigInt result, Uint8List out, int outOff){
+    return _convertOutput(result, out, outOff);
   }
 
   int _convertOutput(BigInt result, Uint8List out, int outOff) {

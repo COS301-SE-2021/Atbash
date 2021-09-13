@@ -5,6 +5,8 @@ import 'package:mobile/exceptions/InvalidParametersException.dart';
 import 'package:pointycastle/export.dart';
 import 'package:pointycastle/src/utils.dart';
 
+import 'RSACoreEngine.dart';
+
 class BlindingSignature {
   static const int TRAILER_IMPLICIT = 0xBC;
 
@@ -28,7 +30,7 @@ class BlindingSignature {
 
   late BigInt _blindingFactor;
   late AsymmetricKeyParameter<RSAAsymmetricKey> _kParam;
-  late RSAEngine _core;
+  late RSACoreEngine _core;
 
   BlindingSignature(this._contentDigest, this._mgfDigest, this._sLen,
       {int trailer = TRAILER_IMPLICIT})
@@ -47,7 +49,7 @@ class BlindingSignature {
     _kParam = kParam;
 
     //--RSABlindingEngine.init
-    _core = new RSAEngine();
+    _core = new RSACoreEngine();
     _core.init(_forSigning, kParam);
     //--RSABlindingEngine.init
 

@@ -29,21 +29,29 @@ import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
 import 'package:synchronized/synchronized.dart';
 
+import 'UserService.dart';
+
 class EncryptionService {
   EncryptionService(
+      this._userService,
       this._signalProtocolStoreService,
       this._identityKeyStoreService,
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
       this._sessionStoreService);
 
+  final UserService _userService;
   final SessionStoreService _sessionStoreService;
   final PreKeyStoreService _preKeyStoreService;
   final SignedPreKeyStoreService _signedPreKeyStoreService;
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
 
+  //Todo: Use UserService for phone number
+
   final _storage = FlutterSecureStorage();
+  final int desiredStoredPreKeys = 140;
+  final int minServerStoredPreKeys = 100;
 
   var encryptionLock = new Lock();
 
@@ -55,7 +63,7 @@ class EncryptionService {
       String messageContent, String recipientNumber) async {
     ///This provides mutual exclusion for the encryptMessageContent function
     return await encryptionLock.synchronized(() async {
-      final thisUserNumber = await getUserPhoneNumber();
+      final thisUserNumber = await _userService.getPhoneNumber();
       print("Encrypting message from: " +
           thisUserNumber +
           " to: " +
@@ -108,7 +116,7 @@ class EncryptionService {
       String encryptedContents, String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
-      final thisUserNumber = await getUserPhoneNumber();
+      final thisUserNumber = await _userService.getPhoneNumber();
       print("Decrypting message from: " +
           senderPhoneNumber +
           " to: " +
@@ -225,7 +233,7 @@ class EncryptionService {
   Future<void> generateInitialKeyBundle(int registrationId) async {
     var identityKeyPair = generateIdentityKeyPair();
 
-    var preKeys = generatePreKeys(0, 110);
+    var preKeys = generatePreKeys(0, desiredStoredPreKeys);
 
     var signedPreKey = generateSignedPreKey(identityKeyPair, 0);
 
@@ -239,8 +247,9 @@ class EncryptionService {
         signedPreKey.id, signedPreKey);
     await _signedPreKeyStoreService.storeLocalSignedPreKeyID(signedPreKey.id);
 
-    ///Store registrationId in FlutterSecureStorage??
     ///Store max pre key index in FlutterSecureStorage??
+    await setNumGeneratedPreKeys(desiredStoredPreKeys);
+    //await setNumServerPreKeys(desiredStoredPreKeys);
   }
 
   /// This method downloads the PreKeyBundle from the server for a particular number
@@ -249,7 +258,7 @@ class EncryptionService {
 
     final authTokenEncoded = await getDeviceAuthTokenEncoded();
 
-    final phoneNumber = await getUserPhoneNumber();
+    final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
       //Todo: Implement Authorization header and place this there instead
@@ -320,15 +329,140 @@ class EncryptionService {
     }
   }
 
-  /// Get the phone_number of the user from secure storage. If it is not set,
-  /// the function throws a [StateError], since the phone_number of a logged-in
-  /// user is expected to be saved.
-  Future<String> getUserPhoneNumber() async {
-    final phoneNumber = await _storage.read(key: "phone_number");
-    if (phoneNumber == null) {
-      throw StateError("phone_number is not readable");
+  /// This method gets the number of unused PreKeys on the server and
+  /// upload more if needed
+  Future<void> managePreKeys() async {
+    final url = Uri.parse(Constants.httpUrl + "keys/getNumber");
+
+    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+
+    final phoneNumber = await _userService.getPhoneNumber();
+
+    var data = {
+      //Todo: Implement Authorization header and place this there instead
+      "authorization": "Bearer $authTokenEncoded",
+      "phoneNumber": phoneNumber
+    };
+
+    // final response = await http.post(url, body: jsonEncode(data), headers: {"Authorization": "Basic $authTokenEncoded"});
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      final Map<String, Object?> responseBody = jsonDecode(response.body);
+
+      final numKeys = responseBody["keys"] as int?;
+
+      if(numKeys != null){
+        if(numKeys >= minServerStoredPreKeys){
+          //No need to do anything
+          return;
+        }
+        final requiredKeys = desiredStoredPreKeys - numKeys;
+        final numServerPreKeys = await getNumServerPreKeys();
+        final keysToGenerate = requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
+
+        if(keysToGenerate > 0){
+          await generateAdditionalPreKeys(keysToGenerate + 10); //Generate a few extra
+        }
+
+        final preKeys = await _preKeyStoreService.loadPreKeysRange(numServerPreKeys, requiredKeys);
+
+        if(preKeys.isEmpty){
+          // Soft fail
+          print("Failed to get generated prekeys from database.");
+        }
+
+        List<Map<String, Object>> preKeysArr = [];
+
+        for (var p in preKeys) {
+          preKeysArr.add({
+            "keyId": p.id,
+            "publicKey": base64Encode(p.getKeyPair().publicKey.serialize())
+          });
+        }
+
+        var data = {
+          //Todo: Implement Authorization header and place this there instead
+          "authorization": "Bearer $authTokenEncoded",
+          "phoneNumber": phoneNumber,
+          "preKeys": preKeysArr
+        };
+
+        final url2 = Uri.parse(Constants.httpUrl + "keys/upload");
+
+        // final response = await http.put(url,
+        //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
+        final response2 = await http.post(url2, body: jsonEncode(data));
+
+        if (response2.statusCode == 200){
+          print("Successfully uploaded " + requiredKeys.toString() + " additional PreKeys");
+          return;
+        } else {
+          // Soft fail
+          print("Failed to upload additional PreKeys to server.");
+          print("Response code: " +
+              response2.statusCode.toString() +
+              ".\nReason: " +
+              response2.body);
+          return;
+        }
+      } else {
+        // Soft fail
+        print("Failed to get the number of PreKeys remaining on the server.");
+      }
     } else {
-      return phoneNumber;
+      // Soft fail
+      print("Failed to get the number of PreKeys remaining on the server.");
+      print("Response code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+    }
+  }
+
+  /// This method generates additional PreKeys
+  Future<void> generateAdditionalPreKeys(int numPreKeys) async {
+    final generatedKeys = await getNumGeneratedPreKeys();
+    var preKeys = generatePreKeys(generatedKeys, numPreKeys);
+
+    for (var p in preKeys) {
+      await _preKeyStoreService.storePreKey(p.id, p);
+    }
+
+    setNumGeneratedPreKeys(generatedKeys + numPreKeys);
+  }
+
+  /// This function records the number of prekeys that have been generated
+  Future<void> setNumGeneratedPreKeys(int index) async {
+    await _storage.write(key: "max_generated_prekey_index", value: index.toString());
+  }
+
+  /// This function retrieves the number of prekeys that have been generated
+  Future<int> getNumGeneratedPreKeys() async {
+    final indexStr = await _storage.read(key: "max_generated_prekey_index");
+    if (indexStr == null) {
+      await setNumGeneratedPreKeys(0);
+      return 0;
+    } else {
+      return int.parse(indexStr);
+    }
+  }
+
+  /// This function records the number of prekeys that have been sent to
+  /// the server
+  Future<void> setNumServerPreKeys(int index) async {
+    await _storage.write(key: "max_server_prekey_index", value: index.toString());
+  }
+
+  /// This function retrieves the number of prekeys that have been sent to
+  /// the server
+  Future<int> getNumServerPreKeys() async {
+    final indexStr = await _storage.read(key: "max_server_prekey_index");
+    if (indexStr == null) {
+      await setNumServerPreKeys(0);
+      return 0;
+    } else {
+      return int.parse(indexStr);
     }
   }
 

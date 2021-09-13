@@ -16,10 +16,13 @@ import 'package:crypton/crypton.dart';
 import 'package:crypto/crypto.dart'; //For Hmac function
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
+import 'UserService.dart';
+
 class RegistrationService {
-  RegistrationService(this._encryptionService);
+  RegistrationService(this._encryptionService, this._userService);
 
   final EncryptionService _encryptionService;
+  final UserService _userService;
   final _storage = FlutterSecureStorage();
 
   ///This function creates a new Atbash account on the server which will be
@@ -42,6 +45,7 @@ class RegistrationService {
     ///An RSA keypair is used so that the server can generate a token
     ///(that is used to verify the authenticity of requests)
     ///and send it back encrypted
+    /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
     RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
     final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
@@ -119,7 +123,7 @@ class RegistrationService {
   Future<bool> registerKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
-    final phoneNumber = await _encryptionService.getUserPhoneNumber();
+    final phoneNumber = await _userService.getPhoneNumber();
     final authTokenEncoded =
         await _encryptionService.getDeviceAuthTokenEncoded();
 

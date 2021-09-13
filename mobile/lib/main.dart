@@ -73,10 +73,12 @@ void _registerServices() async {
   final navigationObserver = NavigationObserver();
   GetIt.I.registerSingleton(navigationObserver);
 
-  final databaseService = DatabaseService();
-  final encryptionService = _initialiseEncryptionService(databaseService);
+  final userService = UserService();
 
-  final registrationService = RegistrationService(encryptionService);
+  final databaseService = DatabaseService();
+  final encryptionService = _initialiseEncryptionService(databaseService, userService);
+
+  final registrationService = RegistrationService(encryptionService, userService);
 
   GetIt.I.registerSingleton(registrationService);
 
@@ -84,7 +86,6 @@ void _registerServices() async {
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
   final blockedNumbersService = BlockedNumbersService(databaseService);
-  final userService = UserService();
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
@@ -119,7 +120,7 @@ void _registerServices() async {
 }
 
 EncryptionService _initialiseEncryptionService(
-    DatabaseService databaseService) {
+    DatabaseService databaseService, UserService userService) {
   final identityKeyStoreService = IdentityKeyStoreService(databaseService);
   final preKeyStoreService = PreKeyStoreService(databaseService);
   final sessionStoreService = SessionStoreService(databaseService);
@@ -131,6 +132,7 @@ EncryptionService _initialiseEncryptionService(
     identityKeyStoreService,
   );
   return EncryptionService(
+    userService,
     signalProtocolStoreService,
     identityKeyStoreService,
     signedPreKeyStoreService,

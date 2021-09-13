@@ -100,6 +100,7 @@ class CommunicationService {
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
     await _fetchUnreadMessages(encodedPhoneNumber);
+    await encryptionService.managePreKeys();
 
     channel?.sink.close();
     channel = IOWebSocketChannel.connect(

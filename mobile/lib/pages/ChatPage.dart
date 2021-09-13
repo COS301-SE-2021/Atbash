@@ -502,6 +502,26 @@ class ChatCard extends StatelessWidget {
                               ),
                             ),
                           Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Constants.darkGrey,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.7,
+                            ),
+                            child: Text(
+                              "This message was replied to. It is supposed to be super long so that "
+                              "it doesnt make it all the way blah balh balh",
+                              style: TextStyle(color: Colors.white),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,

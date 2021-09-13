@@ -75,8 +75,8 @@ Resources:
         - AttributeName: 'connectionId'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
@@ -86,8 +86,8 @@ Resources:
             - AttributeName: 'phoneNumber'
               KeyType: 'HASH'
           ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
+            ReadCapacityUnits: 4
+            WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
       Tags:
@@ -104,8 +104,8 @@ Resources:
         - AttributeName: 'phoneNumber'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableUsers
@@ -125,8 +125,8 @@ Resources:
         - AttributeName: 'id'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableMessages
@@ -136,8 +136,8 @@ Resources:
             - AttributeName: 'recipientPhoneNumber'
               KeyType: 'HASH'
           ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
+            ReadCapacityUnits: 4
+            WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
       Tags:

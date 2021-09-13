@@ -423,7 +423,7 @@ Resources:
   GetNumberPrekeysFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: get_numbers_prekeys/
+      CodeUri: get_number_prekeys/
       Handler: index.handler
       Runtime: nodejs14.x
       MemorySize: 128

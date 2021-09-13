@@ -544,9 +544,116 @@ class EncryptionService {
     return PointyUtils.decodeBigIntWithSign(1, bytes);
   }
 
-  // void createBlindedMessage(String msg, Pointy.RSAPublicKey key){
-  //   BigInt? blindingFactor = generateBlindingFactor(key);
-  // }
+  void createBlindedMessage(String msg, Pointy.RSAPublicKey key){
+    if(key.n == null) {
+      throw InvalidParametersException("Modulus cannot be null");
+    }
+    Uint8List msgList = utf8.encode(msg) as Uint8List;
+    // Pointy.AsymmetricBlockCipher cipher = new Pointy.RSABlindingEngine();
+    Pointy.Digest contentDigest = new Pointy.SHA1Digest();
+    Pointy.Digest mgfDigest = contentDigest;
+    int sLen = 20;
+    int trailer = 0xBC;
+    int hLen = contentDigest.digestSize;
+    int mgfhLen = mgfDigest.digestSize;
+    bool sSet = false;
+    Uint8List salt = Uint8List(sLen);
+    Uint8List block;
+    Uint8List mDash = Uint8List(8 + sLen + hLen);
+
+    BigInt blindingFactor = generateBlindingFactor(key);
+    Pointy.SecureRandom random = Pointy.FortunaRandom();
+    Pointy.AsymmetricKeyParameter<Pointy.RSAAsymmetricKey> kParam = Pointy.PublicKeyParameter(key);
+    int emBits = kParam.key.modulus!.bitLength - 1;
+
+    //PSSSigner.init
+    Pointy.RSAEngine core = new Pointy.RSAEngine();
+    core.init(true, kParam);
+
+    if (emBits < (8 * hLen + 8 * sLen + 9))
+    {
+      throw new InvalidParametersException("key too small for specified hash and salt lengths");
+    }
+
+    block = Uint8List((emBits + 7) ~/ 8);
+
+    contentDigest.reset();
+
+    //PSSSigner.update
+    contentDigest.update(msgList, 0, msgList.lengthInBytes);
+
+    //PSSSigner.generateSignature
+    contentDigest.doFinal(mDash, mDash.length - hLen - sLen);
+
+    if (sLen != 0) {
+      if (!sSet) {
+        salt = random.nextBytes(sLen);
+      }
+
+      PointyUtils.arrayCopy(salt, 0, mDash, mDash.length - sLen, sLen);
+    }
+
+    var h = Uint8List(hLen);
+
+    contentDigest.update(mDash, 0, mDash.length);
+
+    contentDigest.doFinal(h, 0);
+
+    block[block.length - sLen - 1 - hLen - 1] = 0x01;
+    PointyUtils.arrayCopy(salt, 0, block, block.length - sLen - hLen - 1, sLen);
+
+    var dbMask = _maskGeneratorFunction1(h, 0, h.length, _block.length - _hLen - 1);
+    for (var i = 0; i != dbMask.length; i++) {
+      _block[i] ^= dbMask[i];
+    }
+
+    arrayCopy(h, 0, _block, _block.length - _hLen - 1, _hLen);
+
+    var firstByteMask = 0xff >> ((_block.length * 8) - _emBits);
+
+    _block[0] &= firstByteMask;
+    _block[_block.length - 1] = _trailer;
+
+    var b = _cipher.process(_block);
+
+    _clearBlock(_block);
+
+    return PSSSignature(b);
+  }
+
+  Uint8List _maskGeneratorFunction1(
+      Uint8List Z, int zOff, int zLen, int length) {
+    var mask = Uint8List(length);
+    var hashBuf = Uint8List(_mgfhLen);
+    var C = Uint8List(4);
+    var counter = 0;
+
+    _mgfDigest.reset();
+
+    while (counter < (length ~/ _mgfhLen)) {
+      _intToOSP(counter, C);
+
+      _mgfDigest.update(Z, zOff, zLen);
+      _mgfDigest.update(C, 0, C.length);
+      _mgfDigest.doFinal(hashBuf, 0);
+
+      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen, _mgfhLen);
+      counter++;
+    }
+
+    if ((counter * _mgfhLen) < length) {
+      _intToOSP(counter, C);
+
+      _mgfDigest.update(Z, zOff, zLen);
+      _mgfDigest.update(C, 0, C.length);
+      _mgfDigest.doFinal(hashBuf, 0);
+
+      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen,
+          mask.length - (counter * _mgfhLen));
+    }
+
+    return mask;
+  }
 
 
 }

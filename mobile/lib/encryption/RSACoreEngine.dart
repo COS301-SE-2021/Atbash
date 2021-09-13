@@ -85,6 +85,11 @@ class RSACoreEngine extends BaseAsymmetricBlockCipher{
     return _convertOutput(output, out, outOff);
   }
 
+  //Allow access to private method without having to change anything else
+  BigInt convertInput_(Uint8List inp, int inpOff, int len){
+    return _convertInput(inp, inpOff, len);
+  }
+
   BigInt _convertInput(Uint8List inp, int inpOff, int len) {
     var inpLen = inp.length;
 

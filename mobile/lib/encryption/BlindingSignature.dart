@@ -45,6 +45,14 @@ class BlindingSignature {
     _forSigning = forSigning;
     _blindingFactor = blindingFactor;
 
+    if(key.n == null) {
+      throw InvalidParametersException("Modulus cannot be null");
+    }
+
+    if(key.publicExponent == null) {
+      throw InvalidParametersException("Exponent cannot be null");
+    }
+
     AsymmetricKeyParameter<RSAAsymmetricKey> kParam = PublicKeyParameter(key);
     _kParam = kParam;
 
@@ -163,6 +171,18 @@ class BlindingSignature {
     }
 
     return _core.convertOutput_(msg);
+  }
+
+  /*
+     * Blind message with the blind factor.
+     */
+  BigInt blindMessage(BigInt msg)
+  {
+    BigInt blindMsg = _blindingFactor;
+    blindMsg = msg * (blindMsg.modPow(_kParam.key.exponent!, _kParam.key.n!));
+    blindMsg = blindMsg % (_kParam.key.n!);
+
+    return blindMsg;
   }
 
 }

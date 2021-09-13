@@ -151,9 +151,9 @@ class BlindingSignature {
   }
 
   Uint8List _RSABlindingEngine_ProcessBlock(Uint8List inp, int inpOff, int inpLen){
-    BigInt msg = _core.convertInput(inp, inpOff, inpLen);
+    BigInt msg = _core.convertInput_(inp, inpOff, inpLen);
 
-    if (forEncryption)
+    if (_forSigning)
     {
       msg = blindMessage(msg);
     }
@@ -162,7 +162,7 @@ class BlindingSignature {
       msg = unblindMessage(msg);
     }
 
-    return core.convertOutput(msg);
+    return _core.convertOutput_(msg);
   }
 
 }

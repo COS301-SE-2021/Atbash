@@ -106,4 +106,16 @@ class BlindingSignature {
     return PSSSignature(b);
   }
 
+  /// Convert int to octet string.
+  void _intToOSP(int i, Uint8List sp) {
+    sp[0] = i >> 24;
+    sp[1] = i >> 16;
+    sp[2] = i >> 8;
+    sp[3] = i >> 0;
+  }
+
+
+
+
+
 }

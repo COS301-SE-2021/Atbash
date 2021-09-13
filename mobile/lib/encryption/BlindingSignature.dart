@@ -114,7 +114,39 @@ class BlindingSignature {
     sp[3] = i >> 0;
   }
 
+  Uint8List _maskGeneratorFunction1(
+      Uint8List Z, int zOff, int zLen, int length) {
+    var mask = Uint8List(length);
+    var hashBuf = Uint8List(_mgfhLen);
+    var C = Uint8List(4);
+    var counter = 0;
 
+    _mgfDigest.reset();
+
+    while (counter < (length ~/ _mgfhLen)) {
+      _intToOSP(counter, C);
+
+      _mgfDigest.update(Z, zOff, zLen);
+      _mgfDigest.update(C, 0, C.length);
+      _mgfDigest.doFinal(hashBuf, 0);
+
+      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen, _mgfhLen);
+      counter++;
+    }
+
+    if ((counter * _mgfhLen) < length) {
+      _intToOSP(counter, C);
+
+      _mgfDigest.update(Z, zOff, zLen);
+      _mgfDigest.update(C, 0, C.length);
+      _mgfDigest.doFinal(hashBuf, 0);
+
+      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen,
+          mask.length - (counter * _mgfhLen));
+    }
+
+    return mask;
+  }
 
 
 

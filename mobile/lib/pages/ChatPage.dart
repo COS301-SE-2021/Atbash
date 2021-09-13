@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
@@ -18,7 +19,6 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/services.dart';
 
 import '../constants.dart';
 
@@ -209,6 +209,16 @@ class _ChatPageState extends State<ChatPage> {
       child: Column(
         children: [
           Flexible(child: _buildMessages()),
+          Container(
+            color: Constants.darkGrey.withOpacity(0.88),
+            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+            child: Text(
+              "Dylan\n"
+              "This message was replied to. It is supposed to be super long so that "
+              "it doesnt make it all the way blah balh balh",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
           _buildInput(),
         ],
       ),

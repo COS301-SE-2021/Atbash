@@ -109,7 +109,7 @@ class BlindingSignature {
     _block[0] &= firstByteMask;
     _block[_block.length - 1] = _trailer;
 
-    var b = _cipher.process(_block);
+    var b = _RSABlindingEngine_ProcessBlock(_block, 0, _block.length);
 
     _clearBlock(_block);
 
@@ -199,6 +199,13 @@ class BlindingSignature {
     msg = msg % m;
 
     return msg;
+  }
+
+  /// Clear possibly sensitive data.
+  void _clearBlock(Uint8List block) {
+    for (var i = 0; i != block.length; i++) {
+      block[i] = 0;
+    }
   }
 
 }

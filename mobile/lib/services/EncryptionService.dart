@@ -546,7 +546,7 @@ class EncryptionService {
     return PointyUtils.decodeBigIntWithSign(1, bytes);
   }
 
-  void createBlindedMessage(String msg, Pointy.RSAPublicKey key){
+  Uint8List createBlindedMessage(String msg, Pointy.RSAPublicKey key){
     BigInt blindingFactor = generateBlindingFactor(key);
     Pointy.Digest digest = new Pointy.SHA1Digest();
 
@@ -555,28 +555,44 @@ class EncryptionService {
 
     Uint8List blindedMessage = blindingSignature.generateSignature(msg);
 
+    return blindedMessage;
+  }
+
+  Uint8List serverSignMessage(Uint8List blindedMessage, Pointy.RSAPrivateKey pKey){
+    /// This should be deleted as this is what the server will do
     //Send off to server
     //--Server signing
     RSACoreEngine engine = new RSACoreEngine();
-    engine.init(true, keys.getPrivate());
+    engine.init(true, Pointy.PrivateKeyParameter(pKey));
     Uint8List signedMessage = engine.process(blindedMessage);
     //--Server signing
     //Get signedMessage back from server
 
-    //Unblind message
-    BlindingSignature blindingSignature2 = new BlindingSignature(digest, digest, 20);
-    blindingSignature2.init(false, key, blindingFactor);
-    Uint8List unblindedSignedMessage = blindingSignature2.processBlock(signedMessage, 0, signedMessage.length);
+    return signedMessage;
+  }
 
+  Uint8List unblindMessage(Uint8List signedMessage, Pointy.RSAPublicKey key, BigInt blindingFactor){
+    //Unblind message
+    Pointy.Digest digest = new Pointy.SHA1Digest();
+    BlindingSignature blindingSignature = new BlindingSignature(digest, digest, 20);
+    blindingSignature.init(false, key, blindingFactor);
+    Uint8List unblindedSignedMessage = blindingSignature.processBlock(signedMessage, 0, signedMessage.length);
+
+    return unblindedSignedMessage;
+  }
+
+  bool serverVerifyMessage(String originalMsg, Uint8List unblindedSignedMessage, Pointy.RSAPublicKey key){
+    /// This should be deleted as this is what the server will do
     //Send off to server
     //-- Server verify
     Pointy.Digest digest3 = new Pointy.SHA1Digest();
     Pointy.PSSSigner signer = new Pointy.PSSSigner(new RSACoreEngine(), digest3, digest3);
-    signer.init(false, new Pointy.ParametersWithSaltConfiguration(new Pointy.PublicKeyParameter(key), Pointy.FortunaRandom(), 20));
+    signer.init(false, new Pointy.ParametersWithSaltConfiguration(Pointy.PublicKeyParameter(key), Pointy.FortunaRandom(), 20));
 
-    signer.verifySignature(utf8.encode(msg) as Uint8List, Pointy.PSSSignature(unblindedSignedMessage));
+    bool result = signer.verifySignature(utf8.encode(originalMsg) as Uint8List, Pointy.PSSSignature(unblindedSignedMessage));
     //-- Server verify
 
+    return result;
   }
 
 }

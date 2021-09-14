@@ -109,7 +109,7 @@ class BlindingSignature {
     _block[0] &= firstByteMask;
     _block[_block.length - 1] = _trailer;
 
-    var b = _RSABlindingEngine_ProcessBlock(_block, 0, _block.length);
+    var b = processBlock(_block, 0, _block.length);
 
     _clearBlock(_block);
 
@@ -158,7 +158,8 @@ class BlindingSignature {
     return mask;
   }
 
-  Uint8List _RSABlindingEngine_ProcessBlock(Uint8List inp, int inpOff, int inpLen){
+  //RSABlindingEngine
+  Uint8List processBlock(Uint8List inp, int inpOff, int inpLen){
     BigInt msg = _core.convertInput_(inp, inpOff, inpLen);
 
     if (_forSigning)

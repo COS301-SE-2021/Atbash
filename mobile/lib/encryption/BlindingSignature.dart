@@ -113,7 +113,7 @@ class BlindingSignature {
 
     _clearBlock(_block);
 
-    return PSSSignature(b);
+    return b; // PSSSignature(b);
   }
 
   /// Convert int to octet string.

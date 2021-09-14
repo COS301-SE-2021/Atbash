@@ -8,6 +8,8 @@ import 'dart:math';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/encryption/BlindingSignature.dart';
+import 'package:mobile/encryption/RSACoreEngine.dart';
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
@@ -545,115 +547,36 @@ class EncryptionService {
   }
 
   void createBlindedMessage(String msg, Pointy.RSAPublicKey key){
-    if(key.n == null) {
-      throw InvalidParametersException("Modulus cannot be null");
-    }
-    Uint8List msgList = utf8.encode(msg) as Uint8List;
-    // Pointy.AsymmetricBlockCipher cipher = new Pointy.RSABlindingEngine();
-    Pointy.Digest contentDigest = new Pointy.SHA1Digest();
-    Pointy.Digest mgfDigest = contentDigest;
-    int sLen = 20;
-    int trailer = 0xBC;
-    int hLen = contentDigest.digestSize;
-    int mgfhLen = mgfDigest.digestSize;
-    bool sSet = false;
-    Uint8List salt = Uint8List(sLen);
-    Uint8List block;
-    Uint8List mDash = Uint8List(8 + sLen + hLen);
-
     BigInt blindingFactor = generateBlindingFactor(key);
-    Pointy.SecureRandom random = Pointy.FortunaRandom();
-    Pointy.AsymmetricKeyParameter<Pointy.RSAAsymmetricKey> kParam = Pointy.PublicKeyParameter(key);
-    int emBits = kParam.key.modulus!.bitLength - 1;
+    Pointy.Digest digest = new Pointy.SHA1Digest();
 
-    //PSSSigner.init
-    Pointy.RSAEngine core = new Pointy.RSAEngine();
-    core.init(true, kParam);
+    BlindingSignature blindingSignature = new BlindingSignature(digest, digest, 20);
+    blindingSignature.init(true, key, blindingFactor);
 
-    if (emBits < (8 * hLen + 8 * sLen + 9))
-    {
-      throw new InvalidParametersException("key too small for specified hash and salt lengths");
-    }
+    Uint8List blindedMessage = blindingSignature.generateSignature(msg);
 
-    block = Uint8List((emBits + 7) ~/ 8);
+    //Send off to server
+    //--Server signing
+    RSACoreEngine engine = new RSACoreEngine();
+    engine.init(true, keys.getPrivate());
+    Uint8List signedMessage = engine.process(blindedMessage);
+    //--Server signing
+    //Get signedMessage back from server
 
-    contentDigest.reset();
+    //Unblind message
+    BlindingSignature blindingSignature2 = new BlindingSignature(digest, digest, 20);
+    blindingSignature2.init(false, key, blindingFactor);
+    Uint8List unblindedSignedMessage = blindingSignature2.processBlock(signedMessage, 0, signedMessage.length);
 
-    //PSSSigner.update
-    contentDigest.update(msgList, 0, msgList.lengthInBytes);
+    //Send off to server
+    //-- Server verify
+    Pointy.Digest digest3 = new Pointy.SHA1Digest();
+    Pointy.PSSSigner signer = new Pointy.PSSSigner(new RSACoreEngine(), digest3, digest3);
+    signer.init(false, new Pointy.ParametersWithSaltConfiguration(new Pointy.PublicKeyParameter(key), Pointy.FortunaRandom(), 20));
 
-    //PSSSigner.generateSignature
-    contentDigest.doFinal(mDash, mDash.length - hLen - sLen);
+    signer.verifySignature(utf8.encode(msg) as Uint8List, Pointy.PSSSignature(unblindedSignedMessage));
+    //-- Server verify
 
-    if (sLen != 0) {
-      if (!sSet) {
-        salt = random.nextBytes(sLen);
-      }
-
-      PointyUtils.arrayCopy(salt, 0, mDash, mDash.length - sLen, sLen);
-    }
-
-    var h = Uint8List(hLen);
-
-    contentDigest.update(mDash, 0, mDash.length);
-
-    contentDigest.doFinal(h, 0);
-
-    block[block.length - sLen - 1 - hLen - 1] = 0x01;
-    PointyUtils.arrayCopy(salt, 0, block, block.length - sLen - hLen - 1, sLen);
-
-    var dbMask = _maskGeneratorFunction1(h, 0, h.length, _block.length - _hLen - 1);
-    for (var i = 0; i != dbMask.length; i++) {
-      _block[i] ^= dbMask[i];
-    }
-
-    arrayCopy(h, 0, _block, _block.length - _hLen - 1, _hLen);
-
-    var firstByteMask = 0xff >> ((_block.length * 8) - _emBits);
-
-    _block[0] &= firstByteMask;
-    _block[_block.length - 1] = _trailer;
-
-    var b = _cipher.process(_block);
-
-    _clearBlock(_block);
-
-    return PSSSignature(b);
   }
-
-  Uint8List _maskGeneratorFunction1(
-      Uint8List Z, int zOff, int zLen, int length) {
-    var mask = Uint8List(length);
-    var hashBuf = Uint8List(_mgfhLen);
-    var C = Uint8List(4);
-    var counter = 0;
-
-    _mgfDigest.reset();
-
-    while (counter < (length ~/ _mgfhLen)) {
-      _intToOSP(counter, C);
-
-      _mgfDigest.update(Z, zOff, zLen);
-      _mgfDigest.update(C, 0, C.length);
-      _mgfDigest.doFinal(hashBuf, 0);
-
-      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen, _mgfhLen);
-      counter++;
-    }
-
-    if ((counter * _mgfhLen) < length) {
-      _intToOSP(counter, C);
-
-      _mgfDigest.update(Z, zOff, zLen);
-      _mgfDigest.update(C, 0, C.length);
-      _mgfDigest.doFinal(hashBuf, 0);
-
-      arrayCopy(hashBuf, 0, mask, counter * _mgfhLen,
-          mask.length - (counter * _mgfhLen));
-    }
-
-    return mask;
-  }
-
 
 }

@@ -60,33 +60,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       }
                     },
                   ),
-                  Container(
-                    width: 140,
-                    child: TextField(
-                      cursorColor: Constants.darkGrey.withOpacity(0.6),
-                      cursorHeight: 20,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        hintText: "Phone Number",
-                        hintStyle: TextStyle(
-                          color: Constants.darkGrey.withOpacity(0.6),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Constants.orange,
+                  Expanded(
+                    child: Container(
+                      child: TextField(
+                        cursorColor: Constants.darkGrey.withOpacity(0.6),
+                        cursorHeight: 20,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: "Phone Number",
+                          hintStyle: TextStyle(
+                            color: Constants.darkGrey.withOpacity(0.6),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Constants.orange,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.black,
-                          ),
+                        style: TextStyle(
+                          fontSize: 18,
                         ),
+                        controller: _phoneNumberController,
                       ),
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                      controller: _phoneNumberController,
                     ),
                   )
                 ],

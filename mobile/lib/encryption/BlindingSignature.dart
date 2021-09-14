@@ -170,7 +170,9 @@ class BlindingSignature {
       msg = _unblindMessage(msg);
     }
 
-    return _core.convertOutput_(msg);
+    var out = Uint8List(_core.outputBlockSize + 1);
+    var len = _core.convertOutput_(msg, out, 0);
+    return out.sublist(0, len);
   }
 
   /*

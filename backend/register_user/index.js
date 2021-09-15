@@ -18,6 +18,8 @@ const utf8Encoder = new TextEncoder();
 //**For Testing**
 // let output = "";
 
+const AWS = require("aws-sdk")
+
 exports.handler = async event => {
   let bodyJson = JSON.parse(event.body);
   let bodyString = JSON.stringify(bodyJson);
@@ -89,7 +91,23 @@ exports.handler = async event => {
   //output += additionalResponse;
   //return {statusCode: 200, body: output}
   // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
-  return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncryptedPassword})}
+  const verificationCode = randomCode(6)
+
+  new AWS.SNS().publish({
+    Message: `Your Atbash verification code is ${verificationCode}`,
+    PhoneNumber: phoneNumber,
+  })
+
+  return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncryptedPassword, "verification": verificationCode})}
+}
+
+const randomCode = (length) => {
+  const characters = "0123456789"
+  let str = ""
+  for (let i = 0; i < length; i++) {
+    str += characters.charAt(Math.floor(Math.random() * characters.length))
+  }
+  return str
 }
 
 const authenticateSignature = (body) => {

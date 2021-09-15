@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:mobile/exceptions/InvalidParametersException.dart';
@@ -44,6 +45,10 @@ class BlindingSignature {
     _mDash = Uint8List(8 + _sLen + _hLen);
     _forSigning = forSigning;
     _blindingFactor = blindingFactor;
+    _random = FortunaRandom();
+    final sGen = Random.secure();
+    _random.seed(KeyParameter(
+        Uint8List.fromList(List.generate(32, (_) => sGen.nextInt(255)))));
 
     if(key.n == null) {
       throw InvalidParametersException("Modulus cannot be null");

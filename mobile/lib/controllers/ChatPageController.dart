@@ -51,8 +51,24 @@ class ChatPageController {
 
     if (privateChat != null) {
       chat = Future.value(privateChat);
-      communicationService.onAcceptPrivateChat =
-          () => privateChatAccepted = true;
+      communicationService.onAcceptPrivateChat = () async {
+        privateChatAccepted = true;
+
+        final chat = await this.chat;
+
+        final name = chat.contact?.displayName ?? chat.contactPhoneNumber;
+
+        model.addMessage(
+          Message(
+            id: Uuid().v4(),
+            chatId: chatId,
+            isIncoming: true,
+            otherPartyPhoneNumber: contactPhoneNumber,
+            contents: "$name has accepted the private chat",
+            timestamp: DateTime.now(),
+          ),
+        );
+      };
     } else {
       chat = chatService.fetchById(chatId);
     }

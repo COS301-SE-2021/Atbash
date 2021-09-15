@@ -75,8 +75,8 @@ Resources:
         - AttributeName: 'connectionId'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
@@ -86,8 +86,8 @@ Resources:
             - AttributeName: 'phoneNumber'
               KeyType: 'HASH'
           ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
+            ReadCapacityUnits: 4
+            WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
       Tags:
@@ -104,8 +104,8 @@ Resources:
         - AttributeName: 'phoneNumber'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableUsers
@@ -125,8 +125,8 @@ Resources:
         - AttributeName: 'id'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableMessages
@@ -136,8 +136,8 @@ Resources:
             - AttributeName: 'recipientPhoneNumber'
               KeyType: 'HASH'
           ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
+            ReadCapacityUnits: 4
+            WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
       Tags:
@@ -419,6 +419,53 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref IsContactOnlineFunction
       Principal: apigateway.amazonaws.com
+
+  GetNumberPrekeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_number_prekeys/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
+
+  GetNumberPrekeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetNumberPrekeysFunction
+      Principal: apigateway.amazonaws.com
+
+  UploadKeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: upload_keys
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  UploadKeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref UploadKeysFunction
+      Principal: apigateway.amazonaws.com
+
 
   # --- Web Socket API --- #
   AtbashWebSocket:
@@ -755,6 +802,66 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt IsContactOnlineFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetNumberPrekeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/getNumber'
+      OperationName: GetNumberPrekeysRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetNumberPrekeysIntegration
+  GetNumberPrekeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetNumberPrekeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetNumberPrekeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  UploadKeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/upload'
+      OperationName: UploadKeysRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref UploadKeysIntegration
+  UploadKeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - UploadKeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt UploadKeysFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

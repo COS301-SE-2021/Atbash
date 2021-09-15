@@ -252,9 +252,11 @@ class ChatPageController {
     return chatCacheService.get(chatId);
   }
 
-  void forwardMessage(BuildContext context, String message) {
+  void forwardMessage(
+      BuildContext context, String message, String currentContactName) {
     contactService.fetchAll().then((contacts) {
-      showForwardDialog(context, contacts).then((forwardContacts) async {
+      showForwardDialog(context, contacts, currentContactName)
+          .then((forwardContacts) async {
         if (forwardContacts == null) return;
 
         final allChats = await chatService.fetchAll();

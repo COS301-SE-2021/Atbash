@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
@@ -18,7 +19,6 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/services.dart';
 
 import '../constants.dart';
 
@@ -228,6 +228,17 @@ class _ChatPageState extends State<ChatPage> {
       child: Column(
         children: [
           Flexible(child: _buildMessages()),
+          // if(replying)
+          // Container(
+          //   color: Constants.darkGrey.withOpacity(0.88),
+          //   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+          //   child: Text(
+          //     "Dylan\n"
+          //     "This message was replied to. It is supposed to be super long so that "
+          //     "it doesnt make it all the way blah balh balh",
+          //     style: TextStyle(color: Colors.white),
+          //   ),
+          // ),
           _buildInput(),
         ],
       ),
@@ -324,8 +335,8 @@ class _ChatPageState extends State<ChatPage> {
       },
       onDelete: () => _deleteSingleMessage(message),
       onDoubleTap: () => _likeMessage(message),
-      onForwardPressed: () =>
-          controller.forwardMessage(context, message.contents),
+      onForwardPressed: () => controller.forwardMessage(
+          context, message.contents, controller.model.contactTitle),
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
     );
@@ -514,6 +525,27 @@ class ChatCard extends StatelessWidget {
                                 ],
                               ),
                             ),
+                          //if(repliedTo)
+                          // Container(
+                          //   padding: EdgeInsets.all(2),
+                          //   decoration: BoxDecoration(
+                          //     color: Constants.darkGrey,
+                          //     borderRadius: BorderRadius.circular(4),
+                          //   ),
+                          //   constraints: BoxConstraints(
+                          //     maxWidth: MediaQuery.of(context).size.width * 0.7,
+                          //   ),
+                          //   child: Text(
+                          //     "This message was replied to. It is supposed to be super long so that "
+                          //     "it doesnt make it all the way blah balh balh",
+                          //     style: TextStyle(color: Colors.white),
+                          //     maxLines: 2,
+                          //     overflow: TextOverflow.ellipsis,
+                          //   ),
+                          // ),
+                          SizedBox(
+                            height: 4,
+                          ),
                           Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(
@@ -525,6 +557,18 @@ class ChatCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                //if(edited)
+                                // Text(
+                                //   "Edited",
+                                //   style: TextStyle(
+                                //       fontSize: 10, color: Colors.white),
+                                // ),
+                                //if(edited)
+                                // Expanded(child: Container()),
+                                //if(edited)
+                                // SizedBox(
+                                //   width: 10,
+                                // ),
                                 Text(
                                   dateFormatter.format(_message.timestamp),
                                   style: TextStyle(

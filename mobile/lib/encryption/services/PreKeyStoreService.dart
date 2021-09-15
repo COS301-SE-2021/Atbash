@@ -67,6 +67,31 @@ class PreKeyStoreService extends PreKeyStore {
     return list;
   }
 
+  /// Fetches a certain range of PreKeys
+  Future<List<PreKeyRecord>> loadPreKeysRange(int firstPreKeyId, int numberOfKeys) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      PreKeyDBRecord.TABLE_NAME,
+      where: "${PreKeyDBRecord.COLUMN_KEY_ID} > ? and ${PreKeyDBRecord.COLUMN_KEY_ID} < ?",
+      whereArgs: [firstPreKeyId-1, firstPreKeyId+numberOfKeys],
+    );
+
+    final list = <PreKeyRecord>[];
+
+    response.forEach((element) {
+      final record = PreKeyDBRecord.fromMap(element);
+      if (record != null) {
+        final preKeyRecord = PreKeyRecord.fromBuffer(record.serializedKey);
+
+        if (preKeyRecord is PreKeyRecord) {
+          list.add(preKeyRecord);
+        }
+      }
+    });
+
+    return list;
+  }
+
   ///Checks if PreKey exists in the database
   @override
   Future<bool> containsPreKey(int preKeyId) async {
@@ -82,8 +107,10 @@ class PreKeyStoreService extends PreKeyStore {
 
   /// Saves a PreKey to the database and returns.
   @override
-  Future<PreKeyDBRecord> storePreKey(int preKeyId, PreKeyRecord preKeyRecord) async {
-    PreKeyDBRecord preKeyDBRecord = PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
+  Future<PreKeyDBRecord> storePreKey(
+      int preKeyId, PreKeyRecord preKeyRecord) async {
+    PreKeyDBRecord preKeyDBRecord =
+        PreKeyDBRecord(preKeyId, preKeyRecord.serialize());
     final db = await _databaseService.database;
 
     db.insert(PreKeyDBRecord.TABLE_NAME, preKeyDBRecord.toMap(),
@@ -103,5 +130,4 @@ class PreKeyStoreService extends PreKeyStore {
       whereArgs: [preKeyId],
     );
   }
-
 }

@@ -4,7 +4,8 @@ class SendingDataPackage {
   final String recipientNumber;
   final String encryptedContents;
 
-  SendingDataPackage(this.action, this.messageId, this.recipientNumber, this.encryptedContents);
+  SendingDataPackage(this.action, this.messageId, this.recipientNumber,
+      this.encryptedContents);
 
   SendingDataPackage.fromJson(Map<String, dynamic> json)
       : action = json['action'],
@@ -13,11 +14,11 @@ class SendingDataPackage {
         encryptedContents = json['contents'];
 
   Map<String, dynamic> toJson() => {
-    'action': action,
-    'id': messageId,
-    'recipientPhoneNumber': recipientNumber,
-    'contents': encryptedContents,
-  };
+        'action': action,
+        'id': messageId,
+        'recipientPhoneNumber': recipientNumber,
+        'contents': encryptedContents,
+      };
 }
 
 //Decoding

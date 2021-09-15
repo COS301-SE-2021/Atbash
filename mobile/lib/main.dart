@@ -12,6 +12,7 @@ import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
+import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
@@ -82,17 +83,19 @@ void _registerServices() async {
   final navigationObserver = NavigationObserver();
   GetIt.I.registerSingleton(navigationObserver);
 
-  final databaseService = DatabaseService();
-  final encryptionService = _initialiseEncryptionService(databaseService);
+  final userService = UserService();
 
-  final registrationService = RegistrationService(encryptionService);
+  final databaseService = DatabaseService();
+  final encryptionService = _initialiseEncryptionService(databaseService, userService);
+
+  final registrationService = RegistrationService(encryptionService, userService);
 
   GetIt.I.registerSingleton(registrationService);
 
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
-  final userService = UserService();
+  final blockedNumbersService = BlockedNumbersService(databaseService);
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
@@ -113,6 +116,7 @@ void _registerServices() async {
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
+  GetIt.I.registerSingleton(blockedNumbersService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(chatCacheService);
@@ -126,7 +130,7 @@ void _registerServices() async {
 }
 
 EncryptionService _initialiseEncryptionService(
-    DatabaseService databaseService) {
+    DatabaseService databaseService, UserService userService) {
   final identityKeyStoreService = IdentityKeyStoreService(databaseService);
   final preKeyStoreService = PreKeyStoreService(databaseService);
   final sessionStoreService = SessionStoreService(databaseService);
@@ -138,6 +142,7 @@ EncryptionService _initialiseEncryptionService(
     identityKeyStoreService,
   );
   return EncryptionService(
+    userService,
     signalProtocolStoreService,
     identityKeyStoreService,
     signedPreKeyStoreService,

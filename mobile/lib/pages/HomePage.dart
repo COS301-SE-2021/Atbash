@@ -15,6 +15,7 @@ import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
@@ -160,53 +161,62 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    Widget title = Row(
-      children: [
-        Container(
-            margin: EdgeInsets.only(right: 16.0),
-            child: Observer(
-                builder: (_) => AvatarIcon(controller.model.userProfileImage))),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Observer(builder: (_) {
-                final displayName = controller.model.userDisplayName;
-                if (displayName.isEmpty) {
-                  return SizedBox.shrink();
-                } else {
-                  return Text(
-                    displayName,
-                    key: Key("displayName"),
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  );
-                }
-              }),
-              SizedBox(
-                height: 2,
-              ),
-              Observer(
-                builder: (_) {
-                  final status = controller.model.userStatus;
-                  if (status.isEmpty) {
+    Widget title = InkWell(
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(
+                    setup: false,
+                  ))),
+      child: Row(
+        children: [
+          Container(
+              margin: EdgeInsets.only(right: 16.0),
+              child: Observer(
+                  builder: (_) =>
+                      AvatarIcon(controller.model.userProfileImage))),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Observer(builder: (_) {
+                  final displayName = controller.model.userDisplayName;
+                  if (displayName.isEmpty) {
                     return SizedBox.shrink();
                   } else {
                     return Text(
-                      status,
-                      key: Key("status"),
+                      displayName,
+                      key: Key("displayName"),
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 18,
                       ),
                     );
                   }
-                },
-              )
-            ],
+                }),
+                SizedBox(
+                  height: 2,
+                ),
+                Observer(
+                  builder: (_) {
+                    final status = controller.model.userStatus;
+                    if (status.isEmpty) {
+                      return SizedBox.shrink();
+                    } else {
+                      return Text(
+                        status,
+                        key: Key("status"),
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
+                      );
+                    }
+                  },
+                )
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
 
     if (_searching) {

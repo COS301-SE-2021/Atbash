@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-// import 'package:cryptography/cryptography.dart'; //Need to use this
-import 'package:crypto/crypto.dart'; //Remove this and use "cryptography"
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'package:mobile/constants.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
@@ -15,65 +12,50 @@ import 'package:mobile/exceptions/RegistrationErrorException.dart';
 import 'package:mobile/util/Validations.dart';
 import 'EncryptionService.dart';
 
-import 'package:rsa_encrypt/rsa_encrypt.dart' as rsa;
-// import 'package:encrypt/encrypt.dart' as encrypt;
-import 'package:pointycastle/asymmetric/api.dart';
-import 'package:pointycastle/export.dart';
+import 'package:crypton/crypton.dart';
+import 'package:crypto/crypto.dart'; //For Hmac function
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
+
+import 'UserService.dart';
 
 class RegistrationService {
-  RegistrationService(this._encryptionService);
+  RegistrationService(this._encryptionService, this._userService);
 
-  final EncryptionService _encryptionService; // = GetIt.I.get<EncryptionService>();
-
+  final EncryptionService _encryptionService;
+  final UserService _userService;
   final _storage = FlutterSecureStorage();
 
-  Future<bool> register(String phoneNumber, String deviceToken) async {
-    // final url = Uri.parse("https://" + baseURL + "accounts/code/$verificationCode");
-
+  ///This function creates a new Atbash account on the server which will be
+  ///needed for linking a users phone number with their keys
+  Future<bool> register(String phoneNumber) async {
     final url = Uri.parse(Constants.httpUrl + "register");
 
-    throwIfNot(Validations().numberIsValid(phoneNumber),
-        new InvalidNumberException("Invalid number provided in requestRegistrationCode method"));
+    throwIfNot(
+        Validations().numberIsValid(phoneNumber),
+        new InvalidNumberException(
+            "Invalid number provided in requestRegistrationCode method"));
 
-    //Todo: Add device token validation
-
-    // final phoneNumber = await getUserPhoneNumber();
+    ///A MAC is used to prevent an attacker from editing the transmitted data
+    ///The signalingKey contains the data for this
     final registrationId = generateRegistrationId(false);
     final aesKey = generateRandomBytes(32);
     final hmacSha256 = Hmac(sha256, aesKey);
     var signalingKeyBytesBuilder = BytesBuilder();
 
-    // final values = List<int>.generate(24, (i) => _random.nextInt(256));
-    // final devicePassword = Uint8List.fromList(values);
-    //
-    // final authTokenEncoded =
-    //     _generateAuthenticationToken(phoneNumber, devicePassword);
-
-    final rsaHelper = rsa.RsaKeyHelper();
-    final keyPair = await rsaHelper.computeRSAKeyPair(rsaHelper.getSecureRandom());
-
-    final publicKeyStr = rsaHelper.encodePublicKeyToPemPKCS1(keyPair.publicKey as RSAPublicKey);
-    final privateKeyStr = rsaHelper.encodePrivateKeyToPemPKCS1(keyPair.privateKey as RSAPrivateKey);
-
-    //await _encryptionService.generateInitialKeyBundle(registrationId);
-
-    //final identityKeyPair = await _databaseService.fetchIdentityKP();
-
-    // if(identityKeyPair == null){
-    //   throw new InvalidNumberException("Failed to acquire IdentityKeyPair from database.");
-    // }
-
-    // var data = {
-    //   "registrationId": registrationId,
-    //   "deviceToken": deviceToken,
-    //   "signalingKey": "",
-    // };
+    ///An RSA keypair is used so that the server can generate a token
+    ///(that is used to verify the authenticity of requests)
+    ///and send it back encrypted
+    /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
+    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
     var data = {
       "registrationId": registrationId,
       "phoneNumber": phoneNumber,
-      "rsaPublicKey": publicKeyStr,
-      "deviceToken": deviceToken,
+      "rsaPublicKey": {
+        "n": pubRsaKey.n.toString(),
+        "e": pubRsaKey.publicExponent.toString()
+      },
       "signalingKey": "",
     };
 
@@ -92,38 +74,30 @@ class RegistrationService {
 
     if (response.statusCode == 200) {
       final responseBodyJson = jsonDecode(response.body);
-      final devicePassword = responseBodyJson["password"] as String?;
+      final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
-      if(devicePassword == null){
-        throw new RegistrationErrorException("Server response was in an invalid format. Response body: " + response.body);
+      if (encryptedDevicePassword == null) {
+        throw new RegistrationErrorException(
+            "Server response was in an invalid format. Response body: " +
+                response.body);
       }
-      if(formattedPhoneNumber != null){
+      if (formattedPhoneNumber != null) {
         phoneNumber = formattedPhoneNumber;
       }
 
-      //Method 1
-      final encodedPassword = base64Decode(devicePassword);
-      var cipher = new RSAEngine()..init(false, new PrivateKeyParameter<RSAPrivateKey>(keyPair.privateKey as RSAPrivateKey));
-      final unencryptedPassword = cipher.process(encodedPassword);
+      final base64DevicePassword =
+          rsaKeypair.privateKey.decrypt(encryptedDevicePassword);
+      final devicePassword = base64Decode(base64DevicePassword);
 
-      //Method 2
-      // final encryptor = encrypt.Encrypter(encrypt.RSA(
-      //     publicKey: keyPair.publicKey as RSAPublicKey,
-      //     privateKey: keyPair.privateKey as RSAPrivateKey
-      // ));
-      // final unencryptedPassword = base64Decode(encryptor.decrypt64(devicePassword));
-
-      final authTokenEncoded = _generateAuthenticationToken(phoneNumber, unencryptedPassword);
+      final authTokenEncoded =
+          _generateAuthenticationToken(phoneNumber, devicePassword);
 
       Future.wait([
         //_storage.write(key: "registration_id", value: registrationId.toString()),
         _storage.write(
-            key: "device_password_base64",
-            value: base64.encode(unencryptedPassword)), //Necessary to convert to base64 here?
+            key: "device_password_base64", value: base64DevicePassword),
         _storage.write(
             key: "device_authentication_token_base64", value: authTokenEncoded),
-        _storage.write(key: "rsa_public_key", value: publicKeyStr),
-        _storage.write(key: "rsa_private_key", value: privateKeyStr),
         _storage.write(key: "phone_number", value: phoneNumber),
       ]);
 
@@ -131,29 +105,33 @@ class RegistrationService {
 
       return registerKeys();
     } else {
-      print("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
-      throw new RegistrationErrorException("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+      throw new RegistrationErrorException(
+          "Server request was unsuccessful.\nResponse code: " +
+              response.statusCode.toString() +
+              ".\nReason: " +
+              response.body);
       //return false;
     }
   }
 
+  ///This method uploads all the generated public keys for the signal
+  ///algorithm to the Atbash server
   Future<bool> registerKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
-    final phoneNumber = await _encryptionService.getUserPhoneNumber();
-    // final devicePassword = await getDevicePassword();
-    // final authTokenEncoded = _generateAuthenticationToken(phoneNumber, devicePassword);
-    final authTokenEncoded = await _encryptionService.getDeviceAuthTokenEncoded();
+    final phoneNumber = await _userService.getPhoneNumber();
+    final authTokenEncoded =
+        await _encryptionService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();
     final preKeys = await _encryptionService.loadPreKeys();
 
-    if (identityKeyPair == null ||
-        signedPreKey == null ||
-        preKeys.isEmpty ||
-        preKeys.length < 100) {
-      ///Output reason for failure to log here??
+    if (signedPreKey == null || preKeys.isEmpty || preKeys.length < 100) {
       return false;
     }
 
@@ -175,7 +153,7 @@ class RegistrationService {
       "signedPreKey": {
         "keyId": signedPreKey.id,
         "publicKey":
-        base64Encode(signedPreKey.getKeyPair().publicKey.serialize()),
+            base64Encode(signedPreKey.getKeyPair().publicKey.serialize()),
         "signature": base64Encode(signedPreKey.signature)
       }
     };
@@ -192,8 +170,15 @@ class RegistrationService {
       print("Successfully registered");
       return true;
     } else {
-      print("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
-      throw new RegistrationErrorException("Server request was unsuccessful.\nResponse code: " + response.statusCode.toString() + ".\nReason: " + response.body);
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+      throw new RegistrationErrorException(
+          "Server request was unsuccessful.\nResponse code: " +
+              response.statusCode.toString() +
+              ".\nReason: " +
+              response.body);
       //return false;
     }
   }
@@ -220,6 +205,8 @@ class RegistrationService {
     }
   }
 
+  ///This method combines the phone number with the returned password to
+  ///generate the authentification token
   String _generateAuthenticationToken(
       String phoneNumber, Uint8List passwordBytes) {
     var authBytesBuilder = BytesBuilder();
@@ -231,29 +218,26 @@ class RegistrationService {
     return base64.encode(authBytesBuilder.toBytes());
   }
 
-
-
-
 // Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
-  //   throwIfNot(
-  //       Validations().numberIsValid(phoneNumber),
-  //       new InvalidNumberException(
-  //           "Invalid number provided in requestRegistrationCode method"));
-  //
-  //   final url =
-  //   Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
-  //
-  //   final response = await http.get(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     Future.wait([
-  //       _storage.write(key: "phone_number", value: phoneNumber),
-  //     ]);
-  //
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
+//   throwIfNot(
+//       Validations().numberIsValid(phoneNumber),
+//       new InvalidNumberException(
+//           "Invalid number provided in requestRegistrationCode method"));
+//
+//   final url =
+//   Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
+//
+//   final response = await http.get(url);
+//
+//   if (response.statusCode == 200) {
+//     Future.wait([
+//       _storage.write(key: "phone_number", value: phoneNumber),
+//     ]);
+//
+//     return true;
+//   } else {
+//     return false;
+//   }
+// }
 
 }

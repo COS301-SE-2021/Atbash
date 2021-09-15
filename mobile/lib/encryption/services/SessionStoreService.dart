@@ -35,7 +35,7 @@ class SessionStoreService extends SessionStore {
     final response = await db.query(
       SessionDBRecord.TABLE_NAME,
       where:
-      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+          "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
       whereArgs: [address.getName(), address.getDeviceId()],
     );
 
@@ -56,7 +56,7 @@ class SessionStoreService extends SessionStore {
     db.delete(
       SessionDBRecord.TABLE_NAME,
       where:
-      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+          "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
       whereArgs: [address.getName(), address.getDeviceId()],
     );
   }
@@ -68,7 +68,7 @@ class SessionStoreService extends SessionStore {
     final response = await db.query(
       SessionDBRecord.TABLE_NAME,
       where:
-      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} != 1",
+          "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} != 1",
       whereArgs: [name],
     );
 
@@ -90,7 +90,7 @@ class SessionStoreService extends SessionStore {
     final response = await db.query(
       SessionDBRecord.TABLE_NAME,
       where:
-      "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
+          "${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_NAME} = ? and ${SessionDBRecord.COLUMN_PROTOCOL_ADDRESS_DEVICE_ID} = ?",
       whereArgs: [address.getName(), address.getDeviceId()],
     );
 
@@ -105,11 +105,13 @@ class SessionStoreService extends SessionStore {
 
   /// Saves a SessionRecord to the database and returns.
   @override
-  Future<void> storeSession(SignalProtocolAddress address, SessionRecord record) async {
-    SessionDBRecord sessionDBRecord = SessionDBRecord(address, record.serialize());
+  Future<void> storeSession(
+      SignalProtocolAddress address, SessionRecord record) async {
+    SessionDBRecord sessionDBRecord =
+        SessionDBRecord(address, record.serialize());
     final db = await _databaseService.database;
 
-    await db.insert(SessionDBRecord.TABLE_NAME, sessionDBRecord.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert(SessionDBRecord.TABLE_NAME, sessionDBRecord.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
-
 }

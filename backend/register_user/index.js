@@ -93,10 +93,10 @@ exports.handler = async event => {
   // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
   const verificationCode = randomCode(6)
 
-  new AWS.SNS().publish({
+  await new AWS.SNS().publish({
     Message: `Your Atbash verification code is ${verificationCode}`,
     PhoneNumber: phoneNumber,
-  })
+  }).promise().then(console.log).catch(console.log)
 
   return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncryptedPassword, "verification": verificationCode})}
 }

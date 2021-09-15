@@ -81,7 +81,8 @@ class _ChatPageState extends State<ChatPage> {
       onWillPop: () async {
         if (controller.model.chatType == ChatType.private)
           controller.stopPrivateChat();
-        return true;
+        Navigator.popUntil(context, ModalRoute.withName("/"));
+        return false;
       },
       child: Container(
         decoration: BoxDecoration(

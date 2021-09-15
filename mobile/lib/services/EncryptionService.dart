@@ -546,6 +546,7 @@ class EncryptionService {
     return PointyUtils.decodeBigIntWithSign(1, bytes);
   }
 
+  ///See: https://github.com/vaibhavsingh1993/BlindSignatures/blob/master/src/main/java/com/vaicoin/test/TestBlindSignature.java
   Uint8List createBlindedMessage(String msg, Pointy.RSAPublicKey key, BigInt blindingFactor, Uint8List salt){
     // BigInt blindingFactor = generateBlindingFactor(key);
     Pointy.Digest digest = new Pointy.SHA1Digest();

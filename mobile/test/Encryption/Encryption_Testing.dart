@@ -97,6 +97,7 @@ void main() {
 
     String messageToSign = "Hello this message will be signed";
     print("Message to sign: " + messageToSign);
+    print("Message to sign: " + base64Encode(utf8.encode(messageToSign)));
     BigInt blindingFactor = encryptionService.generateBlindingFactor(pubRsaKey);
 
     Uint8List blindedMessage = encryptionService.createBlindedMessage(messageToSign, pubRsaKey, blindingFactor, salt);

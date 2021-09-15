@@ -53,7 +53,7 @@ class BlindingSignature {
       throw InvalidParametersException("Exponent cannot be null");
     }
 
-    AsymmetricKeyParameter<RSAAsymmetricKey> kParam = PublicKeyParameter(key);
+    AsymmetricKeyParameter<RSAAsymmetricKey> kParam = new PublicKeyParameter<RSAPublicKey>(key);
     _kParam = kParam;
 
     //--RSABlindingEngine.init

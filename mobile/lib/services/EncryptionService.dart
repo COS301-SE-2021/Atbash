@@ -563,7 +563,7 @@ class EncryptionService {
     //Send off to server
     //--Server signing
     RSACoreEngine engine = new RSACoreEngine();
-    engine.init(true, Pointy.PrivateKeyParameter(pKey));
+    engine.init(true, Pointy.PrivateKeyParameter<Pointy.RSAPrivateKey>(pKey));
     Uint8List signedMessage = engine.process(blindedMessage);
     //--Server signing
     //Get signedMessage back from server

@@ -40,6 +40,7 @@ class CommunicationService {
       [];
   List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
+  void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
 
@@ -340,6 +341,9 @@ class CommunicationService {
           break;
         case "stopPrivateChat":
           onStopPrivateChat?.call(senderPhoneNumber);
+          break;
+        case "acceptPrivateChat":
+          onAcceptPrivateChat?.call();
           break;
       }
 

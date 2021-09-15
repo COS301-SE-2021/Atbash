@@ -1,15 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
-import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/encryption/services/IdentityKeyStoreService.dart';
 import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
-import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
@@ -26,9 +21,6 @@ import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
-import 'package:uuid/uuid.dart';
-
-import 'domain/Contact.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,9 +78,11 @@ void _registerServices() async {
   final userService = UserService();
 
   final databaseService = DatabaseService();
-  final encryptionService = _initialiseEncryptionService(databaseService, userService);
+  final encryptionService =
+      _initialiseEncryptionService(databaseService, userService);
 
-  final registrationService = RegistrationService(encryptionService, userService);
+  final registrationService =
+      RegistrationService(encryptionService, userService);
 
   GetIt.I.registerSingleton(registrationService);
 
@@ -102,6 +96,7 @@ void _registerServices() async {
   final memoryStoreService = MemoryStoreService();
   final notificationService = NotificationService();
   final communicationService = CommunicationService(
+    blockedNumbersService,
     encryptionService,
     userService,
     chatService,

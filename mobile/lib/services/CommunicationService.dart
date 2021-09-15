@@ -312,7 +312,7 @@ class CommunicationService {
             final contact =
                 await contactService.fetchByPhoneNumber(senderPhoneNumber);
             body = "${contact.displayName} wants to chat privately.";
-          } on DuplicateContactPhoneNumberException {
+          } on ContactWithPhoneNumberDoesNotExistException {
             body = "$senderPhoneNumber wants to chat privately.";
           }
 

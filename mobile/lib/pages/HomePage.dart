@@ -73,6 +73,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           );
+          communicationService.sendAcceptPrivateChat(map["senderPhoneNumber"]);
         } else if (map["type"] == "message") {
           final chatId = map["chatId"];
           Navigator.push(

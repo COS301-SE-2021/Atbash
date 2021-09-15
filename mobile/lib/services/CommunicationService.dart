@@ -580,6 +580,11 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "stopPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
       {String? id}) async {
     final userPhoneNumber = await userService.getPhoneNumber();

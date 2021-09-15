@@ -73,6 +73,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           );
+          communicationService.sendAcceptPrivateChat(map["senderPhoneNumber"]);
         } else if (map["type"] == "message") {
           final chatId = map["chatId"];
           Navigator.push(
@@ -94,8 +95,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       } on ContactWithPhoneNumberDoesNotExistException {
         body = "$senderPhoneNumber has ended the private chat";
       }
+      Navigator.popUntil(context, ModalRoute.withName("/"));
       await showInfoDialog(context, body);
-      Navigator.pop(context);
     };
 
     WidgetsBinding.instance?.addObserver(this);

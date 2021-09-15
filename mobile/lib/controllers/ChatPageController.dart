@@ -33,6 +33,7 @@ class ChatPageController {
   final String chatId;
   late final Future<Chat> chat;
   late final String contactPhoneNumber;
+  bool privateChatAccepted = false;
 
   ChatPageController({required this.chatId, Chat? privateChat}) {
     communicationService.onMessage(_onMessage);
@@ -50,6 +51,24 @@ class ChatPageController {
 
     if (privateChat != null) {
       chat = Future.value(privateChat);
+      communicationService.onAcceptPrivateChat = () async {
+        privateChatAccepted = true;
+
+        final chat = await this.chat;
+
+        final name = chat.contact?.displayName ?? chat.contactPhoneNumber;
+
+        model.addMessage(
+          Message(
+            id: Uuid().v4(),
+            chatId: chatId,
+            isIncoming: true,
+            otherPartyPhoneNumber: contactPhoneNumber,
+            contents: "$name has accepted the private chat",
+            timestamp: DateTime.now(),
+          ),
+        );
+      };
     } else {
       chat = chatService.fetchById(chatId);
     }
@@ -182,10 +201,12 @@ class ChatPageController {
       isMedia: true,
     );
 
+    final chatType = (await chat).chatType;
+
     model.addMessage(message);
     communicationService.sendImage(
       message,
-      ChatType.general,
+      chatType,
       contactPhoneNumber,
     );
     chat.then((chat) {
@@ -321,6 +342,7 @@ class ChatPageController {
   }
 
   void stopPrivateChat() {
-    communicationService.sendStopPrivateChat(contactPhoneNumber);
+    if (privateChatAccepted)
+      communicationService.sendStopPrivateChat(contactPhoneNumber);
   }
 }

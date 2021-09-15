@@ -40,6 +40,7 @@ class CommunicationService {
       [];
   List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
+  void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
 
@@ -341,6 +342,9 @@ class CommunicationService {
         case "stopPrivateChat":
           onStopPrivateChat?.call(senderPhoneNumber);
           break;
+        case "acceptPrivateChat":
+          onAcceptPrivateChat?.call();
+          break;
       }
 
       await _deleteMessageFromServer(id);
@@ -573,6 +577,11 @@ class CommunicationService {
 
   Future<void> sendStopPrivateChat(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "stopPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "acceptPrivateChat"});
     _queueForSending(contents, recipientPhoneNumber);
   }
 

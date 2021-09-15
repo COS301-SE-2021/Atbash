@@ -546,8 +546,8 @@ class EncryptionService {
     return PointyUtils.decodeBigIntWithSign(1, bytes);
   }
 
-  Uint8List createBlindedMessage(String msg, Pointy.RSAPublicKey key){
-    BigInt blindingFactor = generateBlindingFactor(key);
+  Uint8List createBlindedMessage(String msg, Pointy.RSAPublicKey key, BigInt blindingFactor){
+    // BigInt blindingFactor = generateBlindingFactor(key);
     Pointy.Digest digest = new Pointy.SHA1Digest();
 
     BlindingSignature blindingSignature = new BlindingSignature(digest, digest, 20);

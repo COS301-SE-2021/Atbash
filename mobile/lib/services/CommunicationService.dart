@@ -363,11 +363,11 @@ class CommunicationService {
       tags: [],
     );
 
-      if (chatType == ChatType.general) {
-        await messageService.insert(message);
-      }
-      await sendAck(id, senderPhoneNumber);
-      _onMessageListeners.forEach((listener) => listener(message));
+    if (chatType == ChatType.general) {
+      await messageService.insert(message);
+    }
+    await sendAck(id, senderPhoneNumber);
+    _onMessageListeners.forEach((listener) => listener(message));
 
     _notifyUser(
       senderPhoneNumber: senderPhoneNumber,

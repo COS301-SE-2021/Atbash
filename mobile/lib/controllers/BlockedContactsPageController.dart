@@ -14,7 +14,8 @@ class BlockedContactsPageController {
 
   void reload() {
     blockedNumbersService.fetchAll().then((numbers) {
-      model.blockedNumbers = numbers;
+      model.blockedNumbers.clear();
+      model.blockedNumbers.addAll(numbers);
     });
   }
 
@@ -27,6 +28,11 @@ class BlockedContactsPageController {
   Future<void> deleteNumber(String number) async {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
     await blockedNumbersService.delete(blockedNumber.phoneNumber);
-    model.blockedNumbers.remove(blockedNumber);
+    model.blockedNumbers
+        .removeWhere((element) => element.phoneNumber == number);
+  }
+
+  void updateQuery(String query) {
+    model.filter = query;
   }
 }

@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
@@ -17,6 +18,7 @@ import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 class CommunicationService {
+  final BlockedNumbersService blockedNumbersService;
   final EncryptionService encryptionService;
   final UserService userService;
   final ChatService chatService;
@@ -71,6 +73,7 @@ class CommunicationService {
       _onMessageLikedListeners.remove(cb);
 
   CommunicationService(
+    this.blockedNumbersService,
     this.encryptionService,
     this.userService,
     this.chatService,
@@ -168,6 +171,12 @@ class CommunicationService {
         print(exception.toString());
         return;
       }
+
+      final blockedNumbers = await blockedNumbersService.fetchAll();
+
+      if (blockedNumbers
+          .any((element) => element.phoneNumber == senderPhoneNumber)) return;
+
       print("Decrypted message: " +
           jsonDecode(decryptedContentsEncoded).toString());
       final Map<String, Object?> decryptedContents =

@@ -587,7 +587,7 @@ class EncryptionService {
     //-- Server verify
     Pointy.Digest digest3 = new Pointy.SHA1Digest();
     Pointy.PSSSigner signer = new Pointy.PSSSigner(new RSACoreEngine(), digest3, digest3);
-    signer.init(false, new Pointy.ParametersWithSaltConfiguration(Pointy.PublicKeyParameter(key), Pointy.FortunaRandom(), 20));
+    signer.init(false, new Pointy.ParametersWithSaltConfiguration(Pointy.PublicKeyParameter<Pointy.RSAPublicKey>(key), Pointy.FortunaRandom(), 20));
 
     bool result = signer.verifySignature(utf8.encode(originalMsg) as Uint8List, Pointy.PSSSignature(unblindedSignedMessage));
     //-- Server verify

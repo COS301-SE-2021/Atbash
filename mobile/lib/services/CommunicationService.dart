@@ -36,6 +36,8 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
+  void Function(String senderPhoneNumber)? onStopPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
 
@@ -224,7 +226,11 @@ class CommunicationService {
           final messageId = decryptedContents["messageId"] as String;
           final liked = decryptedContents["liked"] as bool;
 
-          messageService.setMessageLiked(messageId, liked);
+          messageService.setMessageLiked(messageId, liked).catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onMessageLikedListeners
               .forEach((listener) => listener(messageId, liked));
           break;
@@ -256,8 +262,13 @@ class CommunicationService {
 
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
-          messageService.setMessageReadReceipt(
-              messageId, ReadReceipt.delivered);
+          messageService
+              .setMessageReadReceipt(messageId, ReadReceipt.delivered)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onAckListeners.forEach((listener) => listener(messageId));
           break;
 
@@ -268,8 +279,15 @@ class CommunicationService {
                 .map((e) => e as String)
                 .toList();
 
-            messageIds.forEach((id) =>
-                messageService.setMessageReadReceipt(id, ReadReceipt.seen));
+            messageIds.forEach((id) {
+              messageService
+                  .setMessageReadReceipt(id, ReadReceipt.seen)
+                  .catchError((err) {
+                if (err.runtimeType != MessageNotFoundException) {
+                  print(err);
+                }
+              });
+            });
 
             _onAckSeenListeners.forEach((listener) => listener(messageIds));
           }
@@ -287,6 +305,32 @@ class CommunicationService {
           if (profileImage != null) {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
+          break;
+        case "startPrivateChat":
+          String body = "";
+          try {
+            final contact =
+                await contactService.fetchByPhoneNumber(senderPhoneNumber);
+            body = "${contact.displayName} wants to chat privately.";
+          } on DuplicateContactPhoneNumberException {
+            body = "$senderPhoneNumber wants to chat privately.";
+          }
+
+          final payload = {
+            "type": "privateChat",
+            "senderPhoneNumber": senderPhoneNumber,
+          };
+
+          notificationService.showNotification(
+            title: "Incoming private chat",
+            body: body,
+            payload: payload,
+          );
+          _onPrivateChatListeners
+              .forEach((listener) => listener(senderPhoneNumber));
+          break;
+        case "stopPrivateChat":
+          onStopPrivateChat?.call(senderPhoneNumber);
           break;
       }
 
@@ -336,7 +380,9 @@ class CommunicationService {
       tags: [],
     );
 
-    await messageService.insert(message);
+    if (chatType == ChatType.general) {
+      await messageService.insert(message);
+    }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));
 
@@ -344,6 +390,7 @@ class CommunicationService {
       senderPhoneNumber: senderPhoneNumber,
       messageContents: contents,
       isMedia: isMedia,
+      chatId: chatId,
     );
   }
 
@@ -351,6 +398,7 @@ class CommunicationService {
     required String senderPhoneNumber,
     required String messageContents,
     required bool isMedia,
+    required String chatId,
   }) async {
     if (shouldBlockNotifications(senderPhoneNumber)) {
       return;
@@ -376,7 +424,16 @@ class CommunicationService {
       }
     }
 
-    notificationService.showNotification(title: title, body: body);
+    final payload = {
+      "senderPhoneNumber": senderPhoneNumber,
+      "type": "message",
+      "chatId": chatId,
+    };
+    notificationService.showNotification(
+      title: title,
+      body: body,
+      payload: payload,
+    );
   }
 
   Future<void> _deleteMessageFromServer(String id) async {
@@ -498,6 +555,16 @@ class CommunicationService {
   Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestProfileImage"});
     _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendStartPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "startPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendStopPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "stopPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,

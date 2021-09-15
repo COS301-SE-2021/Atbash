@@ -24,18 +24,25 @@ import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatId;
+  final Chat? privateChat;
 
-  const ChatPage({Key? key, required this.chatId}) : super(key: key);
+  const ChatPage({Key? key, required this.chatId})
+      : privateChat = null,
+        super(key: key);
+
+  ChatPage.privateChat({required this.chatId, this.privateChat});
 
   @override
-  _ChatPageState createState() => _ChatPageState(chatId: chatId);
+  _ChatPageState createState() =>
+      _ChatPageState(chatId: chatId, privateChat: privateChat);
 }
 
 class _ChatPageState extends State<ChatPage> {
   final ChatPageController controller;
 
-  _ChatPageState({required String chatId})
-      : controller = ChatPageController(chatId: chatId);
+  _ChatPageState({required String chatId, Chat? privateChat})
+      : controller =
+            ChatPageController(chatId: chatId, privateChat: privateChat);
 
   late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
@@ -70,17 +77,24 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
-          fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: () async {
+        if (controller.model.chatType == ChatType.private)
+          controller.stopPrivateChat();
+        return true;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: _buildAppBar(context),
-        body: _buildBody(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: _buildBody(),
+        ),
       ),
     );
   }
@@ -166,7 +180,12 @@ class _ChatPageState extends State<ChatPage> {
         }),
         Observer(builder: (_) {
           if (controller.model.chatType != ChatType.private)
-            return IconButton(onPressed: () {}, icon: Icon(Icons.lock));
+            return IconButton(
+              onPressed: () {
+                controller.startPrivateChat(context);
+              },
+              icon: Icon(Icons.lock),
+            );
           else
             return SizedBox.shrink();
         })
@@ -319,6 +338,7 @@ class _ChatPageState extends State<ChatPage> {
       onForwardPressed: () => controller.forwardMessage(
           context, message.contents, controller.model.contactTitle),
       blurImages: controller.model.blurImages,
+      chatType: controller.model.chatType,
     );
   }
 
@@ -408,6 +428,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
   final bool blurImages;
+  final ChatType chatType;
 
   ChatCard(
     this._message, {
@@ -416,6 +437,7 @@ class ChatCard extends StatelessWidget {
     required this.onDoubleTap,
     required this.onForwardPressed,
     this.blurImages = false,
+    this.chatType = ChatType.general,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -450,12 +472,12 @@ class ChatCard extends StatelessWidget {
                       onPressed: onTap,
                       menuItemExtent: 40,
                       menuItems: [
-                        if (!_message.deleted)
+                        if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Tag"),
                               onPressed: () {},
                               trailingIcon: Icon(Icons.tag)),
-                        if (!_message.deleted)
+                        if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Forward"),
                               onPressed: () {
@@ -468,17 +490,18 @@ class ChatCard extends StatelessWidget {
                               onPressed: () => Clipboard.setData(
                                   ClipboardData(text: _message.contents)),
                               trailingIcon: Icon(Icons.copy)),
-                        FocusedMenuItem(
-                            title: Text(
-                              "Delete",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            onPressed: onDelete,
-                            trailingIcon: Icon(
-                              Icons.delete,
-                              color: Constants.white,
-                            ),
-                            backgroundColor: Colors.redAccent),
+                        if (chatType == ChatType.general)
+                          FocusedMenuItem(
+                              title: Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: onDelete,
+                              trailingIcon: Icon(
+                                Icons.delete,
+                                color: Constants.white,
+                              ),
+                              backgroundColor: Colors.redAccent),
                       ],
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,

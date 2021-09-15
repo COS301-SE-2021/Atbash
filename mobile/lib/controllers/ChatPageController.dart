@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/dialogs/ForwardDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ChatPageModel.dart';
+import 'package:mobile/pages/ChatPage.dart';
 import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
@@ -32,7 +34,7 @@ class ChatPageController {
   late final Future<Chat> chat;
   late final String contactPhoneNumber;
 
-  ChatPageController({required this.chatId}) {
+  ChatPageController({required this.chatId, Chat? privateChat}) {
     communicationService.onMessage(_onMessage);
 
     communicationService.onDelete(_onDelete);
@@ -46,7 +48,12 @@ class ChatPageController {
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 
-    chat = chatService.fetchById(chatId);
+    if (privateChat != null) {
+      chat = Future.value(privateChat);
+    } else {
+      chat = chatService.fetchById(chatId);
+    }
+
     chat.then((chat) {
       contactPhoneNumber = chat.contactPhoneNumber;
       model.contactTitle = chat.contact?.displayName ?? chat.contactPhoneNumber;
@@ -95,7 +102,13 @@ class ChatPageController {
   void _onMessage(Message message) {
     if (message.chatId == chatId) {
       model.addMessage(message);
-      messageService.setMessageReadReceipt(message.id, ReadReceipt.seen);
+      communicationService.sendAckSeen([message.id], contactPhoneNumber);
+      chat.then((chat) {
+        if (chat.chatType == ChatType.general)
+          messageService.setMessageReadReceipt(message.id, ReadReceipt.seen);
+      });
+    } else if (message.otherPartyPhoneNumber == contactPhoneNumber) {
+      model.addMessage(message);
       communicationService.sendAckSeen([message.id], contactPhoneNumber);
     }
   }
@@ -136,6 +149,7 @@ class ChatPageController {
     communicationService.shouldBlockNotifications = (phoneNumber) => false;
     contactService.disposeOnChanged(_onContactChanged);
     memoryStoreService.disposeOnContactOnline(_onOnline);
+    //communicationService.onStopPrivateChat = null;
   }
 
   void sendMessage(String contents) async {
@@ -151,8 +165,10 @@ class ChatPageController {
     final chatType = (await chat).chatType;
 
     communicationService.sendMessage(message, chatType, contactPhoneNumber);
-    messageService.insert(message);
     model.addMessage(message);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general) messageService.insert(message);
+    });
   }
 
   void sendImage(Uint8List imageBytes) async {
@@ -167,33 +183,43 @@ class ChatPageController {
     );
 
     model.addMessage(message);
-    messageService.insert(message);
     communicationService.sendImage(
       message,
       ChatType.general,
       contactPhoneNumber,
     );
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general) messageService.insert(message);
+    });
   }
 
   void deleteMessagesLocally(List<String> ids) {
-    ids.forEach((id) {
-      messageService.deleteById(id);
-      model.removeMessageById(id);
+    chat.then((chat) {
+      ids.forEach((id) {
+        model.removeMessageById(id);
+        if (chat.chatType == ChatType.general) messageService.deleteById(id);
+      });
     });
   }
 
   void deleteMessagesRemotely(List<String> ids) {
-    ids.forEach((id) {
-      communicationService.sendDelete(id, contactPhoneNumber);
-      messageService.setMessageDeleted(id);
-      model.setDeletedById(id);
+    chat.then((chat) {
+      ids.forEach((id) {
+        communicationService.sendDelete(id, contactPhoneNumber);
+        model.setDeletedById(id);
+        if (chat.chatType == ChatType.general)
+          messageService.setMessageDeleted(id);
+      });
     });
   }
 
   void likeMessage(String messageId, bool liked) {
     communicationService.sendLiked(messageId, liked, contactPhoneNumber);
-    messageService.setMessageLiked(messageId, liked);
     model.setLikedById(messageId, liked);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general)
+        messageService.setMessageLiked(messageId, liked);
+    });
   }
 
   void addSenderAsContact(String displayName) {
@@ -204,17 +230,22 @@ class ChatPageController {
       profileImage: "",
     );
 
-    contactService.insert(contact);
-
     communicationService.sendRequestProfileImage(contactPhoneNumber);
     communicationService.sendRequestStatus(contactPhoneNumber);
 
     model.contactSaved = true;
     model.contactTitle = displayName;
+
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general) contactService.insert(contact);
+    });
   }
 
   void storeTypedMessage(String message) {
-    chatCacheService.put(chatId, message);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general)
+        chatCacheService.put(chatId, message);
+    });
   }
 
   String getTypedMessage() {
@@ -261,5 +292,35 @@ class ChatPageController {
         });
       });
     });
+  }
+
+  void startPrivateChat(BuildContext context) async {
+    communicationService.sendStartPrivateChat(contactPhoneNumber);
+    Contact? contact;
+    try {
+      contact = await contactService.fetchByPhoneNumber(contactPhoneNumber);
+    } on ContactWithPhoneNumberDoesNotExistException {
+      contact = null;
+    }
+
+    final Chat chat = Chat(
+      id: Uuid().v4(),
+      contactPhoneNumber: contactPhoneNumber,
+      chatType: ChatType.private,
+      contact: contact,
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatPage.privateChat(
+          privateChat: chat,
+          chatId: chat.id,
+        ),
+      ),
+    );
+  }
+
+  void stopPrivateChat() {
+    communicationService.sendStopPrivateChat(contactPhoneNumber);
   }
 }

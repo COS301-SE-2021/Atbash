@@ -581,7 +581,7 @@ class CommunicationService {
   }
 
   Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "startPrivateChat"});
+    final contents = jsonEncode({"type": "acceptPrivateChat"});
     _queueForSending(contents, recipientPhoneNumber);
   }
 

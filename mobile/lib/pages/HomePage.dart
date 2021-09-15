@@ -73,6 +73,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               ),
             ),
           );
+        } else if (map["type"] == "message") {
+          final chatId = map["chatId"];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChatPage(chatId: chatId),
+            ),
+          );
         }
       }
     };

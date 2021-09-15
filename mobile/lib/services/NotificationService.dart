@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
@@ -41,7 +40,7 @@ class NotificationService {
     required String title,
     required String body,
     bool withSound = false,
-    String? payload,
+    Map<String, Object>? payload,
   }) {
     final androidNotificationDetails = AndroidNotificationDetails(
       "message",
@@ -68,7 +67,7 @@ class NotificationService {
       title,
       body,
       notificationDetails,
-      payload: payload,
+      payload: jsonEncode(payload),
     );
   }
 }

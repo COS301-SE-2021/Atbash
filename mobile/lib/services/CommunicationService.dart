@@ -322,9 +322,10 @@ class CommunicationService {
           };
 
           notificationService.showNotification(
-              title: "Incoming private chat",
-              body: body,
-              payload: jsonEncode(payload));
+            title: "Incoming private chat",
+            body: body,
+            payload: payload,
+          );
           _onPrivateChatListeners
               .forEach((listener) => listener(senderPhoneNumber));
           break;
@@ -389,6 +390,7 @@ class CommunicationService {
       senderPhoneNumber: senderPhoneNumber,
       messageContents: contents,
       isMedia: isMedia,
+      chatId: chatId,
     );
   }
 
@@ -396,6 +398,7 @@ class CommunicationService {
     required String senderPhoneNumber,
     required String messageContents,
     required bool isMedia,
+    required String chatId,
   }) async {
     if (shouldBlockNotifications(senderPhoneNumber)) {
       return;
@@ -421,7 +424,16 @@ class CommunicationService {
       }
     }
 
-    notificationService.showNotification(title: title, body: body);
+    final payload = {
+      "senderPhoneNumber": senderPhoneNumber,
+      "type": "message",
+      "chatId": chatId,
+    };
+    notificationService.showNotification(
+      title: title,
+      body: body,
+      payload: payload,
+    );
   }
 
   Future<void> _deleteMessageFromServer(String id) async {

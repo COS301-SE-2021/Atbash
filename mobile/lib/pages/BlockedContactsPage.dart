@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/controllers/BlockedContactsPageController.dart';
-import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
@@ -14,7 +15,6 @@ class BlockedContactsPage extends StatefulWidget {
 
 class _BlockedContactsPageState extends State<BlockedContactsPage> {
   final BlockedContactsPageController controller;
-
   _BlockedContactsPageState() : controller = BlockedContactsPageController();
 
   @override
@@ -57,7 +57,9 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
               ),
               Expanded(
                 child: TextField(
-                  onChanged: (String input) {},
+                  onChanged: (String input) {
+                    controller.updateQuery(input);
+                  },
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -73,13 +75,15 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
             ],
           ),
         ),
-        ListView.builder(
-            shrinkWrap: true,
-            itemCount: controller.model.blockedNumbers.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildContactItem(
-                  controller.model.blockedNumbers[index].phoneNumber);
-            }),
+        Observer(builder: (_) {
+          return ListView.builder(
+              shrinkWrap: true,
+              itemCount: controller.model.filteredNumbers.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildContactItem(
+                    controller.model.filteredNumbers[index].phoneNumber);
+              });
+        })
       ],
     );
   }
@@ -118,8 +122,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   }
 
   void _addBlockedContact() async {
-    final input = await showInputDialog(
-        context, "Please enter the number you wish to block.");
+    final input = await showNewNumberDialog(context);
     if (input != null)
       controller.addNumber(input).catchError((_) {
         showSnackBar(context, "This number has already been blocked.");

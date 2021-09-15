@@ -33,15 +33,17 @@ class BlindingSignature {
   late AsymmetricKeyParameter<RSAAsymmetricKey> _kParam;
   late RSACoreEngine _core;
 
-  BlindingSignature(this._contentDigest, this._mgfDigest, this._sLen,
+  BlindingSignature(this._contentDigest, this._mgfDigest, this._salt,
       {int trailer = TRAILER_IMPLICIT})
       : _hLen = _contentDigest.digestSize,
         _mgfhLen = _mgfDigest.digestSize,
+        _sLen = _salt.length,
+        _sSet = true,
         _trailer = trailer;
 
   void init(bool forSigning, RSAPublicKey key, BigInt blindingFactor){
-    _sSet = false;
-    _salt = Uint8List(_sLen);
+    // _sSet = true;
+    // _salt = Uint8List(_sLen);
     _mDash = Uint8List(8 + _sLen + _hLen);
     _forSigning = forSigning;
     _blindingFactor = blindingFactor;

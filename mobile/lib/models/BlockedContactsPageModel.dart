@@ -8,5 +8,15 @@ class BlockedContactsPageModel = _BlockedContactsPageModel
 
 abstract class _BlockedContactsPageModel with Store {
   @observable
-  List<BlockedNumber> blockedNumbers = [];
+  ObservableList<BlockedNumber> blockedNumbers =
+      <BlockedNumber>[].asObservable();
+
+  @observable
+  String filter = "";
+
+  @computed
+  ObservableList<BlockedNumber> get filteredNumbers => blockedNumbers
+      .where((element) => element.phoneNumber.contains(filter))
+      .toList()
+      .asObservable();
 }

@@ -226,7 +226,11 @@ class CommunicationService {
           final messageId = decryptedContents["messageId"] as String;
           final liked = decryptedContents["liked"] as bool;
 
-          messageService.setMessageLiked(messageId, liked);
+          messageService.setMessageLiked(messageId, liked).catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onMessageLikedListeners
               .forEach((listener) => listener(messageId, liked));
           break;
@@ -258,8 +262,13 @@ class CommunicationService {
 
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
-          messageService.setMessageReadReceipt(
-              messageId, ReadReceipt.delivered);
+          messageService
+              .setMessageReadReceipt(messageId, ReadReceipt.delivered)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onAckListeners.forEach((listener) => listener(messageId));
           break;
 
@@ -270,8 +279,15 @@ class CommunicationService {
                 .map((e) => e as String)
                 .toList();
 
-            messageIds.forEach((id) =>
-                messageService.setMessageReadReceipt(id, ReadReceipt.seen));
+            messageIds.forEach((id) {
+              messageService
+                  .setMessageReadReceipt(id, ReadReceipt.seen)
+                  .catchError((err) {
+                if (err.runtimeType != MessageNotFoundException) {
+                  print(err);
+                }
+              });
+            });
 
             _onAckSeenListeners.forEach((listener) => listener(messageIds));
           }

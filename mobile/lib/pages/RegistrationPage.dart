@@ -138,13 +138,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    controller.register(phoneNumber).then((successful) {
-      if (successful) {
+    controller.register(phoneNumber).then((verificationCode) {
+      if (verificationCode != null) {
+        print("Verification code is $verificationCode");
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfileSettingsPage(setup: true),
-            ));
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileSettingsPage(setup: true),
+          ),
+        );
       } else {
         showSnackBar(context, "This phone number is already registered");
         setState(() {

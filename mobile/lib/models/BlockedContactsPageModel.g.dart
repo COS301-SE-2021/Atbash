@@ -34,6 +34,21 @@ mixin _$BlockedContactsPageModel on _BlockedContactsPageModel, Store {
     });
   }
 
+  final _$contactsAtom = Atom(name: '_BlockedContactsPageModel.contacts');
+
+  @override
+  ObservableList<Contact> get contacts {
+    _$contactsAtom.reportRead();
+    return super.contacts;
+  }
+
+  @override
+  set contacts(ObservableList<Contact> value) {
+    _$contactsAtom.reportWrite(value, super.contacts, () {
+      super.contacts = value;
+    });
+  }
+
   final _$filterAtom = Atom(name: '_BlockedContactsPageModel.filter');
 
   @override
@@ -53,6 +68,7 @@ mixin _$BlockedContactsPageModel on _BlockedContactsPageModel, Store {
   String toString() {
     return '''
 blockedNumbers: ${blockedNumbers},
+contacts: ${contacts},
 filter: ${filter},
 filteredNumbers: ${filteredNumbers}
     ''';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/controllers/BlockedContactsPageController.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/util/Utils.dart';
 
@@ -76,19 +77,31 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
           ),
         ),
         Observer(builder: (_) {
+          String name = "";
+
           return ListView.builder(
               shrinkWrap: true,
               itemCount: controller.model.filteredNumbers.length,
               itemBuilder: (BuildContext context, int index) {
+                if (controller.model.contacts.any((element) =>
+                    element.phoneNumber ==
+                    controller.model.filteredNumbers[index].phoneNumber))
+                  name = controller.model.contacts
+                      .firstWhere((element) =>
+                          element.phoneNumber ==
+                          controller.model.filteredNumbers[index].phoneNumber)
+                      .displayName;
+                else
+                  name = controller.model.filteredNumbers[index].phoneNumber;
                 return _buildContactItem(
-                    controller.model.filteredNumbers[index].phoneNumber);
+                    controller.model.filteredNumbers[index].phoneNumber, name);
               });
         })
       ],
     );
   }
 
-  Widget _buildContactItem(String blockedNumber) {
+  Widget _buildContactItem(String blockedNumber, contactName) {
     return Container(
       child: Column(
         children: [
@@ -100,12 +113,17 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    blockedNumber,
+                    contactName,
                     textAlign: TextAlign.left,
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _removeBlockedContact(blockedNumber),
+                  onPressed: () => showConfirmDialog(context,
+                          "Are you sure you want to remove $contactName from your blocked contacts?")
+                      .then((value) {
+                    if (value != null && value)
+                      _removeBlockedContact(blockedNumber);
+                  }),
                   icon: Icon(Icons.cancel),
                   splashRadius: 24,
                 )

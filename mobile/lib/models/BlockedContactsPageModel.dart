@@ -1,4 +1,5 @@
 import 'package:mobile/domain/BlockedNumber.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobx/mobx.dart';
 
 part 'BlockedContactsPageModel.g.dart';
@@ -10,6 +11,9 @@ abstract class _BlockedContactsPageModel with Store {
   @observable
   ObservableList<BlockedNumber> blockedNumbers =
       <BlockedNumber>[].asObservable();
+
+  @observable
+  ObservableList<Contact> contacts = <Contact>[].asObservable();
 
   @observable
   String filter = "";

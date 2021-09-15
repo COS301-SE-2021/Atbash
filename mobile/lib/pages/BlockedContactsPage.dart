@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/controllers/BlockedContactsPageController.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/util/Utils.dart';
 
@@ -117,7 +118,12 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _removeBlockedContact(blockedNumber),
+                  onPressed: () => showConfirmDialog(context,
+                          "Are you sure you want to remove $contactName from your blocked contacts?")
+                      .then((value) {
+                    if (value != null && value)
+                      _removeBlockedContact(blockedNumber);
+                  }),
                   icon: Icon(Icons.cancel),
                   splashRadius: 24,
                 )

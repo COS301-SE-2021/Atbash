@@ -484,7 +484,7 @@ class ChatCard extends StatelessWidget {
                                 onForwardPressed();
                               },
                               trailingIcon: Icon(Icons.forward)),
-                        if (!_message.deleted)
+                        if (!_message.deleted && !_message.isMedia)
                           FocusedMenuItem(
                               title: Text("Copy"),
                               onPressed: () => Clipboard.setData(

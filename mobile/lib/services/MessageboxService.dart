@@ -39,7 +39,25 @@ class MessageboxService {
   }
 
   Future<RSAPublicKey?> getServerPublicKey() async {
-    return Future.value(null);
+    final url = Uri.parse(Constants.httpUrl + "mailbox/serverPublicKey");
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final responseBodyJson = jsonDecode(response.body) as Map<String, Object>;
+
+      BigInt N = BigInt.parse(responseBodyJson["n"] as String);
+      BigInt E = BigInt.parse(responseBodyJson["e"] as String);
+      RSAPublicKey key = RSAPublicKey(N, E);
+
+      return key;
+    } else {
+      //Soft fail
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+    }
+    return null;
   }
 
   Future<void> getMessageboxKeys(int numKeys) async {

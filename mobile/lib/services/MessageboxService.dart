@@ -10,7 +10,7 @@ import 'UserService.dart';
 
 //Encryption
 import 'package:mobile/encryption/BlindSignatures.dart';
-import 'package:mobile/encryption/MailboxKeyDBRecord.dart';
+import 'package:mobile/encryption/MessageboxTokenDBRecord.dart';
 
 //RSA Cryptography
 import 'package:crypton/crypton.dart';
@@ -41,7 +41,7 @@ class MessageboxService {
 
   Future<void> getMessageboxKeys(int numKeys) async {
     final blindSignatures = BlindSignatures();
-    List<MailboxTokenDBRecord> tokens = [];
+    List<MessageboxTokenDBRecord> tokens = [];
 
     RSAPublicKey? serverKey = await getServerPublicKey();
 
@@ -82,13 +82,13 @@ class MessageboxService {
 
     if (response.statusCode == 200) {
       final responseBodyJson = jsonDecode(response.body) as List;
-      final int numMailboxTokens = await getNumMailboxTokens();
+      final int numMailboxTokens = await getNumMessageboxTokens();
 
       for(var i = 0; i < responseBodyJson.length; i++){
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedPK = responseBodyJson[i]["signedPK"] as String;
 
-        tokens.add(MailboxTokenDBRecord(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
+        tokens.add(MessageboxTokenDBRecord(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
       }
 
       return tokens;
@@ -111,15 +111,15 @@ class MessageboxService {
 
 
   /// This function records the number of mailbox tokens that have been created
-  Future<void> setNumMailboxTokens(int index) async {
+  Future<void> setNumMessageboxTokens(int index) async {
     await _storage.write(key: "num_mailbox_tokens", value: index.toString());
   }
 
   /// This function retrieves the number of mailbox tokens that have been created
-  Future<int> getNumMailboxTokens() async {
+  Future<int> getNumMessageboxTokens() async {
     final indexStr = await _storage.read(key: "num_mailbox_tokens");
     if (indexStr == null) {
-      await setNumMailboxTokens(0);
+      await setNumMessageboxTokens(0);
       return 0;
     } else {
       return int.parse(indexStr);

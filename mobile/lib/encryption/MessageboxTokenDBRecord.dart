@@ -1,11 +1,11 @@
 import 'package:crypton/crypton.dart';
 
-class MailboxTokenDBRecord {
+class MessageboxTokenDBRecord {
   final int id;
   final RSAKeypair keypair;
   final BigInt signedPK;
 
-  MailboxTokenDBRecord(
+  MessageboxTokenDBRecord(
       this.id,
       this.keypair,
       this.signedPK
@@ -19,13 +19,13 @@ class MailboxTokenDBRecord {
     };
   }
 
-  static MailboxTokenDBRecord? fromMap(Map<String, Object?> map) {
-    final id = map[MailboxTokenDBRecord.COLUMN_MT_ID];
-    final keypair = map[MailboxTokenDBRecord.COLUMN_SERIALIZED_KEYPAIR];
-    final signedPK = map[MailboxTokenDBRecord.COLUMN_SIGNED_PK];
+  static MessageboxTokenDBRecord? fromMap(Map<String, Object?> map) {
+    final id = map[MessageboxTokenDBRecord.COLUMN_MT_ID];
+    final keypair = map[MessageboxTokenDBRecord.COLUMN_SERIALIZED_KEYPAIR];
+    final signedPK = map[MessageboxTokenDBRecord.COLUMN_SIGNED_PK];
 
     if (id is int && keypair is String && signedPK is String) {
-      return MailboxTokenDBRecord(
+      return MessageboxTokenDBRecord(
         id,
         RSAKeypair(RSAPrivateKey.fromString(keypair)),
         BigInt.parse(signedPK)
@@ -35,8 +35,8 @@ class MailboxTokenDBRecord {
     }
   }
 
-  static const String TABLE_NAME = "mailbox_token_db_record";
-  static const String COLUMN_MT_ID = "mailbox_token_id";
+  static const String TABLE_NAME = "messagebox_token_db_record";
+  static const String COLUMN_MT_ID = "messagebox_token_id";
   static const String COLUMN_SERIALIZED_KEYPAIR = "serialized_keypair";
   static const String COLUMN_SIGNED_PK = "signed_pk";
 

@@ -213,6 +213,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => HomePage(),
+                              settings: RouteSettings(name: "/"),
                             ),
                           );
                         });

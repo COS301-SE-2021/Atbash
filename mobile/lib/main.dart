@@ -7,6 +7,7 @@ import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:mobile/pages/HomePage.dart';
+import 'package:mobile/pages/LoadingPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
@@ -51,7 +52,7 @@ class AtbashApp extends StatelessWidget {
     return FutureBuilder(
       future: registrationState,
       builder: (context, snapshot) {
-        Widget page = Container();
+        Widget page = LoadingPage();
 
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.data == RegistrationState.registered) {

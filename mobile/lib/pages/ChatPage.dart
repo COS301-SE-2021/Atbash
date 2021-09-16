@@ -415,8 +415,9 @@ class _ChatPageState extends State<ChatPage> {
 
   void _editMessage(Message message) {
     showEditMessageDialog(context, message.contents).then((newMessage) {
-      if (newMessage != null && newMessage.trim() != message.contents.trim())
-        controller.editMessage(message.id, newMessage);
+      if (newMessage != null &&
+          newMessage.trim() != message.contents.trim() &&
+          !message.isIncoming) controller.editMessage(message.id, newMessage);
     });
   }
 
@@ -489,7 +490,9 @@ class ChatCard extends StatelessWidget {
                               title: Text("Tag"),
                               onPressed: () {},
                               trailingIcon: Icon(Icons.tag)),
-                        if (!_message.deleted && !_message.isMedia)
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isIncoming)
                           FocusedMenuItem(
                               title: Text("Edit"),
                               onPressed: onEditPressed,

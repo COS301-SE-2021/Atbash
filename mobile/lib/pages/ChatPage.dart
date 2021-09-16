@@ -415,7 +415,8 @@ class _ChatPageState extends State<ChatPage> {
 
   void _editMessage(Message message) {
     showEditMessageDialog(context, message.contents).then((newMessage) {
-      if (newMessage != null) controller.editMessage(message.id, newMessage);
+      if (newMessage != null && newMessage.trim() != message.contents.trim())
+        controller.editMessage(message.id, newMessage);
     });
   }
 

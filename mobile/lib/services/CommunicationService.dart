@@ -39,6 +39,8 @@ class CommunicationService {
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
   List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
+  List<void Function(String messageID, String messageContents)>
+      _onMessageEditListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
   void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
@@ -72,6 +74,14 @@ class CommunicationService {
 
   void disposeOnMessageLiked(void Function(String messageID, bool liked) cb) =>
       _onMessageLikedListeners.remove(cb);
+
+  void onMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.add(cb);
+
+  void disposeOnMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.remove(cb);
 
   CommunicationService(
     this.blockedNumbersService,

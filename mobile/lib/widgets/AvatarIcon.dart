@@ -24,10 +24,21 @@ class AvatarIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final imageData = _imageData;
     if (imageData != null && imageData.isNotEmpty) {
-      final image = MemoryImage(imageData);
       return GestureDetector(
         onTap: onTap,
-        child: CircleAvatar(radius: radius, backgroundImage: image),
+        child: ClipOval(
+          child: Container(
+            width: radius * 2,
+            height: radius * 2,
+            decoration: BoxDecoration(shape: BoxShape.circle),
+            child: Image.memory(
+              imageData,
+              gaplessPlayback: true,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        // child: CircleAvatar(radius: radius, foregroundImage: image),
       );
     } else {
       return CircledIcon(Colors.black, Icons.person, radius: radius + 8);

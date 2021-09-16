@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
-Future<bool?> showEditMessageDialog(
+Future<String?> showEditMessageDialog(
     BuildContext context, String originalMessage) {
   return showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => EditMessageDialog(originalMessage));
+      context: context, builder: (_) => EditMessageDialog(originalMessage));
 }
 
 class EditMessageDialog extends StatefulWidget {
@@ -29,9 +27,22 @@ class _EditMessageDialogState extends State<EditMessageDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+
       content: TextField(
         controller: inputController,
+        maxLines: 3,
+        minLines: 1,
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: Text("CANCEL"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(inputController.text),
+          child: Text("EDIT"),
+        ),
+      ],
     );
   }
 }

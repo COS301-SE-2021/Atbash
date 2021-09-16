@@ -262,7 +262,7 @@ class CommunicationService {
           messageService
               .updateMessageContents(messageId, newMessage)
               .catchError((err) {
-            if (err.runtimeType != MessageNotFoundException) print(err);
+            if (err.runtimeType != MessageNotFoundException) throw (err);
           });
           _onMessageEditListeners
               .forEach((listener) => listener(messageId, newMessage));

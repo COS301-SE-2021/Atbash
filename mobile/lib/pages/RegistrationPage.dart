@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/controllers/RegistrationPageController.dart';
-import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
@@ -140,11 +140,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     controller.register(phoneNumber).then((verificationCode) {
       if (verificationCode != null) {
-        print("Verification code is $verificationCode");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ProfileSettingsPage(setup: true),
+            builder: (_) => VerificationPage(actualCode: verificationCode),
           ),
         );
       } else {

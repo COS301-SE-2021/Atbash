@@ -483,13 +483,14 @@ class CommunicationService {
     await delete(uri);
   }
 
-  Future<void> sendMessage(
-      Message message, ChatType chatType, String recipientPhoneNumber) async {
+  Future<void> sendMessage(Message message, ChatType chatType,
+      String recipientPhoneNumber, String? repliedMessageId) async {
     final contents = jsonEncode({
       "type": "message",
       "chatType": chatType.toString(),
       "forwarded": message.forwarded,
       "text": message.contents,
+      "repliedMessageId": repliedMessageId,
     });
 
     _queueForSending(contents, recipientPhoneNumber, id: message.id);

@@ -191,14 +191,18 @@ class ChatPageController {
 
     final chatType = (await chat).chatType;
 
-    communicationService.sendMessage(message, chatType, contactPhoneNumber);
+    communicationService.sendMessage(
+        message, chatType, contactPhoneNumber, null);
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
     });
   }
 
-  void replyToMessage(String contents, String? repliedMessageId) async {
+  void replyToMessage(
+    String contents,
+    String? repliedMessageId,
+  ) async {
     final message = Message(
       id: Uuid().v4(),
       chatId: chatId,
@@ -211,7 +215,8 @@ class ChatPageController {
 
     final chatType = (await chat).chatType;
 
-    communicationService.sendMessage(message, chatType, contactPhoneNumber);
+    communicationService.sendMessage(
+        message, chatType, contactPhoneNumber, repliedMessageId);
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
@@ -336,7 +341,7 @@ class ChatPageController {
           );
 
           communicationService.sendMessage(
-              newMessage, ChatType.general, element.first);
+              newMessage, ChatType.general, element.first, null);
           messageService.insert(newMessage);
         });
       });

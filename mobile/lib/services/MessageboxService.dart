@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 
 //Encryption
 import 'package:mobile/encryption/BlindSignatures.dart';
@@ -10,6 +11,8 @@ import 'package:mobile/encryption/MailboxKeyDBRecord.dart';
 
 //RSA Cryptography
 import 'package:crypton/crypton.dart';
+
+import '../constants.dart';
 
 
 class MessageboxService {
@@ -27,7 +30,62 @@ class MessageboxService {
     return keys;
   }
 
+  Future<void> getMessageboxKeys(int numKeys) async {
+    final blindSignatures = BlindSignatures();
+    List<MailboxTokenDBRecord> tokens = [];
 
+    final keyPairs = generateRSAKeyPairs(numKeys);
+    List<Map<String, Object>> blindedPKs = [];
+
+    for(var k in keyPairs){
+      final message = jsonEncode({
+        "n": k.publicKey.asPointyCastle.n.toString(),
+        "e": k.publicKey.asPointyCastle.publicExponent.toString()
+      });
+      blindedPKs.add(blindSignatures.blind(message, k.publicKey));
+    }
+
+    final url = Uri.parse(Constants.httpUrl + "mailbox/createTokens");
+    final phoneNumber = await _userService.getPhoneNumber();
+    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+
+    List<Map<String, Object>> blindedPKArr = [];
+    for (var i = 0; i < blindedPKs.length; i++) {
+      blindedPKArr.add({
+        "keyId": i,
+        "blindedKey": (blindedPKs[i]["blinded"] as BigInt).toString()
+      });
+    }
+
+    var data = {
+      "authorization": "Bearer $authTokenEncoded",
+      "phoneNumber": phoneNumber,
+      "blindedPKs": blindedPKArr,
+    };
+
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+      final responseBodyJson = jsonDecode(response.body) as List;
+      final int numMailboxTokens = await getNumMailboxTokens();
+
+      for(var i = 0; i < responseBodyJson.length; i++){
+        final index = responseBodyJson[i]["tokenId"] as int;
+        final signedPK = responseBodyJson[i]["signedPK"] as String;
+
+        tokens.add(MailboxTokenDBRecord(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
+      }
+
+      return tokens;
+    } else {
+      //Soft fail
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
+      return tokens; // Empty list
+    }
+  }
 
 
 
@@ -53,4 +111,7 @@ class MessageboxService {
     }
   }
 
+}
+
+class _userService {
 }

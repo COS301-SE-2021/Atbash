@@ -14,8 +14,8 @@ class MessageboxToken {
   Map<String, dynamic> toMap() {
     return {
       COLUMN_MT_ID: this.id,
-      COLUMN_SERIALIZED_KEYPAIR: keypair.privateKey.toString(),
-      COLUMN_SIGNED_PK: signedPK.toString(),
+      COLUMN_SERIALIZED_KEYPAIR: this.keypair.privateKey.toString(),
+      COLUMN_SIGNED_PK: this.signedPK.toString(),
     };
   }
 

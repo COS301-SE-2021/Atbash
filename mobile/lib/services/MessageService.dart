@@ -142,8 +142,8 @@ class MessageService {
     final db = await databaseService.database;
 
     final response = await db.rawUpdate(
-      "update ${Message.TABLE_NAME} set ${Message.COLUMN_EDITED} = 1 where ${Message.COLUMN_ID} = ?",
-      [messageId],
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_EDITED} = 1 and ${Message.COLUMN_CONTENTS} = ? where ${Message.COLUMN_ID} = ?",
+      [newMessage, messageId],
     );
 
     if (response == 0) throw MessageNotFoundException();

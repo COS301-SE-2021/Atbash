@@ -140,6 +140,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
     controller.register(phoneNumber).then((verificationCode) {
+      print("Verification code is $verificationCode");
       FlutterSecureStorage()
           .write(key: "verification_code", value: verificationCode);
 

@@ -4,8 +4,10 @@ import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:sqflite/sqflite.dart';
 
 //Services
+import 'DatabaseService.dart';
 import 'UserService.dart';
 
 //Encryption
@@ -19,9 +21,10 @@ import '../constants.dart';
 
 
 class MessageboxService {
-  MessageboxService(this._userService);
+  MessageboxService(this._userService, this._databaseService);
 
   final UserService _userService;
+  final DatabaseService _databaseService;
 
   final _storage = FlutterSecureStorage();
 
@@ -41,7 +44,6 @@ class MessageboxService {
 
   Future<void> getMessageboxKeys(int numKeys) async {
     final blindSignatures = BlindSignatures();
-    List<MessageboxToken> tokens = [];
 
     RSAPublicKey? serverKey = await getServerPublicKey();
 
@@ -88,17 +90,14 @@ class MessageboxService {
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedPK = responseBodyJson[i]["signedPK"] as String;
 
-        tokens.add(MessageboxToken(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
+        await storeMessageboxToken(MessageboxToken(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
       }
-
-      return tokens;
     } else {
       //Soft fail
       print("Server request was unsuccessful.\nResponse code: " +
           response.statusCode.toString() +
           ".\nReason: " +
           response.body);
-      return tokens; // Empty list
     }
   }
 
@@ -127,6 +126,15 @@ class MessageboxService {
   }
 
   ///--------------- Database Functions ---------------
+
+  /// Saves a PreKey to the database and returns.
+  Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
+    final db = await _databaseService.database;
+
+    await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
 
 
 }

@@ -244,9 +244,9 @@ class _ChatPageState extends State<ChatPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      "${_replyingMessage!.contents}",
+                      "${_replyingMessage?.isIncoming == true ? controller.model.contactTitle : 'You'}\n${_replyingMessage?.contents ?? 'aa'}",
                       style: TextStyle(color: Colors.white),
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -403,10 +403,11 @@ class _ChatPageState extends State<ChatPage> {
       onRepliedMessagePressed: () {
         _scrollController.jumpTo(
           index: controller.model.messages
-              .indexWhere((m) => m.id == repliedMessage!.id),
+              .indexWhere((m) => m.id == repliedMessage?.id),
           alignment: 0.5,
         );
       },
+      contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
@@ -479,7 +480,7 @@ class _ChatPageState extends State<ChatPage> {
     _inputController.text = "";
 
     if (_replyingMessage != null) {
-      controller.replyToMessage(contents, _replyingMessage!.id);
+      controller.replyToMessage(contents, _replyingMessage?.id);
       setState(() {
         _replying = false;
         _replyingMessage = null;
@@ -526,6 +527,7 @@ class ChatCard extends StatelessWidget {
   final bool blurImages;
   final ChatType chatType;
   final Message? repliedMessage;
+  final String contactTitle;
 
   ChatCard(
     this._message, {
@@ -539,6 +541,7 @@ class ChatCard extends StatelessWidget {
     this.blurImages = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
+    required this.contactTitle,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -658,10 +661,10 @@ class ChatCard extends StatelessWidget {
                                       MediaQuery.of(context).size.width * 0.7,
                                 ),
                                 child: Text(
-                                  repliedMessage.contents,
+                                  "${repliedMessage.isIncoming ? contactTitle : "You"}\n${repliedMessage.contents}",
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 12),
-                                  maxLines: 2,
+                                  maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),

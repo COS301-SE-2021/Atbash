@@ -573,18 +573,18 @@ class ChatCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                //if(edited)
-                                // Text(
-                                //   "Edited",
-                                //   style: TextStyle(
-                                //       fontSize: 10, color: Colors.white),
-                                // ),
-                                //if(edited)
-                                // Expanded(child: Container()),
-                                //if(edited)
-                                // SizedBox(
-                                //   width: 10,
-                                // ),
+                                if (_message.edited)
+                                  Text(
+                                    "Edited",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.white),
+                                  ),
+                                if (_message.edited)
+                                  Expanded(child: Container()),
+                                if (_message.edited)
+                                  SizedBox(
+                                    width: 10,
+                                  ),
                                 Text(
                                   dateFormatter.format(_message.timestamp),
                                   style: TextStyle(

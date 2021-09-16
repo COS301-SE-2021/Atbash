@@ -75,4 +75,12 @@ abstract class _ChatPageModel with Store {
       message.liked = liked;
     });
   }
+
+  @action
+  void setEditedById(String messageID, String newMessage) {
+    messages.where((message) => message.id == messageID).forEach((message) {
+      message.edited = true;
+      message.contents = newMessage;
+    });
+  }
 }

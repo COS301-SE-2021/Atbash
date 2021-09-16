@@ -255,6 +255,20 @@ class CommunicationService {
               .forEach((listener) => listener(messageId, liked));
           break;
 
+        case "edit":
+          final messageId = decryptedContents["messageId"] as String;
+          final newMessage = decryptedContents["newMessage"] as String;
+
+          messageService
+              .updateMessageContents(messageId, newMessage)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) print(err);
+          });
+          _onMessageEditListeners
+              .forEach((listener) => listener(messageId, newMessage));
+
+          break;
+
         case "online":
           final online = decryptedContents["online"] as bool;
           if (online) {

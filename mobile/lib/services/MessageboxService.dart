@@ -34,12 +34,23 @@ class MessageboxService {
 
 
 
-  ///---------------Getters and Setters
+  ///--------------- Getters and Setters ---------------
 
 
   /// This function records the number of mailbox tokens that have been created
   Future<void> setNumMailboxTokens(int index) async {
     await _storage.write(key: "num_mailbox_tokens", value: index.toString());
+  }
+
+  /// This function retrieves the number of mailbox tokens that have been created
+  Future<int> getNumMailboxTokens() async {
+    final indexStr = await _storage.read(key: "num_mailbox_tokens");
+    if (indexStr == null) {
+      await setNumMailboxTokens(0);
+      return 0;
+    } else {
+      return int.parse(indexStr);
+    }
   }
 
 }

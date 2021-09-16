@@ -27,7 +27,6 @@ class _EditMessageDialogState extends State<EditMessageDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-
       content: TextField(
         controller: inputController,
         maxLines: 3,

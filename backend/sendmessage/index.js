@@ -38,7 +38,7 @@ exports.handler = async event => {
                 })
                 sent = true
             } catch (error) {
-                if (error.statusCode ===  410) {
+                if (error.statusCode === 410) {
                     try {
                         await removeConnection(connection)
                     } catch (error) {

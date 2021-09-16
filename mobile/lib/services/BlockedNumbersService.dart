@@ -26,6 +26,22 @@ class BlockedNumbersService {
     return numbers;
   }
 
+  Future<bool> checkIfBlocked(String phoneNumber) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(
+      BlockedNumber.TABLE_NAME,
+      where: "${BlockedNumber.COLUMN_PHONE_NUMBER} = ?",
+      whereArgs: [phoneNumber],
+    );
+
+    if (response.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<BlockedNumber> insert(BlockedNumber blockedNumber) async {
     final db = await databaseService.database;
 

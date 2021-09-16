@@ -39,6 +39,21 @@ mixin _$Message on _Message, Store {
     });
   }
 
+  final _$repliedMessageIdAtom = Atom(name: '_Message.repliedMessageId');
+
+  @override
+  String? get repliedMessageId {
+    _$repliedMessageIdAtom.reportRead();
+    return super.repliedMessageId;
+  }
+
+  @override
+  set repliedMessageId(String? value) {
+    _$repliedMessageIdAtom.reportWrite(value, super.repliedMessageId, () {
+      super.repliedMessageId = value;
+    });
+  }
+
   final _$deletedAtom = Atom(name: '_Message.deleted');
 
   @override
@@ -104,6 +119,7 @@ mixin _$Message on _Message, Store {
     return '''
 contents: ${contents},
 readReceipt: ${readReceipt},
+repliedMessageId: ${repliedMessageId},
 deleted: ${deleted},
 liked: ${liked},
 edited: ${edited},

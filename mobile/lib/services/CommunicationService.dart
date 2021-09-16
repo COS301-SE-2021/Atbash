@@ -201,6 +201,8 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
+          final repliedMessageId =
+              decryptedContents["repliedMessageId"] as String?;
 
           await _handleMessage(
             senderPhoneNumber: senderPhoneNumber,
@@ -209,6 +211,7 @@ class CommunicationService {
             contents: text,
             timestamp: DateTime.now(),
             forwarded: forwarded,
+            repliedMessageId: repliedMessageId,
           );
           break;
 
@@ -381,6 +384,7 @@ class CommunicationService {
     required String id,
     required String contents,
     required DateTime timestamp,
+    String? repliedMessageId,
     bool isMedia = false,
     bool forwarded = false,
   }) async {
@@ -412,6 +416,7 @@ class CommunicationService {
       isMedia: isMedia,
       forwarded: forwarded,
       readReceipt: ReadReceipt.delivered,
+      repliedMessageId: repliedMessageId,
       deleted: false,
       liked: false,
       tags: [],
@@ -478,13 +483,14 @@ class CommunicationService {
     await delete(uri);
   }
 
-  Future<void> sendMessage(
-      Message message, ChatType chatType, String recipientPhoneNumber) async {
+  Future<void> sendMessage(Message message, ChatType chatType,
+      String recipientPhoneNumber, String? repliedMessageId) async {
     final contents = jsonEncode({
       "type": "message",
       "chatType": chatType.toString(),
       "forwarded": message.forwarded,
       "text": message.contents,
+      "repliedMessageId": repliedMessageId,
     });
 
     _queueForSending(contents, recipientPhoneNumber, id: message.id);

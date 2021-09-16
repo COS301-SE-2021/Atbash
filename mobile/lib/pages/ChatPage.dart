@@ -464,7 +464,14 @@ class _ChatPageState extends State<ChatPage> {
 
     _inputController.text = "";
 
-    controller.sendMessage(contents);
+    if (_replyingMessage != null) {
+      controller.replyToMessage(contents, _replyingMessage!.id);
+      setState(() {
+        _replying = false;
+        _replyingMessage = null;
+      });
+    } else
+      controller.sendMessage(contents);
   }
 
   void _editMessage(Message message) {

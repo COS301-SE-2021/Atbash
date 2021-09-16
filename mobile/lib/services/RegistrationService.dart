@@ -125,7 +125,7 @@ class RegistrationService {
 
     final phoneNumber = await _userService.getPhoneNumber();
     final authTokenEncoded =
-        await _encryptionService.getDeviceAuthTokenEncoded();
+        await _userService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();

@@ -9,19 +9,26 @@ import 'package:pointycastle/src/utils.dart';
 import 'package:crypto/crypto.dart';
 
 class BlindSignatures {
+  ///See: https://github.com/kevinejohn/blind-signatures
+  ///and: https://www.npmjs.com/package/blind-signatures
 
+  ///This function hashes the message using SHA256 and returns a Bytes array
   Uint8List messageToHash(String message) {
     final bytes = utf8.encode(message); // data being hashed
     final digest = sha256.convert(bytes);
     return digest.bytes as Uint8List;
   }
 
+  ///This function hashes the message using SHA256 and returns a BigInteger
   BigInt messageToHashInt(String message) {
     final messageHash = messageToHash(message);
     BigInt messageBig = decodeBigIntWithSign(1, messageHash);
     return messageBig;
   }
 
+  ///This function hashes the input message, generates a blinding factor,
+  ///blinds the hashed message and returns the blinded message with the blinding
+  ///factor
   Map<String, Object> blind(String message, BigInt N, BigInt E ) {
     final messageHash = messageToHashInt(message);
     final bigN = BigInt.parse(N.toString());
@@ -48,6 +55,7 @@ class BlindSignatures {
     };
   }
 
+  ///This function signs the blinded message using the private keys parameters provided
   BigInt sign(BigInt blinded, BigInt bigN, BigInt bigP, BigInt bigQ, BigInt bigD) {
     // const { bigN, bigP, bigQ, bigD } = keyProperties(key);
     final mu = BigInt.parse(blinded.toString());
@@ -65,6 +73,8 @@ class BlindSignatures {
     return muprime;
   }
 
+  ///This function unblinds the provided blinded (and potentially signed) message
+  ///and returns the unblinded message
   BigInt unblind(BigInt signed, BigInt r, BigInt N) {
     final bigN = BigInt.parse(N.toString());
     final muprime = BigInt.parse(signed.toString());
@@ -72,6 +82,8 @@ class BlindSignatures {
     return s;
   }
 
+  ///This function takes in the origional message along with the unblinded message
+  ///and verifies that the unblinded message was signed
   bool verify(BigInt unblinded, String message, BigInt E, BigInt N) {
     final signature = BigInt.parse(unblinded.toString());
     final messageHash = messageToHashInt(message);
@@ -82,6 +94,8 @@ class BlindSignatures {
     return result;
   }
 
+  ///This function takes in the origional message along with the unblinded message
+  ///and verifies that the unblinded message was signed
   bool verify2(BigInt unblinded, key, String message, BigInt D, BigInt N) {
     final signature = BigInt.parse(unblinded.toString());
     final messageHash = messageToHashInt(message);
@@ -92,6 +106,7 @@ class BlindSignatures {
     return result;
   }
 
+  ///This function verifies that a blinded message was blinded correctly.
   bool verifyBlinding(BigInt blinded, BigInt r, String unblinded, BigInt E, BigInt N) {
     final messageHash = messageToHashInt(unblinded);
     r = BigInt.parse(r.toString());

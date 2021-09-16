@@ -30,6 +30,7 @@ class HomePageController {
     communicationService.onMessage(_onMessage);
     communicationService.onAck(_onAck);
     communicationService.onAckSeen(_onAckSeen);
+    communicationService.onMessageEdited(_onMessageEdited);
     navigationObserver.onRoutePop(reload);
     reload();
   }
@@ -41,6 +42,7 @@ class HomePageController {
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    communicationService.disposeOnMessageEdited(_onMessageEdited);
   }
 
   void sendOnline() {
@@ -68,6 +70,10 @@ class HomePageController {
   }
 
   void _onAckSeen(List<String> messageIds) {
+    reload();
+  }
+
+  void _onMessageEdited(String id, String contents) {
     reload();
   }
 

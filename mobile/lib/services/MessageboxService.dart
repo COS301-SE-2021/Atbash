@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/encryption/Messagebox.dart';
 import 'package:sqflite/sqflite.dart';
 
 //Services
@@ -39,7 +40,7 @@ class MessageboxService {
   }
 
   Future<RSAPublicKey?> getServerPublicKey() async {
-    final url = Uri.parse(Constants.httpUrl + "mailbox/serverPublicKey");
+    final url = Uri.parse(Constants.httpUrl + "messagebox/serverPublicKey");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -80,7 +81,7 @@ class MessageboxService {
       blindedPKs.add(blindSignatures.blind(message, serverKey));
     }
 
-    final url = Uri.parse(Constants.httpUrl + "mailbox/createTokens");
+    final url = Uri.parse(Constants.httpUrl + "messagebox/createTokens");
     final phoneNumber = await _userService.getPhoneNumber();
     final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
@@ -120,7 +121,32 @@ class MessageboxService {
     }
   }
 
+  Future<Messagebox?> createMessageBox(String number) async {
+    final url = Uri.parse(Constants.httpUrl + "messagebox/create");
 
+    final MessageboxToken? messageboxToken = await fetchMessageboxToken();
+
+    if(messageboxToken == null){
+      print("Failed to fetch MessageboxToken");
+      return null;
+    }
+
+    var data = {
+      "publicKey": {
+        "n": messageboxToken.keypair.publicKey.asPointyCastle.n.toString(),
+        "e": messageboxToken.keypair.publicKey.asPointyCastle.publicExponent.toString()
+      },
+      "signedToken": messageboxToken.signedPK.toString(),
+    };
+
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200) {
+
+    } else {
+
+    }
+  }
 
 
 
@@ -171,7 +197,6 @@ class MessageboxService {
       await setNumMessageboxTokens(await getNumMessageboxTokens() + 1);
     }
   }
- //SELECT * FROM SAMPLE_TABLE ORDER BY ROWID ASC LIMIT 1
 
   ///Fetches MessageboxToken from the database
   Future<MessageboxToken?> fetchMessageboxToken() async {

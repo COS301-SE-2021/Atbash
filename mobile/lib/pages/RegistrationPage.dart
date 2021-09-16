@@ -1,9 +1,10 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/controllers/RegistrationPageController.dart';
-import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
@@ -139,12 +140,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
     controller.register(phoneNumber).then((verificationCode) {
+      FlutterSecureStorage()
+          .write(key: "verification_code", value: verificationCode);
+
       if (verificationCode != null) {
-        print("Verification code is $verificationCode");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ProfileSettingsPage(setup: true),
+            builder: (_) => VerificationPage(code: verificationCode),
           ),
         );
       } else {

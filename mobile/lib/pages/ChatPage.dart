@@ -228,27 +228,6 @@ class _ChatPageState extends State<ChatPage> {
     return SafeArea(
       child: Column(
         children: [
-          if (controller.model.chatType == ChatType.private)
-            Container(
-              margin: EdgeInsets.only(left: 60, right: 60, top: 5),
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.white12.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: InkWell(
-                onTap: () {
-                  //TODO navigate to help page
-                },
-                child: Text(
-                  "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves. Tap to learn more",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
           Flexible(child: _buildMessages()),
           // if(replying)
           // Container(
@@ -270,8 +249,38 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildMessages() {
     return Observer(builder: (_) {
       return ListView.builder(
-        itemCount: controller.model.messages.length,
+        itemCount: controller.model.messages.length + 1,
         itemBuilder: (_, index) {
+          if (index == controller.model.messages.length) {
+            return Observer(builder: (_) {
+              if (controller.model.chatType == ChatType.private)
+                return Center(
+                  child: Container(
+                    margin:
+                        EdgeInsets.only(left: 60, right: 60, top: 5, bottom: 5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white12.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        //TODO navigate to help page
+                      },
+                      child: Text(
+                        "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves. Tap to learn more",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              return SizedBox.shrink();
+            });
+          }
+
           String dateString = _chatDateString(index);
 
           if (dateString != "")

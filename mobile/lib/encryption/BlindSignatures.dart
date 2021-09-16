@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 // import 'package:mobile/exceptions/InvalidParametersException.dart';
 // import 'package:pointycastle/export.dart';
+import 'package:crypton/crypton.dart';
 import 'package:pointycastle/src/utils.dart';
 
 import 'package:crypto/crypto.dart';
@@ -29,10 +30,10 @@ class BlindSignatures {
   ///This function hashes the input message, generates a blinding factor,
   ///blinds the hashed message and returns the blinded message with the blinding
   ///factor
-  Map<String, Object> blind(String message, BigInt N, BigInt E ) {
+  Map<String, Object> blind(String message, RSAPublicKey publicKey) {
     final messageHash = messageToHashInt(message);
-    final bigN = BigInt.parse(N.toString());
-    final bigE = BigInt.parse(E.toString());
+    final bigN = publicKey.asPointyCastle.n!;
+    final bigE = publicKey.asPointyCastle.publicExponent!;
 
     final bigOne = BigInt.parse('1');
     BigInt gcd;

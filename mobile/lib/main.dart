@@ -76,7 +76,7 @@ class AtbashApp extends StatelessWidget {
 
   Future<RegistrationState> _registrationState() async {
     final verified =
-        await FlutterSecureStorage().read(key: "verification_flag") != null;
+        await FlutterSecureStorage().read(key: "verified_flag") != null;
 
     if (verified) {
       return RegistrationState.registered;

@@ -54,5 +54,13 @@ class MockContactInfoPageController extends _i1.Mock
   void reload() => super.noSuchMethod(Invocation.method(#reload, []),
       returnValueForMissingStub: null);
   @override
+  void blockContact() =>
+      super.noSuchMethod(Invocation.method(#blockContact, []),
+          returnValueForMissingStub: null);
+  @override
+  void unblockContact() =>
+      super.noSuchMethod(Invocation.method(#unblockContact, []),
+          returnValueForMissingStub: null);
+  @override
   String toString() => super.toString();
 }

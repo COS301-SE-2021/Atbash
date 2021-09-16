@@ -5,6 +5,9 @@ import 'dart:math';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+//Services
+import 'UserService.dart';
+
 //Encryption
 import 'package:mobile/encryption/BlindSignatures.dart';
 import 'package:mobile/encryption/MailboxKeyDBRecord.dart';
@@ -16,7 +19,9 @@ import '../constants.dart';
 
 
 class MessageboxService {
-  MessageboxService();
+  MessageboxService(this._userService);
+
+  final UserService _userService;
 
   final _storage = FlutterSecureStorage();
 
@@ -47,7 +52,7 @@ class MessageboxService {
 
     final url = Uri.parse(Constants.httpUrl + "mailbox/createTokens");
     final phoneNumber = await _userService.getPhoneNumber();
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     List<Map<String, Object>> blindedPKArr = [];
     for (var i = 0; i < blindedPKs.length; i++) {

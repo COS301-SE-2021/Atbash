@@ -382,6 +382,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   ChatCard _buildMessage(Message message) {
+    final repliedMessage = message.repliedMessageId != null
+        ? controller.model.messages
+            .firstWhereOrNull((m) => m.id == message.repliedMessageId)
+        : null;
+
     return ChatCard(
       message,
       onTap: () {
@@ -395,12 +400,16 @@ class _ChatPageState extends State<ChatPage> {
           context, message.contents, controller.model.contactTitle),
       onEditPressed: () => _editMessage(message),
       onReplyPressed: () => _startReplying(message),
+      onRepliedMessagePressed: () {
+        _scrollController.jumpTo(
+          index: controller.model.messages
+              .indexWhere((m) => m.id == repliedMessage!.id),
+          alignment: 0.5,
+        );
+      },
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
-      repliedMessage: message.repliedMessageId != null
-          ? controller.model.messages
-              .firstWhereOrNull((m) => m.id == message.repliedMessageId)
-          : null,
+      repliedMessage: repliedMessage,
     );
   }
 
@@ -513,6 +522,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onForwardPressed;
   final void Function() onEditPressed;
   final void Function() onReplyPressed;
+  final void Function() onRepliedMessagePressed;
   final bool blurImages;
   final ChatType chatType;
   final Message? repliedMessage;
@@ -525,6 +535,7 @@ class ChatCard extends StatelessWidget {
     required this.onForwardPressed,
     required this.onEditPressed,
     required this.onReplyPressed,
+    required this.onRepliedMessagePressed,
     this.blurImages = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
@@ -630,22 +641,29 @@ class ChatCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          if (repliedMessage != null)
-                            Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Constants.darkGrey,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              constraints: BoxConstraints(
-                                maxWidth:
-                                    MediaQuery.of(context).size.width * 0.7,
-                              ),
-                              child: Text(
-                                repliedMessage.contents,
-                                style: TextStyle(color: Colors.white),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                          if (repliedMessage != null &&
+                              repliedMessage.contents != "")
+                            InkWell(
+                              onTap: onRepliedMessagePressed,
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: _message.isIncoming
+                                      ? Constants.orange
+                                      : Constants.darkGrey,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                ),
+                                child: Text(
+                                  repliedMessage.contents,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
                             ),
                           SizedBox(

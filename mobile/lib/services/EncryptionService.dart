@@ -265,7 +265,7 @@ class EncryptionService {
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
     final url = Uri.parse(Constants.httpUrl + "keys/get");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 
@@ -343,7 +343,7 @@ class EncryptionService {
   Future<void> managePreKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/getNumber");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 

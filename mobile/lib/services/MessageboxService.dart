@@ -17,7 +17,15 @@ class MessageboxService {
 
   final _storage = FlutterSecureStorage();
 
+  List<RSAKeypair> generateRSAKeyPairs(int numPairs){
+    List<RSAKeypair> keys = [];
 
+    for(var i = 0; i < numPairs; i++){
+      keys.add(RSAKeypair.fromRandom(keySize: 4096));
+    }
+
+    return keys;
+  }
 
 
 }

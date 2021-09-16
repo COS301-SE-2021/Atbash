@@ -198,6 +198,26 @@ class ChatPageController {
     });
   }
 
+  void replyToMessage(String contents, String? repliedMessageId) async {
+    final message = Message(
+      id: Uuid().v4(),
+      chatId: chatId,
+      isIncoming: false,
+      otherPartyPhoneNumber: contactPhoneNumber,
+      contents: contents.trim(),
+      timestamp: DateTime.now(),
+      repliedMessageId: repliedMessageId,
+    );
+
+    final chatType = (await chat).chatType;
+
+    communicationService.sendMessage(message, chatType, contactPhoneNumber);
+    model.addMessage(message);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general) messageService.insert(message);
+    });
+  }
+
   void sendImage(Uint8List imageBytes) async {
     final message = Message(
       id: Uuid().v4(),

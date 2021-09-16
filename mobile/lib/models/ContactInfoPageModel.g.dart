@@ -85,6 +85,21 @@ mixin _$ContactInfoPageModel on _ContactInfoPageModel, Store {
     });
   }
 
+  final _$isBlockedAtom = Atom(name: '_ContactInfoPageModel.isBlocked');
+
+  @override
+  bool get isBlocked {
+    _$isBlockedAtom.reportRead();
+    return super.isBlocked;
+  }
+
+  @override
+  set isBlocked(bool value) {
+    _$isBlockedAtom.reportWrite(value, super.isBlocked, () {
+      super.isBlocked = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -92,7 +107,8 @@ contactName: ${contactName},
 phoneNumber: ${phoneNumber},
 profilePicture: ${profilePicture},
 status: ${status},
-birthday: ${birthday}
+birthday: ${birthday},
+isBlocked: ${isBlocked}
     ''';
   }
 }

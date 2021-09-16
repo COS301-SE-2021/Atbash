@@ -19,4 +19,7 @@ abstract class _ContactInfoPageModel with Store {
 
   @observable
   DateTime? birthday;
+
+  @observable
+  bool isBlocked = false;
 }

@@ -73,6 +73,19 @@ class UserService {
     final timestamp = birthday.millisecondsSinceEpoch;
     await _storage.write(key: "birthday", value: timestamp.toString());
   }
+
+  /// Get the device_authentication_token_base64 of the device from secure storage. If it is not set,
+  /// the function throws a [StateError], since the device_authentication_token_base64 is generated
+  /// during registration and is expected to be saved.
+  Future<String> getDeviceAuthTokenEncoded() async {
+    final token =
+    await _storage.read(key: "device_authentication_token_base64");
+    if (token == null) {
+      throw StateError("device_authentication_token_base64 is not readable");
+    } else {
+      return token;
+    }
+  }
 }
 
 class PhoneNumberNotFoundException implements Exception {}

@@ -14,6 +14,7 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/MessageEditDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
@@ -368,6 +369,7 @@ class _ChatPageState extends State<ChatPage> {
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () => controller.forwardMessage(
           context, message.contents, controller.model.contactTitle),
+      onEditPressed: () => _editMessage(message),
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
     );
@@ -441,6 +443,14 @@ class _ChatPageState extends State<ChatPage> {
     controller.sendMessage(contents);
   }
 
+  void _editMessage(Message message) {
+    showEditMessageDialog(context, message.contents).then((newMessage) {
+      if (newMessage != null &&
+          newMessage.trim() != message.contents.trim() &&
+          !message.isIncoming) controller.editMessage(message.id, newMessage);
+    });
+  }
+
   void _sendImage() async {
     final pickedImage =
         await ImagePicker().getImage(source: ImageSource.gallery);
@@ -458,6 +468,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDelete;
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
+  final void Function() onEditPressed;
   final bool blurImages;
   final ChatType chatType;
 
@@ -467,6 +478,7 @@ class ChatCard extends StatelessWidget {
     required this.onDelete,
     required this.onDoubleTap,
     required this.onForwardPressed,
+    required this.onEditPressed,
     this.blurImages = false,
     this.chatType = ChatType.general,
   });
@@ -508,6 +520,13 @@ class ChatCard extends StatelessWidget {
                               title: Text("Tag"),
                               onPressed: () {},
                               trailingIcon: Icon(Icons.tag)),
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isIncoming)
+                          FocusedMenuItem(
+                              title: Text("Edit"),
+                              onPressed: onEditPressed,
+                              trailingIcon: Icon(Icons.edit)),
                         if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Forward"),
@@ -588,18 +607,18 @@ class ChatCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                //if(edited)
-                                // Text(
-                                //   "Edited",
-                                //   style: TextStyle(
-                                //       fontSize: 10, color: Colors.white),
-                                // ),
-                                //if(edited)
-                                // Expanded(child: Container()),
-                                //if(edited)
-                                // SizedBox(
-                                //   width: 10,
-                                // ),
+                                if (_message.edited)
+                                  Text(
+                                    "Edited",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.white),
+                                  ),
+                                if (_message.edited)
+                                  Expanded(child: Container()),
+                                if (_message.edited)
+                                  SizedBox(
+                                    width: 10,
+                                  ),
                                 Text(
                                   dateFormatter.format(_message.timestamp),
                                   style: TextStyle(

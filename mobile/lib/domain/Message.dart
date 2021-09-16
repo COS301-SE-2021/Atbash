@@ -17,6 +17,7 @@ class Message extends _Message with _$Message {
     ReadReceipt readReceipt = ReadReceipt.undelivered,
     bool deleted = false,
     bool liked = false,
+    bool edited = false,
     List<Tag> tags = const [],
   }) : super(
           id: id,
@@ -31,6 +32,7 @@ class Message extends _Message with _$Message {
           deleted: deleted,
           liked: liked,
           tags: tags,
+          edited: edited,
         );
 
   Map<String, Object> toMap() {
@@ -46,6 +48,7 @@ class Message extends _Message with _$Message {
       COLUMN_READ_RECEIPT: readReceipt.index,
       COLUMN_DELETED: deleted ? 1 : 0,
       COLUMN_LIKED: liked ? 1 : 0,
+      COLUMN_EDITED: edited ? 1 : 0,
     };
   }
 
@@ -61,6 +64,7 @@ class Message extends _Message with _$Message {
     final readReceipt = map[COLUMN_READ_RECEIPT] as int?;
     final deleted = map[COLUMN_DELETED] as int?;
     final liked = map[COLUMN_LIKED] as int?;
+    final edited = map[COLUMN_EDITED] as int?;
 
     if (id != null &&
         chatId != null &&
@@ -72,7 +76,8 @@ class Message extends _Message with _$Message {
         forwarded != null &&
         readReceipt != null &&
         deleted != null &&
-        liked != null) {
+        liked != null &&
+        edited != null) {
       return Message(
         id: id,
         chatId: chatId,
@@ -86,6 +91,7 @@ class Message extends _Message with _$Message {
         deleted: deleted != 0,
         liked: liked != 0,
         tags: [],
+        edited: edited != 0,
       );
     }
   }
@@ -102,6 +108,7 @@ class Message extends _Message with _$Message {
   static const String COLUMN_READ_RECEIPT = "message_read_receipt";
   static const String COLUMN_DELETED = "message_deleted";
   static const String COLUMN_LIKED = "message_liked";
+  static const String COLUMN_EDITED = "message_edited";
   static const String CREATE_TABLE = "create table $TABLE_NAME ("
       "$COLUMN_ID text primary key,"
       "$COLUMN_CHAT_ID text not null,"
@@ -113,7 +120,8 @@ class Message extends _Message with _$Message {
       "$COLUMN_FORWARDED tinyint not null,"
       "$COLUMN_READ_RECEIPT int not null,"
       "$COLUMN_DELETED tinyint not null,"
-      "$COLUMN_LIKED tinyint not null"
+      "$COLUMN_LIKED tinyint not null,"
+      "$COLUMN_EDITED tinyint not null"
       ");";
 }
 
@@ -145,6 +153,9 @@ abstract class _Message with Store {
   bool liked;
 
   @observable
+  bool edited;
+
+  @observable
   List<Tag> tags;
 
   _Message({
@@ -160,6 +171,7 @@ abstract class _Message with Store {
     required this.deleted,
     required this.liked,
     required this.tags,
+    required this.edited,
   });
 }
 

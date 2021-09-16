@@ -39,6 +39,8 @@ class CommunicationService {
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
   List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
+  List<void Function(String messageID, String messageContents)>
+      _onMessageEditListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
   void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
@@ -72,6 +74,14 @@ class CommunicationService {
 
   void disposeOnMessageLiked(void Function(String messageID, bool liked) cb) =>
       _onMessageLikedListeners.remove(cb);
+
+  void onMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.add(cb);
+
+  void disposeOnMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.remove(cb);
 
   CommunicationService(
     this.blockedNumbersService,
@@ -243,6 +253,20 @@ class CommunicationService {
           });
           _onMessageLikedListeners
               .forEach((listener) => listener(messageId, liked));
+          break;
+
+        case "edit":
+          final messageId = decryptedContents["messageId"] as String;
+          final newMessage = decryptedContents["newMessage"] as String;
+
+          messageService
+              .updateMessageContents(messageId, newMessage)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) throw (err);
+          });
+          _onMessageEditListeners
+              .forEach((listener) => listener(messageId, newMessage));
+
           break;
 
         case "online":
@@ -498,6 +522,17 @@ class CommunicationService {
       "type": "like",
       "messageId": messageId,
       "liked": liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendEditedMessage(
+      String messageID, String newMessage, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "edit",
+      "messageId": messageID,
+      "newMessage": newMessage,
     });
 
     _queueForSending(contents, recipientPhoneNumber);

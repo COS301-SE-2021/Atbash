@@ -46,6 +46,8 @@ class ChatPageController {
 
     communicationService.onMessageLiked(_onMessageLiked);
 
+    communicationService.onMessageEdited(_onMessageEdited);
+
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 
@@ -160,11 +162,17 @@ class ChatPageController {
     model.setLikedById(messageID, liked);
   }
 
+  void _onMessageEdited(String messageID, String message) {
+    model.setEditedById(messageID, message);
+  }
+
   void dispose() {
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
+    communicationService.disposeOnMessageLiked(_onMessageLiked);
+    communicationService.disposeOnMessageEdited(_onMessageEdited);
     communicationService.shouldBlockNotifications = (phoneNumber) => false;
     contactService.disposeOnChanged(_onContactChanged);
     memoryStoreService.disposeOnContactOnline(_onOnline);
@@ -312,6 +320,16 @@ class ChatPageController {
           messageService.insert(newMessage);
         });
       });
+    });
+  }
+
+  void editMessage(String messageId, String newMessage) {
+    communicationService.sendEditedMessage(
+        messageId, newMessage, contactPhoneNumber);
+    model.setEditedById(messageId, newMessage);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general)
+        messageService.updateMessageContents(messageId, newMessage);
     });
   }
 

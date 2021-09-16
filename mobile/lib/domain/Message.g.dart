@@ -69,6 +69,21 @@ mixin _$Message on _Message, Store {
     });
   }
 
+  final _$editedAtom = Atom(name: '_Message.edited');
+
+  @override
+  bool get edited {
+    _$editedAtom.reportRead();
+    return super.edited;
+  }
+
+  @override
+  set edited(bool value) {
+    _$editedAtom.reportWrite(value, super.edited, () {
+      super.edited = value;
+    });
+  }
+
   final _$tagsAtom = Atom(name: '_Message.tags');
 
   @override
@@ -91,6 +106,7 @@ contents: ${contents},
 readReceipt: ${readReceipt},
 deleted: ${deleted},
 liked: ${liked},
+edited: ${edited},
 tags: ${tags}
     ''';
   }

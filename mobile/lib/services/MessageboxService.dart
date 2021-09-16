@@ -152,7 +152,24 @@ class MessageboxService {
     await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
+ //SELECT * FROM SAMPLE_TABLE ORDER BY ROWID ASC LIMIT 1
 
+  ///Fetches MessageboxToken from the database
+  Future<MessageboxToken?> fetchMessageboxToken() async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      MessageboxToken.TABLE_NAME,
+      orderBy: MessageboxToken.COLUMN_MT_ID + " ASC",
+      limit: 1,
+    );
 
+    if (response.isNotEmpty) {
+      final messageboxToken = MessageboxToken.fromMap(response.first);
+      if (messageboxToken != null) {
+        return messageboxToken;
+      }
+    }
+    return null;
+  }
 
 }

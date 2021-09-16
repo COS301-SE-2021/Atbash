@@ -339,6 +339,7 @@ class _ChatPageState extends State<ChatPage> {
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () => controller.forwardMessage(
           context, message.contents, controller.model.contactTitle),
+      onEditPressed: () => _editMessage(message),
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
     );
@@ -429,6 +430,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDelete;
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
+  final void Function() onEditPressed;
   final bool blurImages;
   final ChatType chatType;
 
@@ -438,6 +440,7 @@ class ChatCard extends StatelessWidget {
     required this.onDelete,
     required this.onDoubleTap,
     required this.onForwardPressed,
+    required this.onEditPressed,
     this.blurImages = false,
     this.chatType = ChatType.general,
   });
@@ -482,12 +485,7 @@ class ChatCard extends StatelessWidget {
                         if (!_message.deleted && !_message.isMedia)
                           FocusedMenuItem(
                               title: Text("Edit"),
-                              onPressed: () => showEditMessageDialog(
-                                          context, _message.contents)
-                                      .then((value) {
-                                    //if(value != null)
-                                    //TODO: Edit message
-                                  }),
+                              onPressed: onEditPressed,
                               trailingIcon: Icon(Icons.edit)),
                         if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(

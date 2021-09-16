@@ -10,7 +10,7 @@ import 'UserService.dart';
 
 //Encryption
 import 'package:mobile/encryption/BlindSignatures.dart';
-import 'package:mobile/encryption/MessageboxTokenDBRecord.dart';
+import 'package:mobile/encryption/MessageboxToken.dart';
 
 //RSA Cryptography
 import 'package:crypton/crypton.dart';
@@ -41,7 +41,7 @@ class MessageboxService {
 
   Future<void> getMessageboxKeys(int numKeys) async {
     final blindSignatures = BlindSignatures();
-    List<MessageboxTokenDBRecord> tokens = [];
+    List<MessageboxToken> tokens = [];
 
     RSAPublicKey? serverKey = await getServerPublicKey();
 
@@ -88,7 +88,7 @@ class MessageboxService {
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedPK = responseBodyJson[i]["signedPK"] as String;
 
-        tokens.add(MessageboxTokenDBRecord(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
+        tokens.add(MessageboxToken(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
       }
 
       return tokens;
@@ -126,7 +126,7 @@ class MessageboxService {
     }
   }
 
-}
+  ///--------------- Database Functions ---------------
 
-class _userService {
+
 }

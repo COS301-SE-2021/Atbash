@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
+import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
@@ -183,7 +184,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text("View a list of all blocked contacts"),
                 trailing: Icon(Icons.arrow_forward_rounded),
                 onTap: () {
-                  //TODO Transfer to blocked contacts page
                   Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -212,6 +212,22 @@ class _SettingsPageState extends State<SettingsPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => WallpaperPage()),
                   );
+                },
+                dense: true,
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.analytics,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Chat Analytics",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (_) => AnalyticsPage()));
                 },
                 dense: true,
               ),

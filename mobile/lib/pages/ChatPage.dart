@@ -413,6 +413,12 @@ class _ChatPageState extends State<ChatPage> {
     controller.sendMessage(contents);
   }
 
+  void _editMessage(Message message) {
+    showEditMessageDialog(context, message.contents).then((newMessage) {
+      if (newMessage != null) controller.editMessage(message.id, newMessage);
+    });
+  }
+
   void _sendImage() async {
     final pickedImage =
         await ImagePicker().getImage(source: ImageSource.gallery);

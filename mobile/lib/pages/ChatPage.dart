@@ -14,6 +14,7 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/MessageEditDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
@@ -478,6 +479,16 @@ class ChatCard extends StatelessWidget {
                               title: Text("Tag"),
                               onPressed: () {},
                               trailingIcon: Icon(Icons.tag)),
+                        if (!_message.deleted && !_message.isMedia)
+                          FocusedMenuItem(
+                              title: Text("Edit"),
+                              onPressed: () => showEditMessageDialog(
+                                          context, _message.contents)
+                                      .then((value) {
+                                    //if(value != null)
+                                    //TODO: Edit message
+                                  }),
+                              trailingIcon: Icon(Icons.edit)),
                         if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Forward"),

@@ -102,13 +102,14 @@ class MessageboxService {
 
     if (response.statusCode == 200) {
       final responseBodyJson = jsonDecode(response.body) as List;
-      final int numMailboxTokens = await getNumMessageboxTokens();
+      int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex();
 
       for(var i = 0; i < responseBodyJson.length; i++){
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedPK = responseBodyJson[i]["signedPK"] as String;
 
-        await storeMessageboxToken(MessageboxToken(numMailboxTokens + i, keyPairs[index], BigInt.parse(signedPK)));
+        await storeMessageboxToken(MessageboxToken(maxMailboxTokenIndex++, keyPairs[index], BigInt.parse(signedPK)));
+        await setMaxMessageboxTokenIndex(maxMailboxTokenIndex);
       }
     } else {
       //Soft fail
@@ -129,15 +130,31 @@ class MessageboxService {
 
   /// This function records the number of mailbox tokens that have been created
   Future<void> setNumMessageboxTokens(int index) async {
-    await _storage.write(key: "num_mailbox_tokens", value: index.toString());
+    await _storage.write(key: "num_messagebox_tokens", value: index.toString());
   }
 
   /// This function retrieves the number of mailbox tokens that have been created
   Future<int> getNumMessageboxTokens() async {
-    final indexStr = await _storage.read(key: "num_mailbox_tokens");
+    final indexStr = await _storage.read(key: "num_messagebox_tokens");
     if (indexStr == null) {
       await setNumMessageboxTokens(0);
       return 0;
+    } else {
+      return int.parse(indexStr);
+    }
+  }
+
+  /// This function records the max index of mailbox tokens that have been created
+  Future<void> setMaxMessageboxTokenIndex(int index) async {
+    await _storage.write(key: "max_mailbox_token_index", value: index.toString());
+  }
+
+  /// This function retrieves the max index of mailbox tokens that have been created
+  Future<int> getMaxMessageboxTokenIndex() async {
+    final indexStr = await _storage.read(key: "max_mailbox_token_index");
+    if (indexStr == null) {
+      await setMaxMessageboxTokenIndex(-1);
+      return -1;
     } else {
       return int.parse(indexStr);
     }
@@ -149,8 +166,10 @@ class MessageboxService {
   Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
     final db = await _databaseService.database;
 
-    await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    if(await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace) != 0){
+      await setNumMessageboxTokens(await getNumMessageboxTokens() + 1);
+    }
   }
  //SELECT * FROM SAMPLE_TABLE ORDER BY ROWID ASC LIMIT 1
 
@@ -170,6 +189,19 @@ class MessageboxService {
       }
     }
     return null;
+  }
+
+  /// Deletes MessageboxToken from database.
+  Future<void> removeMessageboxToken(int messageboxTokenId) async {
+    final db = await _databaseService.database;
+
+    if(await db.delete(
+      MessageboxToken.TABLE_NAME,
+      where: "${MessageboxToken.COLUMN_MT_ID} = ?",
+      whereArgs: [messageboxTokenId],
+      ) > 0){
+      await setNumMessageboxTokens(await getNumMessageboxTokens() - 1);
+    }
   }
 
 }

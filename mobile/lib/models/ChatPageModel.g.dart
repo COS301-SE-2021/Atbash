@@ -215,6 +215,17 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   }
 
   @override
+  void setEditedById(String messageID, String newMessage) {
+    final _$actionInfo = _$_ChatPageModelActionController.startAction(
+        name: '_ChatPageModel.setEditedById');
+    try {
+      return super.setEditedById(messageID, newMessage);
+    } finally {
+      _$_ChatPageModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 contactTitle: ${contactTitle},

@@ -315,6 +315,16 @@ class ChatPageController {
     });
   }
 
+  void editMessage(String messageId, String newMessage) {
+    communicationService.sendEditedMessage(
+        messageId, newMessage, contactPhoneNumber);
+    model.setEditedById(messageId, newMessage);
+    chat.then((chat) {
+      if (chat.chatType == ChatType.general)
+        messageService.updateMessageContents(messageId, newMessage);
+    });
+  }
+
   void startPrivateChat(BuildContext context) async {
     communicationService.sendStartPrivateChat(contactPhoneNumber);
     Contact? contact;

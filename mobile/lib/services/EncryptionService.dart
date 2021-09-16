@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:math';
 
 // import 'package:crypto/crypto.dart'; //For Hmac function
-import 'dart:math';
 
 // import 'package:cryptography/cryptography.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
@@ -29,9 +29,13 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
-import 'package:pointycastle/export.dart' as Pointy;
-import 'package:pointycastle/src/utils.dart' as PointyUtils;
+// import 'package:pointycastle/export.dart' as Pointy;
+// import 'package:pointycastle/src/utils.dart' as PointyUtils;
 
+//RSA Cryptography
+import 'package:crypton/crypton.dart';
+
+//Mutex/Locking functionality
 import 'package:synchronized/synchronized.dart';
 
 import 'UserService.dart';
@@ -51,8 +55,6 @@ class EncryptionService {
   final SignedPreKeyStoreService _signedPreKeyStoreService;
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
-
-  //Todo: Use UserService for phone number
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
@@ -500,5 +502,19 @@ class EncryptionService {
       return token;
     }
   }
+
+
+  List<RSAKeypair> generateRSAKeyPairs(int numPairs){
+    List<RSAKeypair> keys = [];
+
+    for(var i = 0; i < numPairs; i++){
+      keys.add(RSAKeypair.fromRandom(keySize: 4096));
+    }
+
+    return keys;
+  }
+
+
+
 
 }

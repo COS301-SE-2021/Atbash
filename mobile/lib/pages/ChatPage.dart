@@ -20,6 +20,7 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../constants.dart';
 
@@ -47,9 +48,11 @@ class _ChatPageState extends State<ChatPage> {
 
   late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
+  bool _replying = false;
+  Message? _replyingMessage;
 
   final _inputController = TextEditingController();
-  final _scrollController = ScrollController();
+  final _scrollController = ItemScrollController();
 
   ImageProvider? backgroundImage;
 
@@ -230,17 +233,37 @@ class _ChatPageState extends State<ChatPage> {
       child: Column(
         children: [
           Flexible(child: _buildMessages()),
-          // if(replying)
-          // Container(
-          //   color: Constants.darkGrey.withOpacity(0.88),
-          //   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
-          //   child: Text(
-          //     "Dylan\n"
-          //     "This message was replied to. It is supposed to be super long so that "
-          //     "it doesnt make it all the way blah balh balh",
-          //     style: TextStyle(color: Colors.white),
-          //   ),
-          // ),
+          if (_replying == true)
+            Container(
+              decoration: BoxDecoration(
+                color: Constants.darkGrey.withOpacity(0.88),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${_replyingMessage!.contents}",
+                      style: TextStyle(color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _replying = false;
+                        _replyingMessage = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
           _buildInput(),
         ],
       ),
@@ -249,7 +272,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessages() {
     return Observer(builder: (_) {
-      return ListView.builder(
+      return ScrollablePositionedList.builder(
+        itemScrollController: _scrollController,
         itemCount: controller.model.messages.length + 1,
         itemBuilder: (_, index) {
           if (index == controller.model.messages.length) {
@@ -303,7 +327,6 @@ class _ChatPageState extends State<ChatPage> {
             );
           return _buildMessage(controller.model.messages[index]);
         },
-        controller: _scrollController,
         reverse: true,
       );
     });
@@ -370,6 +393,7 @@ class _ChatPageState extends State<ChatPage> {
       onForwardPressed: () => controller.forwardMessage(
           context, message.contents, controller.model.contactTitle),
       onEditPressed: () => _editMessage(message),
+      onReplyPressed: () => _startReplying(message),
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
     );
@@ -451,6 +475,13 @@ class _ChatPageState extends State<ChatPage> {
     });
   }
 
+  void _startReplying(Message message) {
+    setState(() {
+      _replying = true;
+      _replyingMessage = message;
+    });
+  }
+
   void _sendImage() async {
     final pickedImage =
         await ImagePicker().getImage(source: ImageSource.gallery);
@@ -469,6 +500,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
   final void Function() onEditPressed;
+  final void Function() onReplyPressed;
   final bool blurImages;
   final ChatType chatType;
 
@@ -479,6 +511,7 @@ class ChatCard extends StatelessWidget {
     required this.onDoubleTap,
     required this.onForwardPressed,
     required this.onEditPressed,
+    required this.onReplyPressed,
     this.blurImages = false,
     this.chatType = ChatType.general,
   });
@@ -515,6 +548,12 @@ class ChatCard extends StatelessWidget {
                       onPressed: onTap,
                       menuItemExtent: 40,
                       menuItems: [
+                        if (!_message.deleted && !_message.isMedia)
+                          FocusedMenuItem(
+                            title: Text("Reply"),
+                            onPressed: onReplyPressed,
+                            trailingIcon: Icon(Icons.reply),
+                          ),
                         if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Tag"),
@@ -575,24 +614,24 @@ class ChatCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          //if(repliedTo)
-                          // Container(
-                          //   padding: EdgeInsets.all(2),
-                          //   decoration: BoxDecoration(
-                          //     color: Constants.darkGrey,
-                          //     borderRadius: BorderRadius.circular(4),
-                          //   ),
-                          //   constraints: BoxConstraints(
-                          //     maxWidth: MediaQuery.of(context).size.width * 0.7,
-                          //   ),
-                          //   child: Text(
-                          //     "This message was replied to. It is supposed to be super long so that "
-                          //     "it doesnt make it all the way blah balh balh",
-                          //     style: TextStyle(color: Colors.white),
-                          //     maxLines: 2,
-                          //     overflow: TextOverflow.ellipsis,
-                          //   ),
-                          // ),
+                          if (_message.repliedMessageId != null)
+                            Container(
+                              padding: EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Constants.darkGrey,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              constraints: BoxConstraints(
+                                maxWidth:
+                                    MediaQuery.of(context).size.width * 0.7,
+                              ),
+                              child: Text(
+                                "lol",
+                                style: TextStyle(color: Colors.white),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           SizedBox(
                             height: 4,
                           ),

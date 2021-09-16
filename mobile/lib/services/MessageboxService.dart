@@ -35,9 +35,19 @@ class MessageboxService {
     return keys;
   }
 
+  Future<RSAPublicKey?> getServerPublicKey() async {
+    return Future.value(null);
+  }
+
   Future<void> getMessageboxKeys(int numKeys) async {
     final blindSignatures = BlindSignatures();
     List<MailboxTokenDBRecord> tokens = [];
+
+    RSAPublicKey? serverKey = await getServerPublicKey();
+
+    if(serverKey == null){
+      return;
+    }
 
     final keyPairs = generateRSAKeyPairs(numKeys);
     List<Map<String, Object>> blindedPKs = [];
@@ -47,7 +57,7 @@ class MessageboxService {
         "n": k.publicKey.asPointyCastle.n.toString(),
         "e": k.publicKey.asPointyCastle.publicExponent.toString()
       });
-      blindedPKs.add(blindSignatures.blind(message, k.publicKey));
+      blindedPKs.add(blindSignatures.blind(message, serverKey));
     }
 
     final url = Uri.parse(Constants.httpUrl + "mailbox/createTokens");

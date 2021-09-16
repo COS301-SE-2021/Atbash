@@ -15,6 +15,7 @@ const BigInteger = require('jsbn').BigInteger;
 
 const BlindSignature = require('blind-signatures');
 const NodeRSA = require('node-rsa');
+var sha256 = require('js-sha256');
 
 const utf8Encoder = new TextEncoder();
 
@@ -56,6 +57,18 @@ describe("Unit tests for index.handler for register user",  () => {
     pubKeyObject.n = priKeyObject.n.clone();
     pubKeyObject.e = priKeyObject.e.clone();
   }
+
+  test("Test 2", async () => {
+    var hash = sha256.create();
+    hash.update('Message to hash');
+    var byteArr = await hash.arrayBuffer();
+
+    console.log(byteArr);
+    // console.log(byteArr.length());
+    console.log(bytesToBase64(new Uint8Array(byteArr)));
+
+    expect(3).toBe(3*1);
+  })
 
   test("Test 1", async () => {
 

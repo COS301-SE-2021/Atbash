@@ -527,6 +527,17 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendEditedMessage(
+      String messageID, String newMessage, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "edit",
+      "messageId": messageID,
+      "newMessage": newMessage,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
   Future<void> sendOnlineStatus(
       bool online, String recipientPhoneNumber) async {
     final contents = jsonEncode({

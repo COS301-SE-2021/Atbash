@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/util/Utils.dart';
 
 class VerificationPage extends StatefulWidget {
-  final String actualCode;
+  late final String actualCode;
 
-  VerificationPage({Key? key, required this.actualCode}) : super(key: key);
+  VerificationPage({Key? key, String? code}) : super(key: key) {
+    if (code != null) {
+      actualCode = code;
+    } else {
+      FlutterSecureStorage()
+          .read(key: "verification_code")
+          .then((verificationCode) => actualCode = verificationCode!);
+    }
+  }
 
   @override
   _VerificationPageState createState() => _VerificationPageState();
@@ -83,13 +92,13 @@ class _VerificationPageState extends State<VerificationPage> {
     await Future.delayed(Duration(seconds: 2));
 
     if (code == widget.actualCode) {
+      FlutterSecureStorage().write(key: "verified_flag", value: "");
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => ProfileSettingsPage(setup: true),
         ),
       );
-      showSnackBar(context, "Valid");
     } else {
       codeController.text = "";
 

@@ -41,6 +41,8 @@ class __NewContactDialogState extends State<_NewContactDialog> {
             Row(
               children: [
                 CountryCodePicker(
+                  showDropDownButton: true,
+                  padding: EdgeInsets.zero,
                   initialSelection: selectedDialCode,
                   showFlag: false,
                   onChanged: (countryCode) {

@@ -1,50 +1,66 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mobile/models/ContactsModel.dart';
-import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/services/AppService.dart';
-
-import '../constants.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile/constants.dart';
+import 'package:mobile/controllers/ProfileSettingsPageController.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/pages/HomePage.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobx/mobx.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
-  const ProfileSettingsPage({Key? key}) : super(key: key);
+  final bool setup;
+  final ProfileSettingsPageController? controller;
+
+  const ProfileSettingsPage({Key? key, required this.setup, this.controller})
+      : super(key: key);
 
   @override
-  _ProfileSettingsPageState createState() => _ProfileSettingsPageState();
+  _ProfileSettingsPageState createState() =>
+      _ProfileSettingsPageState(controller: controller);
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
-  final ContactsModel _contactsModel = GetIt.I.get();
-  final AppService _appService = GetIt.I.get();
-  final UserModel _userModel = GetIt.I.get();
+  final ProfileSettingsPageController controller;
+
+  _ProfileSettingsPageState({ProfileSettingsPageController? controller})
+      : controller = controller ?? ProfileSettingsPageController();
 
   final picker = ImagePicker();
   final _displayNameController = TextEditingController();
   final _statusController = TextEditingController();
+  DateTime? chosenBirthday;
+
+  late final ReactionDisposer _userDisposer;
   Uint8List? _selectedProfileImage;
 
   @override
   void initState() {
     super.initState();
-    _displayNameController.text = _userModel.displayName;
 
-    _statusController.text = _userModel.status;
+    _userDisposer = autorun((_) {
+      chosenBirthday = controller.model.birthday;
+      _displayNameController.text = controller.model.displayName;
+      _statusController.text = controller.model.status;
+      setState(() {
+        _selectedProfileImage = controller.model.profilePicture;
+      });
+    });
+  }
 
-    _selectedProfileImage = _userModel.profileImage;
+  @override
+  void dispose() {
+    super.dispose();
+    _userDisposer();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Profile Info"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(),
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
@@ -54,17 +70,29 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  Text(
+                    "Profile info",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Constants.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   SizedBox(
                     height: 15,
                   ),
-                  CircleAvatar(
-                    backgroundColor: Constants.orangeColor,
+                  if (widget.setup)
+                    Text(
+                      "Please provide a name as well as an optional profile picture and status.",
+                      textAlign: TextAlign.center,
+                      key: Key('infoText'),
+                    ),
+                  SizedBox(
+                    height: 30,
+                  ),
+                  AvatarIcon(
+                    _selectedProfileImage,
                     radius: 64,
-                    child: (_selectedProfileImage == null ||
-                            _selectedProfileImage!.isEmpty)
-                        ? Text("Picture")
-                        : null,
-                    backgroundImage: _buildAvatarImage(),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +114,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         color: Colors.black.withOpacity(0.7),
                         iconSize: 32,
                         onPressed: () {
-                          _imgFromCamera(context);
+                          _loadPicker(ImageSource.camera);
                         },
                         icon: Icon(Icons.photo_camera),
                       ),
@@ -95,80 +123,106 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   SizedBox(
                     height: 20,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 40,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _displayNameController,
-                        decoration: InputDecoration(
-                          hintText: "Display Name",
-                        ),
-                        textAlign: TextAlign.center,
+                    child: TextField(
+                      controller: _displayNameController,
+                      decoration: InputDecoration(
+                        hintText: "Display Name",
                       ),
+                      textAlign: TextAlign.center,
+                      key: Key("displayNameText"),
                     ),
                   ),
                   SizedBox(
                     height: 10,
                   ),
-                  Padding(
+                  Container(
                     padding: const EdgeInsets.symmetric(
                       vertical: 0,
                       horizontal: 80,
                     ),
-                    child: Container(
-                      child: TextField(
-                        controller: _statusController,
-                        decoration: InputDecoration(
-                          hintText: "Status",
-                        ),
-                        textAlign: TextAlign.center,
+                    child: TextField(
+                      controller: _statusController,
+                      decoration: InputDecoration(
+                        hintText: "Status",
                       ),
+                      textAlign: TextAlign.center,
+                      key: Key("statusText"),
                     ),
                   ),
                   SizedBox(
-                    height: 60,
+                    height: 40,
+                  ),
+                  Text("Birthday"),
+                  TextButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(
+                        context,
+                        showTitleActions: true,
+                        minTime: DateTime(1900, 1, 1),
+                        maxTime: DateTime.now(),
+                        onConfirm: (date) {
+                          setState(() {
+                            chosenBirthday = date;
+                          });
+                        },
+                        currentTime: DateTime.now(),
+                      );
+                    },
+                    child: Text(_chosenBirthdayToString()),
+                  ),
+                  SizedBox(
+                    height: 20,
                   ),
                   MaterialButton(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    color: Constants.orangeColor,
+                    color: Constants.orange,
                     onPressed: () {
                       final displayName = _displayNameController.text;
                       final status = _statusController.text;
                       final profileImage =
                           _selectedProfileImage ?? Uint8List(0);
+                      final birthday = chosenBirthday;
 
-                      if (displayName.isNotEmpty) {
-                        _userModel.setDisplayName(displayName);
+                      if (displayName.isNotEmpty)
+                        controller.setDisplayName(displayName);
+
+                      if (status.isNotEmpty) controller.setStatus(status);
+
+                      controller.setProfilePicture(profileImage);
+
+                      if (birthday != null) controller.setBirthday(birthday);
+
+                      if (widget.setup) {
+                        showConfirmDialog(
+                          context,
+                          "Do you want to import your phone's contacts?",
+                          positive: "Yes",
+                          negative: "No",
+                        ).then((response) async {
+                          if (response == true) {
+                            await controller.importContacts();
+                          }
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => HomePage(),
+                              settings: RouteSettings(name: "/"),
+                            ),
+                          );
+                        });
+                      } else {
+                        Navigator.pop(context);
                       }
-
-                      if (status.isNotEmpty) {
-                        _userModel.setStatus(status);
-                      }
-
-                      _userModel.setProfileImage(profileImage);
-
-                      _contactsModel.contacts.forEach((contact) {
-                        _appService.sendStatus(
-                          contact.phoneNumber,
-                          status,
-                          contact.symmetricKey,
-                        );
-                        // TODO re-enable once sendProfileImage is fixed
-                        // _appService.sendProfileImage(
-                        //   contact.phoneNumber,
-                        //   base64Encode(profileImage),
-                        //   contact.symmetricKey,
-                        // );
-                      });
-
-                      Navigator.pop(context);
                     },
-                    child: Text("Save"),
+                    child: Text(widget.setup ? "Next" : "Save"),
+                    key: Key('button'),
                   ),
                 ],
               ),
@@ -179,9 +233,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     );
   }
 
-  MemoryImage? _buildAvatarImage() {
-    final image = _selectedProfileImage;
-    return (image != null && image.isNotEmpty) ? MemoryImage(image) : null;
+  String _chosenBirthdayToString() {
+    final birthday = chosenBirthday;
+
+    if (birthday != null) {
+      return DateFormat.yMMMd().format(birthday);
+    } else {
+      return "Select Birthday";
+    }
   }
 
   Future _loadPicker(ImageSource source) async {
@@ -192,20 +251,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       setState(() {
         _selectedProfileImage = imageBytes;
       });
-    }
-  }
-
-  Future _imgFromCamera(BuildContext context) async {
-    try {
-      // setState(() {
-      //   if (pickedFile != null) {
-      //     _image = File(pickedFile.path);
-      //   } else {
-      //     print('No image selected.');
-      //   }
-      // });
-    } catch (e) {
-      showAlertDialog(context);
     }
   }
 

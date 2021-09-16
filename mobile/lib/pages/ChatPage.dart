@@ -1,243 +1,383 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:focused_menu/focused_menu.dart';
+import 'package:focused_menu/modals.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart' as intl;
+import 'package:mobile/controllers/ChatPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
-import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/dialogs/ImageViewDialog.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/MessageEditDialog.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:mobile/services/AppService.dart';
-import 'package:mobile/util/Tuple.dart';
+import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
 
 import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
-  final Contact contact;
+  final String chatId;
+  final Chat? privateChat;
 
-  ChatPage(this.contact);
+  const ChatPage({Key? key, required this.chatId})
+      : privateChat = null,
+        super(key: key);
+
+  ChatPage.privateChat({required this.chatId, this.privateChat});
 
   @override
-  _ChatPageState createState() => _ChatPageState(this.contact);
+  _ChatPageState createState() =>
+      _ChatPageState(chatId: chatId, privateChat: privateChat);
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final AppService _appService = GetIt.I.get();
+  final ChatPageController controller;
 
-  final Contact _contact;
+  _ChatPageState({required String chatId, Chat? privateChat})
+      : controller =
+            ChatPageController(chatId: chatId, privateChat: privateChat);
 
-  List<Tuple<Message, bool>> _selectedMessages = [];
-  late final ReactionDisposer _messagesDisposer;
+  late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
 
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
 
-  _ChatPageState(this._contact);
+  ImageProvider? backgroundImage;
 
   @override
   void initState() {
     super.initState();
+    _inputController.text = controller.getTypedMessage();
 
-    _messagesDisposer = autorun((_) {
-      _appService.sendSeenAcknowledgementForContact(
-        _contact.phoneNumber,
-        _contact.symmetricKey,
-      );
-
-      setState(() {
-        _selectedMessages = _appService.chatModel.chatMessages
-            .map((m) => Tuple(m, false))
-            .toList();
-      });
+    _backgroundDisposer =
+        reaction((_) => controller.model.wallpaperImage, (wallpaperImage) {
+      if (wallpaperImage != null) {
+        setState(() {
+          backgroundImage = MemoryImage(base64Decode(wallpaperImage as String));
+        });
+      }
     });
-
-    _appService.chatModel.initContact(_contact.phoneNumber);
   }
 
   @override
   void dispose() {
     super.dispose();
-
-    _messagesDisposer();
+    controller.storeTypedMessage(_inputController.text);
+    _backgroundDisposer();
+    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (_selecting) {
-          setState(() {
-            _selecting = false;
-            _selectedMessages.forEach((m) => m.second = false);
-          });
-          return false;
-        }
-
-        return true;
+        if (controller.model.chatType == ChatType.private)
+          controller.stopPrivateChat();
+        Navigator.popUntil(context, ModalRoute.withName("/"));
+        return false;
       },
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: _buildBody(),
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: _buildBody(),
+        ),
       ),
     );
   }
 
   AppBar _buildAppBar(BuildContext context) {
-    Widget titlebar = Column(
+    Widget titleBar = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.contact.displayName.isNotEmpty
-              ? widget.contact.displayName
-              : widget.contact.phoneNumber,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          _contact.status,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.black,
-          ),
-        ),
+        Observer(builder: (_) {
+          return Text(
+            controller.model.contactTitle,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+          );
+        }),
+        Observer(builder: (_) {
+          final online = controller.model.online;
+
+          if (online) {
+            return Text(
+              "Online",
+              style: TextStyle(fontSize: 12, color: Colors.black),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
+        })
       ],
     );
-    if (_contact.status.isEmpty) {
-      titlebar = Text(
-        widget.contact.displayName.isNotEmpty
-            ? widget.contact.displayName
-            : widget.contact.phoneNumber,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
 
     return AppBar(
       titleSpacing: 0,
-      title: Row(
-        children: [
-          AvatarIcon.fromString(_contact.profileImage),
-          SizedBox(
-            width: 3,
-          ),
-          Expanded(
-            child: titlebar,
-          ),
-        ],
+      title: InkWell(
+        highlightColor: _selecting ? Colors.transparent : null,
+        splashFactory: _selecting ? NoSplash.splashFactory : null,
+        enableFeedback: _selecting ? false : true,
+        onTap: () {
+          if (!_selecting)
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ContactInfoPage(
+                        phoneNumber: controller.contactPhoneNumber)));
+        },
+        child: Row(
+          children: [
+            Observer(
+              builder: (_) =>
+                  AvatarIcon.fromString(controller.model.contactProfileImage),
+            ),
+            SizedBox(
+              width: 16,
+            ),
+            Expanded(
+              child: titleBar,
+            ),
+          ],
+        ),
       ),
       actions: [
-        if (_selecting)
-          IconButton(
-            onPressed: () => _deleteMessages(context),
-            icon: Icon(Icons.delete),
-          )
+        Observer(builder: (_) {
+          if (!controller.model.contactSaved) {
+            return IconButton(
+              onPressed: () {
+                showInputDialog(
+                  context,
+                  "Add Contact",
+                  hint: "Enter contact name",
+                ).then((name) {
+                  if (name != null) {
+                    controller.addSenderAsContact(name);
+                  }
+                });
+              },
+              icon: Icon(Icons.person_add),
+            );
+          } else {
+            return SizedBox.shrink();
+          }
+        }),
+        Observer(builder: (_) {
+          if (controller.model.chatType != ChatType.private)
+            return IconButton(
+              onPressed: () {
+                controller.startPrivateChat(context);
+              },
+              icon: Icon(Icons.lock),
+            );
+          else
+            return SizedBox.shrink();
+        })
       ],
     );
   }
 
-  void _deleteMessages(BuildContext context) {
-    final selectedMessages = _selectedMessages.where((m) => m.second);
-    final selectedMessagesIds =
-        selectedMessages.map((e) => e.first.id).toList();
-
-    if (selectedMessages
-        .any((m) => m.first.senderPhoneNumber == _contact.phoneNumber)) {
+  void _deleteSingleMessage(Message message) {
+    if (message.isIncoming || message.deleted) {
       showConfirmDialog(
         context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        "You are about to delete this message. Are you sure?",
       ).then((confirmed) {
-        if (confirmed != null && confirmed) {
-          _appService.chatModel.deleteMessages(selectedMessagesIds);
-          setState(() {
-            _selecting = false;
-          });
+        if (confirmed == true) {
+          controller.deleteMessagesLocally([message.id]);
         }
       });
     } else {
       showConfirmDeleteDialog(
         context,
-        "You are about to delete ${selectedMessagesIds.length} message(s). Are you sure?",
+        "You are about to delete this message. Are you sure?",
       ).then((response) {
-        if (response != null) {
-          if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
-            _appService.requestDeleteMessages(
-              _contact.phoneNumber,
-              selectedMessagesIds,
-              _contact.symmetricKey,
-            );
-
-            _appService.chatModel.markMessagesDeleted(selectedMessagesIds);
-          } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
-            _appService.chatModel.deleteMessages(selectedMessagesIds);
-          }
-
-          if (response != DeleteMessagesResponse.CANCEL) {
-            setState(() {
-              _selecting = false;
-            });
-          }
+        if (response == DeleteMessagesResponse.DELETE_FOR_EVERYONE) {
+          controller.deleteMessagesRemotely([message.id]);
+        } else if (response == DeleteMessagesResponse.DELETE_FOR_ME) {
+          controller.deleteMessagesLocally([message.id]);
         }
       });
     }
+  }
+
+  void _likeMessage(Message message) {
+    if (!message.isIncoming) return;
+
+    controller.likeMessage(message.id, !message.liked);
   }
 
   SafeArea _buildBody() {
     return SafeArea(
       child: Column(
         children: [
-          Flexible(
-            child: _buildMessages(),
-          ),
-          _buildInput()
+          Flexible(child: _buildMessages()),
+          // if(replying)
+          // Container(
+          //   color: Constants.darkGrey.withOpacity(0.88),
+          //   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+          //   child: Text(
+          //     "Dylan\n"
+          //     "This message was replied to. It is supposed to be super long so that "
+          //     "it doesnt make it all the way blah balh balh",
+          //     style: TextStyle(color: Colors.white),
+          //   ),
+          // ),
+          _buildInput(),
         ],
       ),
     );
   }
 
   Widget _buildMessages() {
-    return NotificationListener<ScrollEndNotification>(
-      onNotification: (scrollEnd) {
-        final metrics = scrollEnd.metrics;
-        if (metrics.pixels.floor() == metrics.maxScrollExtent.floor()) {
-          _appService.chatModel.fetchNextMessagesPage();
-        }
-        return true;
-      },
-      child: ListView.builder(
-        itemCount: _selectedMessages.length,
-        itemBuilder: (context, index) {
-          return _buildMessage(_selectedMessages[index]);
+    return Observer(builder: (_) {
+      return ListView.builder(
+        itemCount: controller.model.messages.length + 1,
+        itemBuilder: (_, index) {
+          if (index == controller.model.messages.length) {
+            return Observer(builder: (_) {
+              if (controller.model.chatType == ChatType.private)
+                return Center(
+                  child: Container(
+                    margin:
+                        EdgeInsets.only(left: 60, right: 60, top: 5, bottom: 5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white12.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        //TODO navigate to help page
+                      },
+                      child: Text(
+                        "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves. Tap to learn more",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              return SizedBox.shrink();
+            });
+          }
+
+          String dateString = _chatDateString(index);
+
+          if (dateString != "")
+            return Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(5),
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Constants.white.withOpacity(0.88),
+                    borderRadius: BorderRadius.circular(45),
+                  ),
+                  child: Text(
+                    dateString,
+                  ),
+                ),
+                _buildMessage(controller.model.messages[index]),
+              ],
+            );
+          return _buildMessage(controller.model.messages[index]);
         },
         controller: _scrollController,
         reverse: true,
-      ),
-    );
+      );
+    });
   }
 
-  ChatCard _buildMessage(Tuple<Message, bool> message) {
+  String _chatDateString(int index) {
+    int numMillisPerDay = 1000 * 60 * 60 * 24;
+    //int numMillisPerYear = numMillisPerDay * 365;
+
+    int curDay =
+        (controller.model.messages[index].timestamp.millisecondsSinceEpoch /
+                numMillisPerDay)
+            .floor();
+    int prevDay = index == controller.model.messages.length - 1
+        ? 0
+        : (controller.model.messages[index + 1].timestamp
+                    .millisecondsSinceEpoch /
+                numMillisPerDay)
+            .floor();
+    // int curYear = (_messages[index].first.timestamp.millisecondsSinceEpoch /
+    //         numMillisPerYear)
+    //     .floor();
+    // int prevYear = index == _messages.length - 1
+    //     ? DateTime.now().year
+    //     : (_messages[index + 1].first.timestamp.millisecondsSinceEpoch /
+    //             numMillisPerYear)
+    //         .floor();
+
+    int today =
+        (DateTime.now().millisecondsSinceEpoch / numMillisPerDay).floor();
+
+    if (curDay > prevDay) {
+      if (curDay == today) return "Today";
+
+      if (today - curDay == 1) return "Yesterday";
+
+      if (today - curDay < 7)
+        return intl.DateFormat("EEEE")
+            .format(controller.model.messages[index].timestamp);
+
+      //TODO: Order by year if it goes too far back
+      // if (prevYear < curYear)
+      //   return intl.DateFormat.yMMMd().format(_messages[index].first.timestamp);
+
+      return intl.DateFormat("EEE, dd MMM")
+          .format(controller.model.messages[index].timestamp);
+    }
+
+    //TODO: implement year differences. eg. Fri, 22 Mar = 22 Mar 2020
+
+    return "";
+  }
+
+  ChatCard _buildMessage(Message message) {
     return ChatCard(
-      message.first,
-      contact: _contact,
+      message,
       onTap: () {
-        setState(() {
-          message.second = !message.second;
-        });
+        if (message.isMedia) {
+          showImageViewDialog(context, base64Decode(message.contents));
+        }
       },
-      onLongPress: () {
-        setState(() {
-          _selecting = true;
-          message.second = true;
-        });
-      },
-      selected: _selecting ? message.second : null,
+      onDelete: () => _deleteSingleMessage(message),
+      onDoubleTap: () => _likeMessage(message),
+      onForwardPressed: () => controller.forwardMessage(
+          context, message.contents, controller.model.contactTitle),
+      onEditPressed: () => _editMessage(message),
+      blurImages: controller.model.blurImages,
+      chatType: controller.model.chatType,
     );
   }
 
   Container _buildInput() {
     return Container(
+      color: Constants.darkGrey.withOpacity(0.88),
       child: SafeArea(
         child: Row(
           children: [
@@ -246,14 +386,17 @@ class _ChatPageState extends State<ChatPage> {
                 top: 10,
                 left: 5,
               ),
-              onPressed: () {},
-              icon: Icon(Icons.add_circle_outline),
+              onPressed: _sendImage,
+              icon: Icon(
+                Icons.add_circle_outline,
+                color: Constants.white,
+              ),
             ),
             Expanded(
               child: Container(
                 margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.5),
+                  color: Constants.orange,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
@@ -279,7 +422,10 @@ class _ChatPageState extends State<ChatPage> {
             IconButton(
               padding: EdgeInsets.only(top: 10),
               onPressed: _sendMessage,
-              icon: Icon(Icons.send),
+              icon: Icon(
+                Icons.send,
+                color: Constants.white,
+              ),
             )
           ],
         ),
@@ -288,107 +434,274 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _sendMessage() {
-    final recipientNumber = _contact.phoneNumber;
     final contents = _inputController.text;
 
-    if (contents.isEmpty) return;
+    if (contents.trim().isEmpty) return;
 
-    _appService
-        .sendMessage(recipientNumber, contents, _contact.symmetricKey)
-        .then((message) {
-      _appService.chatModel.addMessage(message);
-      _scrollController.animateTo(
-        0,
-        duration: Duration(milliseconds: 150),
-        curve: Curves.easeIn,
-      );
-    });
     _inputController.text = "";
+
+    controller.sendMessage(contents);
+  }
+
+  void _editMessage(Message message) {
+    showEditMessageDialog(context, message.contents).then((newMessage) {
+      if (newMessage != null &&
+          newMessage.trim() != message.contents.trim() &&
+          !message.isIncoming) controller.editMessage(message.id, newMessage);
+    });
+  }
+
+  void _sendImage() async {
+    final pickedImage =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+      final file = File(pickedImage.path);
+      final imageBytes = await file.readAsBytes();
+      controller.sendImage(imageBytes);
+    }
   }
 }
 
 class ChatCard extends StatelessWidget {
-  final Contact contact;
   final Message _message;
   final void Function() onTap;
-  final void Function() onLongPress;
-  final bool? selected;
+  final void Function() onDelete;
+  final void Function() onDoubleTap;
+  final void Function() onForwardPressed;
+  final void Function() onEditPressed;
+  final bool blurImages;
+  final ChatType chatType;
 
   ChatCard(
     this._message, {
-    required this.contact,
     required this.onTap,
-    required this.onLongPress,
-    this.selected,
+    required this.onDelete,
+    required this.onDoubleTap,
+    required this.onForwardPressed,
+    required this.onEditPressed,
+    this.blurImages = false,
+    this.chatType = ChatType.general,
   });
 
-  final dateFormatter = DateFormat("Hm");
+  final dateFormatter = intl.DateFormat("Hm");
 
   @override
   Widget build(BuildContext context) {
-    var alignment = Alignment.centerRight;
-    var padding = EdgeInsets.only(left: 100, right: 20);
-    var color = Constants.orangeColor;
-
-    if (_contactIsSender) {
-      alignment = Alignment.centerLeft;
-      padding = padding.flipped;
-      color = Constants.darkGreyColor;
-    }
-
-    return Container(
-      color: selected != null && selected == true
-          ? Color.fromRGBO(116, 152, 214, 0.3)
-          : null,
-      child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: padding,
-          child: InkWell(
-            onTap: onTap,
-            onLongPress: onLongPress,
-            child: Card(
-              color: color.withOpacity(0.8),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-                    child: Text(
-                      _message.deleted
-                          ? "This message was deleted"
-                          : _message.contents,
-                      style: TextStyle(color: Colors.white),
-                    ),
+    return Observer(builder: (context) {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
+        child: Align(
+          alignment: _message.isIncoming
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
+          child: IntrinsicWidth(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: _message.isIncoming
+                        ? Constants.darkGrey.withOpacity(0.88)
+                        : Constants.orange.withOpacity(0.88),
                   ),
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        dateFormatter.format(_message.timestamp),
-                        style: TextStyle(fontSize: 11, color: Colors.white),
+                  child: InkWell(
+                    onDoubleTap: onDoubleTap,
+                    child: FocusedMenuHolder(
+                      animateMenuItems: false,
+                      blurSize: 2,
+                      blurBackgroundColor: Constants.black,
+                      menuWidth: MediaQuery.of(context).size.width * 0.4,
+                      onPressed: onTap,
+                      menuItemExtent: 40,
+                      menuItems: [
+                        if (!_message.deleted && chatType == ChatType.general)
+                          FocusedMenuItem(
+                              title: Text("Tag"),
+                              onPressed: () {},
+                              trailingIcon: Icon(Icons.tag)),
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isIncoming)
+                          FocusedMenuItem(
+                              title: Text("Edit"),
+                              onPressed: onEditPressed,
+                              trailingIcon: Icon(Icons.edit)),
+                        if (!_message.deleted && chatType == ChatType.general)
+                          FocusedMenuItem(
+                              title: Text("Forward"),
+                              onPressed: () {
+                                onForwardPressed();
+                              },
+                              trailingIcon: Icon(Icons.forward)),
+                        if (!_message.deleted && !_message.isMedia)
+                          FocusedMenuItem(
+                              title: Text("Copy"),
+                              onPressed: () => Clipboard.setData(
+                                  ClipboardData(text: _message.contents)),
+                              trailingIcon: Icon(Icons.copy)),
+                        if (chatType == ChatType.general)
+                          FocusedMenuItem(
+                              title: Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: onDelete,
+                              trailingIcon: Icon(
+                                Icons.delete,
+                                color: Constants.white,
+                              ),
+                              backgroundColor: Colors.redAccent),
+                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (_message.forwarded && _message.isIncoming)
+                            Container(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.reply,
+                                    textDirection: TextDirection.rtl,
+                                    size: 16,
+                                    color: Colors.white.withOpacity(0.69),
+                                  ),
+                                  Text(
+                                    "Forwarded",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white.withOpacity(0.69)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          //if(repliedTo)
+                          // Container(
+                          //   padding: EdgeInsets.all(2),
+                          //   decoration: BoxDecoration(
+                          //     color: Constants.darkGrey,
+                          //     borderRadius: BorderRadius.circular(4),
+                          //   ),
+                          //   constraints: BoxConstraints(
+                          //     maxWidth: MediaQuery.of(context).size.width * 0.7,
+                          //   ),
+                          //   child: Text(
+                          //     "This message was replied to. It is supposed to be super long so that "
+                          //     "it doesnt make it all the way blah balh balh",
+                          //     style: TextStyle(color: Colors.white),
+                          //     maxLines: 2,
+                          //     overflow: TextOverflow.ellipsis,
+                          //   ),
+                          // ),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Container(
+                            child: _renderMessageContents(),
+                            constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width * 0.7,
+                            ),
+                          ),
+                          Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (_message.edited)
+                                  Text(
+                                    "Edited",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.white),
+                                  ),
+                                if (_message.edited)
+                                  Expanded(child: Container()),
+                                if (_message.edited)
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                Text(
+                                  dateFormatter.format(_message.timestamp),
+                                  style: TextStyle(
+                                      fontSize: 10, color: Colors.white),
+                                ),
+                                SizedBox(
+                                  width: 2,
+                                ),
+                                if (!_message.isIncoming)
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 2),
+                                    child: _readReceipt(),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Positioned(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 5.5, 8, 0),
-                      child: _readReceipt(),
+                ),
+                if (_message.liked)
+                  Container(
+                    alignment: _message.isIncoming
+                        ? Alignment.topLeft
+                        : Alignment.topRight,
+                    child: Icon(
+                      Icons.favorite,
+                      size: 16,
+                      color: _message.isIncoming
+                          ? Constants.orange
+                          : Constants.darkGrey,
                     ),
                   ),
-                ],
-              ),
+              ],
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  bool get _contactIsSender =>
-      _message.senderPhoneNumber == contact.phoneNumber;
+  Widget _renderMessageContents() {
+    if (_message.isMedia) {
+      if (blurImages) {
+        return Row(
+          children: [
+            Text(
+              "View image",
+              style: TextStyle(
+                color: Colors.white,
+                fontStyle: _message.deleted ? FontStyle.italic : null,
+              ),
+            ),
+            SizedBox(
+              width: 2,
+            ),
+            Icon(
+              Icons.remove_red_eye,
+              size: 14,
+              color: Colors.white,
+            ),
+          ],
+        );
+      }
+      return Image.memory(
+        base64Decode(_message.contents),
+        height: 200,
+      );
+    } else {
+      return Text(
+        _message.deleted ? "This message was deleted" : _message.contents,
+        style: TextStyle(
+          color: Colors.white,
+          fontStyle: _message.deleted ? FontStyle.italic : null,
+        ),
+      );
+    }
+  }
 
   Icon? _readReceipt() {
-    if (_contactIsSender) {
+    if (_message.isIncoming) {
       return null;
     }
 

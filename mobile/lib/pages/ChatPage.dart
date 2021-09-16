@@ -19,6 +19,7 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobile/util/Extensions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -396,6 +397,10 @@ class _ChatPageState extends State<ChatPage> {
       onReplyPressed: () => _startReplying(message),
       blurImages: controller.model.blurImages,
       chatType: controller.model.chatType,
+      repliedMessage: message.repliedMessageId != null
+          ? controller.model.messages
+              .firstWhereOrNull((m) => m.id == message.repliedMessageId)
+          : null,
     );
   }
 
@@ -510,6 +515,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onReplyPressed;
   final bool blurImages;
   final ChatType chatType;
+  final Message? repliedMessage;
 
   ChatCard(
     this._message, {
@@ -521,6 +527,7 @@ class ChatCard extends StatelessWidget {
     required this.onReplyPressed,
     this.blurImages = false,
     this.chatType = ChatType.general,
+    this.repliedMessage,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -528,6 +535,8 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
+      final repliedMessage = this.repliedMessage;
+
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
         child: Align(
@@ -621,7 +630,7 @@ class ChatCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          if (_message.repliedMessageId != null)
+                          if (repliedMessage != null)
                             Container(
                               padding: EdgeInsets.all(2),
                               decoration: BoxDecoration(
@@ -633,7 +642,7 @@ class ChatCard extends StatelessWidget {
                                     MediaQuery.of(context).size.width * 0.7,
                               ),
                               child: Text(
-                                "lol",
+                                repliedMessage.contents,
                                 style: TextStyle(color: Colors.white),
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,

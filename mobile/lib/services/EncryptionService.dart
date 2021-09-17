@@ -38,6 +38,8 @@ import 'package:crypton/crypton.dart';
 //Mutex/Locking functionality
 import 'package:synchronized/synchronized.dart';
 
+//Services
+import 'MessageboxService.dart';
 import 'UserService.dart';
 
 class EncryptionService {
@@ -47,7 +49,8 @@ class EncryptionService {
       this._identityKeyStoreService,
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
-      this._sessionStoreService);
+      this._sessionStoreService,
+      this._messageboxService);
 
   final UserService _userService;
   final SessionStoreService _sessionStoreService;
@@ -55,6 +58,7 @@ class EncryptionService {
   final SignedPreKeyStoreService _signedPreKeyStoreService;
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
+  final MessageboxService _messageboxService;
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;

@@ -2,16 +2,12 @@ const {addMessagebox} = require("./db_acccess")
 
 const BlindSignature = require('blind-signatures');
 const BigInteger = require('jsbn').BigInteger;
-// const NodeRSA = require('node-rsa');
 const crypto = require("crypto-js");
 const { v4: uuidv4 } = require('uuid');
 const {bytesToBase64} = require("./base64");
 const JSEncrypt = require('node-jsencrypt');
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
   const {publicKey, signedToken} = JSON.parse(event.body)
 
   console.log("RequestBody: ");

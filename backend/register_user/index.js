@@ -1,34 +1,22 @@
 const {addUser, existsNumber, existsRegistrationId} = require("./db_access")
 const {bytesToBase64, base64ToBytes} = require("./base64")
-//const {PhoneNumberFormat: PNF} = require("google-libphonenumber");
-//const {webcrypto: crypto} = require("crypto");
+
+const AWS = require("aws-sdk")
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
-// const crypto = require('crypto').webcrypto
 const getRandomValues = require('get-random-values');
 const {createHmac} = require('crypto');
-// const NodeRSA = require('node-rsa')
 
 const JSEncrypt = require('node-jsencrypt');
 const BigInteger = require('jsbn').BigInteger;
 
 const utf8Encoder = new TextEncoder();
-//const utf8Decoder = new TextDecoder();
-
-//**For Testing**
-// let output = "";
-
-const AWS = require("aws-sdk")
 
 exports.handler = async event => {
     let bodyJson = JSON.parse(event.body);
     let bodyString = JSON.stringify(bodyJson);
 
-    //**For Testing**
-    // output += "\n\n" + bodyString + "\n\n";
-    // console.log(bodyString)
-
-    const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson; //JSON.parse(event.body)
+    const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson;
 
     console.log("RequestBody: ");
     console.log(event.body);
@@ -88,9 +76,6 @@ exports.handler = async event => {
     });
     let base64EncryptedPassword = crypt.encrypt(bytesToBase64(devicePassword));
 
-    //output += additionalResponse;
-    //return {statusCode: 200, body: output}
-    // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
     const verificationCode = randomCode(6)
 
     const sns = new AWS.SNS({
@@ -150,16 +135,7 @@ const authenticateSignature = (body) => {
     const hmac = createHmac('sha256', secretKey_aes);
     hmac.update(jsonObjectArray);
 
-    // output += "jsonObjectString:" + jsonObjectString + "\n";
-    // output += "jsonObjectArray:" + jsonObjectArray + "\n";
-    // output += "signalingKeyBase64:" + signalingKeyBase64 + "\n";
-    // output += "signalingKey:" + signalingKey + "\n";
-    // output += "aesBytes:" + secretKey_aes + "\n";
-    // output += "hmacKey_received:" + hmacKey_received + "\n";
-
     let hmacKey_calculated = new Uint8Array(hmac.digest());
-
-    // output += "hmacKey_calculated: " + hmacKey_calculated + "\n";
 
     let numElements = hmacKey_received.length;
     if (hmacKey_calculated.length < numElements) numElements = hmacKey_calculated.length;

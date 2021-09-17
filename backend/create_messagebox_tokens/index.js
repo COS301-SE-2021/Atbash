@@ -5,9 +5,6 @@ const BigInteger = require('jsbn').BigInteger;
 const NodeRSA = require('node-rsa');
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
   const {authorization, phoneNumber, blindedPKs} = JSON.parse(event.body)
 
   console.log("RequestBody: ");

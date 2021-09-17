@@ -76,6 +76,7 @@ class RegistrationService {
       final responseBodyJson = jsonDecode(response.body) as Map<String, Object>;
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
+      final verificationCode = responseBodyJson["verification"] as String?;
       if (encryptedDevicePassword == null) {
         throw new RegistrationErrorException(
             "Server response was in an invalid format. Response body: " +
@@ -105,7 +106,7 @@ class RegistrationService {
 
       final success = await registerKeys();
       if (success) {
-        return responseBodyJson["verification"];
+        return verificationCode;
       } else {
         return null;
       }

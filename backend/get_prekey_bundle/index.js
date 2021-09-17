@@ -1,15 +1,10 @@
 const {authenticateAuthenticationToken, existsNumber, getNumPreKeys, getBundleKeys, getAndRemovePreKey} = require("./db_acccess")
-//const {PhoneNumberFormat: PNF} = require("google-libphonenumber");
+
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
-// const crypto = require('crypto').webcrypto
-const getRandomValues = require('get-random-values');
 const {randomInt} = require('crypto');
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
   const {authorization, phoneNumber, recipientNumber} = JSON.parse(event.body)
 
   console.log("RequestBody: ");

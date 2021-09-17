@@ -110,6 +110,29 @@ class CommunicationService {
     );
   }
 
+  /*
+  Message Structure (First Message)
+  {
+    id,
+    recipientNumber,
+    senderNumber (RSA Encrypted),
+    encryptedContents(
+      sender_mid,
+      contents
+    )
+  }
+
+  Message Structure (Second Message)
+  {
+    id,
+    recipient_mid,
+    encryptedContents(
+      sender_mid,
+      contents
+    )
+  }
+  */
+
   Future<void> goOnline() async {
     final phoneNumber = await userService.getPhoneNumber();
 

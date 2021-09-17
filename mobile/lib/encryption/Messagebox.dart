@@ -5,6 +5,7 @@ class Messagebox {
   final RSAKeypair keypair;
   String? number;
   RSAPublicKey? recipientKey;
+  final String? recipientId;
   final int expires;
 
   Messagebox(
@@ -12,6 +13,7 @@ class Messagebox {
       this.keypair,
       this.number,
       this.recipientKey,
+      this.recipientId,
       this.expires
       );
 
@@ -26,11 +28,12 @@ class Messagebox {
   }
 
   static Messagebox? fromMap(Map<String, Object?> map) {
-    final id = map[Messagebox.COLUMN_M_ID];
-    final keypair = map[Messagebox.COLUMN_SERIALIZED_KEYPAIR];
+    final id = map[Messagebox.COLUMN_M_ID] as String?;
+    final keypair = map[Messagebox.COLUMN_SERIALIZED_KEYPAIR] as String?;
     final number = map[Messagebox.COLUMN_NUMBER] as String?;
     final recipientKeyStr = map[Messagebox.COLUMN_RECIPIENT_KEY] as String?;
-    final expires = map[Messagebox.COLUMN_EXPIRES];
+    final recipientId = map[Messagebox.COLUMN_RECIPIENT_ID] as String?;
+    final expires = map[Messagebox.COLUMN_EXPIRES] as int?;
 
     var recipientKey = null;
     if(recipientKeyStr != null){
@@ -43,6 +46,7 @@ class Messagebox {
           RSAKeypair(RSAPrivateKey.fromString(keypair)),
           number,
           recipientKey,
+          recipientId,
           expires
       );
     } else {
@@ -55,8 +59,9 @@ class Messagebox {
   static const String COLUMN_SERIALIZED_KEYPAIR = "serialized_keypair";
   static const String COLUMN_NUMBER = "number";
   static const String COLUMN_RECIPIENT_KEY = "recipient_key";
+  static const String COLUMN_RECIPIENT_ID = "recipient_id";
   static const String COLUMN_EXPIRES = "expires";
 
   static const String CREATE_TABLE =
-      "create table $TABLE_NAME ($COLUMN_M_ID text primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_RECIPIENT_KEY text, $COLUMN_EXPIRES text not null);";
+      "create table $TABLE_NAME ($COLUMN_M_ID text primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_RECIPIENT_KEY text, $COLUMN_RECIPIENT_ID text, $COLUMN_EXPIRES text not null);";
 }

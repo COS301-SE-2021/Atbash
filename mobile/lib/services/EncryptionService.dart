@@ -527,4 +527,11 @@ class EncryptionService {
 
     return key.encrypt(myNumber);
   }
+
+  /// This method decrypts the senders number with this users RSA key
+  Future<String> decryptSenderNumber(String encryptedNumber) async {
+    final keypair = await _userService.fetchRSAKeyPair();
+
+    return keypair.privateKey.decrypt(encryptedNumber);
+  }
 }

@@ -164,6 +164,7 @@ class MessageboxService {
       if (response.statusCode == 200) {
         int expires = jsonDecode(response.body) as int;
         Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, expires);
+        storeMessagebox(messagebox);
 
         //TODO: Send a request to the server to link this devices ConnectionID to the MID (for notifications)
 

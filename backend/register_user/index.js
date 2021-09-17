@@ -76,7 +76,7 @@ exports.handler = async event => {
     let authToken = bytesToBase64(unencodedAuthToken);
 
     try {
-        await addUser(registrationId, phoneNumber, rsaPublicKey, authToken)
+        await addUser(registrationId, phoneNumber, rsaPublicKey, authToken, Date.now())
     } catch (error) {
         return {statusCode: 500, body: JSON.stringify(error)}
     }

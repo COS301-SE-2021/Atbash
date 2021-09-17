@@ -981,7 +981,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref AtbashREST
-      RouteKey: 'GET /publickey'
+      RouteKey: 'GET /messageboxes/serverPublicKey'
       OperationName: GetServerPublicKeyRoute
       AuthorizationType: NONE
       Target: !Join

@@ -67,7 +67,11 @@ Parameters:
 
   SNSSecretAccessKey:
     Type: String
-    Description: (Required) THe secret access key to send SNS requests
+    Description: (Required) The secret access key to send SNS requests
+
+  MessageboxKeypair:
+    Type: String
+    Description: (Required) The keypair for verifying creation of message boxes
 
 Resources:
   # --- DynamoDB Tables --- #
@@ -523,6 +527,26 @@ Resources:
       FunctionName: !Ref SetMessageboxConnectionIdFunction
       Principal: apigateway.amazonaws.com
 
+  GetServerPublicKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_serverpublickey
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+
+  GetServerPublicKeyPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetServerPublicKeyFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -948,6 +972,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt SetMessageboxConnectionIdFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetServerPublicKeyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /publickey'
+      OperationName: GetServerPublicKeyRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          !Ref GetServerPublicKeyIntegration
+  GetServerPublicKeyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetServerPublicKeyFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetServerPublicKeyFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

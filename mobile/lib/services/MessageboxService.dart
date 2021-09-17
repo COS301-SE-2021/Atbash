@@ -266,6 +266,12 @@ class MessageboxService {
     }
   }
 
+  /// Saves a Messagebox to the database and returns.
+  Future<void> storeMessagebox(Messagebox messagebox) async {
+    final db = await _databaseService.database;
 
+    await db.insert(Messagebox.TABLE_NAME, messagebox.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
 
 }

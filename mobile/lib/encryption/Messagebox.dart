@@ -23,6 +23,7 @@ class Messagebox {
       COLUMN_SERIALIZED_KEYPAIR: this.keypair.privateKey.toString(),
       COLUMN_NUMBER: this.number,
       COLUMN_RECIPIENT_KEY: this.recipientKey.toString(),
+      COLUMN_RECIPIENT_ID: this.recipientId,
       COLUMN_EXPIRES: this.expires,
     };
   }

@@ -30,6 +30,15 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  TableMessageboxes:
+    Type: String
+    Default: 'atbash-messageboxes'
+    Description: (Required) The name of the DynamoDB table to store messageboxes
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z\-]+$
+    ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
   RecipientPhoneNumberIndex:
     Type: String
     Default: 'recipientPhoneNumber-index'
@@ -140,6 +149,22 @@ Resources:
             WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
+
+  MessageboxesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableMessageboxes
       Tags:
         - Key: 'auto-delete'
           Value: 'no'

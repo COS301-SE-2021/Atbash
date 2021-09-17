@@ -307,4 +307,18 @@ class MessageboxService {
     return null;
   }
 
+  ///Adds recipients RSA key to the Messagebox
+  Future<void> addRSAKeyToMessagebox(String id, RSAPublicKey key) async {
+    final db = await _databaseService.database;
+
+    await db.update(
+      Messagebox.TABLE_NAME,
+      {
+        Messagebox.COLUMN_RECIPIENT_KEY: key.toString()
+      },
+      where:"${Messagebox.COLUMN_M_ID} = ?",
+      whereArgs: [id],
+      );
+  }
+
 }

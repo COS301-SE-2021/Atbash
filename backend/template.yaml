@@ -70,6 +70,14 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  SNSAccessKeyId:
+    Type: String
+    Description: (Required) The access key id to send SNS requests
+
+  SNSSecretAccessKey:
+    Type: String
+    Description: (Required) THe secret access key to send SNS requests
+
 Resources:
   # --- DynamoDB Tables --- #
   ConnectionsTable:
@@ -237,9 +245,18 @@ Resources:
       Environment:
         Variables:
           TABLE_USERS: !Ref TableUsers
+          SNS_ACCESS_KEY_ID: !Ref SNSAccessKeyId
+          SNS_SECRET_ACCESS_KEY: !Ref SNSSecretAccessKey
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'sns:Publish'
+              Resource:
+                - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:*'
+
 
   RegisterPermission:
     Type: AWS::Lambda::Permission

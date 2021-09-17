@@ -4,7 +4,7 @@ import 'package:mobile/services/RegistrationService.dart';
 class RegistrationPageController {
   final RegistrationService registrationService = GetIt.I.get();
 
-  Future<bool> register(String phoneNumber) {
+  Future<String?> register(String phoneNumber) {
     return registrationService.register(phoneNumber);
   }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
@@ -13,35 +14,46 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/MessageEditDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobile/util/Extensions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:flutter/services.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../constants.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatId;
+  final Chat? privateChat;
 
-  const ChatPage({Key? key, required this.chatId}) : super(key: key);
+  const ChatPage({Key? key, required this.chatId})
+      : privateChat = null,
+        super(key: key);
+
+  ChatPage.privateChat({required this.chatId, this.privateChat});
 
   @override
-  _ChatPageState createState() => _ChatPageState(chatId: chatId);
+  _ChatPageState createState() =>
+      _ChatPageState(chatId: chatId, privateChat: privateChat);
 }
 
 class _ChatPageState extends State<ChatPage> {
   final ChatPageController controller;
 
-  _ChatPageState({required String chatId})
-      : controller = ChatPageController(chatId: chatId);
+  _ChatPageState({required String chatId, Chat? privateChat})
+      : controller =
+            ChatPageController(chatId: chatId, privateChat: privateChat);
 
   late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;
+  bool _replying = false;
+  Message? _replyingMessage;
 
   final _inputController = TextEditingController();
-  final _scrollController = ScrollController();
+  final _scrollController = ItemScrollController();
 
   ImageProvider? backgroundImage;
 
@@ -70,17 +82,25 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
-          fit: BoxFit.cover,
+    return WillPopScope(
+      onWillPop: () async {
+        if (controller.model.chatType == ChatType.private)
+          controller.stopPrivateChat();
+        Navigator.popUntil(context, ModalRoute.withName("/"));
+        return false;
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: backgroundImage ?? AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: _buildAppBar(context),
-        body: _buildBody(),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(context),
+          body: _buildBody(),
+        ),
       ),
     );
   }
@@ -166,7 +186,12 @@ class _ChatPageState extends State<ChatPage> {
         }),
         Observer(builder: (_) {
           if (controller.model.chatType != ChatType.private)
-            return IconButton(onPressed: () {}, icon: Icon(Icons.lock));
+            return IconButton(
+              onPressed: () {
+                controller.startPrivateChat(context);
+              },
+              icon: Icon(Icons.lock),
+            );
           else
             return SizedBox.shrink();
         })
@@ -209,6 +234,37 @@ class _ChatPageState extends State<ChatPage> {
       child: Column(
         children: [
           Flexible(child: _buildMessages()),
+          if (_replying == true)
+            Container(
+              decoration: BoxDecoration(
+                color: Constants.darkGrey.withOpacity(0.88),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${_replyingMessage?.isIncoming == true ? controller.model.contactTitle : 'You'}\n${_replyingMessage?.contents ?? 'aa'}",
+                      style: TextStyle(color: Colors.white),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.cancel_outlined,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _replying = false;
+                        _replyingMessage = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
           _buildInput(),
         ],
       ),
@@ -217,9 +273,40 @@ class _ChatPageState extends State<ChatPage> {
 
   Widget _buildMessages() {
     return Observer(builder: (_) {
-      return ListView.builder(
-        itemCount: controller.model.messages.length,
+      return ScrollablePositionedList.builder(
+        itemScrollController: _scrollController,
+        itemCount: controller.model.messages.length + 1,
         itemBuilder: (_, index) {
+          if (index == controller.model.messages.length) {
+            return Observer(builder: (_) {
+              if (controller.model.chatType == ChatType.private)
+                return Center(
+                  child: Container(
+                    margin:
+                        EdgeInsets.only(left: 60, right: 60, top: 5, bottom: 5),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white12.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        //TODO navigate to help page
+                      },
+                      child: Text(
+                        "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves. Tap to learn more",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              return SizedBox.shrink();
+            });
+          }
+
           String dateString = _chatDateString(index);
 
           if (dateString != "")
@@ -241,7 +328,6 @@ class _ChatPageState extends State<ChatPage> {
             );
           return _buildMessage(controller.model.messages[index]);
         },
-        controller: _scrollController,
         reverse: true,
       );
     });
@@ -296,6 +382,11 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   ChatCard _buildMessage(Message message) {
+    final repliedMessage = message.repliedMessageId != null
+        ? controller.model.messages
+            .firstWhereOrNull((m) => m.id == message.repliedMessageId)
+        : null;
+
     return ChatCard(
       message,
       onTap: () {
@@ -307,7 +398,19 @@ class _ChatPageState extends State<ChatPage> {
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () => controller.forwardMessage(
           context, message.contents, controller.model.contactTitle),
+      onEditPressed: () => _editMessage(message),
+      onReplyPressed: () => _startReplying(message),
+      onRepliedMessagePressed: () {
+        _scrollController.jumpTo(
+          index: controller.model.messages
+              .indexWhere((m) => m.id == repliedMessage?.id),
+          alignment: 0.5,
+        );
+      },
+      contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
+      chatType: controller.model.chatType,
+      repliedMessage: repliedMessage,
     );
   }
 
@@ -376,7 +479,29 @@ class _ChatPageState extends State<ChatPage> {
 
     _inputController.text = "";
 
-    controller.sendMessage(contents);
+    if (_replyingMessage != null) {
+      controller.replyToMessage(contents, _replyingMessage?.id);
+      setState(() {
+        _replying = false;
+        _replyingMessage = null;
+      });
+    } else
+      controller.sendMessage(contents);
+  }
+
+  void _editMessage(Message message) {
+    showEditMessageDialog(context, message.contents).then((newMessage) {
+      if (newMessage != null &&
+          newMessage.trim() != message.contents.trim() &&
+          !message.isIncoming) controller.editMessage(message.id, newMessage);
+    });
+  }
+
+  void _startReplying(Message message) {
+    setState(() {
+      _replying = true;
+      _replyingMessage = message;
+    });
   }
 
   void _sendImage() async {
@@ -396,7 +521,13 @@ class ChatCard extends StatelessWidget {
   final void Function() onDelete;
   final void Function() onDoubleTap;
   final void Function() onForwardPressed;
+  final void Function() onEditPressed;
+  final void Function() onReplyPressed;
+  final void Function() onRepliedMessagePressed;
   final bool blurImages;
+  final ChatType chatType;
+  final Message? repliedMessage;
+  final String contactTitle;
 
   ChatCard(
     this._message, {
@@ -404,7 +535,13 @@ class ChatCard extends StatelessWidget {
     required this.onDelete,
     required this.onDoubleTap,
     required this.onForwardPressed,
+    required this.onEditPressed,
+    required this.onReplyPressed,
+    required this.onRepliedMessagePressed,
     this.blurImages = false,
+    this.chatType = ChatType.general,
+    this.repliedMessage,
+    required this.contactTitle,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -412,6 +549,8 @@ class ChatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
+      final repliedMessage = this.repliedMessage;
+
       return Container(
         margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
         child: Align(
@@ -439,35 +578,49 @@ class ChatCard extends StatelessWidget {
                       onPressed: onTap,
                       menuItemExtent: 40,
                       menuItems: [
-                        if (!_message.deleted)
+                        if (!_message.deleted && !_message.isMedia)
+                          FocusedMenuItem(
+                            title: Text("Reply"),
+                            onPressed: onReplyPressed,
+                            trailingIcon: Icon(Icons.reply),
+                          ),
+                        if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Tag"),
                               onPressed: () {},
                               trailingIcon: Icon(Icons.tag)),
-                        if (!_message.deleted)
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isIncoming)
+                          FocusedMenuItem(
+                              title: Text("Edit"),
+                              onPressed: onEditPressed,
+                              trailingIcon: Icon(Icons.edit)),
+                        if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
                               title: Text("Forward"),
                               onPressed: () {
                                 onForwardPressed();
                               },
                               trailingIcon: Icon(Icons.forward)),
-                        if (!_message.deleted)
+                        if (!_message.deleted && !_message.isMedia)
                           FocusedMenuItem(
                               title: Text("Copy"),
                               onPressed: () => Clipboard.setData(
                                   ClipboardData(text: _message.contents)),
                               trailingIcon: Icon(Icons.copy)),
-                        FocusedMenuItem(
-                            title: Text(
-                              "Delete",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            onPressed: onDelete,
-                            trailingIcon: Icon(
-                              Icons.delete,
-                              color: Constants.white,
-                            ),
-                            backgroundColor: Colors.redAccent),
+                        if (chatType == ChatType.general)
+                          FocusedMenuItem(
+                              title: Text(
+                                "Delete",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: onDelete,
+                              trailingIcon: Icon(
+                                Icons.delete,
+                                color: Constants.white,
+                              ),
+                              backgroundColor: Colors.redAccent),
                       ],
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -491,6 +644,34 @@ class ChatCard extends StatelessWidget {
                                 ],
                               ),
                             ),
+                          if (repliedMessage != null &&
+                              repliedMessage.contents != "")
+                            InkWell(
+                              onTap: onRepliedMessagePressed,
+                              child: Container(
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: _message.isIncoming
+                                      ? Constants.orange
+                                      : Constants.darkGrey,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                constraints: BoxConstraints(
+                                  maxWidth:
+                                      MediaQuery.of(context).size.width * 0.7,
+                                ),
+                                child: Text(
+                                  "${repliedMessage.isIncoming ? contactTitle : "You"}\n${repliedMessage.contents}",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          SizedBox(
+                            height: 4,
+                          ),
                           Container(
                             child: _renderMessageContents(),
                             constraints: BoxConstraints(
@@ -502,6 +683,18 @@ class ChatCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                if (_message.edited)
+                                  Text(
+                                    "Edited",
+                                    style: TextStyle(
+                                        fontSize: 10, color: Colors.white),
+                                  ),
+                                if (_message.edited)
+                                  Expanded(child: Container()),
+                                if (_message.edited)
+                                  SizedBox(
+                                    width: 10,
+                                  ),
                                 Text(
                                   dateFormatter.format(_message.timestamp),
                                   style: TextStyle(

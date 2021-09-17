@@ -27,7 +27,7 @@ class RegistrationService {
 
   ///This function creates a new Atbash account on the server which will be
   ///needed for linking a users phone number with their keys
-  Future<bool> register(String phoneNumber) async {
+  Future<String?> register(String phoneNumber) async {
     final url = Uri.parse(Constants.httpUrl + "register");
 
     throwIfNot(
@@ -103,7 +103,12 @@ class RegistrationService {
 
       await _encryptionService.generateInitialKeyBundle(registrationId);
 
-      return registerKeys();
+      final success = await registerKeys();
+      if (success) {
+        return responseBodyJson["verification"];
+      } else {
+        return null;
+      }
     } else {
       print("Server request was unsuccessful.\nResponse code: " +
           response.statusCode.toString() +

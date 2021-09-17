@@ -18,144 +18,188 @@ const utf8Encoder = new TextEncoder();
 //**For Testing**
 // let output = "";
 
+const AWS = require("aws-sdk")
+
 exports.handler = async event => {
-  let bodyJson = JSON.parse(event.body);
-  let bodyString = JSON.stringify(bodyJson);
+    let bodyJson = JSON.parse(event.body);
+    let bodyString = JSON.stringify(bodyJson);
 
-  //**For Testing**
-  // output += "\n\n" + bodyString + "\n\n";
-  // console.log(bodyString)
+    //**For Testing**
+    // output += "\n\n" + bodyString + "\n\n";
+    // console.log(bodyString)
 
-  const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson; //JSON.parse(event.body)
+    const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson; //JSON.parse(event.body)
 
-  console.log("RequestBody: ");
-  console.log(event.body);
+    console.log("RequestBody: ");
+    console.log(event.body);
 
-  if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, signalingKey)) {
-    return {statusCode: 400, body: "Invalid request body."}
-  }
-
-  let parsedNumber
-
-  try {
-    parsedNumber = phoneUtil.parse(phoneNumber)
-    if (!phoneUtil.isValidNumber(parsedNumber)) {
-      return {statusCode: 400, body: "Invalid phone number."}
-    }
-  } catch (error) {
-    return {statusCode: 400, body: "Invalid phone number."}
-  }
-
-  if(!authenticateRSAKey(rsaPublicKey)){
-    return {statusCode: 400, body: "Invalid RSA Public Key."}
-  }
-
-  if(!authenticateSignature(bodyString)){
-    return {statusCode: 400, body: "Invalid Signaling Key."}
-  }
-
-  const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
-
-  try {
-    if ((await existsNumber(formattedNumber)) === true) {
-      return {statusCode: 409, body: "Phone number already in use."}
+    if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, signalingKey)) {
+        return {statusCode: 400, body: "Invalid request body."}
     }
 
-    if ((await existsRegistrationId(registrationId)) === true) {
-      return {statusCode: 409, body: "Registration ID already in use."}
+    let parsedNumber
+
+    try {
+        parsedNumber = phoneUtil.parse(phoneNumber)
+        if (!phoneUtil.isValidNumber(parsedNumber)) {
+            return {statusCode: 400, body: "Invalid phone number."}
+        }
+    } catch (error) {
+        return {statusCode: 400, body: "Invalid phone number."}
     }
-  } catch (error) {
-    return {statusCode: 500, body: JSON.stringify(error)}
-  }
 
-  let devicePassword = getRandomValues(new Uint8Array(24))
-  let numberAsUintArr = utf8Encoder.encode(phoneNumber + ":")
-  let unencodedAuthToken = new Uint8Array([ ...numberAsUintArr, ...devicePassword]);
-  let authToken = bytesToBase64(unencodedAuthToken);
+    if (!authenticateRSAKey(rsaPublicKey)) {
+        return {statusCode: 400, body: "Invalid RSA Public Key."}
+    }
 
-  try {
-    await addUser(registrationId, phoneNumber, rsaPublicKey, authToken)
-  } catch (error) {
-    return {statusCode: 500, body: JSON.stringify(error)}
-  }
+    if (!authenticateSignature(bodyString)) {
+        return {statusCode: 400, body: "Invalid Signaling Key."}
+    }
 
-  let crypt = new JSEncrypt();
-  crypt.setKey({
-    n: new BigInteger(rsaPublicKey.n),
-    e: new BigInteger(rsaPublicKey.e),
-  });
-  let base64EncryptedPassword = crypt.encrypt(bytesToBase64(devicePassword));
+    const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
 
-  //output += additionalResponse;
-  //return {statusCode: 200, body: output}
-  // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
-  return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncryptedPassword})}
+    try {
+        if ((await existsNumber(formattedNumber)) === true) {
+            return {statusCode: 409, body: "Phone number already in use."}
+        }
+
+        if ((await existsRegistrationId(registrationId)) === true) {
+            return {statusCode: 409, body: "Registration ID already in use."}
+        }
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
+    }
+
+    let devicePassword = getRandomValues(new Uint8Array(24))
+    let numberAsUintArr = utf8Encoder.encode(phoneNumber + ":")
+    let unencodedAuthToken = new Uint8Array([...numberAsUintArr, ...devicePassword]);
+    let authToken = bytesToBase64(unencodedAuthToken);
+
+    try {
+        await addUser(registrationId, phoneNumber, rsaPublicKey, authToken)
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
+    }
+
+    let crypt = new JSEncrypt();
+    crypt.setKey({
+        n: new BigInteger(rsaPublicKey.n),
+        e: new BigInteger(rsaPublicKey.e),
+    });
+    let base64EncryptedPassword = crypt.encrypt(bytesToBase64(devicePassword));
+
+    //output += additionalResponse;
+    //return {statusCode: 200, body: output}
+    // return {statusCode: 200, body: JSON.stringify({"phoneNumber": formattedNumber,"password": base64EncodedPassword}) + output}
+    const verificationCode = randomCode(6)
+
+    const sns = new AWS.SNS({
+        region: process.env.AWS_REGION, apiVersion: "2010-03-31", signatureVersion: "v4", credentials: {
+            accessKeyId: process.env.SNS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.SNS_SECRET_ACCESS_KEY
+        }
+    })
+
+    try {
+        const response = await sns.publish({
+            Message: `Your Atbash verification code is ${verificationCode}`,
+            PhoneNumber: phoneNumber,
+            MessageAttributes: {
+                "AWS.SNS.SMS.SMSType": {
+                    DataType: "String",
+                    StringValue: "Transactional"
+                }
+            }
+        }).promise()
+
+        console.log("SNS Response " + response)
+    } catch (error) {
+        console.log("SNS Error " + error)
+    }
+
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            "phoneNumber": formattedNumber,
+            "password": base64EncryptedPassword,
+            "verification": verificationCode
+        })
+    }
+}
+
+const randomCode = (length) => {
+    const characters = "0123456789"
+    let str = ""
+    for (let i = 0; i < length; i++) {
+        str += characters.charAt(Math.floor(Math.random() * characters.length))
+    }
+    return str
 }
 
 const authenticateSignature = (body) => {
-  let jsonObject = JSON.parse(body);
-  let signalingKeyBase64 = jsonObject["signalingKey"];
-  let signalingKey = base64ToBytes(signalingKeyBase64);
-  let secretKey_aes = signalingKey.slice(0, 32);
-  let hmacKey_received = signalingKey.slice(32, signalingKey.length);
+    let jsonObject = JSON.parse(body);
+    let signalingKeyBase64 = jsonObject["signalingKey"];
+    let signalingKey = base64ToBytes(signalingKeyBase64);
+    let secretKey_aes = signalingKey.slice(0, 32);
+    let hmacKey_received = signalingKey.slice(32, signalingKey.length);
 
-  jsonObject["signalingKey"] = "";
-  let jsonObjectString = JSON.stringify(jsonObject);
-  let jsonObjectArray = utf8Encoder.encode(jsonObjectString);
+    jsonObject["signalingKey"] = "";
+    let jsonObjectString = JSON.stringify(jsonObject);
+    let jsonObjectArray = utf8Encoder.encode(jsonObjectString);
 
-  const hmac = createHmac('sha256', secretKey_aes);
-  hmac.update(jsonObjectArray);
+    const hmac = createHmac('sha256', secretKey_aes);
+    hmac.update(jsonObjectArray);
 
-  // output += "jsonObjectString:" + jsonObjectString + "\n";
-  // output += "jsonObjectArray:" + jsonObjectArray + "\n";
-  // output += "signalingKeyBase64:" + signalingKeyBase64 + "\n";
-  // output += "signalingKey:" + signalingKey + "\n";
-  // output += "aesBytes:" + secretKey_aes + "\n";
-  // output += "hmacKey_received:" + hmacKey_received + "\n";
+    // output += "jsonObjectString:" + jsonObjectString + "\n";
+    // output += "jsonObjectArray:" + jsonObjectArray + "\n";
+    // output += "signalingKeyBase64:" + signalingKeyBase64 + "\n";
+    // output += "signalingKey:" + signalingKey + "\n";
+    // output += "aesBytes:" + secretKey_aes + "\n";
+    // output += "hmacKey_received:" + hmacKey_received + "\n";
 
-  let hmacKey_calculated = new Uint8Array(hmac.digest());
+    let hmacKey_calculated = new Uint8Array(hmac.digest());
 
-  // output += "hmacKey_calculated: " + hmacKey_calculated + "\n";
+    // output += "hmacKey_calculated: " + hmacKey_calculated + "\n";
 
-  let numElements = hmacKey_received.length;
-  if(hmacKey_calculated.length < numElements) numElements = hmacKey_calculated.length;
+    let numElements = hmacKey_received.length;
+    if (hmacKey_calculated.length < numElements) numElements = hmacKey_calculated.length;
 
-  for(let i = 0; i < numElements; i++){
-    if(hmacKey_received[i] !== hmacKey_calculated[i]){
-      return false;
+    for (let i = 0; i < numElements; i++) {
+        if (hmacKey_received[i] !== hmacKey_calculated[i]) {
+            return false;
+        }
     }
-  }
 
-  return true;
+    return true;
 }
 
 const authenticateRSAKey = (rsaPublicKey) => {
-  if(anyUndefined(rsaPublicKey.n, rsaPublicKey.e) || anyBlank(rsaPublicKey.n, rsaPublicKey.e)){
-    return false;
-  }
-  let numN = new BigInteger(rsaPublicKey.n);
-  numN = numN.abs();
-  let numE = new BigInteger(rsaPublicKey.e);
-  numE = numE.abs();
-  if(numN.toString() !== rsaPublicKey.n){
-    return false;
-  }
-  if(numE.toString() !== rsaPublicKey.e){
-    return false;
-  }
-  return true;
+    if (anyUndefined(rsaPublicKey.n, rsaPublicKey.e) || anyBlank(rsaPublicKey.n, rsaPublicKey.e)) {
+        return false;
+    }
+    let numN = new BigInteger(rsaPublicKey.n);
+    numN = numN.abs();
+    let numE = new BigInteger(rsaPublicKey.e);
+    numE = numE.abs();
+    if (numN.toString() !== rsaPublicKey.n) {
+        return false;
+    }
+    if (numE.toString() !== rsaPublicKey.e) {
+        return false;
+    }
+    return true;
 }
 
 const anyUndefined = (...args) => {
-  return args.some(arg => arg === undefined)
+    return args.some(arg => arg === undefined)
 }
 
 const anyBlank = (...args) => {
-  return args.some(arg => typeof arg === "string" && arg.isBlank())
+    return args.some(arg => typeof arg === "string" && arg.isBlank())
 }
 
-String.prototype.isBlank = function() {
-  return /^\s*$/.test(this)
+String.prototype.isBlank = function () {
+    return /^\s*$/.test(this)
 }
 
 exports.exportedForTests = {anyUndefined, anyBlank}

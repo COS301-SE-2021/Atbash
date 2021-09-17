@@ -1,9 +1,10 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/controllers/RegistrationPageController.dart';
-import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
@@ -60,33 +61,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       }
                     },
                   ),
-                  Container(
-                    width: 140,
-                    child: TextField(
-                      cursorColor: Constants.darkGrey.withOpacity(0.6),
-                      cursorHeight: 20,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        hintText: "Phone Number",
-                        hintStyle: TextStyle(
-                          color: Constants.darkGrey.withOpacity(0.6),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Constants.orange,
+                  Expanded(
+                    child: Container(
+                      child: TextField(
+                        cursorColor: Constants.darkGrey.withOpacity(0.6),
+                        cursorHeight: 20,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: "Phone Number",
+                          hintStyle: TextStyle(
+                            color: Constants.darkGrey.withOpacity(0.6),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Constants.orange,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.black,
-                          ),
+                        style: TextStyle(
+                          fontSize: 18,
                         ),
+                        controller: _phoneNumberController,
                       ),
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                      controller: _phoneNumberController,
                     ),
                   )
                 ],
@@ -137,13 +139,18 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    controller.register(phoneNumber).then((successful) {
-      if (successful) {
+    controller.register(phoneNumber).then((verificationCode) {
+      print("Verification code is $verificationCode");
+      FlutterSecureStorage()
+          .write(key: "verification_code", value: verificationCode);
+
+      if (verificationCode != null) {
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfileSettingsPage(setup: true),
-            ));
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationPage(code: verificationCode),
+          ),
+        );
       } else {
         showSnackBar(context, "This phone number is already registered");
         setState(() {

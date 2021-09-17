@@ -41,15 +41,15 @@ exports.handler = async event => {
   let numberAvailableTokens = tokenInfo.numberAvailableTokens;
   const currDate = Date.now();
 
-  const secondesPerDay = (1000 * 3600 * 24);
-  let diffInDays = Math.floor((currDate - lastAddedTokens)/(secondesPerDay));
+  const msPerDay = (1000 * 3600 * 24);
+  let diffInDays = Math.floor((currDate - lastAddedTokens)/(msPerDay));
   if(diffInDays > 0) {
     numberAvailableTokens += diffInDays*10;
     if(numberAvailableTokens > 50){
       numberAvailableTokens = 50;
     }
   }
-  lastAddedTokens += diffInDays * secondesPerDay;
+  lastAddedTokens += diffInDays * msPerDay;
 
   //Create node key
   let key = new NodeRSA();

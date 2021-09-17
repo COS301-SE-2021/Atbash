@@ -1,0 +1,26 @@
+{
+  "name": "register",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Bit by Bit",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/google-libphonenumber": "^7.4.21",
+    "jest": "^27.0.6"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.956.0",
+    "google-libphonenumber": "^3.2.22",
+    "utf8": "^3.0.0",
+    "blind-signatures": "^1.0.7",
+    "get-random-values": "^1.2.2",
+    "node-rsa": "^1.1.1",
+    "crypto-js": "^4.1.1",
+    "uuid": "^8.3.2",
+    "node-jsencrypt": "^1.0.0"
+  }
+}

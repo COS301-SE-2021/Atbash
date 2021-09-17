@@ -141,6 +141,9 @@ class RegistrationService {
       return false;
     }
 
+    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    _userService.storeRSAKeyPair(rsaKeypair);
+
     List<Map<String, Object>> preKeysArr = [];
 
     for (var p in preKeys) {
@@ -156,6 +159,10 @@ class RegistrationService {
       "phoneNumber": phoneNumber,
       "identityKey": base64Encode(identityKeyPair.getPublicKey().serialize()),
       "preKeys": preKeysArr,
+      "rsaKey": {
+        "n": rsaKeypair.publicKey.asPointyCastle.n.toString(),
+        "e": rsaKeypair.publicKey.asPointyCastle.publicExponent.toString()
+      },
       "signedPreKey": {
         "keyId": signedPreKey.id,
         "publicKey":

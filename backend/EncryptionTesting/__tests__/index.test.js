@@ -1,11 +1,11 @@
-jest.mock("../db_access", () => ({
-  addUser: jest.fn(),
-  existsNumber: jest.fn(),
-  authenticateAuthenticationToken: jest.fn(),
-  registerKeys: jest.fn()
-}))
+// jest.mock("../db_access", () => ({
+//   addUser: jest.fn(),
+//   existsNumber: jest.fn(),
+//   authenticateAuthenticationToken: jest.fn(),
+//   registerKeys: jest.fn()
+// }))
 
-const {handler, exportedForTests} = require("../index")
+const {handler} = require("../index")
 const {bytesToBase64, base64ToBytes} = require("./base64");
 
 // const forge = require('node-forge');
@@ -57,6 +57,36 @@ describe("Unit tests for index.handler for register user",  () => {
     pubKeyObject.n = priKeyObject.n.clone();
     pubKeyObject.e = priKeyObject.e.clone();
   }
+
+  test("Test 5", async () => {
+    //Create node key
+    let key = new NodeRSA({b: 4096});
+
+    priKeyObject.n = key.keyPair.n;
+    priKeyObject.e = key.keyPair.e;
+    priKeyObject.d = key.keyPair.d;
+    priKeyObject.q = key.keyPair.q;
+    priKeyObject.p = key.keyPair.p;
+
+    setPrivateKey();
+
+    let keyObject = {
+      n: priKeyObject.n.toString(),
+      e: priKeyObject.e.toString(),
+      d: priKeyObject.d.toString(),
+      p: priKeyObject.p.toString(),
+      q: priKeyObject.q.toString(),
+      dmp1: priKeyObject.dmp1.toString(),
+      dmq1: priKeyObject.dmq1.toString(),
+      coeff: priKeyObject.coeff.toString(),
+    }
+
+    console.log(keyObject);
+    console.log(JSON.stringify(keyObject));
+    console.log(JSON.stringify(JSON.stringify(keyObject)));
+
+    expect(3).toBe(3*1);
+  })
 
   test("Test 4", async () => {
     setPrivateKey();

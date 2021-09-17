@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:crypton/crypton.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserService {
@@ -84,6 +85,20 @@ class UserService {
       throw StateError("device_authentication_token_base64 is not readable");
     } else {
       return token;
+    }
+  }
+
+  Future<void> storeRSAKeyPair(RSAKeypair rsaKeypair) async {
+    await _storage.write(
+        key: "my_rsa_keypair", value: rsaKeypair.privateKey.toString());
+  }
+
+  Future<RSAKeypair> fetchRSAKeyPair() async {
+    final privKeyStr = await _storage.read(key: "my_rsa_keypair");
+    if (privKeyStr == null) {
+      throw StateError("my_rsa_keypair is not readable");
+    } else {
+      return RSAKeypair(RSAPrivateKey.fromString(privKeyStr));
     }
   }
 }

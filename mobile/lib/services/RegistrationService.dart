@@ -142,7 +142,7 @@ class RegistrationService {
     }
 
     RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
-    _userService.storeRSAKeyPair(rsaKeypair);
+    await _userService.storeRSAKeyPair(rsaKeypair);
 
     List<Map<String, Object>> preKeysArr = [];
 

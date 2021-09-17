@@ -60,7 +60,8 @@ describe("Unit tests for index.handler for register user",  () => {
 
   test("Generate Keys", async () => {
     //Create node key
-    let key = new NodeRSA({b: 4096});
+    // let key = new NodeRSA({b: 4096});
+    let key = new NodeRSA({b: 2048});
 
     priKeyObject.n = key.keyPair.n;
     priKeyObject.e = key.keyPair.e;

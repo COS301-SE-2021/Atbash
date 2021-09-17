@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/encryption/Messagebox.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 //Services
 import 'DatabaseService.dart';
@@ -121,13 +122,17 @@ class MessageboxService {
     }
   }
 
-  Future<Messagebox?> createMessageBox(String number) async {
-    final url = Uri.parse(Constants.httpUrl + "messagebox/create");
+  Future<Messagebox?> createMessageBox(String? number) async {
+    var url = Uri.parse(Constants.httpUrl + "messagebox/create");
 
     final MessageboxToken? messageboxToken = await fetchMessageboxToken();
+    final RSAPublicKey? serverPublicKey = await getServerPublicKey();
 
     if(messageboxToken == null){
       print("Failed to fetch MessageboxToken");
+      return null;
+    }
+    if(serverPublicKey == null){
       return null;
     }
 
@@ -139,13 +144,46 @@ class MessageboxService {
       "signedToken": messageboxToken.signedPK.toString(),
     };
 
-    final response = await http.post(url, body: jsonEncode(data));
+    var response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
+      final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, Object>;
 
+      String mid = decodedBodyJson["mid"] as String;
+      String randomString = decodedBodyJson["random"] as String;
+
+      url = Uri.parse(Constants.httpUrl + "messagebox/createVerify");
+
+      data = {
+        "mid": serverPublicKey.encrypt(mid),
+        "random": randomString,
+      };
+
+      response = await http.post(url, body: jsonEncode(data));
+
+      if (response.statusCode == 200) {
+        int expires = jsonDecode(response.body) as int;
+        Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, expires);
+        storeMessagebox(messagebox);
+
+        //TODO: Send a request to the server to link this devices ConnectionID to the MID (for notifications)
+
+        return messagebox;
+      } else {
+        //Soft fail
+        print("Server request was unsuccessful.\nResponse code: " +
+            response.statusCode.toString() +
+            ".\nReason: " +
+            response.body);
+      }
     } else {
-
+      //Soft fail
+      print("Server request was unsuccessful.\nResponse code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +
+          response.body);
     }
+    return null;
   }
 
 
@@ -188,7 +226,7 @@ class MessageboxService {
 
   ///--------------- Database Functions ---------------
 
-  /// Saves a PreKey to the database and returns.
+  /// Saves a MessageboxToken to the database and returns.
   Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
     final db = await _databaseService.database;
 
@@ -227,6 +265,46 @@ class MessageboxService {
       ) > 0){
       await setNumMessageboxTokens(await getNumMessageboxTokens() - 1);
     }
+  }
+
+  /// Saves a Messagebox to the database and returns.
+  Future<void> storeMessagebox(Messagebox messagebox) async {
+    final db = await _databaseService.database;
+
+    await db.insert(Messagebox.TABLE_NAME, messagebox.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  ///Fetches Messagebox from the database with the given id
+  Future<Messagebox?> fetchMessageboxWithID(String id) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      Messagebox.TABLE_NAME,
+      where: "${Messagebox.COLUMN_M_ID} = ?",
+      whereArgs: [id],
+    );
+
+    if (response.isNotEmpty) {
+      final messagebox = Messagebox.fromMap(response.first);
+      return messagebox;
+    }
+    return null;
+  }
+
+  ///Fetches Messagebox from the database with the given number
+  Future<Messagebox?> fetchMessageboxForNumber(String number) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      Messagebox.TABLE_NAME,
+      where: "${Messagebox.COLUMN_NUMBER} = ?",
+      whereArgs: [number],
+    );
+
+    if (response.isNotEmpty) {
+      final messagebox = Messagebox.fromMap(response.first);
+      return messagebox;
+    }
+    return null;
   }
 
 }

@@ -73,7 +73,7 @@ class RegistrationService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      final responseBodyJson = jsonDecode(response.body);
+      final responseBodyJson = jsonDecode(response.body) as Map<String, Object>;
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
       if (encryptedDevicePassword == null) {

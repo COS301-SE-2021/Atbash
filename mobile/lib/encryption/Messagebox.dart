@@ -1,7 +1,7 @@
 import 'package:crypton/crypton.dart';
 
 class Messagebox {
-  final int id;
+  final String id;
   final RSAKeypair keypair;
   String? number;
   final int expires;
@@ -28,7 +28,7 @@ class Messagebox {
     final number = map[Messagebox.COLUMN_NUMBER] as String?;
     final expires = map[Messagebox.COLUMN_EXPIRES];
 
-    if (id is int && keypair is String && expires is int) {
+    if (id is String && keypair is String && expires is int) {
       return Messagebox(
           id,
           RSAKeypair(RSAPrivateKey.fromString(keypair)),
@@ -47,5 +47,5 @@ class Messagebox {
   static const String COLUMN_EXPIRES = "expires";
 
   static const String CREATE_TABLE =
-      "create table $TABLE_NAME ($COLUMN_M_ID int primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_EXPIRES text not null);";
+      "create table $TABLE_NAME ($COLUMN_M_ID text primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_EXPIRES text not null);";
 }

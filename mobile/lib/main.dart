@@ -24,6 +24,7 @@ import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/services/MessageboxService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +102,7 @@ void _registerServices() async {
   final databaseService = DatabaseService();
   final encryptionService =
       _initialiseEncryptionService(databaseService, userService);
+  final messageboxService = MessageboxService(userService, databaseService);
 
   final registrationService =
       RegistrationService(encryptionService, userService);
@@ -127,6 +129,7 @@ void _registerServices() async {
     mediaEncryptionService,
     memoryStoreService,
     notificationService,
+    messageboxService,
   );
 
   GetIt.I.registerSingleton(chatService);

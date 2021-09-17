@@ -1,10 +1,8 @@
 const {authenticateAuthenticationToken, getMessageTokenInfo, updateMessageTokenInfo} = require("./db_acccess")
 
-
 const BlindSignature = require('blind-signatures');
 const BigInteger = require('jsbn').BigInteger;
 const NodeRSA = require('node-rsa');
-const {addUser} = require("./db_access");
 
 exports.handler = async event => {
   //const utf8Encoder = new TextEncoder("utf-8")

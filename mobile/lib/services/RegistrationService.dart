@@ -159,10 +159,7 @@ class RegistrationService {
       "phoneNumber": phoneNumber,
       "identityKey": base64Encode(identityKeyPair.getPublicKey().serialize()),
       "preKeys": preKeysArr,
-      "rsaKey": {
-        "n": rsaKeypair.publicKey.asPointyCastle.n.toString(),
-        "e": rsaKeypair.publicKey.asPointyCastle.publicExponent.toString()
-      },
+      "rsaKey": rsaKeypair.publicKey.toString(),
       "signedPreKey": {
         "keyId": signedPreKey.id,
         "publicKey":

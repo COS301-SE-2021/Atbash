@@ -19,9 +19,9 @@ exports.handler = async event => {
     return {statusCode: 400, body: "Invalid request body"}
   }
 
-  // if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
-  //     return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
-  // }
+  if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
+      return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
+  }
 
   try {
     let parsedNumber = phoneUtil.parse(phoneNumber)

@@ -88,31 +88,31 @@ class EncryptionService {
       final encodedSerializedCipherMessage =
           base64Encode(serializedCipherMessage);
 
-      // return encodedSerializedCipherMessage;
+      return encodedSerializedCipherMessage;
 
-      print("Created type: " + ciphertext.getType().toString());
-
-      final mNumber = await _storage.read(key: "m_number");
-      int number = 1;
-      if (mNumber == null) {
-        await _storage.write(key: "m_number", value: "1");
-      } else {
-        number = int.parse(mNumber) + 1;
-        await _storage.write(key: "m_number", value: number.toString());
-      }
-
-      var data = {
-        "type": ciphertext.getType(),
-        "m_number": number,
-        "message": encodedSerializedCipherMessage,
-      };
-
-      print("Sending message number: " +
-          number.toString() +
-          " Content: " +
-          messageContent);
-
-      return jsonEncode(data);
+      // print("Created type: " + ciphertext.getType().toString());
+      //
+      // final mNumber = await _storage.read(key: "m_number");
+      // int number = 1;
+      // if (mNumber == null) {
+      //   await _storage.write(key: "m_number", value: "1");
+      // } else {
+      //   number = int.parse(mNumber) + 1;
+      //   await _storage.write(key: "m_number", value: number.toString());
+      // }
+      //
+      // var data = {
+      //   "type": ciphertext.getType(),
+      //   "m_number": number,
+      //   "message": encodedSerializedCipherMessage,
+      // };
+      //
+      // print("Sending message number: " +
+      //     number.toString() +
+      //     " Content: " +
+      //     messageContent);
+      //
+      // return jsonEncode(data);
     });
   }
 
@@ -132,14 +132,14 @@ class EncryptionService {
         throw InvalidNumberException("Cannot decrypt own encrypted message.");
       }
 
-      final Map<String, Object?> data = jsonDecode(encryptedContents);
-
-      int mType = data["type"] as int;
-      int mNumber = data["m_number"] as int;
-      encryptedContents = data["message"] as String;
-
-      print("Decrypting message number: " + mNumber.toString());
-      print("Decrypting message type: " + mType.toString());
+      // final Map<String, Object?> data = jsonDecode(encryptedContents);
+      //
+      // int mType = data["type"] as int;
+      // int mNumber = data["m_number"] as int;
+      // encryptedContents = data["message"] as String;
+      //
+      // print("Decrypting message number: " + mNumber.toString());
+      // print("Decrypting message type: " + mType.toString());
 
       String plaintext = "Failed to decrypt...";
       try {
@@ -147,20 +147,32 @@ class EncryptionService {
         final decodedEncryptedContents = base64Decode(encryptedContents);
         // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
 
-        CiphertextMessage? reconstructedCipherMessage;
+        // CiphertextMessage? reconstructedCipherMessage;
         print("Trying to reconstruct CipherTextMessage");
-        if (mType == CiphertextMessage.prekeyType) {
-          reconstructedCipherMessage =
-              PreKeySignalMessage(decodedEncryptedContents);
-        } else if (mType == CiphertextMessage.whisperType) {
-          reconstructedCipherMessage =
-              SignalMessage.fromSerialized(decodedEncryptedContents);
-        } else {
-          print("Failed");
-          return plaintext;
+        // if (mType == CiphertextMessage.prekeyType) {
+        //   reconstructedCipherMessage =
+        //       PreKeySignalMessage(decodedEncryptedContents);
+        // } else if (mType == CiphertextMessage.whisperType) {
+        //   reconstructedCipherMessage =
+        //       SignalMessage.fromSerialized(decodedEncryptedContents);
+        // } else {
+        //   print("Failed");
+        //   return plaintext;
+        // }
+        // plaintext = await _decryptCipherTextMessage(
+        //     senderPhoneNumber, reconstructedCipherMessage);
+        try{
+          plaintext = await _decryptCipherTextMessage(senderPhoneNumber, SignalMessage.fromSerialized(decodedEncryptedContents));
+        } catch (e){
+          print("Not Plain Signal Message");
+          try {
+            plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+                PreKeySignalMessage(decodedEncryptedContents));
+          } catch (e) {
+            print("Not PreKey Signal Message");
+            throw e;
+          }
         }
-        plaintext = await _decryptCipherTextMessage(
-            senderPhoneNumber, reconstructedCipherMessage);
 
         return jsonDecode(plaintext);
       } on InvalidMessageException catch (e) {

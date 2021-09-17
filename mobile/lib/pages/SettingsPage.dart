@@ -318,24 +318,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text(
                     "Display a preview of the message in the notification"),
               ),
-              Container(
-                padding: EdgeInsets.all(15),
-                child: Text(
-                  "Media auto-download",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              SwitchListTile(
-                value: controller.model.autoDownloadMedia,
-                onChanged: (bool newValue) {
-                  controller.setAutoDownloadMedia(newValue);
-                },
-                title: Text(
-                  "Photos",
-                  style: TextStyle(fontSize: 16),
-                ),
-                dense: true,
-              ),
+              //TODO:Re-enable auto download when complete
+              // Container(
+              //   padding: EdgeInsets.all(15),
+              //   child: Text(
+              //     "Media auto-download",
+              //     style: TextStyle(fontSize: 20),
+              //   ),
+              // ),
+              // SwitchListTile(
+              //   value: controller.model.autoDownloadMedia,
+              //   onChanged: (bool newValue) {
+              //     controller.setAutoDownloadMedia(newValue);
+              //   },
+              //   title: Text(
+              //     "Photos",
+              //     style: TextStyle(fontSize: 16),
+              //   ),
+              //   dense: true,
+              // ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(

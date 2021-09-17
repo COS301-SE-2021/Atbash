@@ -507,4 +507,24 @@ class EncryptionService {
     return await _preKeyStoreService.loadPreKeys();
   }
 
+  /// This method encrypts this users number with the recipients RSA key
+  Future<String?> encryptNumberFor(String number) async {
+    final messagebox = await _messageboxService.fetchMessageboxForNumber(number);
+
+    if(messagebox == null){
+      print("Error: Messagebox for $number doesn't exist");
+      return null;
+    }
+
+    final key = messagebox.recipientKey;
+
+    if(key == null){
+      print("Error: Messagebox for $number doesn't have a rsa key");
+      return null;
+    }
+
+    final myNumber = await _userService.getPhoneNumber();
+
+    return key.encrypt(myNumber);
+  }
 }

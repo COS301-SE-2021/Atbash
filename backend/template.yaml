@@ -517,6 +517,28 @@ Resources:
       FunctionName: !Ref UploadKeysFunction
       Principal: apigateway.amazonaws.com
 
+  SetMessageboxConnectionIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: set_messagebox_connection_id
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  SetMessageboxConnectionIdPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SetMessageboxConnectionIdFunction
+      Principal: apigateway.amazonaws.com
 
   # --- Web Socket API --- #
   AtbashWebSocket:
@@ -913,6 +935,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt UploadKeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  SetMessageboxConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'PUT /messageboxes/{messageboxId}/connectionId'
+      OperationName: SetMessageboxConnectionIdRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SetMessageboxConnectionIdIntegration
+  SetMessageboxConnectionIdIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SetMessageboxConnectionIdFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt SetMessageboxConnectionIdFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

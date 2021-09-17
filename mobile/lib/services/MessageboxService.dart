@@ -290,4 +290,20 @@ class MessageboxService {
     return null;
   }
 
+  ///Fetches Messagebox from the database with the given number
+  Future<Messagebox?> fetchMessageboxForNumber(String number) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      Messagebox.TABLE_NAME,
+      where: "${Messagebox.COLUMN_NUMBER} = ?",
+      whereArgs: [number],
+    );
+
+    if (response.isNotEmpty) {
+      final messagebox = Messagebox.fromMap(response.first);
+      return messagebox;
+    }
+    return null;
+  }
+
 }

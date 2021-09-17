@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/AnalyticsPageController.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Tuple.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -25,206 +26,98 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
         title: Text("Analytics"),
       ),
       body: SafeArea(
-        child: Observer(
-          builder: (_) {
-            return ListView(
-              children: [
-                SizedBox(
-                  height: 20,
+        child: Observer(builder: (_) {
+          return Column(
+            children: [
+              Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 5),
+                color: Constants.darkGrey,
+                child: Text(
+                  "General Statistics",
+                  style: TextStyle(color: Colors.white),
                 ),
-                Container(
-                  color: Constants.darkGrey.withOpacity(0.88),
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Column(
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  child: ListView(
                     children: [
-                      Text(
-                        "Global statistics",
-                        style: TextStyle(
-                          color: Constants.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      ListTile(
-                        tileColor: Colors.blueAccent,
-                        leading: Icon(
-                          Icons.message,
-                          color: Constants.orange,
-                        ),
-                        title: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total text messages sent:  ")),
-                                Text(controller.model.totalTextMessagesSent
-                                    .toString()),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total messages received:  ")),
-                                Text(controller.model.totalTextMessagesReceived
-                                    .toString()),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
+                      _buildStatisticsWidget(
+                          "Total text messages sent:",
+                          "Total messages received:",
+                          controller.model.totalTextMessagesSent,
+                          controller.model.totalTextMessagesReceived,
+                          Icons.chat,
+                          true),
                       Divider(
-                        color: Constants.black,
-                        indent: 55,
-                        height: 0,
-                        thickness: 1.5,
+                        height: 2,
+                        thickness: 2,
                       ),
-                      ListTile(
-                        tileColor: Colors.blueAccent,
-                        leading: Icon(
+                      _buildStatisticsWidget(
+                          "Total photos sent:",
+                          "Total photos received:",
+                          controller.model.totalPhotosSent,
+                          controller.model.totalPhotosReceived,
                           Icons.photo,
-                          color: Constants.orange,
-                        ),
-                        title: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(child: Text("Total photos sent:  ")),
-                                Text(controller.model.totalPhotosSent
-                                    .toString()),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total photos received:  ")),
-                                Text(controller.model.totalPhotosReceived
-                                    .toString()),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
+                          true),
                       Divider(
-                        color: Constants.black,
-                        indent: 55,
-                        height: 0,
-                        thickness: 1.5,
+                        height: 2,
+                        thickness: 2,
                       ),
-                      ListTile(
-                        tileColor: Colors.blueAccent,
-                        leading: Icon(
+                      _buildStatisticsWidget(
+                          "Total messages liked:",
+                          null,
+                          controller.model.totalMessagesLiked,
+                          null,
                           Icons.favorite,
-                          color: Constants.orange,
-                        ),
-                        title: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total messages liked:  ")),
-                                Text(controller.model.totalMessagesLiked
-                                    .toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                          false),
                       Divider(
-                        color: Constants.black,
-                        indent: 55,
-                        height: 0,
-                        thickness: 1.5,
+                        height: 2,
+                        thickness: 2,
                       ),
-                      ListTile(
-                        tileColor: Colors.blueAccent,
-                        leading: Icon(
+                      _buildStatisticsWidget(
+                          "Total messages tagged:",
+                          null,
+                          controller.model.totalMessagesTagged,
+                          null,
                           Icons.tag,
-                          color: Constants.orange,
-                        ),
-                        title: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total messages tagged:  ")),
-                                Text(controller.model.totalMessagesTagged
-                                    .toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+                          false),
                       Divider(
-                        color: Constants.black,
-                        indent: 55,
-                        height: 0,
-                        thickness: 1.5,
-                      ),
-                      ListTile(
-                        tileColor: Colors.blueAccent,
-                        leading: Icon(
-                          Icons.delete,
-                          color: Constants.orange,
-                        ),
-                        title: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                    child: Text("Total messages deleted:  ")),
-                                Text(controller.model.totalMessagesDeleted
-                                    .toString()),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Divider(
-                        color: Constants.black,
-                        indent: 55,
-                        height: 0,
-                        thickness: 1.5,
+                        height: 2,
+                        thickness: 2,
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 20,
+              ),
+              Container(
+                alignment: Alignment.center,
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 5),
+                color: Constants.darkGrey,
+                child: Text(
+                  "Chat Statistics",
+                  style: TextStyle(color: Colors.white),
                 ),
-                Container(
-                  color: Constants.darkGrey.withOpacity(0.88),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Chats",
-                        style: TextStyle(
-                          color: Constants.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      _buildContacts(),
-                    ],
-                  ),
-                )
-              ],
-            );
-          },
-        ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Container(
+                  child: ListView.builder(
+                      itemCount: controller.model.chatMessageCount.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return _buildChatItem(
+                            controller.model.chatMessageCount[index]);
+                      }),
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
-  }
-
-  Widget _buildContacts() {
-    return Observer(builder: (_) {
-      return ListView.builder(
-          shrinkWrap: true,
-          itemCount: controller.model.chatMessageCount.length,
-          itemBuilder: (_, index) {
-            return _buildContact(controller.model.chatMessageCount[index]);
-          });
-    });
   }
 
   Widget _buildContact(Tuple<Chat, int> chat) {

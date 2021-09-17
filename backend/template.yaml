@@ -537,6 +537,7 @@ Resources:
       Environment:
         Variables:
           MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+          TABLE_USERS: !Ref TableUsers
 
   GetServerPublicKeyPermission:
     Type: AWS::Lambda::Permission

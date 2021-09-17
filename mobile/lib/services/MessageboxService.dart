@@ -122,7 +122,7 @@ class MessageboxService {
     }
   }
 
-  Future<Messagebox?> createMessageBox(String? number, RSAPublicKey? recipientKey) async {
+  Future<String?> createMessageBox(String? number) async {
     var url = Uri.parse(Constants.httpUrl + "messageboxes/create");
 
     final MessageboxToken? messageboxToken = await fetchMessageboxToken();
@@ -163,12 +163,12 @@ class MessageboxService {
 
       if (response.statusCode == 200) {
         int expires = jsonDecode(response.body) as int;
-        Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, recipientKey, expires);
+        Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, null, null, expires);
         storeMessagebox(messagebox);
 
         //TODO: Send a request to the server to link this devices ConnectionID to the MID (for notifications)
 
-        return messagebox;
+        return messagebox.id;
       } else {
         //Soft fail
         print("Server request was unsuccessful.\nResponse code: " +

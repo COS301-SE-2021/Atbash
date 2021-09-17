@@ -1,7 +1,7 @@
 const {
     saveMessage,
     getConnectionsOfPhoneNumber,
-    removeConnection
+    removeConnection, getConnectionOfMessageboxId, removeMessageboxConnection
 } = require("./db_access")
 const {sendToConnection} = require("./api_access")
 
@@ -14,7 +14,7 @@ exports.handler = async event => {
 
     if (recipientMessageboxId !== undefined) {
         try {
-            await sendToMessageboxId()
+            await sendToMessageboxId(id, senderPhoneNumber, recipientMessageboxId, contents)
         } catch (error) {
             console.log(error)
             return {statusCode: 500, body: JSON.stringify(error)}
@@ -77,6 +77,31 @@ const sendToPhoneNumber = async (id, senderPhoneNumber, recipientPhoneNumber, co
     }
 }
 
-const sendToMessageboxId = async () => {
+const sendToMessageboxId = async (id, senderPhoneNumber, messageboxId, contents) => {
+    const timestamp = new Date().getTime()
 
+    try {
+        await saveMessage(id, senderPhoneNumber, undefined, timestamp, contents, messageboxId)
+    } catch (error) {
+        throw error
+    }
+
+    try {
+        const connection = await getConnectionOfMessageboxId(messageboxId)
+        try {
+            await sendToConnection(process.env.WEB_SOCKET_DOMAIN.substring(6) + "/dev", connection, {
+                id, senderPhoneNumber, messageboxId, timestamp, contents
+            })
+        } catch (error) {
+            if (error.statusCode === 410) {
+                try {
+                    await removeMessageboxConnection(messageboxId)
+                } catch (error) {
+                    console.log(`Found status code ${error.statusCode}`)
+                }
+            }
+        }
+    } catch (error) {
+        throw error
+    }
 }

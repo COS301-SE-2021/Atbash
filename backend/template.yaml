@@ -309,6 +309,7 @@ Resources:
           TABLE_CONNECTIONS: !Ref TableConnections
           TABLE_MESSAGES: !Ref TableMessages
           TABLE_USERS: !Ref TableUsers
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
           INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
           FCMKey: !Ref FCMKey
           WEB_SOCKET_DOMAIN: !GetAtt AtbashWebSocket.ApiEndpoint
@@ -319,6 +320,8 @@ Resources:
             TableName: !Ref TableConnections
         - DynamoDBReadPolicy:
             TableName: !Ref TableUsers
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
         - Statement:
             - Effect: Allow
               Action:

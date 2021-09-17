@@ -14,8 +14,12 @@ import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/services/MessageboxService.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
+
+import 'package:synchronized/synchronized.dart';
+
 
 class CommunicationService {
   final BlockedNumbersService blockedNumbersService;
@@ -28,6 +32,9 @@ class CommunicationService {
   final MediaService mediaService;
   final MemoryStoreService memoryStoreService;
   final NotificationService notificationService;
+  final MessageboxService messageboxService;
+
+  var communicationLock = new Lock();
 
   IOWebSocketChannel? channel;
   StreamController<MessagePayload> _messageQueue = StreamController();
@@ -94,17 +101,69 @@ class CommunicationService {
     this.mediaService,
     this.memoryStoreService,
     this.notificationService,
+    this.messageboxService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
       (payload) async {
-        final encryptedContents = await encryptionService.encryptMessageContent(
-            payload.contents, payload.recipientPhoneNumber);
+        await communicationLock.synchronized(() async {
 
-        payload.contents = encryptedContents;
+          var messagePayload;
+          final messagebox = await messageboxService.fetchMessageboxForNumber(payload.recipientPhoneNumber);
 
-        await post(uri, body: jsonEncode(payload.asMap));
+          if(messagebox == null || messagebox.recipientId == null){
+            //Get mailbox id
+            //Encrypt id with contents
+            String? senderMid;
+            if(messagebox == null) {
+              senderMid = await messageboxService
+                  .createMessageBox(payload.recipientPhoneNumber);
+              if (senderMid == null) {
+                print("Failed to createMessagebox for sending message");
+                return;
+              }
+            } else {
+              senderMid = messagebox.id;
+            }
+            final encryptedContents = await encryptionService.encryptMessageContent(
+                jsonEncode({
+                  "senderMid": senderMid,
+                  "message_contents": payload.contents
+                }),
+                payload.recipientPhoneNumber);
+            final senderNumberEncrypted = await encryptionService.encryptNumberFor(payload.recipientPhoneNumber);
+
+            if(senderNumberEncrypted == null){
+              print("Failed to encrypt number using rsa key");
+              return;
+            }
+
+            messagePayload = {
+              "id": payload.id,
+              "recipientPhoneNumber": payload.recipientPhoneNumber,
+              "senderNumberEncrypted": senderNumberEncrypted,
+              "encryptedContents": encryptedContents
+            };
+          } else {
+            final senderMid = messagebox.id;
+            final encryptedContents = await encryptionService.encryptMessageContent(
+                jsonEncode({
+                  "senderMid": senderMid,
+                  "messageContents": payload.contents
+                }),
+                payload.recipientPhoneNumber);
+            final recipientMid = messagebox.recipientId!;
+
+            messagePayload = {
+              "id": payload.id,
+              "recipientMid": recipientMid,
+              "encryptedContents": encryptedContents
+            };
+          }
+
+          await post(uri, body: jsonEncode(messagePayload));
+        });
       },
       onDone: () => _messageQueue.close(),
     );

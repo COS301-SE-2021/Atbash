@@ -987,7 +987,7 @@ Resources:
       Target: !Join
         - '/'
         - - 'integrations'
-          !Ref GetServerPublicKeyIntegration
+          - !Ref GetServerPublicKeyIntegration
   GetServerPublicKeyIntegration:
     Type: AWS::ApiGatewayV2::Integration
     DependsOn:

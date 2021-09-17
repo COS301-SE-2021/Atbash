@@ -274,4 +274,20 @@ class MessageboxService {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  ///Fetches Messagebox from the database with the given id
+  Future<Messagebox?> fetchMessageboxWithID(String id) async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      Messagebox.TABLE_NAME,
+      where: "${Messagebox.COLUMN_M_ID} = ?",
+      whereArgs: [id],
+    );
+
+    if (response.isNotEmpty) {
+      final messagebox = Messagebox.fromMap(response.first);
+      return messagebox;
+    }
+    return null;
+  }
+
 }

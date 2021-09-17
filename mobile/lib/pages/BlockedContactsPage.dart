@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/controllers/BlockedContactsPageController.dart';
-import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/util/Utils.dart';
 
 import '../constants.dart';
@@ -14,7 +16,6 @@ class BlockedContactsPage extends StatefulWidget {
 
 class _BlockedContactsPageState extends State<BlockedContactsPage> {
   final BlockedContactsPageController controller;
-
   _BlockedContactsPageState() : controller = BlockedContactsPageController();
 
   @override
@@ -57,7 +58,9 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
               ),
               Expanded(
                 child: TextField(
-                  onChanged: (String input) {},
+                  onChanged: (String input) {
+                    controller.updateQuery(input);
+                  },
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     focusedBorder: InputBorder.none,
@@ -73,18 +76,32 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
             ],
           ),
         ),
-        ListView.builder(
-            shrinkWrap: true,
-            itemCount: controller.model.blockedNumbers.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildContactItem(
-                  controller.model.blockedNumbers[index].phoneNumber);
-            }),
+        Observer(builder: (_) {
+          String name = "";
+
+          return ListView.builder(
+              shrinkWrap: true,
+              itemCount: controller.model.filteredNumbers.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (controller.model.contacts.any((element) =>
+                    element.phoneNumber ==
+                    controller.model.filteredNumbers[index].phoneNumber))
+                  name = controller.model.contacts
+                      .firstWhere((element) =>
+                          element.phoneNumber ==
+                          controller.model.filteredNumbers[index].phoneNumber)
+                      .displayName;
+                else
+                  name = controller.model.filteredNumbers[index].phoneNumber;
+                return _buildContactItem(
+                    controller.model.filteredNumbers[index].phoneNumber, name);
+              });
+        })
       ],
     );
   }
 
-  Widget _buildContactItem(String blockedNumber) {
+  Widget _buildContactItem(String blockedNumber, contactName) {
     return Container(
       child: Column(
         children: [
@@ -96,12 +113,17 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                 Expanded(
                   flex: 1,
                   child: Text(
-                    blockedNumber,
+                    contactName,
                     textAlign: TextAlign.left,
                   ),
                 ),
                 IconButton(
-                  onPressed: () => _removeBlockedContact(blockedNumber),
+                  onPressed: () => showConfirmDialog(context,
+                          "Are you sure you want to remove $contactName from your blocked contacts?")
+                      .then((value) {
+                    if (value != null && value)
+                      _removeBlockedContact(blockedNumber);
+                  }),
                   icon: Icon(Icons.cancel),
                   splashRadius: 24,
                 )
@@ -118,8 +140,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   }
 
   void _addBlockedContact() async {
-    final input = await showInputDialog(
-        context, "Please enter the number you wish to block.");
+    final input = await showNewNumberDialog(context);
     if (input != null)
       controller.addNumber(input).catchError((_) {
         showSnackBar(context, "This number has already been blocked.");

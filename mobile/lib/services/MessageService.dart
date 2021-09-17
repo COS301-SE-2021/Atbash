@@ -137,6 +137,18 @@ class MessageService {
     return message;
   }
 
+  Future<void> updateMessageContents(
+      String messageId, String newMessage) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_EDITED} = 1,${Message.COLUMN_CONTENTS} = ? where ${Message.COLUMN_ID} = ?",
+      [newMessage, messageId],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+  }
+
   Future<void> setMessageDeleted(String messageId) async {
     final db = await databaseService.database;
 

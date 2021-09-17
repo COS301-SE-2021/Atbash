@@ -2,8 +2,9 @@
 // in mobile/test/ContactInfoPage/ContactInfoPage_test.dart.
 // Do not manually edit this file.
 
-import 'package:mobile/controllers/ContactInfoPageController.dart' as _i4;
-import 'package:mobile/models/ContactInfoPageModel.dart' as _i3;
+import 'package:mobile/controllers/ContactInfoPageController.dart' as _i5;
+import 'package:mobile/models/ContactInfoPageModel.dart' as _i4;
+import 'package:mobile/services/BlockedNumbersService.dart' as _i3;
 import 'package:mobile/services/ContactService.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -17,14 +18,17 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeContactService_0 extends _i1.Fake implements _i2.ContactService {}
 
-class _FakeContactInfoPageModel_1 extends _i1.Fake
-    implements _i3.ContactInfoPageModel {}
+class _FakeBlockedNumbersService_1 extends _i1.Fake
+    implements _i3.BlockedNumbersService {}
+
+class _FakeContactInfoPageModel_2 extends _i1.Fake
+    implements _i4.ContactInfoPageModel {}
 
 /// A class which mocks [ContactInfoPageController].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockContactInfoPageController extends _i1.Mock
-    implements _i4.ContactInfoPageController {
+    implements _i5.ContactInfoPageController {
   MockContactInfoPageController() {
     _i1.throwOnMissingStub(this);
   }
@@ -34,9 +38,14 @@ class MockContactInfoPageController extends _i1.Mock
       (super.noSuchMethod(Invocation.getter(#contactService),
           returnValue: _FakeContactService_0()) as _i2.ContactService);
   @override
-  _i3.ContactInfoPageModel get model => (super.noSuchMethod(
+  _i3.BlockedNumbersService get blockedNumbersService =>
+      (super.noSuchMethod(Invocation.getter(#blockedNumbersService),
+              returnValue: _FakeBlockedNumbersService_1())
+          as _i3.BlockedNumbersService);
+  @override
+  _i4.ContactInfoPageModel get model => (super.noSuchMethod(
       Invocation.getter(#model),
-      returnValue: _FakeContactInfoPageModel_1()) as _i3.ContactInfoPageModel);
+      returnValue: _FakeContactInfoPageModel_2()) as _i4.ContactInfoPageModel);
   @override
   String get phoneNumber =>
       (super.noSuchMethod(Invocation.getter(#phoneNumber), returnValue: '')
@@ -44,6 +53,14 @@ class MockContactInfoPageController extends _i1.Mock
   @override
   void reload() => super.noSuchMethod(Invocation.method(#reload, []),
       returnValueForMissingStub: null);
+  @override
+  void blockContact() =>
+      super.noSuchMethod(Invocation.method(#blockContact, []),
+          returnValueForMissingStub: null);
+  @override
+  void unblockContact() =>
+      super.noSuchMethod(Invocation.method(#unblockContact, []),
+          returnValueForMissingStub: null);
   @override
   String toString() => super.toString();
 }

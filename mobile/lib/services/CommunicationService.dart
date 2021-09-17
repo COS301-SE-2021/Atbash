@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
@@ -17,6 +18,7 @@ import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 class CommunicationService {
+  final BlockedNumbersService blockedNumbersService;
   final EncryptionService encryptionService;
   final UserService userService;
   final ChatService chatService;
@@ -36,6 +38,11 @@ class CommunicationService {
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
+  List<void Function(String messageID, String messageContents)>
+      _onMessageEditListeners = [];
+  void Function(String senderPhoneNumber)? onStopPrivateChat;
+  void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
 
@@ -68,7 +75,16 @@ class CommunicationService {
   void disposeOnMessageLiked(void Function(String messageID, bool liked) cb) =>
       _onMessageLikedListeners.remove(cb);
 
+  void onMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.add(cb);
+
+  void disposeOnMessageEdited(
+          void Function(String messageID, String messageContents) cb) =>
+      _onMessageEditListeners.remove(cb);
+
   CommunicationService(
+    this.blockedNumbersService,
     this.encryptionService,
     this.userService,
     this.chatService,
@@ -166,6 +182,12 @@ class CommunicationService {
         print(exception.toString());
         return;
       }
+
+      final blockedNumbers = await blockedNumbersService.fetchAll();
+
+      if (blockedNumbers
+          .any((element) => element.phoneNumber == senderPhoneNumber)) return;
+
       print("Decrypted message: " +
           jsonDecode(decryptedContentsEncoded).toString());
       final Map<String, Object?> decryptedContents =
@@ -179,6 +201,8 @@ class CommunicationService {
               ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
           final forwarded = decryptedContents["forwarded"] as bool? ?? false;
           final text = decryptedContents["text"] as String;
+          final repliedMessageId =
+              decryptedContents["repliedMessageId"] as String?;
 
           await _handleMessage(
             senderPhoneNumber: senderPhoneNumber,
@@ -187,6 +211,7 @@ class CommunicationService {
             contents: text,
             timestamp: DateTime.now(),
             forwarded: forwarded,
+            repliedMessageId: repliedMessageId,
           );
           break;
 
@@ -224,9 +249,27 @@ class CommunicationService {
           final messageId = decryptedContents["messageId"] as String;
           final liked = decryptedContents["liked"] as bool;
 
-          messageService.setMessageLiked(messageId, liked);
+          messageService.setMessageLiked(messageId, liked).catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onMessageLikedListeners
               .forEach((listener) => listener(messageId, liked));
+          break;
+
+        case "edit":
+          final messageId = decryptedContents["messageId"] as String;
+          final newMessage = decryptedContents["newMessage"] as String;
+
+          messageService
+              .updateMessageContents(messageId, newMessage)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) throw (err);
+          });
+          _onMessageEditListeners
+              .forEach((listener) => listener(messageId, newMessage));
+
           break;
 
         case "online":
@@ -256,8 +299,13 @@ class CommunicationService {
 
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
-          messageService.setMessageReadReceipt(
-              messageId, ReadReceipt.delivered);
+          messageService
+              .setMessageReadReceipt(messageId, ReadReceipt.delivered)
+              .catchError((err) {
+            if (err.runtimeType != MessageNotFoundException) {
+              print(err);
+            }
+          });
           _onAckListeners.forEach((listener) => listener(messageId));
           break;
 
@@ -268,8 +316,15 @@ class CommunicationService {
                 .map((e) => e as String)
                 .toList();
 
-            messageIds.forEach((id) =>
-                messageService.setMessageReadReceipt(id, ReadReceipt.seen));
+            messageIds.forEach((id) {
+              messageService
+                  .setMessageReadReceipt(id, ReadReceipt.seen)
+                  .catchError((err) {
+                if (err.runtimeType != MessageNotFoundException) {
+                  print(err);
+                }
+              });
+            });
 
             _onAckSeenListeners.forEach((listener) => listener(messageIds));
           }
@@ -288,6 +343,35 @@ class CommunicationService {
             sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
           }
           break;
+        case "startPrivateChat":
+          String body = "";
+          try {
+            final contact =
+                await contactService.fetchByPhoneNumber(senderPhoneNumber);
+            body = "${contact.displayName} wants to chat privately.";
+          } on ContactWithPhoneNumberDoesNotExistException {
+            body = "$senderPhoneNumber wants to chat privately.";
+          }
+
+          final payload = {
+            "type": "privateChat",
+            "senderPhoneNumber": senderPhoneNumber,
+          };
+
+          notificationService.showNotification(
+            title: "Incoming private chat",
+            body: body,
+            payload: payload,
+          );
+          _onPrivateChatListeners
+              .forEach((listener) => listener(senderPhoneNumber));
+          break;
+        case "stopPrivateChat":
+          onStopPrivateChat?.call(senderPhoneNumber);
+          break;
+        case "acceptPrivateChat":
+          onAcceptPrivateChat?.call();
+          break;
       }
 
       await _deleteMessageFromServer(id);
@@ -300,6 +384,7 @@ class CommunicationService {
     required String id,
     required String contents,
     required DateTime timestamp,
+    String? repliedMessageId,
     bool isMedia = false,
     bool forwarded = false,
   }) async {
@@ -331,12 +416,15 @@ class CommunicationService {
       isMedia: isMedia,
       forwarded: forwarded,
       readReceipt: ReadReceipt.delivered,
+      repliedMessageId: repliedMessageId,
       deleted: false,
       liked: false,
       tags: [],
     );
 
-    await messageService.insert(message);
+    if (chatType == ChatType.general) {
+      await messageService.insert(message);
+    }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));
 
@@ -344,6 +432,7 @@ class CommunicationService {
       senderPhoneNumber: senderPhoneNumber,
       messageContents: contents,
       isMedia: isMedia,
+      chatId: chatId,
     );
   }
 
@@ -351,6 +440,7 @@ class CommunicationService {
     required String senderPhoneNumber,
     required String messageContents,
     required bool isMedia,
+    required String chatId,
   }) async {
     if (shouldBlockNotifications(senderPhoneNumber)) {
       return;
@@ -376,7 +466,16 @@ class CommunicationService {
       }
     }
 
-    notificationService.showNotification(title: title, body: body);
+    final payload = {
+      "senderPhoneNumber": senderPhoneNumber,
+      "type": "message",
+      "chatId": chatId,
+    };
+    notificationService.showNotification(
+      title: title,
+      body: body,
+      payload: payload,
+    );
   }
 
   Future<void> _deleteMessageFromServer(String id) async {
@@ -384,13 +483,14 @@ class CommunicationService {
     await delete(uri);
   }
 
-  Future<void> sendMessage(
-      Message message, ChatType chatType, String recipientPhoneNumber) async {
+  Future<void> sendMessage(Message message, ChatType chatType,
+      String recipientPhoneNumber, String? repliedMessageId) async {
     final contents = jsonEncode({
       "type": "message",
       "chatType": chatType.toString(),
       "forwarded": message.forwarded,
       "text": message.contents,
+      "repliedMessageId": repliedMessageId,
     });
 
     _queueForSending(contents, recipientPhoneNumber, id: message.id);
@@ -428,6 +528,17 @@ class CommunicationService {
       "type": "like",
       "messageId": messageId,
       "liked": liked,
+    });
+
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendEditedMessage(
+      String messageID, String newMessage, String recipientPhoneNumber) async {
+    final contents = jsonEncode({
+      "type": "edit",
+      "messageId": messageID,
+      "newMessage": newMessage,
     });
 
     _queueForSending(contents, recipientPhoneNumber);
@@ -498,6 +609,21 @@ class CommunicationService {
   Future<void> sendRequestProfileImage(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestProfileImage"});
     _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendStartPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "startPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendStopPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "stopPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
+  }
+
+  Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "acceptPrivateChat"});
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,

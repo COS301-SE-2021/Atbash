@@ -1,5 +1,5 @@
 {
-  "name": "sendmessage",
+  "name": "set_messagebox_connection_id",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,10 +8,7 @@
   },
   "author": "Bit by Bit",
   "license": "UNLICENSED",
-  "devDependencies": {
-    "jest": "^27.0.6"
-  },
   "dependencies": {
-    "aws-sdk": "^2.957.0"
+    "aws-sdk": "^2.990.0"
   }
 }

@@ -30,10 +30,10 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
-  RecipientPhoneNumberIndex:
+  TableMessageboxes:
     Type: String
-    Default: 'recipientPhoneNumber-index'
-    Description: (Required) The name of the DyanmoDB global index for recipientPhoneNumber on the messages table
+    Default: 'atbash-messageboxes'
+    Description: (Required) The name of the DynamoDB table to store messageboxes
     MinLength: 3
     MaxLength: 50
     AllowedPattern: ^[A-Za-z\-]+$
@@ -60,6 +60,14 @@ Parameters:
     MaxLength: 50
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
+
+  SNSAccessKeyId:
+    Type: String
+    Description: (Required) The access key id to send SNS requests
+
+  SNSSecretAccessKey:
+    Type: String
+    Description: (Required) THe secret access key to send SNS requests
 
 Resources:
   # --- DynamoDB Tables --- #
@@ -130,16 +138,25 @@ Resources:
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableMessages
-      GlobalSecondaryIndexes:
-        - IndexName: !Ref RecipientPhoneNumberIndex
-          KeySchema:
-            - AttributeName: 'recipientPhoneNumber'
-              KeyType: 'HASH'
-          ProvisionedThroughput:
-            ReadCapacityUnits: 4
-            WriteCapacityUnits: 4
-          Projection:
-            ProjectionType: ALL
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
+
+  MessageboxesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableMessageboxes
       Tags:
         - Key: 'auto-delete'
           Value: 'no'
@@ -163,6 +180,12 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableConnections
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'execute-api:ManageConnections'
+              Resource:
+                - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AtbashWebSocket}/*'
 
   OnConnectPermission:
     Type: AWS::Lambda::Permission
@@ -206,9 +229,18 @@ Resources:
       Environment:
         Variables:
           TABLE_USERS: !Ref TableUsers
+          SNS_ACCESS_KEY_ID: !Ref SNSAccessKeyId
+          SNS_SECRET_ACCESS_KEY: !Ref SNSSecretAccessKey
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'sns:Publish'
+              Resource:
+                - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:*'
+
 
   RegisterPermission:
     Type: AWS::Lambda::Permission
@@ -313,7 +345,6 @@ Resources:
       Environment:
         Variables:
           TABLE_MESSAGES: !Ref TableMessages
-          INDEX_RECIPIENT_PHONE_NUMBER: !Ref RecipientPhoneNumberIndex
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref TableMessages
@@ -466,6 +497,28 @@ Resources:
       FunctionName: !Ref UploadKeysFunction
       Principal: apigateway.amazonaws.com
 
+  SetMessageboxConnectionIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: set_messagebox_connection_id
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  SetMessageboxConnectionIdPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SetMessageboxConnectionIdFunction
+      Principal: apigateway.amazonaws.com
 
   # --- Web Socket API --- #
   AtbashWebSocket:
@@ -862,6 +915,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt UploadKeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  SetMessageboxConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'PUT /messageboxes/{messageboxId}/connectionId'
+      OperationName: SetMessageboxConnectionIdRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SetMessageboxConnectionIdIntegration
+  SetMessageboxConnectionIdIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SetMessageboxConnectionIdFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt SetMessageboxConnectionIdFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

@@ -37,7 +37,7 @@ const validateKeysStructure = (preKeys) => {
     return false;
   }
 
-  for(let i = 0; i < length; i++){
+  for(let i = 0; i < preKeys.length; i++){
     if(anyUndefined(preKeys[i]["keyId"], preKeys[i]["publicKey"]) || anyBlank(preKeys[i]["keyId"], preKeys[i]["publicKey"])){
       return false;
     }

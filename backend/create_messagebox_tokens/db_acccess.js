@@ -33,29 +33,7 @@ exports.authenticateAuthenticationToken = async (phoneNumber, token) => {
   }
 }
 
-exports.existsNumber = async (phoneNumber) => {
-  try {
-    // console.log("existsNumber: ")
-    const response = await db.query({
-      TableName: process.env.TABLE_USERS,
-      KeyConditionExpression: "phoneNumber = :n",
-      ExpressionAttributeValues: {
-        ":n": phoneNumber,
-      }
-    }).promise()
-    // console.log("Query: ")
-    // console.log(response);
-    // console.log(response.Items);
-    // console.log(response.Items.length);
-    // console.log(response.Count);
-    return (response.Count > 0);
-  } catch (error) {
-    console.log(error);
-    throw error
-  }
-}
-
-exports.getNumPreKeys = async (phoneNumber) => {
+exports.getMessageTokenInfo = async (phoneNumber) => {
   try {
     // console.log("GetNumKeys: ");
     const response = await db.query({
@@ -66,12 +44,13 @@ exports.getNumPreKeys = async (phoneNumber) => {
       }
     }).promise()
 
-    // console.log("Response: ");
-    // console.log(response);
     if(response.Count > 0){
-      return response.Items[0]["numberFreeKeys"]
+      return {
+        numberAvailableTokens: response.Items[0]["numberAvailableTokens"],
+        lastAddedTokens: response.Items[0]["lastAddedTokens"]
+      }
     } else {
-      return 0;
+      return null;
     }
   } catch (error) {
     console.log(error);
@@ -79,32 +58,7 @@ exports.getNumPreKeys = async (phoneNumber) => {
   }
 }
 
-exports.getBundleKeys = async (phoneNumber) => {
-  try {
-    // console.log("GetBundleKeys: ");
-    const response = await db.query({
-      TableName: process.env.TABLE_USERS,
-      KeyConditionExpression: "phoneNumber = :n",
-      ExpressionAttributeValues: {
-        ":n": phoneNumber,
-      },
-      ExpressionAttributeNames: {
-        "#keys": "keys",
-        "#ikey": "identityKey",
-        "#skey": "signedPreKey"
-      },
-      Select: "SPECIFIC_ATTRIBUTES",
-      ProjectionExpression: "#keys.#ikey, #keys.#skey, registrationID"
-    }).promise();
-    // console.log(response);
-    return response.Items[0];
-  } catch (error) {
-    console.log(error);
-    throw error
-  }
-}
-
-exports.getAndRemovePreKey = async (phoneNumber, index) => {
+exports.updateMessageTokenInfo = async (phoneNumber, numberAvailableTokens, lastAddedTokens) => {
   try {
     // console.log("GetAndRemovePreKey: ");
     let response = await db.update({
@@ -112,16 +66,11 @@ exports.getAndRemovePreKey = async (phoneNumber, index) => {
       Key: {
         "phoneNumber": phoneNumber
       },
-      UpdateExpression: "SET numberFreeKeys = numberFreeKeys - :n REMOVE #keys.#pkeys[" + index.toString() + "]",
-      ExpressionAttributeNames: {
-        "#keys": "keys",
-        "#pkeys": "preKeys"
-      },
+      UpdateExpression: "SET numberAvailableTokens = :n, lastAddedTokens = :l",
       ExpressionAttributeValues: {
-        ":n": 1,
-        ":f": index,
+        ":n": numberAvailableTokens,
+        ":l": lastAddedTokens,
       },
-      ConditionExpression: "numberFreeKeys > :f",
       ReturnValues: "UPDATED_OLD"
     }).promise()
     // console.log(response);
@@ -129,7 +78,7 @@ exports.getAndRemovePreKey = async (phoneNumber, index) => {
     // console.log(response.Attributes["keys"]);
     // console.log(response.Attributes["keys"]["preKeys"]);
     // console.log(response.Attributes["keys"]["preKeys"][0]);
-    return response.Attributes["keys"]["preKeys"][0];
+    return true;
   } catch (error) {
     console.log(error);
     throw error

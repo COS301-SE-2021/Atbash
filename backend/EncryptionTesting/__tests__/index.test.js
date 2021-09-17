@@ -58,7 +58,7 @@ describe("Unit tests for index.handler for register user",  () => {
     pubKeyObject.e = priKeyObject.e.clone();
   }
 
-  test("Test 5", async () => {
+  test("Generate Keys", async () => {
     //Create node key
     let key = new NodeRSA({b: 4096});
 

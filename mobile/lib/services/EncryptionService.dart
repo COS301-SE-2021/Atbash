@@ -1,15 +1,13 @@
 import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:math';
 
 // import 'package:crypto/crypto.dart'; //For Hmac function
-import 'dart:math';
 
 // import 'package:cryptography/cryptography.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobile/encryption/BlindingSignature.dart';
-import 'package:mobile/encryption/RSACoreEngine.dart';
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
@@ -31,9 +29,13 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
-import 'package:pointycastle/export.dart' as Pointy;
-import 'package:pointycastle/src/utils.dart' as PointyUtils;
+// import 'package:pointycastle/export.dart' as Pointy;
+// import 'package:pointycastle/src/utils.dart' as PointyUtils;
 
+//RSA Cryptography
+import 'package:crypton/crypton.dart';
+
+//Mutex/Locking functionality
 import 'package:synchronized/synchronized.dart';
 
 import 'UserService.dart';
@@ -53,8 +55,6 @@ class EncryptionService {
   final SignedPreKeyStoreService _signedPreKeyStoreService;
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
-
-  //Todo: Use UserService for phone number
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
@@ -263,7 +263,7 @@ class EncryptionService {
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
     final url = Uri.parse(Constants.httpUrl + "keys/get");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 
@@ -341,7 +341,7 @@ class EncryptionService {
   Future<void> managePreKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/getNumber");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 
@@ -488,112 +488,6 @@ class EncryptionService {
   /// This method gets the users PreKeys
   Future<List<PreKeyRecord>> loadPreKeys() async {
     return await _preKeyStoreService.loadPreKeys();
-  }
-
-  /// Get the device_authentication_token_base64 of the device from secure storage. If it is not set,
-  /// the function throws a [StateError], since the device_authentication_token_base64 is generated
-  /// during registration and is expected to be saved.
-  Future<String> getDeviceAuthTokenEncoded() async {
-    final token =
-        await _storage.read(key: "device_authentication_token_base64");
-    if (token == null) {
-      throw StateError("device_authentication_token_base64 is not readable");
-    } else {
-      return token;
-    }
-  }
-
-  BigInt generateBlindingFactor(Pointy.RSAPublicKey key) {
-    Random rng = Random.secure();
-    BigInt? m = key.n;
-
-    if(m == null) {
-      throw InvalidParametersException("Modulus cannot be null");
-    }
-
-    int length = m.bitLength - 1; // must be less than m.bitLength
-    BigInt factor;
-    BigInt gcd;
-
-    BigInt ZERO = BigInt.from(0);
-    BigInt ONE = BigInt.from(1);
-
-    do
-    {
-      factor = createRandomBigInteger(length, rng);
-      gcd = factor.gcd(m);
-    }
-    while (factor.compareTo(ZERO) == 0 || factor.compareTo(ONE) == 0 || gcd.compareTo(ONE) != 0);
-
-    return factor;
-  }
-
-  BigInt createRandomBigInteger(int numBits, Random rng){
-    int nBytes = (numBits / 8).ceil();
-
-    final builder = BytesBuilder();
-
-    // strip off any excess bits in the MSB
-    int xBits = 8 * nBytes - numBits;
-    int firstByte = rng.nextInt(256);
-    firstByte = firstByte & (255 >> xBits);
-    builder.addByte(firstByte);
-
-    for (var i = 1; i < nBytes; ++i) {
-      builder.addByte(rng.nextInt(256));
-    }
-    final bytes = builder.toBytes();
-    return PointyUtils.decodeBigIntWithSign(1, bytes);
-  }
-
-  ///See: https://github.com/vaibhavsingh1993/BlindSignatures/blob/master/src/main/java/com/vaicoin/test/TestBlindSignature.java
-  Uint8List createBlindedMessage(String msg, Pointy.RSAPublicKey key, BigInt blindingFactor, Uint8List salt){
-    // BigInt blindingFactor = generateBlindingFactor(key);
-    Pointy.Digest digest = new Pointy.SHA1Digest();
-
-    BlindingSignature blindingSignature = new BlindingSignature(digest, digest, salt);
-    blindingSignature.init(true, key, blindingFactor);
-
-    Uint8List blindedMessage = blindingSignature.generateSignature(msg);
-
-    return blindedMessage;
-  }
-
-  Uint8List serverSignMessage(Uint8List blindedMessage, Pointy.RSAPrivateKey pKey){
-    /// This should be deleted as this is what the server will do
-    //Send off to server
-    //--Server signing
-    RSACoreEngine engine = new RSACoreEngine();
-    engine.init(true, Pointy.PrivateKeyParameter<Pointy.RSAPrivateKey>(pKey));
-    Uint8List signedMessage = engine.process(blindedMessage);
-    //--Server signing
-    //Get signedMessage back from server
-
-    return signedMessage;
-  }
-
-  Uint8List unblindMessage(Uint8List signedMessage, Pointy.RSAPublicKey key, BigInt blindingFactor, Uint8List salt){
-    //Unblind message
-    Pointy.Digest digest = new Pointy.SHA1Digest();
-    BlindingSignature blindingSignature = new BlindingSignature(digest, digest, salt);
-    blindingSignature.init(false, key, blindingFactor);
-    Uint8List unblindedSignedMessage = blindingSignature.processBlock(signedMessage, 0, signedMessage.length);
-
-    return unblindedSignedMessage;
-  }
-
-  bool serverVerifyMessage(String originalMsg, Uint8List unblindedSignedMessage, Pointy.RSAPublicKey key, Uint8List salt){
-    /// This should be deleted as this is what the server will do
-    //Send off to server
-    //-- Server verify
-    Pointy.Digest digest3 = new Pointy.SHA1Digest();
-    Pointy.PSSSigner signer = new Pointy.PSSSigner(new RSACoreEngine(), digest3, digest3);
-    signer.init(false, new Pointy.ParametersWithSalt(Pointy.PublicKeyParameter<Pointy.RSAPublicKey>(key), salt));
-
-    bool result = signer.verifySignature(utf8.encode(originalMsg) as Uint8List, Pointy.PSSSignature(unblindedSignedMessage));
-    //-- Server verify
-
-    return result;
   }
 
 }

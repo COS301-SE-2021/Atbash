@@ -100,9 +100,9 @@ void _registerServices() async {
   final userService = UserService();
 
   final databaseService = DatabaseService();
-  final encryptionService =
-      _initialiseEncryptionService(databaseService, userService);
   final messageboxService = MessageboxService(userService, databaseService);
+  final encryptionService =
+      _initialiseEncryptionService(databaseService, userService, messageboxService);
 
   final registrationService =
       RegistrationService(encryptionService, userService);
@@ -149,7 +149,7 @@ void _registerServices() async {
 }
 
 EncryptionService _initialiseEncryptionService(
-    DatabaseService databaseService, UserService userService) {
+    DatabaseService databaseService, UserService userService, MessageboxService messageboxService) {
   final identityKeyStoreService = IdentityKeyStoreService(databaseService);
   final preKeyStoreService = PreKeyStoreService(databaseService);
   final sessionStoreService = SessionStoreService(databaseService);
@@ -167,6 +167,7 @@ EncryptionService _initialiseEncryptionService(
     signedPreKeyStoreService,
     preKeyStoreService,
     sessionStoreService,
+    messageboxService,
   );
 }
 

@@ -2,7 +2,7 @@ const {addMessagebox} = require("./db_acccess")
 
 const BlindSignature = require('blind-signatures');
 const BigInteger = require('jsbn').BigInteger;
-const NodeRSA = require('node-rsa');
+// const NodeRSA = require('node-rsa');
 const crypto = require("crypto-js");
 const { v4: uuidv4 } = require('uuid');
 const {bytesToBase64} = require("./base64");

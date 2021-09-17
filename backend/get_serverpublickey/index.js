@@ -11,7 +11,7 @@ exports.handler = async event => {
     e: e
   };
 
-  return {statusCode: 200, body: publicKey}
+  return {statusCode: 200, body: JSON.stringify(publicKey)}
 }
 
 

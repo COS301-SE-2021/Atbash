@@ -21,7 +21,7 @@ exports.handler = async event => {
         }
     } else if (senderPhoneNumber !== undefined && recipientPhoneNumber !== undefined) {
         try {
-            await sendToPhoneNumber()
+            await sendToPhoneNumber(id, senderPhoneNumber, recipientPhoneNumber, contents)
         } catch (error) {
             console.log(error)
             return {statusCode: 500, body: JSON.stringify(error)}

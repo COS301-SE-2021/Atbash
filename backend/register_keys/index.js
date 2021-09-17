@@ -1,12 +1,12 @@
 const {authenticateAuthenticationToken, registerKeys} = require("./db_access")
 
 exports.handler = async event => {
-  const {authorization, phoneNumber, identityKey, preKeys, signedPreKey} = JSON.parse(event.body)
+  const {authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey} = JSON.parse(event.body)
 
   console.log("RequestBody: ");
   console.log(event.body);
 
-  if (anyUndefined(authorization, phoneNumber, identityKey, preKeys, signedPreKey) || anyBlank(authorization, phoneNumber, identityKey, preKeys, signedPreKey)) {
+  if (anyUndefined(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey) || anyBlank(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey)) {
     return {statusCode: 400, body: "Invalid request body"}
   }
 
@@ -18,23 +18,23 @@ exports.handler = async event => {
     return {statusCode: 400, body: "Invalid request body"}
   }
 
-  if(!(await registerKeys(phoneNumber, identityKey, preKeys, signedPreKey))){
+  if(!(await registerKeys(phoneNumber, identityKey, preKeys, rsaKey, signedPreKey))){
     return {statusCode: 500, body: "Failed to add keys to database"}
   }
 
   return {statusCode: 200}
 }
 
-const validateKeysStructure = (identityKey, preKeys, signedPreKey) => {
+const validateKeysStructure = (identityKey, preKeys, rsaKey, signedPreKey) => {
   if(identityKey.length < 10){
     return false;
   }
 
-  if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
+  if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"], rsaKey["n"], rsaKey["e"])){
     return false;
   }
 
-  if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
+  if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"], rsaKey["n"], rsaKey["e"])){
     return false;
   }
 

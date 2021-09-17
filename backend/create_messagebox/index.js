@@ -25,10 +25,7 @@ exports.handler = async event => {
     return {statusCode: 400, body: "Invalid request body"}
   }
 
-  //Create node key
-  let key = new NodeRSA();
   const {n, e} = JSON.parse(process.env.MESSAGEBOX_KEYPAIR)
-
 
   //Verify token
   const result = BlindSignature.verify({
@@ -44,7 +41,7 @@ exports.handler = async event => {
   const msPerDay = (1000 * 3600 * 24);
   let mid = uuidv4();
   let randomString = crypto.lib.WordArray.random(20);
-  let expires = Date.now() + (1*msPerDay);
+  let expires = Date.now() + (msPerDay);
   //publicKey
 
   try {

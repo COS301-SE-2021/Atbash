@@ -120,39 +120,55 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
     );
   }
 
-  Widget _buildContact(Tuple<Chat, int> chat) {
-    final contact = chat.first.contact;
+  Widget _buildChatItem(Tuple<Chat, int> chat) {
+    Contact? contact = chat.first.contact;
+
     return Column(
       children: [
-        Divider(
-          color: Constants.black,
-          indent: 55,
-          height: 0,
-          thickness: 1.5,
+        ListTile(
+          leading: AvatarIcon.fromString(chat.first.contact?.profileImage),
+          title: Text(contact != null
+              ? contact.displayName.isNotEmpty
+                  ? contact.displayName
+                  : contact.phoneNumber
+              : chat.first.contactPhoneNumber),
+          subtitle: Text("Total messages: ${chat.second}"),
         ),
-        Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Container(
-            height: 50,
-            child: Row(
-              children: [
-                AvatarIcon.fromString(chat.first.contact?.profileImage),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(contact != null
-                        ? contact.displayName.isNotEmpty
-                            ? contact.displayName
-                            : contact.phoneNumber
-                        : chat.first.contactPhoneNumber),
-                  ),
-                ),
-                Text(chat.second.toString()),
-              ],
-            ),
-          ),
+        Divider(
+          height: 2,
+          thickness: 2,
         ),
       ],
+    );
+  }
+
+  Widget _buildStatisticsWidget(String topText, String? bottomText, int topStat,
+      int? bottomStat, IconData icon, bool twoLines) {
+    if (bottomStat == null) bottomStat = 0;
+    return ListTile(
+      title: Column(
+        children: [
+          Row(children: [
+            Text(topText),
+            Expanded(child: Container()),
+            Text(topStat.toString())
+          ]),
+          if (twoLines)
+            SizedBox(
+              height: 5,
+            ),
+          if (twoLines)
+            Row(children: [
+              Text(bottomText ?? ""),
+              Expanded(child: Container()),
+              Text(bottomStat.toString())
+            ]),
+        ],
+      ),
+      leading: Icon(
+        icon,
+        color: Constants.orange,
+      ),
     );
   }
 }

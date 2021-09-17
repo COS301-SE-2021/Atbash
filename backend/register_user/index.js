@@ -85,22 +85,23 @@ exports.handler = async event => {
         }
     })
 
-    try {
-        const response = await sns.publish({
-            Message: `Your Atbash verification code is ${verificationCode}`,
-            PhoneNumber: phoneNumber,
-            MessageAttributes: {
-                "AWS.SNS.SMS.SMSType": {
-                    DataType: "String",
-                    StringValue: "Transactional"
-                }
-            }
-        }).promise()
-
-        console.log("SNS Response " + response)
-    } catch (error) {
-        console.log("SNS Error " + error)
-    }
+    //Disabled for testing (to not waste sms's)
+    // try {
+    //     const response = await sns.publish({
+    //         Message: `Your Atbash verification code is ${verificationCode}`,
+    //         PhoneNumber: phoneNumber,
+    //         MessageAttributes: {
+    //             "AWS.SNS.SMS.SMSType": {
+    //                 DataType: "String",
+    //                 StringValue: "Transactional"
+    //             }
+    //         }
+    //     }).promise()
+    //
+    //     console.log("SNS Response " + response)
+    // } catch (error) {
+    //     console.log("SNS Error " + error)
+    // }
 
     return {
         statusCode: 200,

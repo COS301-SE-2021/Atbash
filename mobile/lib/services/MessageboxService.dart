@@ -41,7 +41,7 @@ class MessageboxService {
   }
 
   Future<RSAPublicKey?> getServerPublicKey() async {
-    final url = Uri.parse(Constants.httpUrl + "messagebox/serverPublicKey");
+    final url = Uri.parse(Constants.httpUrl + "messageboxes/serverPublicKey");
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -82,7 +82,7 @@ class MessageboxService {
       blindedPKs.add(blindSignatures.blind(message, serverKey));
     }
 
-    final url = Uri.parse(Constants.httpUrl + "messagebox/createTokens");
+    final url = Uri.parse(Constants.httpUrl + "messageboxes/createTokens");
     final phoneNumber = await _userService.getPhoneNumber();
     final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
@@ -123,7 +123,7 @@ class MessageboxService {
   }
 
   Future<Messagebox?> createMessageBox(String? number) async {
-    var url = Uri.parse(Constants.httpUrl + "messagebox/create");
+    var url = Uri.parse(Constants.httpUrl + "messageboxes/create");
 
     final MessageboxToken? messageboxToken = await fetchMessageboxToken();
     final RSAPublicKey? serverPublicKey = await getServerPublicKey();
@@ -152,7 +152,7 @@ class MessageboxService {
       String mid = decodedBodyJson["mid"] as String;
       String randomString = decodedBodyJson["random"] as String;
 
-      url = Uri.parse(Constants.httpUrl + "messagebox/createVerify");
+      url = Uri.parse(Constants.httpUrl + "messageboxes/createVerify");
 
       data = {
         "mid": serverPublicKey.encrypt(mid),

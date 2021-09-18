@@ -20,7 +20,8 @@ import 'UserService.dart';
 import 'MessageboxService.dart';
 
 class RegistrationService {
-  RegistrationService(this._encryptionService, this._userService, this._messageboxService);
+  RegistrationService(
+      this._encryptionService, this._userService, this._messageboxService);
 
   final EncryptionService _encryptionService;
   final UserService _userService;
@@ -48,7 +49,7 @@ class RegistrationService {
     ///(that is used to verify the authenticity of requests)
     ///and send it back encrypted
     /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
-    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 1024);
     final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
     var data = {
@@ -133,8 +134,7 @@ class RegistrationService {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
     final phoneNumber = await _userService.getPhoneNumber();
-    final authTokenEncoded =
-        await _userService.getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();
@@ -144,7 +144,7 @@ class RegistrationService {
       return false;
     }
 
-    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 1024);
     await _userService.storeRSAKeyPair(rsaKeypair);
 
     List<Map<String, Object>> preKeysArr = [];

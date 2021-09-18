@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
@@ -129,7 +130,8 @@ class CommunicationService {
             final encryptedContents = await encryptionService.encryptMessageContent(
                 jsonEncode({
                   "senderMid": senderMid,
-                  "message_contents": payload.contents
+                  "rsaKey": (await userService.fetchRSAKeyPair()).publicKey.toString(),
+                  "messageContents": payload.contents
                 }),
                 payload.recipientPhoneNumber);
             final senderNumberEncrypted = await encryptionService.encryptNumberFor(payload.recipientPhoneNumber);
@@ -173,10 +175,11 @@ class CommunicationService {
   Message Structure (First Message)
   {
     id,
-    recipientNumber,
-    senderNumber (RSA Encrypted),
+    recipientPhoneNumber,
+    senderNumberEncrypted,
     encryptedContents(
-      sender_mid,
+      senderMid,
+      rsaKey,
       contents
     )
   }
@@ -184,9 +187,9 @@ class CommunicationService {
   Message Structure (Second Message)
   {
     id,
-    recipient_mid,
+    recipientMid,
     encryptedContents(
-      sender_mid,
+      senderMid,
       contents
     )
   }
@@ -245,25 +248,28 @@ class CommunicationService {
     final Map<String, Object?> parsedEvent =
         event is Map ? event : jsonDecode(event);
 
-    final id = parsedEvent["id"] as String?;
-    final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
-    final timestamp = parsedEvent["timestamp"] as int?;
-    final encryptedContents = parsedEvent["contents"] as String?;
+    // final id = parsedEvent["id"] as String?;
+    // final senderPhoneNumber = parsedEvent["senderPhoneNumber"] as String?;
+    // final timestamp = parsedEvent["timestamp"] as int?;
+    // final encryptedContents = parsedEvent["contents"] as String?;
 
-    if (id != null &&
-        senderPhoneNumber != null &&
-        timestamp != null &&
-        encryptedContents != null) {
-      /// Providing soft-fail for decryption
-      String decryptedContentsEncoded = "";
-      try {
-        decryptedContentsEncoded = await encryptionService
-            .decryptMessageContents(encryptedContents, senderPhoneNumber);
-      } on Exception catch (exception) {
-        print("Failed to decrypt message");
-        print(exception.toString());
-        return;
-      }
+    final eventPayload = await getParsedEventPayload(parsedEvent);
+
+    if (eventPayload != null) {
+      // /// Providing soft-fail for decryption
+      // String decryptedContentsEncoded = "";
+      // try {
+      //   decryptedContentsEncoded = await encryptionService
+      //       .decryptMessageContents(encryptedContents, senderPhoneNumber);
+      // } on Exception catch (exception) {
+      //   print("Failed to decrypt message");
+      //   print(exception.toString());
+      //   return;
+      // }
+
+      final senderPhoneNumber = eventPayload.senderPhoneNumber;
+      final id = eventPayload.id;
+      // final timestamp = eventPayload.timestamp;
 
       final blockedNumbers = await blockedNumbersService.fetchAll();
 
@@ -271,9 +277,9 @@ class CommunicationService {
           .any((element) => element.phoneNumber == senderPhoneNumber)) return;
 
       print("Decrypted message: " +
-          jsonDecode(decryptedContentsEncoded).toString());
+          jsonDecode(eventPayload.contents).toString());
       final Map<String, Object?> decryptedContents =
-          jsonDecode(decryptedContentsEncoded);
+          jsonDecode(eventPayload.contents);
       final type = decryptedContents["type"] as String?;
 
       switch (type) {
@@ -721,7 +727,131 @@ class CommunicationService {
 
     _messageQueue.sink.add(payload);
   }
+
+  Future<EventPayload?> getParsedEventPayload(Map<String, Object?> event) async {
+    final id = event["id"] as String?;
+    final senderNumberEncrypted = event["senderNumberEncrypted"] as String?;
+    final recipientMid = event["recipientMid"] as String?;
+    final encryptedContents = event["encryptedContents"] as String?;
+    final timestamp = event["timestamp"] as int?;
+
+    EventPayload payload;
+
+    if(id == null || encryptedContents == null || timestamp == null){
+      print("Error: Invalid event");
+      return null;
+    }
+    if(recipientMid == null){
+      if(senderNumberEncrypted == null){
+        print("Error: Invalid event");
+        return null;
+      }
+      final senderPhoneNumber = await encryptionService.decryptSenderNumber(senderNumberEncrypted);
+      var decryptedContentsEncoded;
+
+      try {
+        decryptedContentsEncoded = await encryptionService.decryptMessageContents(encryptedContents, senderPhoneNumber);
+      } on Exception catch (exception) {
+        print("Failed to decrypt message");
+        print(exception.toString());
+        return null;
+      }
+
+      final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      final senderMid = decryptedContents["senderMid"] as String?;
+      final rsaKey = decryptedContents["rsaKey"] as String?;
+      final messageContents = decryptedContents["messageContents"] as String?;
+
+      if(messageContents == null){
+        print("Failed to extract message contents after decryption");
+        return null;
+      }
+
+      if(senderMid != null){
+        final messagebox = await messageboxService.fetchMessageboxForNumber(senderPhoneNumber);
+        if(messagebox == null){
+          final newMid = await messageboxService.createMessageBox(senderPhoneNumber);
+          if(newMid == null){
+            print("Failed to create message box on reception of message");
+          } else {
+            await messageboxService.updateMessageboxRecipientId(newMid, senderMid);
+            if(rsaKey != null){
+              await messageboxService.updateMessageboxRSAKey(newMid, RSAPublicKey.fromString(rsaKey));
+            }
+          }
+        } else {
+          if(messagebox.recipientId != senderMid){
+            await messageboxService.updateMessageboxRecipientId(messagebox.id, senderMid);
+            if(rsaKey != null){
+              await messageboxService.updateMessageboxRSAKey(messagebox.id, RSAPublicKey.fromString(rsaKey));
+            }
+          }
+        }
+      } else {
+        print("Failed to extract senders Messagebox ID after decryption");
+      }
+
+      return new EventPayload(id: id, senderPhoneNumber: senderPhoneNumber, timestamp: timestamp, contents: messageContents);
+
+    } else {
+      final messagebox = await messageboxService.fetchMessageboxWithID(recipientMid);
+      if (messagebox == null || messagebox.number == null){
+        //This shouldn't be possible
+        return null;
+      }
+
+      final senderPhoneNumber = messagebox.number!;
+      var decryptedContentsEncoded;
+
+      try {
+        decryptedContentsEncoded = await encryptionService.decryptMessageContents(encryptedContents, senderPhoneNumber);
+      } on Exception catch (exception) {
+        print("Failed to decrypt message");
+        print(exception.toString());
+        return null;
+      }
+
+      final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      final senderMid = decryptedContents["senderMid"] as String?;
+      final messageContents = decryptedContents["messageContents"] as String?;
+
+      if(messageContents == null){
+        print("Failed to extract message contents after decryption");
+        return null;
+      }
+
+      if(senderMid != null && senderMid != messagebox.recipientId){
+        await messageboxService.updateMessageboxRecipientId(messagebox.id, senderMid);
+      }
+
+      return new EventPayload(id: id, senderPhoneNumber: senderPhoneNumber, timestamp: timestamp, contents: messageContents);
+    }
+  }
 }
+
+/*
+  Message Structure (First Message)
+  {
+    id,
+    recipientPhoneNumber,
+    senderNumberEncrypted,
+    encryptedContents(
+      senderMid,
+      rsaKey,
+      messageContents
+    )
+  }
+
+  Message Structure (Second Message)
+  {
+    id,
+    recipientMid,
+    encryptedContents(
+      senderMid,
+      messageContents
+    )
+  }
+  */
 
 class MessagePayload {
   final String id;
@@ -742,4 +872,25 @@ class MessagePayload {
         "recipientPhoneNumber": recipientPhoneNumber,
         "contents": contents
       };
+}
+
+class EventPayload {
+  final String id;
+  final String senderPhoneNumber;
+  final int timestamp;
+  String contents;
+
+  EventPayload({
+    required this.id,
+    required this.senderPhoneNumber,
+    required this.timestamp,
+    required this.contents,
+  });
+
+  Map<String, Object> get asMap => {
+    "id": id,
+    "senderPhoneNumber": senderPhoneNumber,
+    "timestamp": timestamp,
+    "contents": contents
+  };
 }

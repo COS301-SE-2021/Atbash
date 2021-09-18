@@ -2,25 +2,24 @@ const AWS = require("aws-sdk")
 
 const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
 
-exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents, messageboxId) => {
+exports.saveMessage = async (id, recipientPhoneNumber, senderNumberEncrypted, recipientMid, timestamp, encryptedContents) => {
     try {
         let messageItem
 
-        if (messageboxId === undefined) {
+        if (recipientMid === undefined) {
             messageItem = {
                 id,
-                senderPhoneNumber,
                 recipientPhoneNumber,
+                senderNumberEncrypted,
                 timestamp,
-                contents
+                encryptedContents
             }
         } else {
             messageItem = {
                 id,
-                senderPhoneNumber,
-                messageboxId,
+                recipientMid,
                 timestamp,
-                contents
+                encryptedContents
             }
         }
 
@@ -69,7 +68,7 @@ exports.getConnectionOfMessageboxId = async (messageboxId) => {
         throw error
     }
 
-    if (connectionId === undefined) {
+    if (connectionId === undefined || connectionId === null) {
         throw `No messagebox of id ${messageboxId}`
     } else {
         return connectionId

@@ -9,10 +9,11 @@ exports.verifyMessagebox = async (mId, expires) => {
       Key: {
         "mId": mId
       },
-      UpdateExpression: "SET expires=:e, verified=:v REMOVE randomString",
+      UpdateExpression: "SET expires=:e, verified=:v, connectionId=:cid REMOVE randomString",
       ExpressionAttributeValues: {
         ":v": true,
-        ":e": expires
+        ":e": expires,
+        ":cid": null
       }
     }).promise()
   } catch (error) {

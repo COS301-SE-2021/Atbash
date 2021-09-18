@@ -6,22 +6,23 @@ const {
 const {sendToConnection} = require("./api_access")
 
 exports.handler = async event => {
-    const {id, senderPhoneNumber, recipientPhoneNumber, recipientMessageboxId, contents} = JSON.parse(event.body)
+    // const {id, senderPhoneNumber, recipientPhoneNumber, recipientMessageboxId, contents} = JSON.parse(event.body)
+    const {id, recipientPhoneNumber, senderNumberEncrypted, recipientMid, encryptedContents} = JSON.parse(event.body)
 
-    if (id === undefined || contents === undefined) {
+    if (id === undefined || encryptedContents === undefined) {
         return {statusCode: 400, body: "Invalid request: id and contents required"}
     }
 
-    if (recipientMessageboxId !== undefined) {
+    if (recipientMid !== undefined) {
         try {
-            await sendToMessageboxId(id, senderPhoneNumber, recipientMessageboxId, contents)
+            await sendToMessageboxId(id, recipientMid, encryptedContents)
         } catch (error) {
             console.log(error)
             return {statusCode: 500, body: JSON.stringify(error)}
         }
-    } else if (senderPhoneNumber !== undefined && recipientPhoneNumber !== undefined) {
+    } else if (senderNumberEncrypted !== undefined && recipientPhoneNumber !== undefined) {
         try {
-            await sendToPhoneNumber(id, senderPhoneNumber, recipientPhoneNumber, contents)
+            await sendToPhoneNumber(id, recipientPhoneNumber, senderNumberEncrypted, encryptedContents)
         } catch (error) {
             console.log(error)
             return {statusCode: 500, body: JSON.stringify(error)}
@@ -36,11 +37,11 @@ exports.handler = async event => {
     return {statusCode: 200, body: "sent"}
 }
 
-const sendToPhoneNumber = async (id, senderPhoneNumber, recipientPhoneNumber, contents) => {
+const sendToPhoneNumber = async (id, recipientPhoneNumber, senderNumberEncrypted, encryptedContents) => {
     const timestamp = new Date().getTime();
 
     try {
-        await saveMessage(id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents)
+        await saveMessage(id, recipientPhoneNumber, senderNumberEncrypted, undefined, timestamp, encryptedContents)
     } catch (error) {
         throw error
     }
@@ -53,10 +54,10 @@ const sendToPhoneNumber = async (id, senderPhoneNumber, recipientPhoneNumber, co
             try {
                 await sendToConnection(process.env.WEB_SOCKET_DOMAIN.substring(6) + "/dev", connection, {
                     id,
-                    senderPhoneNumber,
                     recipientPhoneNumber,
+                    senderNumberEncrypted,
                     timestamp,
-                    contents
+                    encryptedContents
                 })
                 sent = true
             } catch (error) {
@@ -77,25 +78,25 @@ const sendToPhoneNumber = async (id, senderPhoneNumber, recipientPhoneNumber, co
     }
 }
 
-const sendToMessageboxId = async (id, senderPhoneNumber, messageboxId, contents) => {
+const sendToMessageboxId = async (id, recipientMid, encryptedContents) => {
     const timestamp = new Date().getTime()
 
     try {
-        await saveMessage(id, senderPhoneNumber, undefined, timestamp, contents, messageboxId)
+        await saveMessage(id, undefined, undefined, recipientMid, timestamp, encryptedContents)
     } catch (error) {
         throw error
     }
 
     try {
-        const connection = await getConnectionOfMessageboxId(messageboxId)
+        const connection = await getConnectionOfMessageboxId(recipientMid)
         try {
             await sendToConnection(process.env.WEB_SOCKET_DOMAIN.substring(6) + "/dev", connection, {
-                id, senderPhoneNumber, messageboxId, timestamp, contents
+                id, recipientMid, timestamp, encryptedContents
             })
         } catch (error) {
             if (error.statusCode === 410) {
                 try {
-                    await removeMessageboxConnection(messageboxId)
+                    await removeMessageboxConnection(recipientMid)
                 } catch (error) {
                     console.log(`Found status code ${error.statusCode}`)
                 }

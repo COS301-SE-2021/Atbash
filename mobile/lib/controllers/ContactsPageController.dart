@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
+import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -6,6 +9,7 @@ import 'package:mobile/models/ContactsPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:uuid/uuid.dart';
 
 class ContactsPageController {
@@ -29,14 +33,22 @@ class ContactsPageController {
     contactService.deleteByPhoneNumber(phoneNumber);
   }
 
-  Future<void> addContact(String number, String name) async {
-    Contact contact = new Contact(
-        phoneNumber: number, displayName: name, status: "", profileImage: "");
-    await contactService.insert(contact);
-    model.addContact(contact);
-    communicationService.sendRequestStatus(number);
-    communicationService.sendRequestProfileImage(number);
-    communicationService.sendRequestBirthday(number);
+  Future<void> addContact(
+      BuildContext context, String number, String name) async {
+    final response =
+        await get(Uri.parse(Constants.httpUrl + "user/$number/exists"));
+
+    if (response.statusCode == 204) {
+      Contact contact = new Contact(
+          phoneNumber: number, displayName: name, status: "", profileImage: "");
+      await contactService.insert(contact);
+      model.addContact(contact);
+      communicationService.sendRequestStatus(number);
+      communicationService.sendRequestProfileImage(number);
+      communicationService.sendRequestBirthday(number);
+    } else {
+      showSnackBar(context, "No user with phone number $number exists");
+    }
   }
 
   Future<Chat> startChat(Contact contact, ChatType chatType,

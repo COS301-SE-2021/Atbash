@@ -38,7 +38,7 @@ exports.handler = async event => {
 
   const msPerDay = (1000 * 3600 * 24);
   let mid = uuidv4();
-  const randomString = uuidv4().substring(0, 20); 
+  const randomString = uuidv4().substring(0, 20);
   let expires = Date.now() + (msPerDay);
   //publicKey
 

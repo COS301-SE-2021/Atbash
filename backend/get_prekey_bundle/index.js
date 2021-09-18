@@ -71,19 +71,16 @@ exports.handler = async event => {
     deviceId: 1,
     registrationId: 0,
     signedPreKey: {},
-    preKey: {}
+    preKey: {},
+    rsaKey: ""
   }
   try {
     let bundleKeys = await getBundleKeys(recipientFormattedNumber);
-    console.log(bundleKeys);
-    console.log(bundleKeys["keys"]);
-    console.log(bundleKeys["keys"]["identityKey"]);
-    console.log(bundleKeys["keys"]["signedPreKey"]);
-    console.log(bundleKeys["registrationID"]);
     returnObject.identityKey = bundleKeys["keys"]["identityKey"];
     returnObject.registrationId = bundleKeys["registrationID"];
     returnObject.signedPreKey = bundleKeys["keys"]["signedPreKey"];
     returnObject.preKey = preKey;
+    returnObject.rsaKey = bundleKeys["keys"]["rsaKey"];
 
   } catch (error){
     return {statusCode: 500, body: "Failed to get identity and signed pre key from database. Error: " + error.body}

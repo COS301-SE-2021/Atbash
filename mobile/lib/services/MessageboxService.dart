@@ -106,7 +106,7 @@ class MessageboxService {
       print("Successfully created messagebox tokens");
       print(response.body);
       final responseBodyJson = jsonDecode(response.body) as List;
-      int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex();
+      int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex() + 1;
 
       for (var i = 0; i < responseBodyJson.length; i++) {
         print(responseBodyJson[i]);
@@ -162,12 +162,9 @@ class MessageboxService {
     if (response.statusCode == 200) {
       // final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, dynamic>;
       final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
-      print(responseBodyJson);
 
       String mid =  messageboxToken.keypair.privateKey.decrypt(responseBodyJson["mid"] as String);
       String randomString = messageboxToken.keypair.privateKey.decrypt(responseBodyJson["random"] as String);
-      print(mid);
-      print(randomString);
 
       url = Uri.parse(Constants.httpUrl + "messageboxes/createVerify");
 
@@ -243,8 +240,6 @@ class MessageboxService {
   /// Saves a MessageboxToken to the database and returns.
   Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
     final db = await _databaseService.database;
-
-    print("Storing token with id: " + messageboxToken.id.toString());
 
     if (await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace) !=

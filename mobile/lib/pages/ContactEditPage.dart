@@ -82,25 +82,6 @@ class _ContactEditPageState extends State<ContactEditPage> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               child: Text(
-                "Edit number:",
-                style: TextStyle(fontSize: 20),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 60),
-              alignment: Alignment.center,
-              child: TextField(
-                controller: _phoneNumberController,
-                textAlign: TextAlign.center,
-              ),
-            ),
-            SizedBox(
-              height: 50,
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-              child: Text(
                 "Edit birthday:",
                 style: TextStyle(fontSize: 20),
                 textAlign: TextAlign.center,

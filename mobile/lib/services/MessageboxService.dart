@@ -103,12 +103,19 @@ class MessageboxService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
+      print("Successfully created messagebox tokens");
+      print(response.body);
       final responseBodyJson = jsonDecode(response.body) as List;
       int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex();
 
       for (var i = 0; i < responseBodyJson.length; i++) {
+        print(responseBodyJson[i]);
         final index = responseBodyJson[i]["tokenId"] as int;
-        final signedPK = responseBodyJson[i]["signedPK"] as String;
+        final signedBlindedPK = responseBodyJson[i]["signedPK"] as String;
+
+        //Unblind signed Keys
+        final signedPKBigInt = blindSignatures.unblind(BigInt.parse(signedBlindedPK), blindedPKs[index]["r"] as BigInt, serverKey.asPointyCastle.n!);
+        final signedPK = signedPKBigInt.toString();
 
         await storeMessageboxToken(MessageboxToken(
             maxMailboxTokenIndex++, keyPairs[index], BigInt.parse(signedPK)));
@@ -126,7 +133,7 @@ class MessageboxService {
   Future<String?> createMessageBox(String? number) async {
     var url = Uri.parse(Constants.httpUrl + "messageboxes/create");
 
-    if (await getNumMessageboxTokens() < 10) {
+    if (await getNumMessageboxTokens() < 2) {
       await getMessageboxKeys(10);
     }
 
@@ -153,10 +160,14 @@ class MessageboxService {
     var response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, dynamic>;
+      // final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, dynamic>;
+      final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
+      print(responseBodyJson);
 
-      String mid = decodedBodyJson["mid"] as String;
-      String randomString = decodedBodyJson["random"] as String;
+      String mid =  messageboxToken.keypair.privateKey.decrypt(responseBodyJson["mid"] as String);
+      String randomString = messageboxToken.keypair.privateKey.decrypt(responseBodyJson["random"] as String);
+      print(mid);
+      print(randomString);
 
       url = Uri.parse(Constants.httpUrl + "messageboxes/createVerify");
 
@@ -233,6 +244,8 @@ class MessageboxService {
   Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
     final db = await _databaseService.database;
 
+    print("Storing token with id: " + messageboxToken.id.toString());
+
     if (await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
             conflictAlgorithm: ConflictAlgorithm.replace) !=
         0) {
@@ -250,6 +263,7 @@ class MessageboxService {
     );
 
     if (response.isNotEmpty) {
+      print("Found messagebox token");
       final messageboxToken = MessageboxToken.fromMap(response.first);
       if (messageboxToken != null) {
         return messageboxToken;

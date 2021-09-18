@@ -3,6 +3,7 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Tag.dart';
+import 'package:mobile/encryption/Messagebox.dart';
 import 'package:mobile/encryption/MessageboxToken.dart';
 import 'package:mobile/encryption/PreKeyDBRecord.dart';
 import 'package:mobile/encryption/SessionDBRecord.dart';
@@ -41,6 +42,7 @@ class DatabaseService {
           "drop table if exists ${Message.TABLE_NAME}_${Tag.TABLE_NAME};"),
       db.execute("drop table if exists ${BlockedNumber.TABLE_NAME};"),
       db.execute("drop table if exists ${MessageboxToken.TABLE_NAME};"),
+      db.execute("drop table if exists ${Messagebox.TABLE_NAME};"),
     ]);
   }
 
@@ -55,7 +57,8 @@ class DatabaseService {
       db.execute(SignedPreKeyDBRecord.CREATE_TABLE),
       db.execute(TrustedKeyDBRecord.CREATE_TABLE),
       db.execute(BlockedNumber.CREATE_TABLE),
-      db.execute(MessageboxToken.CREATE_TABLE)
+      db.execute(MessageboxToken.CREATE_TABLE),
+      db.execute(Messagebox.CREATE_TABLE)
       //MessageboxTokenDBRecord
     ]);
 

@@ -300,7 +300,6 @@ class EncryptionService {
       try {
         preKeyBundlePackage =
             PreKeyBundlePackage.fromJson(jsonDecode(response.body));
-        _messageboxService.updateMessageboxRSAKeyForNumber(number, preKeyBundlePackage.rsaPublicKey);
       } catch (error) {
         print(
             "Receive incorrectly formatted PreKeyBundle from server for number: $number. Error: " +
@@ -313,8 +312,10 @@ class EncryptionService {
                 ". Recieved body: " +
                 response.body);
       }
+      _messageboxService.updateMessageboxRSAKeyForNumber(number, preKeyBundlePackage.rsaPublicKey);
 
       PreKeyBundle preKeyBundle = preKeyBundlePackage.createPreKeyBundle();
+
 
       print("Returning created PKBundle");
       return preKeyBundle;

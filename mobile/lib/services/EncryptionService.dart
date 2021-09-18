@@ -74,6 +74,7 @@ class EncryptionService {
       String messageContent, String recipientNumber) async {
     ///This provides mutual exclusion for the encryptMessageContent function
     return await encryptionLock.synchronized(() async {
+      print("Acquired encryption lock for encrypting message");
       final thisUserNumber = await _userService.getPhoneNumber();
       print("Encrypting message from: " +
           thisUserNumber +
@@ -91,6 +92,12 @@ class EncryptionService {
       final serializedCipherMessage = ciphertext.serialize();
       final encodedSerializedCipherMessage =
           base64Encode(serializedCipherMessage);
+
+      if (ciphertext.getType() == CiphertextMessage.prekeyType){
+        print("Created PreKey message to: " + recipientNumber);
+      } else {
+        print("Created normal Signal message to: " + recipientNumber);
+      }
 
       return encodedSerializedCipherMessage;
 
@@ -127,6 +134,7 @@ class EncryptionService {
       String encryptedContents, String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
+      print("Acquired encryption lock for decrypting message");
       final thisUserNumber = await _userService.getPhoneNumber();
       print("Decrypting message from: " +
           senderPhoneNumber +

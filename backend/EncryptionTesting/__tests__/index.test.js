@@ -90,9 +90,19 @@ describe("Unit tests for index.handler for register user",  () => {
   })
 
 
+  function isNumeric(str) {
+    if (typeof str != "string") return false // we only process strings!
+    return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+  }
 
-
-
+  test("Test 5", async () => {
+    console.log(isNumeric("7.3"));
+    console.log(isNumeric(7 + ""));
+    let temp = 8;
+    console.log(isNumeric(temp));
+    expect(3).toBe(3*1);
+  });
 
   test("Test 4.2", async () => {
     setPrivateKey();

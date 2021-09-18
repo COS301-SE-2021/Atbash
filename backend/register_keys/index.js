@@ -7,7 +7,7 @@ exports.handler = async event => {
   console.log(event.body);
 
   if (anyUndefined(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey) || anyBlank(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey)) {
-    return {statusCode: 400, body: "Invalid request body"}
+    return {statusCode: 400, body: "Invalid request body. Missing require parameters."}
   }
 
   if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
@@ -15,7 +15,7 @@ exports.handler = async event => {
   }
 
   if(!validateKeysStructure(identityKey, preKeys, signedPreKey)){
-    return {statusCode: 400, body: "Invalid request body"}
+    return {statusCode: 400, body: "Invalid request body. Incorrect key structure."}
   }
 
   if(!(await registerKeys(phoneNumber, identityKey, preKeys, rsaKey, signedPreKey))){
@@ -29,40 +29,45 @@ function validateKeysStructure (identityKey, preKeys, signedPreKey) {
   if(identityKey.length < 10){
     return false;
   }
-
+  console.log("1");
   if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
-
+  console.log("2");
   if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
-
-  if(!isNumeric(signedPreKey["keyId"])){
+  console.log("3");
+  console.log(signedPreKey["keyId"]);
+  let temp = 7
+  if(!isNumeric(signedPreKey["keyId"] + "") || isNumeric(signedPreKey["keyId"])){
     return false;
   }
+  console.log("4");
   let length = preKeys.length;
   if(length < 1){
     return false;
   }
-
-  if(typeof preKeys == "string"){
+  console.log("5");
+  if(typeof preKeys === "string"){
     return false;
   }
-
+  console.log("6");
   if(anyUndefined(preKeys[0]) || anyBlank(preKeys[0])){
     return false;
   }
-
+  console.log("7");
   for(let i = 0; i < length; i++){
+    console.log("i: " + i);
+    console.log("8");
     if(anyUndefined(preKeys[i]["keyId"], preKeys[i]["publicKey"]) || anyBlank(preKeys[i]["keyId"], preKeys[i]["publicKey"])){
       return false;
     }
-
-    if(!isNumeric(preKeys[i]["keyId"])){
+    console.log("9");
+    if(!isNumeric(preKeys[i]["keyId"] + "") || isNumeric(preKeys[i]["keyId"])){
       return false;
     }
-
+    console.log("10");
     if((typeof preKeys[i]["publicKey"] != "string") || preKeys[i]["publicKey"].length < 10){
       return false;
     }

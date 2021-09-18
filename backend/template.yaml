@@ -571,6 +571,75 @@ Resources:
       FunctionName: !Ref GetServerPublicKeyFunction
       Principal: apigateway.amazonaws.com
 
+  CreateMessageboxFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  CreateMessageboxPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxFunction
+      Principal: apigateway.amazonaws.com
+
+  CreateMessageboxTokensFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox_tokens/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  CreateMessageboxTokensPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxTokensFunction
+      Principal: apigateway.amazonaws.com
+
+  CreateMessageboxVerifiedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox_verified/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  CreateMessageboxVerifiedPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxVerifiedFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -1060,6 +1129,95 @@ Resources:
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
 
+  CreateMessageboxRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/create'
+      OperationName: CreateMessageboxRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxIntegration
+  CreateMessageboxIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  CreateMessageboxTokensRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/createTokens'
+      OperationName: CreateMessageboxTokensRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxTokensIntegration
+  CreateMessageboxTokensIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxTokensFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxTokensFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  CreateMessageboxVerifiedRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/createVerify'
+      OperationName: CreateMessageboxVerifiedRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxVerifiedIntegration
+  CreateMessageboxVerifiedIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxVerifiedFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxVerifiedFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
 
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment

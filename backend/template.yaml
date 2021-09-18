@@ -581,6 +581,7 @@ Resources:
       Environment:
         Variables:
           TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessageboxes
@@ -604,6 +605,7 @@ Resources:
       Environment:
         Variables:
           TABLE_USERS: !Ref TableUsers
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
@@ -627,6 +629,7 @@ Resources:
       Environment:
         Variables:
           TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessageboxes

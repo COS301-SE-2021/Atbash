@@ -45,7 +45,7 @@ class MessageboxService {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final responseBodyJson = jsonDecode(response.body) as Map<String, Object>;
+      final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
 
       BigInt N = BigInt.parse(responseBodyJson["n"] as String);
       BigInt E = BigInt.parse(responseBodyJson["e"] as String);
@@ -151,7 +151,7 @@ class MessageboxService {
     var response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, Object>;
+      final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, dynamic>;
 
       String mid = decodedBodyJson["mid"] as String;
       String randomString = decodedBodyJson["random"] as String;

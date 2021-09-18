@@ -50,7 +50,7 @@ class AnalyticsPageController {
       model.totalMessagesLiked = totalMessagesLiked;
       model.totalMessagesTagged = totalMessagesTagged;
       model.totalMessagesDeleted = totalMessagesDeleted;
-      model.chatMessageCount.sort((a, b) => a.second.compareTo(b.second));
+      model.chatMessageCount.sort((a, b) => b.second.compareTo(a.second));
     });
   }
 }

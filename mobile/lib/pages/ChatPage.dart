@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:mobile/controllers/ChatPageController.dart';
@@ -18,6 +20,7 @@ import 'package:mobile/dialogs/MessageEditDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/util/Extensions.dart';
 import 'package:mobx/mobx.dart';
@@ -407,8 +410,10 @@ class _ChatPageState extends State<ChatPage> {
           alignment: 0.5,
         );
       },
+      onMediaDownload: () => _saveImage(base64Decode(message.contents)),
       contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
+      profanityFilter: controller.model.profanityFilter,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
     );
@@ -513,6 +518,11 @@ class _ChatPageState extends State<ChatPage> {
       controller.sendImage(imageBytes);
     }
   }
+
+  void _saveImage(Uint8List messageBytes) async {
+    await ImageGallerySaver.saveImage(messageBytes);
+    showSnackBar(context, "Image saved.");
+  }
 }
 
 class ChatCard extends StatelessWidget {
@@ -524,7 +534,9 @@ class ChatCard extends StatelessWidget {
   final void Function() onEditPressed;
   final void Function() onReplyPressed;
   final void Function() onRepliedMessagePressed;
+  final void Function() onMediaDownload;
   final bool blurImages;
+  final bool profanityFilter;
   final ChatType chatType;
   final Message? repliedMessage;
   final String contactTitle;
@@ -538,7 +550,9 @@ class ChatCard extends StatelessWidget {
     required this.onEditPressed,
     required this.onReplyPressed,
     required this.onRepliedMessagePressed,
+    required this.onMediaDownload,
     this.blurImages = false,
+    this.profanityFilter = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
     required this.contactTitle,
@@ -583,6 +597,12 @@ class ChatCard extends StatelessWidget {
                             title: Text("Reply"),
                             onPressed: onReplyPressed,
                             trailingIcon: Icon(Icons.reply),
+                          ),
+                        if (!_message.deleted && _message.isMedia)
+                          FocusedMenuItem(
+                            title: Text("Download"),
+                            onPressed: onMediaDownload,
+                            trailingIcon: Icon(Icons.save_alt),
                           ),
                         if (!_message.deleted && chatType == ChatType.general)
                           FocusedMenuItem(
@@ -767,13 +787,26 @@ class ChatCard extends StatelessWidget {
       );
     } else {
       return Text(
-        _message.deleted ? "This message was deleted" : _message.contents,
+        _message.deleted
+            ? "This message was deleted"
+            : profanityFilter
+                //TODO maybe change if to not
+                ? _filterContents(_message.contents)
+                : _message.contents,
         style: TextStyle(
           color: Colors.white,
           fontStyle: _message.deleted ? FontStyle.italic : null,
         ),
       );
     }
+  }
+
+  String _filterContents(String unfilteredContents) {
+    Constants.profanityRegex.forEach((regex) {
+      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex),
+          (match) => List.filled(match.end - match.start, "*").join());
+    });
+    return unfilteredContents;
   }
 
   Icon? _readReceipt() {

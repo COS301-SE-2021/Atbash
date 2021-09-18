@@ -483,6 +483,28 @@ Resources:
       FunctionName: !Ref UploadKeysFunction
       Principal: apigateway.amazonaws.com
 
+  DoesNumberExistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: does_number_exist/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
+
+  DoesNumberExistPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DoesNumberExistFunction
+      Principal: apigateway.amazonaws.com
 
   # --- Web Socket API --- #
   AtbashWebSocket:
@@ -882,6 +904,37 @@ Resources:
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
+
+  DoesNumberExistRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /user/{phoneNumber}/exists'
+      OperationName: DoesNumberExistRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DoesNumberExistIntegration
+  DoesNumberExistIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - DoesNumberExistFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt DoesNumberExistFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
 
   AtbashRESTDeployment:
     Type: AWS::ApiGatewayV2::Deployment

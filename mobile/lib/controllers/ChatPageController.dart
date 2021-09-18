@@ -101,8 +101,9 @@ class ChatPageController {
         messageService.setMessageReadReceipt(id, ReadReceipt.seen);
       });
 
-      communicationService.sendAckSeen(
-          unseenMessagesIds.toList(), contactPhoneNumber);
+      if (unseenMessagesIds.isNotEmpty)
+        communicationService.sendAckSeen(
+            unseenMessagesIds.toList(), contactPhoneNumber);
 
       model.replaceMessages(messages);
     });
@@ -114,6 +115,10 @@ class ChatPageController {
     settingsService.getBlurImages().then((value) {
       model.blurImages = value;
     });
+
+    settingsService
+        .getSafeMode()
+        .then((value) => model.profanityFilter = value);
   }
 
   void _onOnline(bool online) {

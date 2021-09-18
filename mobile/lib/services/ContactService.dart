@@ -106,6 +106,15 @@ class ContactService {
     _notifyListeners();
   }
 
+  Future<void> setContactBirthday(
+      String contactPhoneNumber, DateTime birthday) async {
+    final db = await databaseService.database;
+
+    await db.rawUpdate(
+        "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_BIRTHDAY} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
+        [birthday.millisecondsSinceEpoch, contactPhoneNumber]);
+  }
+
   Future<void> deleteByPhoneNumber(String phoneNumber) async {
     final db = await databaseService.database;
 

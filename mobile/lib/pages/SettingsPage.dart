@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setSafeMode(newValue, "Pin");
                 },
                 title: Text(
-                  "Safe chat",
+                  "Profanity Filter",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Enable safety features for all chats. Including profanity filters for text and media"),
+                    "Enables text profanity filter for all chats"),
               ),
               SwitchListTile(
                 value: controller.model.sharedProfilePicture,
@@ -153,7 +153,24 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Enable or disable whether your profile photo is visible to others"),
+                    "Enable or disable whether your status is visible to others"),
+              ),
+              SwitchListTile(
+                value: controller.model.shareBirthday,
+                onChanged: (bool newValue) {
+                  controller.setShareBirthday(newValue);
+                },
+                title: Text(
+                  "Don't share birthday",
+                  style: TextStyle(fontSize: 16),
+                ),
+                secondary: Icon(
+                  Icons.cake,
+                  color: Constants.orange,
+                ),
+                dense: true,
+                subtitle: Text(
+                    "Choose whether you want to share your birthday to contacts"),
               ),
               SwitchListTile(
                 value: controller.model.shareReadReceipts,
@@ -283,23 +300,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
-                value: controller.model.playNotificationSound,
-                onChanged: controller.model.disableNotifications
-                    ? null
-                    : (bool newValue) {
-                        controller.setPlayNotificationSound(newValue);
-                      },
-                title: Text(
-                  "Notification sounds",
-                  style: TextStyle(fontSize: 16),
-                ),
-                secondary: Icon(
-                  Icons.multitrack_audio,
-                  color: Constants.orange,
-                ),
-                dense: true,
-              ),
-              SwitchListTile(
                 value: controller.model.disableMessagePreview,
                 onChanged: controller.model.disableNotifications
                     ? null
@@ -318,24 +318,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text(
                     "Display a preview of the message in the notification"),
               ),
-              Container(
-                padding: EdgeInsets.all(15),
-                child: Text(
-                  "Media auto-download",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              SwitchListTile(
-                value: controller.model.autoDownloadMedia,
-                onChanged: (bool newValue) {
-                  controller.setAutoDownloadMedia(newValue);
-                },
-                title: Text(
-                  "Photos",
-                  style: TextStyle(fontSize: 16),
-                ),
-                dense: true,
-              ),
+              //TODO:Re-enable auto download when complete
+              // Container(
+              //   padding: EdgeInsets.all(15),
+              //   child: Text(
+              //     "Media auto-download",
+              //     style: TextStyle(fontSize: 20),
+              //   ),
+              // ),
+              // SwitchListTile(
+              //   value: controller.model.autoDownloadMedia,
+              //   onChanged: (bool newValue) {
+              //     controller.setAutoDownloadMedia(newValue);
+              //   },
+              //   title: Text(
+              //     "Photos",
+              //     style: TextStyle(fontSize: 16),
+              //   ),
+              //   dense: true,
+              // ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(

@@ -117,6 +117,21 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
+  final _$shareBirthdayAtom = Atom(name: '_SettingsPageModel.shareBirthday');
+
+  @override
+  bool get shareBirthday {
+    _$shareBirthdayAtom.reportRead();
+    return super.shareBirthday;
+  }
+
+  @override
+  set shareBirthday(bool value) {
+    _$shareBirthdayAtom.reportWrite(value, super.shareBirthday, () {
+      super.shareBirthday = value;
+    });
+  }
+
   final _$shareReadReceiptsAtom =
       Atom(name: '_SettingsPageModel.shareReadReceipts');
 
@@ -147,23 +162,6 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     _$disableNotificationsAtom.reportWrite(value, super.disableNotifications,
         () {
       super.disableNotifications = value;
-    });
-  }
-
-  final _$playNotificationSoundAtom =
-      Atom(name: '_SettingsPageModel.playNotificationSound');
-
-  @override
-  bool get playNotificationSound {
-    _$playNotificationSoundAtom.reportRead();
-    return super.playNotificationSound;
-  }
-
-  @override
-  set playNotificationSound(bool value) {
-    _$playNotificationSoundAtom.reportWrite(value, super.playNotificationSound,
-        () {
-      super.playNotificationSound = value;
     });
   }
 
@@ -210,9 +208,9 @@ blurImages: ${blurImages},
 safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},
 shareStatus: ${shareStatus},
+shareBirthday: ${shareBirthday},
 shareReadReceipts: ${shareReadReceipts},
 disableNotifications: ${disableNotifications},
-playNotificationSound: ${playNotificationSound},
 disableMessagePreview: ${disableMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}
     ''';

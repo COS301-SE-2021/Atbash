@@ -26,14 +26,14 @@ class SettingsPageController {
         .then((value) => model.sharedProfilePicture = value);
     settingsService.getShareStatus().then((value) => model.shareStatus = value);
     settingsService
+        .getShareBirthday()
+        .then((value) => model.shareBirthday = value);
+    settingsService
         .getShareReadReceipts()
         .then((value) => model.shareReadReceipts = value);
     settingsService
         .getDisableNotifications()
         .then((value) => model.disableNotifications = value);
-    settingsService
-        .getPlayNotificationSound()
-        .then((value) => model.playNotificationSound = value);
     settingsService
         .getDisableMessagePreview()
         .then((value) => model.disableMessagePreview = value);
@@ -79,14 +79,14 @@ class SettingsPageController {
     settingsService.setShareReadReceipts(value);
   }
 
+  void setShareBirthday(bool value) {
+    model.shareBirthday = value;
+    settingsService.setShareBirthday(value);
+  }
+
   void setDisableNotifications(bool value) {
     model.disableNotifications = value;
     settingsService.setDisableNotifications(value);
-  }
-
-  void setPlayNotificationSound(bool value) {
-    model.playNotificationSound = value;
-    settingsService.setPlayNotificationSound(value);
   }
 
   void setDisableMessagePreview(bool value) {

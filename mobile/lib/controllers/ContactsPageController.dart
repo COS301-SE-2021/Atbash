@@ -36,6 +36,7 @@ class ContactsPageController {
     model.addContact(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
+    communicationService.sendRequestBirthday(number);
   }
 
   Future<Chat> startChat(Contact contact, ChatType chatType,

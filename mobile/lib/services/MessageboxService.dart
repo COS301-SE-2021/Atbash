@@ -335,8 +335,22 @@ class MessageboxService {
     );
   }
 
-  ///Adds recipients MessageboxId to the Messagebox
-  Future<void> addRecipientIdToMessagebox(String id, String recipientId) async {
+  // ///Adds recipients MessageboxId to the Messagebox
+  // Future<void> addRecipientIdToMessagebox(String id, String recipientId) async {
+  //   final db = await _databaseService.database;
+  //
+  //   await db.update(
+  //     Messagebox.TABLE_NAME,
+  //     {
+  //       Messagebox.COLUMN_RECIPIENT_ID: recipientId
+  //     },
+  //     where:"${Messagebox.COLUMN_M_ID} = ?",
+  //     whereArgs: [id],
+  //   );
+  // }
+
+  ///Updates the recipients MessageboxId for the Messagebox
+  Future<void> updateMessageboxRecipientId(String id, String recipientId) async {
     final db = await _databaseService.database;
 
     await db.update(

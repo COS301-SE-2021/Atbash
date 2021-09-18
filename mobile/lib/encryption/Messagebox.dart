@@ -64,5 +64,5 @@ class Messagebox {
   static const String COLUMN_EXPIRES = "expires";
 
   static const String CREATE_TABLE =
-      "create table $TABLE_NAME ($COLUMN_M_ID text primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_RECIPIENT_KEY text, $COLUMN_RECIPIENT_ID text, $COLUMN_EXPIRES text not null);";
+      "create table $TABLE_NAME ($COLUMN_M_ID text primary key, $COLUMN_SERIALIZED_KEYPAIR text not null, $COLUMN_NUMBER text, $COLUMN_RECIPIENT_KEY text, $COLUMN_RECIPIENT_ID text, $COLUMN_EXPIRES int not null);";
 }

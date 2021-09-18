@@ -107,7 +107,6 @@ class MessageboxService {
       int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex() + 1;
 
       for (var i = 0; i < responseBodyJson.length; i++) {
-        print(responseBodyJson[i]);
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedBlindedPK = responseBodyJson[i]["signedPK"] as String;
 

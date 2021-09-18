@@ -37,7 +37,9 @@ class CommunicationService {
 
   var communicationLock = new Lock();
 
-  IOWebSocketChannel? channel;
+  IOWebSocketChannel? channelNumber;
+  IOWebSocketChannel? channelAnonymous;
+  late StreamSubscription? streamSubscriptionAnonymous;
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   List<void Function(Message message)> _onMessageListeners = [];
@@ -171,30 +173,6 @@ class CommunicationService {
     );
   }
 
-  /*
-  Message Structure (First Message)
-  {
-    id,
-    recipientPhoneNumber,
-    senderNumberEncrypted,
-    encryptedContents(
-      senderMid,
-      rsaKey,
-      contents
-    )
-  }
-
-  Message Structure (Second Message)
-  {
-    id,
-    recipientMid,
-    encryptedContents(
-      senderMid,
-      contents
-    )
-  }
-  */
-
   Future<void> goOnline() async {
     final phoneNumber = await userService.getPhoneNumber();
 
@@ -203,14 +181,44 @@ class CommunicationService {
     await _fetchUnreadMessages(encodedPhoneNumber);
     await encryptionService.managePreKeys();
 
-    channel?.sink.close();
-    channel = IOWebSocketChannel.connect(
+    channelNumber?.sink.close();
+    channelNumber = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
       pingInterval: Duration(minutes: 9),
     );
 
-    channel?.stream.listen((event) async {
+    channelNumber?.stream.listen((event) async {
       await _handleEvent(event);
+    });
+
+    channelAnonymous?.sink.close();
+    channelAnonymous = IOWebSocketChannel.connect(
+      Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
+      pingInterval: Duration(minutes: 9),
+    );
+
+    streamSubscriptionAnonymous = channelAnonymous?.stream.listen((event) async {
+
+      if(streamSubscriptionAnonymous != null && streamSubscriptionAnonymous!.isPaused == false){
+        streamSubscriptionAnonymous!.pause();
+
+        final connectionId = event as String;
+
+        final List<String> ids = await messageboxService.getAllMessageboxIds();
+
+        ids.forEach((element) {
+          final uri = Uri.parse(
+              Constants.httpUrl + "messageboxes/$element/connectionId");
+          put(uri, body: connectionId);
+        });
+
+        channelAnonymous?.stream.listen((event) async {
+          await _handleEvent(event);
+        });
+
+        streamSubscriptionAnonymous!.cancel();
+        streamSubscriptionAnonymous = null;
+      }
     });
 
     await contactService.fetchAll().then((contacts) {

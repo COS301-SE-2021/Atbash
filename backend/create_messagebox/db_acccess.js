@@ -7,7 +7,7 @@ exports.addMessagebox = async (mId, publicKey, expires, verified, randomString) 
     await db.put({
       TableName: process.env.TABLE_MESSAGEBOXES,
       Item: {
-        "mId": mId,
+        "id": mId,
         "publicKey": publicKey,
         "expires": expires,
         "verified": verified,

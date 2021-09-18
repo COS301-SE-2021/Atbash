@@ -7,7 +7,7 @@ exports.verifyMessagebox = async (mId, expires) => {
     await db.update({
       TableName: process.env.TABLE_MESSAGEBOXES,
       Key: {
-        "mId": mId
+        "id": mId
       },
       UpdateExpression: "SET expires=:e, verified=:v, connectionId=:cid REMOVE randomString",
       ExpressionAttributeValues: {
@@ -25,7 +25,7 @@ exports.messageboxCompareRandom = async (mId, randomString) => {
   try {
     const response = await db.query({
       TableName: process.env.TABLE_MESSAGEBOXES,
-      KeyConditionExpression: "mId = :id",
+      KeyConditionExpression: "id = :id",
       ExpressionAttributeValues: {
         ":id": mId,
       }
@@ -45,7 +45,7 @@ exports.messageboxExpired = async (mId, expireDate) => {
   try {
     const response = await db.query({
       TableName: process.env.TABLE_MESSAGEBOXES,
-      KeyConditionExpression: "mId = :id",
+      KeyConditionExpression: "id = :id",
       ExpressionAttributeValues: {
         ":id": mId,
       }

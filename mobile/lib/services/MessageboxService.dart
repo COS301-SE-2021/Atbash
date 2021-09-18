@@ -363,4 +363,23 @@ class MessageboxService {
     );
   }
 
+  /// Returns a list of ids for all the messageboxes
+  Future<List<String>> getAllMessageboxIds() async {
+    final db = await _databaseService.database;
+    final response = await db.query(
+      Messagebox.TABLE_NAME,
+    );
+
+    final list = <String>[];
+
+    response.forEach((element) {
+      final messagebox = Messagebox.fromMap(element);
+      if (messagebox != null) {
+        list.add(messagebox.id);
+      }
+    });
+
+    return list;
+  }
+
 }

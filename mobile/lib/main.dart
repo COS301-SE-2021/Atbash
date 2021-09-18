@@ -105,7 +105,7 @@ void _registerServices() async {
       _initialiseEncryptionService(databaseService, userService, messageboxService);
 
   final registrationService =
-      RegistrationService(encryptionService, userService);
+      RegistrationService(encryptionService, userService, messageboxService);
 
   GetIt.I.registerSingleton(registrationService);
 

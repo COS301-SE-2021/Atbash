@@ -38,6 +38,10 @@ exports.handler = async event => {
   let numberAvailableTokens = tokenInfo.numberAvailableTokens;
   const currDate = Date.now();
 
+  if(numberAvailableTokens <= 0){
+    return {statusCode: 403, body: "You have reached your limit for token creation"}
+  }
+
   const msPerDay = (1000 * 3600 * 24);
   let diffInDays = Math.floor((currDate - lastAddedTokens)/(msPerDay));
   if(diffInDays > 0) {
@@ -76,6 +80,10 @@ exports.handler = async event => {
       tokenId: b["keyId"],
       signedPK: signed.toString()
     })
+  }
+
+  if(numberAvailableTokens < returnObject.length){
+    returnObject = returnObject.slice(0, numberAvailableTokens);
   }
 
   numberAvailableTokens -= returnObject.length;

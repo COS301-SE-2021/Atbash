@@ -580,8 +580,7 @@ class CommunicationService {
       String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "birthday", "birthday": birthday});
     bool shareBirthday = await settingsService.getShareBirthday();
-    //TODO maybe change if to not
-    if (shareBirthday) _queueForSending(contents, recipientPhoneNumber);
+    if (!shareBirthday) _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendProfileImage(

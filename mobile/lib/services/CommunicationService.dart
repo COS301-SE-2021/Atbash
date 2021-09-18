@@ -42,6 +42,8 @@ class CommunicationService {
   late StreamSubscription? streamSubscriptionAnonymous;
   StreamController<MessagePayload> _messageQueue = StreamController();
 
+  String anonymousConnectionId = "";
+
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
@@ -126,6 +128,7 @@ class CommunicationService {
                 print("Failed to createMessagebox for sending message");
                 return;
               }
+              registerConnectionForMessagebox(senderMid);
             } else {
               senderMid = messagebox.id;
             }
@@ -173,6 +176,12 @@ class CommunicationService {
     );
   }
 
+  Future<void> Add(String mid) async {
+    final uri = Uri.parse(
+        Constants.httpUrl + "messageboxes/$mid/connectionId");
+    await put(uri, body: anonymousConnectionId);
+  }
+
   Future<void> goOnline() async {
     final phoneNumber = await userService.getPhoneNumber();
 
@@ -202,14 +211,12 @@ class CommunicationService {
       if(streamSubscriptionAnonymous != null && streamSubscriptionAnonymous!.isPaused == false){
         streamSubscriptionAnonymous!.pause();
 
-        final connectionId = event as String;
+        anonymousConnectionId = event as String;
 
         final List<String> ids = await messageboxService.getAllMessageboxIds();
 
-        ids.forEach((element) {
-          final uri = Uri.parse(
-              Constants.httpUrl + "messageboxes/$element/connectionId");
-          put(uri, body: connectionId);
+        ids.forEach((element) async {
+          await registerConnectionForMessagebox(element);
         });
 
         channelAnonymous?.stream.listen((event) async {
@@ -811,6 +818,7 @@ class CommunicationService {
             if(rsaKey != null){
               await messageboxService.updateMessageboxRSAKey(newMid, RSAPublicKey.fromString(rsaKey));
             }
+            await registerConnectionForMessagebox(newMid);
           }
         } else {
           if(messagebox.recipientId != senderMid){

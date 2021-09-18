@@ -165,23 +165,6 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
-  final _$playNotificationSoundAtom =
-      Atom(name: '_SettingsPageModel.playNotificationSound');
-
-  @override
-  bool get playNotificationSound {
-    _$playNotificationSoundAtom.reportRead();
-    return super.playNotificationSound;
-  }
-
-  @override
-  set playNotificationSound(bool value) {
-    _$playNotificationSoundAtom.reportWrite(value, super.playNotificationSound,
-        () {
-      super.playNotificationSound = value;
-    });
-  }
-
   final _$disableMessagePreviewAtom =
       Atom(name: '_SettingsPageModel.disableMessagePreview');
 
@@ -228,7 +211,6 @@ shareStatus: ${shareStatus},
 shareBirthday: ${shareBirthday},
 shareReadReceipts: ${shareReadReceipts},
 disableNotifications: ${disableNotifications},
-playNotificationSound: ${playNotificationSound},
 disableMessagePreview: ${disableMessagePreview},
 autoDownloadMedia: ${autoDownloadMedia}
     ''';

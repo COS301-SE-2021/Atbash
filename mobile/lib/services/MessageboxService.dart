@@ -103,8 +103,6 @@ class MessageboxService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      print("Successfully created messagebox tokens");
-      print(response.body);
       final responseBodyJson = jsonDecode(response.body) as List;
       int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex() + 1;
 
@@ -258,7 +256,6 @@ class MessageboxService {
     );
 
     if (response.isNotEmpty) {
-      print("Found messagebox token");
       final messageboxToken = MessageboxToken.fromMap(response.first);
       if (messageboxToken != null) {
         return messageboxToken;

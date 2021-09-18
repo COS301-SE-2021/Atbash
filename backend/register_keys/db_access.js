@@ -48,10 +48,7 @@ exports.registerKeys = async (phoneNumber, identityKey, preKeys, rsaKey, signedP
         ":fk": numPreKeys,
         ":k": {
           "identityKey": identityKey,
-          "rsaKey": {
-            "n": rsaKey["n"],
-            "e": rsaKey["e"]
-          },
+          "rsaKey": rsaKey,
           "signedPreKey": {
             "keyId": signedPreKey["keyId"],
             "publicKey": signedPreKey["publicKey"],

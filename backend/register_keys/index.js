@@ -14,7 +14,7 @@ exports.handler = async event => {
       return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
   }
 
-  if(!validateKeysStructure){
+  if(!validateKeysStructure(identityKey, preKeys, signedPreKey)){
     return {statusCode: 400, body: "Invalid request body"}
   }
 
@@ -25,16 +25,16 @@ exports.handler = async event => {
   return {statusCode: 200}
 }
 
-const validateKeysStructure = (identityKey, preKeys, rsaKey, signedPreKey) => {
+function validateKeysStructure (identityKey, preKeys, signedPreKey) {
   if(identityKey.length < 10){
     return false;
   }
 
-  if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"], rsaKey["n"], rsaKey["e"])){
+  if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
 
-  if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"], rsaKey["n"], rsaKey["e"])){
+  if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
 

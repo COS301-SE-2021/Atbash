@@ -176,7 +176,7 @@ class CommunicationService {
     );
   }
 
-  Future<void> Add(String mid) async {
+  Future<void> registerConnectionForMessagebox(String mid) async {
     final uri = Uri.parse(
         Constants.httpUrl + "messageboxes/$mid/connectionId");
     await put(uri, body: anonymousConnectionId);

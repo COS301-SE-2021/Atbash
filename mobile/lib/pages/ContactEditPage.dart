@@ -23,6 +23,7 @@ class _ContactEditPageState extends State<ContactEditPage> {
   final _displayNameController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   final _birthdayController = TextEditingController();
+  DateTime? chosenBirthday;
 
   late final ReactionDisposer _contactDisposer;
 
@@ -35,7 +36,9 @@ class _ContactEditPageState extends State<ContactEditPage> {
 
     _contactDisposer = autorun((_) {
       final contactBirthday = controller.model.contactBirthday;
-
+      setState(() {
+        chosenBirthday = controller.model.contactBirthday;
+      });
       _phoneNumberController.text = controller.model.contactPhoneNumber;
       _displayNameController.text = controller.model.contactName;
       _birthdayController.text = contactBirthday == null
@@ -92,36 +95,36 @@ class _ContactEditPageState extends State<ContactEditPage> {
                 textAlign: TextAlign.center,
               ),
             ),
-
-            //If we want to allow editing of birthdays again uncomment this code.
-
-            // Container(
-            //   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-            //   child: Text(
-            //     "Edit birthday:",
-            //     style: TextStyle(fontSize: 20),
-            //     textAlign: TextAlign.center,
-            //   ),
-            // ),
-            // TextButton(
-            //   onPressed: () {
-            //     DatePicker.showDatePicker(
-            //       context,
-            //       showTitleActions: true,
-            //       minTime: DateTime(1900, 1, 1),
-            //       maxTime: DateTime.now(),
-            //       onConfirm: (date) {
-            //         //TODO: Update birthday in database.
-            //         setState(() {
-            //           _birthdayController.text =
-            //               DateFormat.yMMMd().format(date);
-            //         });
-            //       },
-            //       currentTime: DateTime.now(),
-            //     );
-            //   },
-            //   child: Text(_birthdayController.text),
-            // ),
+            SizedBox(
+              height: 50,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              child: Text(
+                "Edit birthday:",
+                style: TextStyle(fontSize: 20),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                DatePicker.showDatePicker(
+                  context,
+                  showTitleActions: true,
+                  minTime: DateTime(1900, 1, 1),
+                  maxTime: DateTime.now(),
+                  onConfirm: (date) {
+                    setState(() {
+                      chosenBirthday = date;
+                      _birthdayController.text =
+                          DateFormat.yMMMd().format(date);
+                    });
+                  },
+                  currentTime: DateTime.now(),
+                );
+              },
+              child: Text(_chosenBirthdayToString()),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 160),
               child: ElevatedButton(
@@ -136,15 +139,28 @@ class _ContactEditPageState extends State<ContactEditPage> {
     );
   }
 
+  String _chosenBirthdayToString() {
+    final birthday = chosenBirthday;
+
+    if (birthday != null) {
+      return DateFormat.yMMMd().format(birthday);
+    } else {
+      return "Select Birthday";
+    }
+  }
+
   void _save() {
     final String displayName = _displayNameController.text.trim();
 
     if (displayName.isEmpty) {
       showSnackBar(context, "Display name cannot be blank");
     } else {
-      controller.updateContact(displayName, null);
+      if (chosenBirthday != null) {
+        controller.updateContact(displayName, chosenBirthday);
+      } else {
+        controller.updateContact(displayName, null);
+      }
       Navigator.pop(context);
-      //TODO Update birthday
     }
   }
 }

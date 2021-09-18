@@ -44,6 +44,11 @@ class ProfileSettingsPageController {
   void setBirthday(DateTime birthday) {
     model.birthday = birthday;
     userService.setBirthday(birthday);
+    contactService.fetchAll().then((contacts) {
+      contacts.forEach((contact) {
+        communicationService.sendBirthday(birthday.millisecondsSinceEpoch, contact.phoneNumber);
+      });
+    });
   }
 
   void setProfilePicture(Uint8List picture) {

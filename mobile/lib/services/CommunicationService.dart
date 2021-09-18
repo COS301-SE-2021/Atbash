@@ -297,6 +297,11 @@ class CommunicationService {
           contactService.setContactStatus(senderPhoneNumber, status);
           break;
 
+        case "birthday":
+          final birthday = decryptedContents["birthday"] as int;
+          contactService.setContactBirthday(senderPhoneNumber, DateTime.fromMillisecondsSinceEpoch(birthday));
+          break;
+
         case "ack":
           final messageId = decryptedContents["messageId"] as String;
           messageService
@@ -334,6 +339,13 @@ class CommunicationService {
         case "requestStatus":
           final status = await userService.getStatus();
           sendStatus(status, senderPhoneNumber);
+          break;
+
+        case "requestBirthday":
+          final birthday = await userService.getBirthday();
+          if(birthday != null){
+            sendBirthday(birthday.millisecondsSinceEpoch, senderPhoneNumber);
+          }
           break;
 
         case "requestProfileImage":
@@ -563,6 +575,14 @@ class CommunicationService {
     if (!shareStatus) _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendBirthday(
+      int birthday,
+      String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "birthday", "birthday": birthday});
+    bool shareBirthday = await settingsService.getShareBirthday();
+    if (!shareBirthday) _queueForSending(contents, recipientPhoneNumber);
+  }
+
   Future<void> sendProfileImage(
       String profileImageBase64, String recipientPhoneNumber) async {
     bool shareImage = await settingsService.getShareProfilePicture();
@@ -603,6 +623,11 @@ class CommunicationService {
 
   Future<void> sendRequestStatus(String contactPhoneNumber) async {
     final contents = jsonEncode({"type": "requestStatus"});
+    _queueForSending(contents, contactPhoneNumber);
+  }
+
+  Future<void> sendRequestBirthday(String contactPhoneNumber) async {
+    final contents = jsonEncode({"type": "requestBirthday"});
     _queueForSending(contents, contactPhoneNumber);
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ContactInfoPageController.dart';
 import 'package:mobile/pages/ContactEditPage.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -38,6 +39,7 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
 
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
+      title: Text("Contact Info"),
       actions: [
         IconButton(
           onPressed: () {
@@ -59,6 +61,7 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
   Widget _buildBody() {
     return Observer(
       builder: (context) {
+        final birthday = controller.model.birthday;
         return ListView(
           children: [
             Container(
@@ -103,11 +106,10 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             SizedBox(
               height: 30,
             ),
-            Text(
-              //TODO: Implement retrieving birthday from database.
-              "11 September 2000",
-              textAlign: TextAlign.center,
-            ),
+              Text(
+                birthday != null ? "${birthday.day} ${DateFormat.MMMM().format(birthday)} ${birthday.year}" : "Birthday not set",
+                textAlign: TextAlign.center,
+              ),
             SizedBox(
               height: 30,
             ),

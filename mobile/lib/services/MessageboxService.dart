@@ -307,8 +307,8 @@ class MessageboxService {
     return null;
   }
 
-  ///Adds recipients RSA key to the Messagebox
-  Future<void> addRSAKeyToMessagebox(String id, RSAPublicKey key) async {
+  ///Updates the recipients RSA key for the Messagebox
+  Future<void> updateMessageboxRSAKey(String id, RSAPublicKey key) async {
     final db = await _databaseService.database;
 
     await db.update(
@@ -321,8 +321,8 @@ class MessageboxService {
       );
   }
 
-  ///Adds recipients RSA key to the Messagebox with given number
-  Future<void> addRSAKeyToMessageboxForNumber(String number, RSAPublicKey key) async {
+  ///Updates the recipients RSA key for the Messagebox with given number
+  Future<void> updateMessageboxRSAKeyForNumber(String number, RSAPublicKey key) async {
     final db = await _databaseService.database;
 
     await db.update(

@@ -32,6 +32,9 @@ abstract class _ChatPageModel with Store {
   bool blurImages = true;
 
   @observable
+  bool profanityFilter = true;
+
+  @observable
   ObservableList<Message> messages = <Message>[].asObservable();
 
   @action

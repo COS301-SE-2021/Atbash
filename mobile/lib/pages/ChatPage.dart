@@ -413,6 +413,7 @@ class _ChatPageState extends State<ChatPage> {
       onMediaDownload: () => _saveImage(base64Decode(message.contents)),
       contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
+      profanityFilter: controller.model.profanityFilter,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
     );
@@ -535,6 +536,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onRepliedMessagePressed;
   final void Function() onMediaDownload;
   final bool blurImages;
+  final bool profanityFilter;
   final ChatType chatType;
   final Message? repliedMessage;
   final String contactTitle;
@@ -550,6 +552,7 @@ class ChatCard extends StatelessWidget {
     required this.onRepliedMessagePressed,
     required this.onMediaDownload,
     this.blurImages = false,
+    this.profanityFilter = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
     required this.contactTitle,
@@ -784,13 +787,26 @@ class ChatCard extends StatelessWidget {
       );
     } else {
       return Text(
-        _message.deleted ? "This message was deleted" : _message.contents,
+        _message.deleted
+            ? "This message was deleted"
+            : profanityFilter
+                //TODO maybe change if to not
+                ? _filterContents(_message.contents)
+                : _message.contents,
         style: TextStyle(
           color: Colors.white,
           fontStyle: _message.deleted ? FontStyle.italic : null,
         ),
       );
     }
+  }
+
+  String _filterContents(String unfilteredContents) {
+    Constants.profanityRegex.forEach((regex) {
+      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex),
+          (match) => List.filled(match.end - match.start, "*").join());
+    });
+    return unfilteredContents;
   }
 
   Icon? _readReceipt() {

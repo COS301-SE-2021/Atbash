@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setSafeMode(newValue, "Pin");
                 },
                 title: Text(
-                  "Safe chat",
+                  "Profanity Filter",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Enable safety features for all chats. Including profanity filters for text and media"),
+                    "Enables text profanity filter for all chats"),
               ),
               SwitchListTile(
                 value: controller.model.sharedProfilePicture,
@@ -153,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Enable or disable whether your profile photo is visible to others"),
+                    "Enable or disable whether your status is visible to others"),
               ),
               SwitchListTile(
                 value: controller.model.shareBirthday,
@@ -295,23 +295,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 secondary: Icon(
                   Icons.notifications_active,
-                  color: Constants.orange,
-                ),
-                dense: true,
-              ),
-              SwitchListTile(
-                value: controller.model.playNotificationSound,
-                onChanged: controller.model.disableNotifications
-                    ? null
-                    : (bool newValue) {
-                        controller.setPlayNotificationSound(newValue);
-                      },
-                title: Text(
-                  "Notification sounds",
-                  style: TextStyle(fontSize: 16),
-                ),
-                secondary: Icon(
-                  Icons.multitrack_audio,
                   color: Constants.orange,
                 ),
                 dense: true,

@@ -97,18 +97,6 @@ class SettingsService {
         key: "settings_show_notifications", value: value ? "true" : "false");
   }
 
-  Future<bool> getPlayNotificationSound() async {
-    final bool playNotificationSound =
-        await _storage.read(key: "settings_play_notifications_sound") == "true";
-    return playNotificationSound;
-  }
-
-  Future<void> setPlayNotificationSound(bool value) async {
-    await _storage.write(
-        key: "settings_play_notifications_sound",
-        value: value ? "true" : "false");
-  }
-
   Future<bool> getDisableMessagePreview() async {
     final bool showMessagePreview =
         await _storage.read(key: "settings_show_message_preview") == "true";

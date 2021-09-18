@@ -35,9 +35,6 @@ class SettingsPageController {
         .getDisableNotifications()
         .then((value) => model.disableNotifications = value);
     settingsService
-        .getPlayNotificationSound()
-        .then((value) => model.playNotificationSound = value);
-    settingsService
         .getDisableMessagePreview()
         .then((value) => model.disableMessagePreview = value);
     settingsService
@@ -90,11 +87,6 @@ class SettingsPageController {
   void setDisableNotifications(bool value) {
     model.disableNotifications = value;
     settingsService.setDisableNotifications(value);
-  }
-
-  void setPlayNotificationSound(bool value) {
-    model.playNotificationSound = value;
-    settingsService.setPlayNotificationSound(value);
   }
 
   void setDisableMessagePreview(bool value) {

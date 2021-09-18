@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   controller.setSafeMode(newValue, "Pin");
                 },
                 title: Text(
-                  "Safe chat",
+                  "Profanity Filter",
                   style: TextStyle(fontSize: 16),
                 ),
                 secondary: Icon(
@@ -119,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 dense: true,
                 subtitle: Text(
-                    "Enable safety features for all chats. Including profanity filters for text and media"),
+                    "Enables text profanity filter for all chats"),
               ),
               SwitchListTile(
                 value: controller.model.sharedProfilePicture,

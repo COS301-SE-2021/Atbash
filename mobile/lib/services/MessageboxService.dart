@@ -34,7 +34,7 @@ class MessageboxService {
     List<RSAKeypair> keys = [];
 
     for(var i = 0; i < numPairs; i++){
-      keys.add(RSAKeypair.fromRandom(keySize: 4096));
+      keys.add(RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE));
     }
 
     return keys;
@@ -67,14 +67,14 @@ class MessageboxService {
 
     RSAPublicKey? serverKey = await getServerPublicKey();
 
-    if(serverKey == null){
+    if (serverKey == null) {
       return;
     }
 
     final keyPairs = generateRSAKeyPairs(numKeys);
     List<Map<String, Object>> blindedPKs = [];
 
-    for(var k in keyPairs){
+    for (var k in keyPairs) {
       final message = jsonEncode({
         "n": k.publicKey.asPointyCastle.n.toString(),
         "e": k.publicKey.asPointyCastle.publicExponent.toString()
@@ -106,11 +106,12 @@ class MessageboxService {
       final responseBodyJson = jsonDecode(response.body) as List;
       int maxMailboxTokenIndex = await getMaxMessageboxTokenIndex();
 
-      for(var i = 0; i < responseBodyJson.length; i++){
+      for (var i = 0; i < responseBodyJson.length; i++) {
         final index = responseBodyJson[i]["tokenId"] as int;
         final signedPK = responseBodyJson[i]["signedPK"] as String;
 
-        await storeMessageboxToken(MessageboxToken(maxMailboxTokenIndex++, keyPairs[index], BigInt.parse(signedPK)));
+        await storeMessageboxToken(MessageboxToken(
+            maxMailboxTokenIndex++, keyPairs[index], BigInt.parse(signedPK)));
         await setMaxMessageboxTokenIndex(maxMailboxTokenIndex);
       }
     } else {
@@ -125,25 +126,26 @@ class MessageboxService {
   Future<String?> createMessageBox(String? number) async {
     var url = Uri.parse(Constants.httpUrl + "messageboxes/create");
 
-    if(await getNumMessageboxTokens() < 10){
+    if (await getNumMessageboxTokens() < 10) {
       await getMessageboxKeys(10);
     }
 
     final MessageboxToken? messageboxToken = await fetchMessageboxToken();
     final RSAPublicKey? serverPublicKey = await getServerPublicKey();
 
-    if(messageboxToken == null){
+    if (messageboxToken == null) {
       print("Failed to fetch MessageboxToken");
       return null;
     }
-    if(serverPublicKey == null){
+    if (serverPublicKey == null) {
       return null;
     }
 
     var data = {
       "publicKey": {
         "n": messageboxToken.keypair.publicKey.asPointyCastle.n.toString(),
-        "e": messageboxToken.keypair.publicKey.asPointyCastle.publicExponent.toString()
+        "e": messageboxToken.keypair.publicKey.asPointyCastle.publicExponent
+            .toString()
       },
       "signedToken": messageboxToken.signedPK.toString(),
     };
@@ -190,11 +192,7 @@ class MessageboxService {
     return null;
   }
 
-
-
-
   ///--------------- Getters and Setters ---------------
-
 
   /// This function records the number of mailbox tokens that have been created
   Future<void> setNumMessageboxTokens(int index) async {
@@ -214,7 +212,8 @@ class MessageboxService {
 
   /// This function records the max index of mailbox tokens that have been created
   Future<void> setMaxMessageboxTokenIndex(int index) async {
-    await _storage.write(key: "max_mailbox_token_index", value: index.toString());
+    await _storage.write(
+        key: "max_mailbox_token_index", value: index.toString());
   }
 
   /// This function retrieves the max index of mailbox tokens that have been created
@@ -234,8 +233,9 @@ class MessageboxService {
   Future<void> storeMessageboxToken(MessageboxToken messageboxToken) async {
     final db = await _databaseService.database;
 
-    if(await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace) != 0){
+    if (await db.insert(MessageboxToken.TABLE_NAME, messageboxToken.toMap(),
+            conflictAlgorithm: ConflictAlgorithm.replace) !=
+        0) {
       await setNumMessageboxTokens(await getNumMessageboxTokens() + 1);
     }
   }
@@ -385,5 +385,4 @@ class MessageboxService {
 
     return list;
   }
-
 }

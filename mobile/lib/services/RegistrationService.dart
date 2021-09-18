@@ -20,7 +20,8 @@ import 'UserService.dart';
 import 'MessageboxService.dart';
 
 class RegistrationService {
-  RegistrationService(this._encryptionService, this._userService, this._messageboxService);
+  RegistrationService(
+      this._encryptionService, this._userService, this._messageboxService);
 
   final EncryptionService _encryptionService;
   final UserService _userService;
@@ -80,8 +81,6 @@ class RegistrationService {
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
       final verificationCode = responseBodyJson["verification"] as String?;
       if (encryptedDevicePassword == null) {
-        print("Server response was in an invalid format. Response body: " +
-            response.body);
         throw new RegistrationErrorException(
             "Server response was in an invalid format. Response body: " +
                 response.body);
@@ -135,8 +134,7 @@ class RegistrationService {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
     final phoneNumber = await _userService.getPhoneNumber();
-    final authTokenEncoded =
-        await _userService.getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();

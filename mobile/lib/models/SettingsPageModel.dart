@@ -29,6 +29,9 @@ abstract class _SettingsPageModel with Store {
   bool shareStatus = false;
 
   @observable
+  bool shareBirthday = false;
+
+  @observable
   bool shareReadReceipts = false;
 
   @observable

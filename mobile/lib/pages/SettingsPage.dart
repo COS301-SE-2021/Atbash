@@ -156,6 +156,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable or disable whether your profile photo is visible to others"),
               ),
               SwitchListTile(
+                value: controller.model.shareBirthday,
+                onChanged: (bool newValue) {
+                  controller.setShareBirthday(newValue);
+                },
+                title: Text(
+                  "Don't share birthday",
+                  style: TextStyle(fontSize: 16),
+                ),
+                secondary: Icon(
+                  Icons.cake,
+                  color: Constants.orange,
+                ),
+                dense: true,
+                subtitle: Text(
+                    "Choose whether you want to share your birthday to contacts"),
+              ),
+              SwitchListTile(
                 value: controller.model.shareReadReceipts,
                 onChanged: (bool newValue) {
                   controller.setShareReadReceipts(newValue);

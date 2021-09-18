@@ -117,6 +117,21 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
+  final _$shareBirthdayAtom = Atom(name: '_SettingsPageModel.shareBirthday');
+
+  @override
+  bool get shareBirthday {
+    _$shareBirthdayAtom.reportRead();
+    return super.shareBirthday;
+  }
+
+  @override
+  set shareBirthday(bool value) {
+    _$shareBirthdayAtom.reportWrite(value, super.shareBirthday, () {
+      super.shareBirthday = value;
+    });
+  }
+
   final _$shareReadReceiptsAtom =
       Atom(name: '_SettingsPageModel.shareReadReceipts');
 
@@ -210,6 +225,7 @@ blurImages: ${blurImages},
 safeMode: ${safeMode},
 sharedProfilePicture: ${sharedProfilePicture},
 shareStatus: ${shareStatus},
+shareBirthday: ${shareBirthday},
 shareReadReceipts: ${shareReadReceipts},
 disableNotifications: ${disableNotifications},
 playNotificationSound: ${playNotificationSound},

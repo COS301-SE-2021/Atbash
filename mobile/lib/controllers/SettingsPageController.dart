@@ -26,6 +26,9 @@ class SettingsPageController {
         .then((value) => model.sharedProfilePicture = value);
     settingsService.getShareStatus().then((value) => model.shareStatus = value);
     settingsService
+        .getShareBirthday()
+        .then((value) => model.shareBirthday = value);
+    settingsService
         .getShareReadReceipts()
         .then((value) => model.shareReadReceipts = value);
     settingsService
@@ -77,6 +80,11 @@ class SettingsPageController {
   void setShareReadReceipts(bool value) {
     model.shareReadReceipts = value;
     settingsService.setShareReadReceipts(value);
+  }
+
+  void setShareBirthday(bool value) {
+    model.shareBirthday = value;
+    settingsService.setShareBirthday(value);
   }
 
   void setDisableNotifications(bool value) {

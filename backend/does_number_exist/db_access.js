@@ -6,7 +6,7 @@ exports.doesPhoneNumberExist = async phoneNumber => {
     try {
         const response = await db.query({
             TableName: process.env.TABLE_USERS,
-            KeyConditionExpression: "phoneNumber = :d",
+            KeyConditionExpression: "phoneNumber = :n",
             ExpressionAttributeValues: {
                 ":n": phoneNumber
             }

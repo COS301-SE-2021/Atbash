@@ -130,6 +130,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$profanityFilterAtom = Atom(name: '_ChatPageModel.profanityFilter');
+
+  @override
+  bool get profanityFilter {
+    _$profanityFilterAtom.reportRead();
+    return super.profanityFilter;
+  }
+
+  @override
+  set profanityFilter(bool value) {
+    _$profanityFilterAtom.reportWrite(value, super.profanityFilter, () {
+      super.profanityFilter = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -236,6 +251,7 @@ contactProfileImage: ${contactProfileImage},
 contactSaved: ${contactSaved},
 chatType: ${chatType},
 blurImages: ${blurImages},
+profanityFilter: ${profanityFilter},
 messages: ${messages}
     ''';
   }

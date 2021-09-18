@@ -125,6 +125,10 @@ class MessageboxService {
   Future<String?> createMessageBox(String? number) async {
     var url = Uri.parse(Constants.httpUrl + "messageboxes/create");
 
+    if(await getNumMessageboxTokens() < 10){
+      await getMessageboxKeys(10);
+    }
+
     final MessageboxToken? messageboxToken = await fetchMessageboxToken();
     final RSAPublicKey? serverPublicKey = await getServerPublicKey();
 

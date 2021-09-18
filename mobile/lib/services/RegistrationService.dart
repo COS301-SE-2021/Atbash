@@ -17,12 +17,14 @@ import 'package:crypto/crypto.dart'; //For Hmac function
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'UserService.dart';
+import 'MessageboxService.dart';
 
 class RegistrationService {
-  RegistrationService(this._encryptionService, this._userService);
+  RegistrationService(this._encryptionService, this._userService, this._messageboxService);
 
   final EncryptionService _encryptionService;
   final UserService _userService;
+  final MessageboxService _messageboxService;
   final _storage = FlutterSecureStorage();
 
   ///This function creates a new Atbash account on the server which will be
@@ -106,6 +108,7 @@ class RegistrationService {
 
       final success = await registerKeys();
       if (success) {
+        _messageboxService.getMessageboxKeys(20);
         return verificationCode;
       } else {
         return null;

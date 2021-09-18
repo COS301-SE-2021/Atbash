@@ -67,15 +67,18 @@ exports.handler = async event => {
   }, "components");
 
   let returnObject = [];
+  // for(let b in blindedPKs){
+  for(let i = 0; i < blindedPKs.length; i++){
+    let b = blindedPKs[i];
 
-  for(let b in blindedPKs){
     if(b["keyId"] == null || b["blindedKey"] == null){
       continue;
     }
-    const signed = BlindSignature.sign({
+    let signed = BlindSignature.sign({
       blinded: new BigInteger(b["blindedKey"]),
       key: key,
     });
+
     returnObject.push({
       tokenId: b["keyId"],
       signedPK: signed.toString()

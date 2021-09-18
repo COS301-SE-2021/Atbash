@@ -34,15 +34,18 @@ exports.handler = async event => {
     return {statusCode: 500, body: "Unable to get Messagebox Tokens information"}
   }
 
+  console.log("1");
   let lastAddedTokens = tokenInfo.lastAddedTokens;
   let numberAvailableTokens = tokenInfo.numberAvailableTokens;
+  console.log("2");
   const currDate = Date.now();
-
+  console.log("3");
   if(numberAvailableTokens <= 0){
     return {statusCode: 403, body: "You have reached your limit for token creation"}
   }
 
   const msPerDay = (1000 * 3600 * 24);
+  console.log("4");
   let diffInDays = Math.floor((currDate - lastAddedTokens)/(msPerDay));
   if(diffInDays > 0) {
     numberAvailableTokens += diffInDays*10;
@@ -50,8 +53,9 @@ exports.handler = async event => {
       numberAvailableTokens = 50;
     }
   }
+  console.log("5");
   lastAddedTokens += diffInDays * msPerDay;
-
+  console.log("6");
   //Create node key
   let key = new NodeRSA();
   const {n, e, d, p, q, dmp1, dmq1, coeff} = JSON.parse(process.env.MESSAGEBOX_KEYPAIR)
@@ -65,7 +69,7 @@ exports.handler = async event => {
     dmq1: Buffer.from((new BigInteger(dmq1)).toByteArray()),
     coeff: Buffer.from((new BigInteger(coeff)).toByteArray())
   }, "components");
-
+  console.log("7");
   let returnObject = [];
 
   for(let b in blindedPKs){

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
@@ -138,6 +139,32 @@ void main() {
 
       expect(find.byKey(Key('contactInfoPage_birthday')), findsOneWidget);
       expect(find.text('11 September 2000'), findsOneWidget);
+    });
+
+    testWidgets(
+        "When contact is not blocked, clicking block should change text in button to 'unblock'",
+        (WidgetTester tester) async {
+      when(blockedNumberService.insert(any)).thenAnswer(
+          (_) => Future.value(BlockedNumber(phoneNumber: "0728954829")));
+
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      final blockButton = find.byKey(Key('blockButton'));
+      expect(blockButton, findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, "Block Contact"), findsOneWidget);
+      expect(find.byKey(Key('unblockButton')), findsNothing);
+
+      await tester.tap(blockButton);
+      await tester.pump();
+      expect(blockButton, findsNothing);
+      expect(find.widgetWithText(ElevatedButton, "Unblock Contact"), findsOneWidget);
+      expect(find.byKey(Key('unblockButton')), findsOneWidget);
     });
   });
 }

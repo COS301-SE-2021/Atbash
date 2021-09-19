@@ -6,8 +6,10 @@ import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
+import 'package:mobile/util/Utils.dart';
 
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -261,21 +263,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 dense: true,
               ),
-              ListTile(
-                leading: Icon(
-                  Icons.delete_forever,
-                  color: Constants.orange,
-                ),
-                title: Text(
-                  "Delete Account",
-                  style: TextStyle(fontSize: 16),
-                ),
-                trailing: Icon(Icons.arrow_forward_rounded),
-                onTap: () {
-                  //TODO Delete Account Logic
-                },
-                dense: true,
-              ),
+              // ListTile(
+              //   leading: Icon(
+              //     Icons.delete_forever,
+              //     color: Constants.orange,
+              //   ),
+              //   title: Text(
+              //     "Delete Account",
+              //     style: TextStyle(fontSize: 16),
+              //   ),
+              //   trailing: Icon(Icons.arrow_forward_rounded),
+              //   onTap: () {
+              //     //TODO Delete Account Logic
+              //   },
+              //   dense: true,
+              // ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(
@@ -353,8 +355,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   style: TextStyle(fontSize: 16),
                 ),
                 trailing: Icon(Icons.arrow_forward_rounded),
-                onTap: () {
-                  //TODO Navigate to help page
+                onTap: () async {
+                  if (await canLaunch(Constants.userManualUrl)) {
+                    await launch(Constants.userManualUrl);
+                  } else {
+                    showSnackBar(context, "Could not open User Manual");
+                  }
                 },
                 dense: true,
               ),

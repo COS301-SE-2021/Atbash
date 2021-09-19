@@ -77,17 +77,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         height: 2,
                         thickness: 2,
                       ),
-                      _buildStatisticsWidget(
-                          "Total messages tagged:",
-                          null,
-                          controller.model.totalMessagesTagged,
-                          null,
-                          Icons.tag,
-                          false),
-                      Divider(
-                        height: 2,
-                        thickness: 2,
-                      ),
+                      // _buildStatisticsWidget(
+                      //     "Total messages tagged:",
+                      //     null,
+                      //     controller.model.totalMessagesTagged,
+                      //     null,
+                      //     Icons.tag,
+                      //     false),
+                      // Divider(
+                      //   height: 2,
+                      //   thickness: 2,
+                      // ),
                     ],
                   ),
                 ),

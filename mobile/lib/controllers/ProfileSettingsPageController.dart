@@ -46,7 +46,8 @@ class ProfileSettingsPageController {
     userService.setBirthday(birthday);
     contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
-        communicationService.sendBirthday(birthday.millisecondsSinceEpoch, contact.phoneNumber);
+        communicationService.sendBirthday(
+            birthday.millisecondsSinceEpoch, contact.phoneNumber);
       });
     });
   }

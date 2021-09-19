@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Constants {
+  //Key sizes
+  static const int RSAKEYSIZE = 1024;
+
   //paddings
   static const double screenBorderPadding = 15;
 

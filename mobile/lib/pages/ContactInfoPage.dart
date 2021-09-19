@@ -106,10 +106,12 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             SizedBox(
               height: 30,
             ),
-              Text(
-                birthday != null ? "${birthday.day} ${DateFormat.MMMM().format(birthday)} ${birthday.year}" : "Birthday not set",
-                textAlign: TextAlign.center,
-              ),
+            Text(
+              birthday != null
+                  ? "${birthday.day} ${DateFormat.MMMM().format(birthday)} ${birthday.year}"
+                  : "Birthday not set",
+              textAlign: TextAlign.center,
+            ),
             SizedBox(
               height: 30,
             ),

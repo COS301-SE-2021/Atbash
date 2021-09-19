@@ -118,8 +118,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: Constants.orange,
                 ),
                 dense: true,
-                subtitle: Text(
-                    "Enables text profanity filter for all chats"),
+                subtitle: Text("Enables text profanity filter for all chats"),
               ),
               SwitchListTile(
                 value: controller.model.sharedProfilePicture,

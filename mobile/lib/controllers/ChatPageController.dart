@@ -291,6 +291,7 @@ class ChatPageController {
 
     communicationService.sendRequestProfileImage(contactPhoneNumber);
     communicationService.sendRequestStatus(contactPhoneNumber);
+    communicationService.sendRequestBirthday(contactPhoneNumber);
 
     model.contactSaved = true;
     model.contactTitle = displayName;

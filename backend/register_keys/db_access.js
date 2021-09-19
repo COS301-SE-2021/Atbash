@@ -30,7 +30,7 @@ exports.authenticateAuthenticationToken = async (phoneNumber, token) => {
   }
 }
 
-exports.registerKeys = async (phoneNumber, identityKey, preKeys, signedPreKey) => {
+exports.registerKeys = async (phoneNumber, identityKey, preKeys, rsaKey, signedPreKey) => {
   try {
     let numPreKeys = preKeys.length;
     console.log("Update: ");
@@ -48,6 +48,7 @@ exports.registerKeys = async (phoneNumber, identityKey, preKeys, signedPreKey) =
         ":fk": numPreKeys,
         ":k": {
           "identityKey": identityKey,
+          "rsaKey": rsaKey,
           "signedPreKey": {
             "keyId": signedPreKey["keyId"],
             "publicKey": signedPreKey["publicKey"],

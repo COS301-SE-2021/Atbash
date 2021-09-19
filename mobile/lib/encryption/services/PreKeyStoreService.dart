@@ -68,12 +68,14 @@ class PreKeyStoreService extends PreKeyStore {
   }
 
   /// Fetches a certain range of PreKeys
-  Future<List<PreKeyRecord>> loadPreKeysRange(int firstPreKeyId, int numberOfKeys) async {
+  Future<List<PreKeyRecord>> loadPreKeysRange(
+      int firstPreKeyId, int numberOfKeys) async {
     final db = await _databaseService.database;
     final response = await db.query(
       PreKeyDBRecord.TABLE_NAME,
-      where: "${PreKeyDBRecord.COLUMN_KEY_ID} > ? and ${PreKeyDBRecord.COLUMN_KEY_ID} < ?",
-      whereArgs: [firstPreKeyId-1, firstPreKeyId+numberOfKeys],
+      where:
+          "${PreKeyDBRecord.COLUMN_KEY_ID} > ? and ${PreKeyDBRecord.COLUMN_KEY_ID} < ?",
+      whereArgs: [firstPreKeyId - 1, firstPreKeyId + numberOfKeys],
     );
 
     final list = <PreKeyRecord>[];

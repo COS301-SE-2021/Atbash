@@ -17,12 +17,15 @@ import 'package:crypto/crypto.dart'; //For Hmac function
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 
 import 'UserService.dart';
+import 'MessageboxService.dart';
 
 class RegistrationService {
-  RegistrationService(this._encryptionService, this._userService);
+  RegistrationService(
+      this._encryptionService, this._userService, this._messageboxService);
 
   final EncryptionService _encryptionService;
   final UserService _userService;
+  final MessageboxService _messageboxService;
   final _storage = FlutterSecureStorage();
 
   ///This function creates a new Atbash account on the server which will be
@@ -46,7 +49,8 @@ class RegistrationService {
     ///(that is used to verify the authenticity of requests)
     ///and send it back encrypted
     /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
-    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: 4096);
+    RSAKeypair rsaKeypair =
+        RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
     final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
     var data = {
@@ -73,9 +77,11 @@ class RegistrationService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      final responseBodyJson = jsonDecode(response.body);
+      final responseBodyJson =
+          jsonDecode(response.body) as Map<String, dynamic>;
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
+      final verificationCode = responseBodyJson["verification"] as String?;
       if (encryptedDevicePassword == null) {
         throw new RegistrationErrorException(
             "Server response was in an invalid format. Response body: " +
@@ -105,7 +111,8 @@ class RegistrationService {
 
       final success = await registerKeys();
       if (success) {
-        return responseBodyJson["verification"];
+        _messageboxService.getMessageboxKeys(4);
+        return verificationCode;
       } else {
         return null;
       }
@@ -129,8 +136,7 @@ class RegistrationService {
     final url = Uri.parse(Constants.httpUrl + "keys/register");
 
     final phoneNumber = await _userService.getPhoneNumber();
-    final authTokenEncoded =
-        await _encryptionService.getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final identityKeyPair = await _encryptionService.getIdentityKeyPair();
     final signedPreKey = await _encryptionService.fetchLocalSignedPreKey();
@@ -139,6 +145,10 @@ class RegistrationService {
     if (signedPreKey == null || preKeys.isEmpty || preKeys.length < 100) {
       return false;
     }
+
+    RSAKeypair rsaKeypair =
+        RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
+    await _userService.storeRSAKeyPair(rsaKeypair);
 
     List<Map<String, Object>> preKeysArr = [];
 
@@ -155,6 +165,7 @@ class RegistrationService {
       "phoneNumber": phoneNumber,
       "identityKey": base64Encode(identityKeyPair.getPublicKey().serialize()),
       "preKeys": preKeysArr,
+      "rsaKey": rsaKeypair.publicKey.toString(),
       "signedPreKey": {
         "keyId": signedPreKey.id,
         "publicKey":

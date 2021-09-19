@@ -15,3 +15,17 @@ exports.addConnection = async (phoneNumber, connectionId) => {
         throw error
     }
 }
+
+exports.addAnonymousConnection = async (anonymousId, connectionId) => {
+    try {
+        await db.put({
+            TableName: process.env.TABLE_CONNECTIONS,
+            Item: {
+                anonymousId,
+                connectionId
+            }
+        }).promise()
+    } catch (error) {
+        throw error
+    }
+}

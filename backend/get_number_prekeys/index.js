@@ -1,9 +1,6 @@
 const {authenticateAuthenticationToken, getNumPreKeys} = require("./db_access")
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
   const {authorization, phoneNumber} = JSON.parse(event.body)
 
   console.log("RequestBody: ");

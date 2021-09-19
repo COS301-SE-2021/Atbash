@@ -1,71 +1,73 @@
 const {authenticateAuthenticationToken, registerKeys} = require("./db_access")
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
-  const {authorization, phoneNumber, identityKey, preKeys, signedPreKey} = JSON.parse(event.body)
+  const {authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey} = JSON.parse(event.body)
 
   console.log("RequestBody: ");
   console.log(event.body);
 
-  if (anyUndefined(authorization, phoneNumber, identityKey, preKeys, signedPreKey) || anyBlank(authorization, phoneNumber, identityKey, preKeys, signedPreKey)) {
-    return {statusCode: 400, body: "Invalid request body"}
+  if (anyUndefined(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey) || anyBlank(authorization, phoneNumber, identityKey, preKeys, rsaKey, signedPreKey)) {
+    return {statusCode: 400, body: "Invalid request body. Missing require parameters."}
   }
 
   if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
       return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
   }
 
-  if(!validateKeysStructure){
-    return {statusCode: 400, body: "Invalid request body"}
+  if(!validateKeysStructure(identityKey, preKeys, signedPreKey)){
+    return {statusCode: 400, body: "Invalid request body. Incorrect key structure."}
   }
 
-  if(!(await registerKeys(phoneNumber, identityKey, preKeys, signedPreKey))){
+  if(!(await registerKeys(phoneNumber, identityKey, preKeys, rsaKey, signedPreKey))){
     return {statusCode: 500, body: "Failed to add keys to database"}
   }
 
   return {statusCode: 200}
 }
 
-const validateKeysStructure = (identityKey, preKeys, signedPreKey) => {
+function validateKeysStructure (identityKey, preKeys, signedPreKey) {
   if(identityKey.length < 10){
     return false;
   }
-
+  console.log("1");
   if(anyUndefined(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
-
+  console.log("2");
   if(anyBlank(signedPreKey["keyId"], signedPreKey["publicKey"], signedPreKey["signature"])){
     return false;
   }
-
-  if(!isNumeric(signedPreKey["keyId"])){
+  console.log("3");
+  console.log(signedPreKey["keyId"]);
+  let temp = 7
+  if(!isNumeric(signedPreKey["keyId"] + "") || isNumeric(signedPreKey["keyId"])){
     return false;
   }
+  console.log("4");
   let length = preKeys.length;
   if(length < 1){
     return false;
   }
-
-  if(typeof preKeys == "string"){
+  console.log("5");
+  if(typeof preKeys === "string"){
     return false;
   }
-
+  console.log("6");
   if(anyUndefined(preKeys[0]) || anyBlank(preKeys[0])){
     return false;
   }
-
+  console.log("7");
   for(let i = 0; i < length; i++){
+    console.log("i: " + i);
+    console.log("8");
     if(anyUndefined(preKeys[i]["keyId"], preKeys[i]["publicKey"]) || anyBlank(preKeys[i]["keyId"], preKeys[i]["publicKey"])){
       return false;
     }
-
-    if(!isNumeric(preKeys[i]["keyId"])){
+    console.log("9");
+    if(!isNumeric(preKeys[i]["keyId"] + "") || isNumeric(preKeys[i]["keyId"])){
       return false;
     }
-
+    console.log("10");
     if((typeof preKeys[i]["publicKey"] != "string") || preKeys[i]["publicKey"].length < 10){
       return false;
     }

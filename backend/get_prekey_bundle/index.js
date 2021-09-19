@@ -1,15 +1,10 @@
 const {authenticateAuthenticationToken, existsNumber, getNumPreKeys, getBundleKeys, getAndRemovePreKey} = require("./db_acccess")
-//const {PhoneNumberFormat: PNF} = require("google-libphonenumber");
+
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
-// const crypto = require('crypto').webcrypto
-const getRandomValues = require('get-random-values');
 const {randomInt} = require('crypto');
 
 exports.handler = async event => {
-  //const utf8Encoder = new TextEncoder("utf-8")
-  //const utf8Decoder = new TextDecoder("utf-8")
-
   const {authorization, phoneNumber, recipientNumber} = JSON.parse(event.body)
 
   console.log("RequestBody: ");
@@ -19,9 +14,9 @@ exports.handler = async event => {
     return {statusCode: 400, body: "Invalid request body"}
   }
 
-  // if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
-  //     return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
-  // }
+  if(!(await authenticateAuthenticationToken(phoneNumber, authorization))){
+      return {statusCode: 401, body: "Invalid Authentication Token or user does not exist"}
+  }
 
   try {
     let parsedNumber = phoneUtil.parse(phoneNumber)
@@ -76,19 +71,16 @@ exports.handler = async event => {
     deviceId: 1,
     registrationId: 0,
     signedPreKey: {},
-    preKey: {}
+    preKey: {},
+    rsaKey: ""
   }
   try {
     let bundleKeys = await getBundleKeys(recipientFormattedNumber);
-    console.log(bundleKeys);
-    console.log(bundleKeys["keys"]);
-    console.log(bundleKeys["keys"]["identityKey"]);
-    console.log(bundleKeys["keys"]["signedPreKey"]);
-    console.log(bundleKeys["registrationID"]);
     returnObject.identityKey = bundleKeys["keys"]["identityKey"];
     returnObject.registrationId = bundleKeys["registrationID"];
     returnObject.signedPreKey = bundleKeys["keys"]["signedPreKey"];
     returnObject.preKey = preKey;
+    returnObject.rsaKey = bundleKeys["keys"]["rsaKey"];
 
   } catch (error){
     return {statusCode: 500, body: "Failed to get identity and signed pre key from database. Error: " + error.body}

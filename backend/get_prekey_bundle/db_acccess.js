@@ -91,10 +91,11 @@ exports.getBundleKeys = async (phoneNumber) => {
       ExpressionAttributeNames: {
         "#keys": "keys",
         "#ikey": "identityKey",
-        "#skey": "signedPreKey"
+        "#skey": "signedPreKey",
+        "#rkey": "rsaKey"
       },
       Select: "SPECIFIC_ATTRIBUTES",
-      ProjectionExpression: "#keys.#ikey, #keys.#skey, registrationID"
+      ProjectionExpression: "#keys.#ikey, #keys.#skey, #keys.#rkey, registrationID"
     }).promise();
     // console.log(response);
     return response.Items[0];

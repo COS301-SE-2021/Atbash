@@ -24,6 +24,7 @@ import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
+import 'package:mobile/services/MessageboxService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,11 +100,12 @@ void _registerServices() async {
   final userService = UserService();
 
   final databaseService = DatabaseService();
-  final encryptionService =
-      _initialiseEncryptionService(databaseService, userService);
+  final messageboxService = MessageboxService(userService, databaseService);
+  final encryptionService = _initialiseEncryptionService(
+      databaseService, userService, messageboxService);
 
   final registrationService =
-      RegistrationService(encryptionService, userService);
+      RegistrationService(encryptionService, userService, messageboxService);
 
   GetIt.I.registerSingleton(registrationService);
 
@@ -127,6 +129,7 @@ void _registerServices() async {
     mediaEncryptionService,
     memoryStoreService,
     notificationService,
+    messageboxService,
   );
 
   GetIt.I.registerSingleton(chatService);
@@ -145,8 +148,8 @@ void _registerServices() async {
   await notificationService.init();
 }
 
-EncryptionService _initialiseEncryptionService(
-    DatabaseService databaseService, UserService userService) {
+EncryptionService _initialiseEncryptionService(DatabaseService databaseService,
+    UserService userService, MessageboxService messageboxService) {
   final identityKeyStoreService = IdentityKeyStoreService(databaseService);
   final preKeyStoreService = PreKeyStoreService(databaseService);
   final sessionStoreService = SessionStoreService(databaseService);
@@ -164,6 +167,7 @@ EncryptionService _initialiseEncryptionService(
     signedPreKeyStoreService,
     preKeyStoreService,
     sessionStoreService,
+    messageboxService,
   );
 }
 

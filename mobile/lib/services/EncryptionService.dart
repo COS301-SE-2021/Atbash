@@ -1,10 +1,6 @@
 import 'dart:typed_data';
 import 'dart:convert';
 
-// import 'package:crypto/crypto.dart'; //For Hmac function
-// import 'dart:math';
-
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,8 +23,13 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
+//RSA Cryptography
+
+//Mutex/Locking functionality
 import 'package:synchronized/synchronized.dart';
 
+//Services
+import 'MessageboxService.dart';
 import 'UserService.dart';
 
 class EncryptionService {
@@ -38,7 +39,8 @@ class EncryptionService {
       this._identityKeyStoreService,
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
-      this._sessionStoreService);
+      this._sessionStoreService,
+      this._messageboxService);
 
   final UserService _userService;
   final SessionStoreService _sessionStoreService;
@@ -46,8 +48,7 @@ class EncryptionService {
   final SignedPreKeyStoreService _signedPreKeyStoreService;
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
-
-  //Todo: Use UserService for phone number
+  final MessageboxService _messageboxService;
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
@@ -63,6 +64,7 @@ class EncryptionService {
       String messageContent, String recipientNumber) async {
     ///This provides mutual exclusion for the encryptMessageContent function
     return await encryptionLock.synchronized(() async {
+      print("Acquired encryption lock for encrypting message");
       final thisUserNumber = await _userService.getPhoneNumber();
       print("Encrypting message from: " +
           thisUserNumber +
@@ -81,31 +83,37 @@ class EncryptionService {
       final encodedSerializedCipherMessage =
           base64Encode(serializedCipherMessage);
 
-      // return encodedSerializedCipherMessage;
-
-      print("Created type: " + ciphertext.getType().toString());
-
-      final mNumber = await _storage.read(key: "m_number");
-      int number = 1;
-      if (mNumber == null) {
-        await _storage.write(key: "m_number", value: "1");
+      if (ciphertext.getType() == CiphertextMessage.prekeyType) {
+        print("Created PreKey message to: " + recipientNumber);
       } else {
-        number = int.parse(mNumber) + 1;
-        await _storage.write(key: "m_number", value: number.toString());
+        print("Created normal Signal message to: " + recipientNumber);
       }
 
-      var data = {
-        "type": ciphertext.getType(),
-        "m_number": number,
-        "message": encodedSerializedCipherMessage,
-      };
+      return encodedSerializedCipherMessage;
 
-      print("Sending message number: " +
-          number.toString() +
-          " Content: " +
-          messageContent);
-
-      return jsonEncode(data);
+      // print("Created type: " + ciphertext.getType().toString());
+      //
+      // final mNumber = await _storage.read(key: "m_number");
+      // int number = 1;
+      // if (mNumber == null) {
+      //   await _storage.write(key: "m_number", value: "1");
+      // } else {
+      //   number = int.parse(mNumber) + 1;
+      //   await _storage.write(key: "m_number", value: number.toString());
+      // }
+      //
+      // var data = {
+      //   "type": ciphertext.getType(),
+      //   "m_number": number,
+      //   "message": encodedSerializedCipherMessage,
+      // };
+      //
+      // print("Sending message number: " +
+      //     number.toString() +
+      //     " Content: " +
+      //     messageContent);
+      //
+      // return jsonEncode(data);
     });
   }
 
@@ -116,6 +124,7 @@ class EncryptionService {
       String encryptedContents, String senderPhoneNumber) async {
     ///This provides mutual exclusion for the decryptMessageContents function
     return await encryptionLock.synchronized(() async {
+      print("Acquired encryption lock for decrypting message");
       final thisUserNumber = await _userService.getPhoneNumber();
       print("Decrypting message from: " +
           senderPhoneNumber +
@@ -125,14 +134,14 @@ class EncryptionService {
         throw InvalidNumberException("Cannot decrypt own encrypted message.");
       }
 
-      final Map<String, Object?> data = jsonDecode(encryptedContents);
-
-      int mType = data["type"] as int;
-      int mNumber = data["m_number"] as int;
-      encryptedContents = data["message"] as String;
-
-      print("Decrypting message number: " + mNumber.toString());
-      print("Decrypting message type: " + mType.toString());
+      // final Map<String, Object?> data = jsonDecode(encryptedContents);
+      //
+      // int mType = data["type"] as int;
+      // int mNumber = data["m_number"] as int;
+      // encryptedContents = data["message"] as String;
+      //
+      // print("Decrypting message number: " + mNumber.toString());
+      // print("Decrypting message type: " + mType.toString());
 
       String plaintext = "Failed to decrypt...";
       try {
@@ -140,20 +149,33 @@ class EncryptionService {
         final decodedEncryptedContents = base64Decode(encryptedContents);
         // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
 
-        CiphertextMessage? reconstructedCipherMessage;
+        // CiphertextMessage? reconstructedCipherMessage;
         print("Trying to reconstruct CipherTextMessage");
-        if (mType == CiphertextMessage.prekeyType) {
-          reconstructedCipherMessage =
-              PreKeySignalMessage(decodedEncryptedContents);
-        } else if (mType == CiphertextMessage.whisperType) {
-          reconstructedCipherMessage =
-              SignalMessage.fromSerialized(decodedEncryptedContents);
-        } else {
-          print("Failed");
-          return plaintext;
+        // if (mType == CiphertextMessage.prekeyType) {
+        //   reconstructedCipherMessage =
+        //       PreKeySignalMessage(decodedEncryptedContents);
+        // } else if (mType == CiphertextMessage.whisperType) {
+        //   reconstructedCipherMessage =
+        //       SignalMessage.fromSerialized(decodedEncryptedContents);
+        // } else {
+        //   print("Failed");
+        //   return plaintext;
+        // }
+        // plaintext = await _decryptCipherTextMessage(
+        //     senderPhoneNumber, reconstructedCipherMessage);
+        try {
+          plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+              SignalMessage.fromSerialized(decodedEncryptedContents));
+        } catch (e) {
+          print("Not Plain Signal Message");
+          try {
+            plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+                PreKeySignalMessage(decodedEncryptedContents));
+          } catch (e) {
+            print("Not PreKey Signal Message");
+            throw e;
+          }
         }
-        plaintext = await _decryptCipherTextMessage(
-            senderPhoneNumber, reconstructedCipherMessage);
 
         return jsonDecode(plaintext);
       } on InvalidMessageException catch (e) {
@@ -256,7 +278,7 @@ class EncryptionService {
   Future<PreKeyBundle?> getPreKeyBundle(String number) async {
     final url = Uri.parse(Constants.httpUrl + "keys/get");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 
@@ -289,6 +311,8 @@ class EncryptionService {
                 ". Recieved body: " +
                 response.body);
       }
+      _messageboxService.updateMessageboxRSAKeyForNumber(
+          number, preKeyBundlePackage.rsaPublicKey);
 
       PreKeyBundle preKeyBundle = preKeyBundlePackage.createPreKeyBundle();
 
@@ -334,7 +358,7 @@ class EncryptionService {
   Future<void> managePreKeys() async {
     final url = Uri.parse(Constants.httpUrl + "keys/getNumber");
 
-    final authTokenEncoded = await getDeviceAuthTokenEncoded();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
 
     final phoneNumber = await _userService.getPhoneNumber();
 
@@ -352,22 +376,25 @@ class EncryptionService {
 
       final numKeys = responseBody["keys"] as int?;
 
-      if(numKeys != null){
-        if(numKeys >= minServerStoredPreKeys){
+      if (numKeys != null) {
+        if (numKeys >= minServerStoredPreKeys) {
           //No need to do anything
           return;
         }
         final requiredKeys = desiredStoredPreKeys - numKeys;
         final numServerPreKeys = await getNumServerPreKeys();
-        final keysToGenerate = requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
+        final keysToGenerate =
+            requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
 
-        if(keysToGenerate > 0){
-          await generateAdditionalPreKeys(keysToGenerate + 10); //Generate a few extra
+        if (keysToGenerate > 0) {
+          await generateAdditionalPreKeys(
+              keysToGenerate + 10); //Generate a few extra
         }
 
-        final preKeys = await _preKeyStoreService.loadPreKeysRange(numServerPreKeys, requiredKeys);
+        final preKeys = await _preKeyStoreService.loadPreKeysRange(
+            numServerPreKeys, requiredKeys);
 
-        if(preKeys.isEmpty){
+        if (preKeys.isEmpty) {
           // Soft fail
           print("Failed to get generated prekeys from database.");
         }
@@ -394,8 +421,10 @@ class EncryptionService {
         //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
         final response2 = await http.post(url2, body: jsonEncode(data));
 
-        if (response2.statusCode == 200){
-          print("Successfully uploaded " + requiredKeys.toString() + " additional PreKeys");
+        if (response2.statusCode == 200) {
+          print("Successfully uploaded " +
+              requiredKeys.toString() +
+              " additional PreKeys");
           return;
         } else {
           // Soft fail
@@ -434,7 +463,8 @@ class EncryptionService {
 
   /// This function records the number of prekeys that have been generated
   Future<void> setNumGeneratedPreKeys(int index) async {
-    await _storage.write(key: "max_generated_prekey_index", value: index.toString());
+    await _storage.write(
+        key: "max_generated_prekey_index", value: index.toString());
   }
 
   /// This function retrieves the number of prekeys that have been generated
@@ -451,7 +481,8 @@ class EncryptionService {
   /// This function records the number of prekeys that have been sent to
   /// the server
   Future<void> setNumServerPreKeys(int index) async {
-    await _storage.write(key: "max_server_prekey_index", value: index.toString());
+    await _storage.write(
+        key: "max_server_prekey_index", value: index.toString());
   }
 
   /// This function retrieves the number of prekeys that have been sent to
@@ -483,16 +514,32 @@ class EncryptionService {
     return await _preKeyStoreService.loadPreKeys();
   }
 
-  /// Get the device_authentication_token_base64 of the device from secure storage. If it is not set,
-  /// the function throws a [StateError], since the device_authentication_token_base64 is generated
-  /// during registration and is expected to be saved.
-  Future<String> getDeviceAuthTokenEncoded() async {
-    final token =
-        await _storage.read(key: "device_authentication_token_base64");
-    if (token == null) {
-      throw StateError("device_authentication_token_base64 is not readable");
-    } else {
-      return token;
+  /// This method encrypts this users number with the recipients RSA key
+  Future<String?> encryptNumberFor(String number) async {
+    final messagebox =
+        await _messageboxService.fetchMessageboxForNumber(number);
+
+    if (messagebox == null) {
+      print("Error: Messagebox for $number doesn't exist");
+      return null;
     }
+
+    final key = messagebox.recipientKey;
+
+    if (key == null) {
+      print("Error: Messagebox for $number doesn't have a rsa key");
+      return null;
+    }
+
+    final myNumber = await _userService.getPhoneNumber();
+
+    return key.encrypt(myNumber);
+  }
+
+  /// This method decrypts the senders number with this users RSA key
+  Future<String> decryptSenderNumber(String encryptedNumber) async {
+    final keypair = await _userService.fetchRSAKeyPair();
+
+    return keypair.privateKey.decrypt(encryptedNumber);
   }
 }

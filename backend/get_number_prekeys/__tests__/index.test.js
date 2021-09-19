@@ -6,138 +6,234 @@ jest.mock("../db_access", () => ({
 }))
 
 const {handler, exportedForTests} = require("../index")
-const {authenticateAuthenticationToken, registerKeys} = require("../db_access")
-const {bytesToBase64, base64ToBytes} = require("./base64")
-const NodeRSA = require('node-rsa')
+const {bytesToBase64, base64ToBytes} = require("./base64");
+
+// const forge = require('node-forge');
+// const { generateKeyPair, generateKeyPairSync } = require('crypto');
+// const JSEncrypt = require('node-jsencrypt');
+const BigInteger = require('jsbn').BigInteger;
+
+const BlindSignature = require('blind-signatures');
+const NodeRSA = require('node-rsa');
+var sha256 = require('js-sha256');
 
 const utf8Encoder = new TextEncoder();
 
 describe("Unit tests for index.handler for register user",  () => {
 
-  test("When1??", async () => {
-    let key = new NodeRSA();
-    key.generateKeyPair(2048, 65537);
+  /*
+   *   modulus           INTEGER,  -- n
+   *   publicExponent    INTEGER,  -- e
+   *   privateExponent   INTEGER,  -- d
+   *   prime1            INTEGER,  -- p
+   *   prime2            INTEGER,  -- q
+   *   exponent1         INTEGER,  -- d mod (p-1)
+   *   exponent2         INTEGER,  -- d mod (q-1)
+   *   coefficient       INTEGER,  -- (inverse of q) mod p
+   */
+  let priKeyObject = {
+    n: new BigInteger("572775949296369994698371469456352721910313913352751038761357076960310131803214678056226310119772645761200479432265117226838237964481536383773915223974819461418595605726530816797770010104150318326316819798417750083428749740357177783781981209031028587874743034681468648255160244013594301492314932355679440420705533150540102037067406671856512331898876455676530538792711432957161105015749518332288564691379289789420285787524410024760340259375152417854259130291465402308082571049788446067991046013751957021131711220903609669506176510150628383135275595107262910729037776218315557483619644820046771909078926976610748006356194485369511199103183364591638162608724820994544764867275562303628977445633937381515864166982566731619694317539112881251161987109846878918703260723129022252203363405984106963243641079669839567758682281228291687969845221429694675199398095314842274805799042569707993567746343020377774355879390148104312115128219754284406883186525189366604784598734774277432071612884159219333348745210091159028401179611744064928608789316562577684861083598040616353746808908569085822566825901873949241748153616443781594456397551969286493717785933857124793157305623130159166372338757917011514696640524442193680265608280963366704133760057237"),
+    e: new BigInteger("65537"),
+    d: new BigInteger("466212372236531440212245413532503465181253114941012731917631748681977870072030819021794349558709614652569973829054586162754763965047272179929440372731628993544311823731267221436139027099131705461022696115580457763559870396106219260846025994698432778302184909929478974816107970408489470357295081428526848494775713877388516457349645871851225930891155616699098906897758497942640065702734978804608102215495625898756972779494058750947031307446299503761502648065488661683054712148556004502050969048897331207337076817185439586952980450088882928269041020269494067624849949411627402816824180741879777846375425799782164909151506466758836009713258186489731758314026399018573445118260316445648708196688884388358927489691186403955472455201900104243884824443544934153753083418998584695370694788118683425699920215040291592248934891249470349188318413088147838442400679974873769480547490681512592602789902907529068311891326144204443110699105265582548589351564292826480302610494749176870394199720240425117146965002726012554892605488386302985317415173838665059862380474493316952267332717302921898667369453241476927980788614453945900824701356955877244595345714690461076464229663601864916425317261447212616089421688936676427655427484002291804561927264385"),
+    p: new BigInteger("25627655493407810679249597918807249452839523284471083169976421988944194780397659141218949412381222471199039312592400172091066770422383909562858247283867287411202428935752277712957182235536290430871118822695414655894593862986971359956700239555432020598348920058274101521772739760695010871937240994908433195236918540725727555652495079186913211651176862812412774593759521015945275952105117208086597997932157527583021686920949140683909249185212975399980403002152091985749012476775606450531481131268803525269198190371721764246415554269539796588822385014778261775078084176735584057276023571124816482895193195725727818049263"),
+    q: new BigInteger("22349916067964347059420782982435656468515055538790471353891991071658380457629851351118093771983586607444770267482404972451999007004647423010456689422872324185734306215005936466202959876272569446541554430631173682224025914076763377541024583510781176647887396007495759546370917038559737246095650197162602413500573624539604559834357099186025402830553458325510955359509687427660280794735166655160174634725728285309896336752745220313181600713747088965751265504666325194090689316814580313426285254994560158249438984048864277977653731980411424674894186292014314710024998814585264119893067637195535100359168150170150561325499"),
+    dmp1: null,
+    dmq1: null,
+    coeff: null,
+  }
 
-    console.log(key.exportKey("pkcs1-public-pem"));
-    console.log(key.exportKey("pkcs1-private-pem"));
+  let pubKeyObject = {
+    n: null,
+    e: null,
+  }
+
+  function setPrivateKey(){
+    priKeyObject.dmp1 = priKeyObject.d.mod(priKeyObject.p.subtract(new BigInteger("1"))); //d mod (p-1)
+    priKeyObject.dmq1 = priKeyObject.d.mod(priKeyObject.q.subtract(new BigInteger("1"))); //d mod (q-1)
+    priKeyObject.coeff = priKeyObject.q.modInverse(priKeyObject.p); //(inverse of q) mod p
+  }
+
+  function setPublicKey(){
+    pubKeyObject.n = priKeyObject.n.clone();
+    pubKeyObject.e = priKeyObject.e.clone();
+  }
+
+  test("Test 4", async () => {
+    setPrivateKey();
+    setPublicKey();
+    // console.log(priKeyObject.toString());
+    // console.log(pubKeyObject.toString());
+
+    //Create node key
+    let key = new NodeRSA();
+    key.importKey({
+      n: Buffer.from(priKeyObject.n.toByteArray()),
+      e: 65537,
+      d: Buffer.from(priKeyObject.d.toByteArray()),
+      p: Buffer.from(priKeyObject.p.toByteArray()),
+      q: Buffer.from(priKeyObject.q.toByteArray()),
+      dmp1: Buffer.from(priKeyObject.dmp1.toByteArray()),
+      dmq1: Buffer.from(priKeyObject.dmq1.toByteArray()),
+      coeff: Buffer.from(priKeyObject.coeff.toByteArray())
+    }, "components");
+
+    const result = BlindSignature.verify({
+      unblinded: "379188831427105924870620793298048036731864920265570037090530765727001733279771819948370176247994905492579769356402705623138696583190592854752652276984905671054693545464551275051453508563440740346039078662013669200503145730662746824549988040589059979088946698077393789595976180985460395185943387673647344499298354973228299956578550933742257980174746856974087714088717711208949584023193167745791218105511466568077234421669713520918323427189598297563765180911249337714805929605693730490006798563232041697867160371047690964449798575351731849176102811598821818657803896206321537344825484399990396429184907253683322079717638942057583455120961372046633739468812050571336105813266958366918469858583790114725652058769670606404321742465400876688460339623579044499410260742928278886652257173085561595863665057332731358235581903136512703270236964288087752426598446086480144368475067460066649514786147046723516220461276238561721917738586496585164505272856598045056674306952400293899194482195010488922613530032432684538852917786603602422649926220123357031823131604062250517346173815694843874334481560795010324948676787252444010912443549639878910135599364844045190313799142450511224007766692252566452479679801275488366209225860026433404495857661119",
+      N: key.keyPair.n,
+      E: key.keyPair.e,
+      message: "This is the message I would like to have signed",
+    });
+
+    console.log(result);
 
     expect(3).toBe(3*1);
-  });
+  })
+
+  test("Test 3", async () => {
+    setPrivateKey();
+    setPublicKey();
+    // console.log(priKeyObject.toString());
+    // console.log(pubKeyObject.toString());
+
+    //Create node key
+    let key = new NodeRSA();
+    key.importKey({
+      n: Buffer.from(priKeyObject.n.toByteArray()),
+      e: 65537,
+      d: Buffer.from(priKeyObject.d.toByteArray()),
+      p: Buffer.from(priKeyObject.p.toByteArray()),
+      q: Buffer.from(priKeyObject.q.toByteArray()),
+      dmp1: Buffer.from(priKeyObject.dmp1.toByteArray()),
+      dmq1: Buffer.from(priKeyObject.dmq1.toByteArray()),
+      coeff: Buffer.from(priKeyObject.coeff.toByteArray())
+    }, "components");
+
+    const signed = BlindSignature.sign({
+      blinded: "568016689539875122210536052444097511022046191836126349797565382868310601744629070229280566560575665406919242527741387068235032202726923455339402166991855063920591748984444464764338021058872509340427674639981396078618513194952387980953417882328665667703276582670469356435913317099282570005135784208662159210531571153382241553594023860545444094823218630593107356933360201365804420345271001846264788306867874704835273392367473157691456569718171328474561108966415249799004899107399597466791783036668159029281932085176256706962196569167381324334294637278397505514528796361979734614839392857248966033578890291552474876505400133508250285172610632508540309791594594397367191077332674128293822582560653110834758499517282957533846890154306985329879949982904752516545733155025018701482563684689049378247193449711430331333359238585885499399258599356395171353010565849512782427749946792089938188774059511771205194641820445998458831561780392130707231654168609797538530565784393433194574246986731550017020040998021964487018967157865409312227688962595154407438113398432968452512745043029973694949459213751021246786973423339395365038476429567001726133469179638923009894430674320348641171591880294750479333755064933649798338980899895829453837105948858",
+      key: key,
+    }); // Bob signs blinded message
+
+    console.log(signed.toString());
+
+    expect(3).toBe(3*1);
+  })
+
+  test("Test 2", async () => {
+    var hash = sha256.create();
+    hash.update('Message to hash');
+    var byteArr = await hash.arrayBuffer();
+
+    console.log(byteArr);
+    // console.log(byteArr.length());
+    console.log(bytesToBase64(new Uint8Array(byteArr)));
+
+    expect(3).toBe(3*1);
+  })
+
+  test("Test 1", async () => {
+
+    setPrivateKey();
+    setPublicKey();
+    // console.log(priKeyObject.toString());
+    // console.log(pubKeyObject.toString());
+
+    //Create node key
+    let key = new NodeRSA();
+    key.importKey({
+      n: Buffer.from(priKeyObject.n.toByteArray()),
+      e: 65537,
+      d: Buffer.from(priKeyObject.d.toByteArray()),
+      p: Buffer.from(priKeyObject.p.toByteArray()),
+      q: Buffer.from(priKeyObject.q.toByteArray()),
+      dmp1: Buffer.from(priKeyObject.dmp1.toByteArray()),
+      dmq1: Buffer.from(priKeyObject.dmq1.toByteArray()),
+      coeff: Buffer.from(priKeyObject.coeff.toByteArray())
+      }, "components");
+
+    const Bob = {
+      // key: BlindSignature.keyGeneration({ b: 2048 }), // b: key-length
+      key: key,
+      blinded: null,
+      unblinded: null,
+      message: null,
+    };
+
+    const Alice = {
+      message: 'Hello Chaum!',
+      N: null,
+      E: null,
+      r: null,
+      signed: null,
+      unblinded: null,
+    };
+
+// Alice wants Bob to sign a message without revealing it's contents.
+// Bob can later verify he did sign the message
+
+    console.log('Message:', Alice.message);
+
+// Alice gets N and E variables from Bob's key
+    Alice.N = Bob.key.keyPair.n.toString();
+    Alice.E = Bob.key.keyPair.e.toString();
+
+    const { blinded, r } = BlindSignature.blind({
+      message: Alice.message,
+      N: Alice.N,
+      E: Alice.E,
+    }); // Alice blinds message
+    Alice.r = r;
+
+    console.log('Hashed Message:', BlindSignature.messageToHash(Alice.message));
+
+// Alice sends blinded to Bob
+    Bob.blinded = blinded;
+
+    const signed = BlindSignature.sign({
+      blinded: Bob.blinded,
+      key: Bob.key,
+    }); // Bob signs blinded message
+
+// Bob sends signed to Alice
+    Alice.signed = signed;
+
+    const unblinded = BlindSignature.unblind({
+      signed: Alice.signed,
+      N: Alice.N,
+      r: Alice.r,
+    }); // Alice unblinds
+    Alice.unblinded = unblinded;
+
+// Alice verifies
+    const result = BlindSignature.verify({
+      unblinded: Alice.unblinded,
+      N: Alice.N,
+      E: Alice.E,
+      message: Alice.message,
+    });
+    if (result) {
+      console.log('Alice: Signatures verify!');
+    } else {
+      console.log('Alice: Invalid signature');
+    }
+
+// Alice sends Bob unblinded signature and original message
+    Bob.unblinded = Alice.unblinded;
+    Bob.message = Alice.message;
+
+// Bob verifies
+    const result2 = BlindSignature.verify2({
+      unblinded: Bob.unblinded,
+      key: Bob.key,
+      message: Bob.message,
+    });
+    if (result2) {
+      console.log('Bob: Signatures verify!');
+    } else {
+      console.log('Bob: Invalid signature');
+    }
+
+    expect(3).toBe(3*1);
+  })
+
 })
 
-
-describe("Unit tests for index.handler for register",  () => {
-  test("When handler is called with an undefined phoneNumber, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with an undefined rsaPublicKey, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", deviceToken: "123"})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with an undefined deviceToken, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "0727654673", rsaPublicKey: "123"})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with blank phoneNumber, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with blank rsaPublicKey, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "", deviceToken: "123"})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with blank deviceToken, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "123", deviceToken: ""})})
-    expect(response.statusCode).toBe(400)
-  })
-
-  test("When handler is called with invalid phone number, should return status code 400", async () => {
-    const response = await handler({body: JSON.stringify({phoneNumber: "+27", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(400)
-
-    const response2 = await handler({body: JSON.stringify({phoneNumber: "123", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response2.statusCode).toBe(400)
-  })
-
-  test("When number exists already, should return status code 409", async () => {
-    existsNumber.mockImplementation(() => Promise.resolve(true))
-
-    const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(409)
-  })
-
-  test("When existsNumber failed, should return status code 500", async () => {
-    existsNumber.mockImplementation(() => Promise.reject())
-
-    const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(500)
-  })
-
-  test("When addUser succeeds, should return status code 200", async  () => {
-    existsNumber.mockImplementation(() => Promise.resolve(false))
-    addUser.mockImplementation(() => Promise.resolve())
-
-    const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(200)
-  })
-
-  test("When addUser fails, should return status code 500", async () => {
-    existsNumber.mockImplementation(() => Promise.resolve(false))
-    addUser.mockImplementation(() => Promise.reject())
-
-    const response = await handler({body: JSON.stringify({phoneNumber: "+27727654673", rsaPublicKey: "123", deviceToken: "123"})})
-    expect(response.statusCode).toBe(500)
-  })
-})
-
-describe("Unit tests for anyUndefined", () => {
-  test("No arguments should return false", () => {
-    expect(exportedForTests.anyUndefined()).toBe(false)
-  })
-
-  test("All defined arguments should return false", () => {
-    expect(exportedForTests.anyUndefined("", null, 123)).toBe(false)
-  })
-
-  test("Any undefined arguments should return true", () => {
-    expect(exportedForTests.anyUndefined(undefined, 123, "abc")).toBe(true)
-  })
-})
-
-describe("Unit tests for anyBlank", () => {
-  test("No arguments should return false", () => {
-    expect(exportedForTests.anyBlank()).toBe(false)
-  })
-
-  test("All non-blank arguments should return false", () => {
-    expect(exportedForTests.anyBlank("   a   ", "\n\nabc\n\n", "123")).toBe(false)
-  })
-
-  test("Any empty strings should return true", () => {
-    expect(exportedForTests.anyBlank("", "123", "\n\n\r\ra")).toBe(true)
-  })
-
-  test("Any blank strings should return true", () => {
-    expect(exportedForTests.anyBlank("   ", "123", "a")).toBe(true)
-  })
-})
-
-describe("Unit tests for String.prototype.isBlank helper function", () => {
-  test("Empty string should return true", () => {
-    expect("".isBlank()).toBe(true)
-  })
-
-  test("Blank string should return true", () => {
-    expect("  \n".isBlank()).toBe(true)
-  })
-
-  test("Any non-whitespace should return false", () => {
-    expect("   b   \n\r".isBlank()).toBe(false)
-  })
-})

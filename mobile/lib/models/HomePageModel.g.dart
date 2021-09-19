@@ -62,6 +62,21 @@ mixin _$HomePageModel on _HomePageModel, Store {
     });
   }
 
+  final _$profanityFilterAtom = Atom(name: '_HomePageModel.profanityFilter');
+
+  @override
+  bool get profanityFilter {
+    _$profanityFilterAtom.reportRead();
+    return super.profanityFilter;
+  }
+
+  @override
+  set profanityFilter(bool value) {
+    _$profanityFilterAtom.reportWrite(value, super.profanityFilter, () {
+      super.profanityFilter = value;
+    });
+  }
+
   final _$chatsAtom = Atom(name: '_HomePageModel.chats');
 
   @override
@@ -119,6 +134,7 @@ mixin _$HomePageModel on _HomePageModel, Store {
 userDisplayName: ${userDisplayName},
 userStatus: ${userStatus},
 userProfileImage: ${userProfileImage},
+profanityFilter: ${profanityFilter},
 chats: ${chats},
 orderedChats: ${orderedChats}
     ''';

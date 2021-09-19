@@ -200,4 +200,16 @@ void main() {
 
     expect(widget.data, "7");
   });
+
+  testWidgets("Total_messages_between_contacts", (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: AnalyticsPage(),
+    ));
+    await tester.pump();
+    final finder =
+        find.byKey(Key("AnalyticsPage_totalMessagesBetweenContacts_789"));
+    final widget = tester.widget(finder) as Text;
+
+    expect(widget.data, "Total messages: 6");
+  });
 }

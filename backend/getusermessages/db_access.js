@@ -40,9 +40,9 @@ exports.getMessagesForMessageboxId = async (messageboxId) => {
 
         return response.Items.map(each => ({
             id: each.id,
-            recipientMessageboxId: messageboxId,
+            recipientMid: messageboxId,
             timestamp: each.timestamp,
-            contents: each.contents
+            encryptedContents: each.encryptedContents
         }))
     } catch (error) {
         throw error

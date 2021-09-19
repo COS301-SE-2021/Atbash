@@ -19,6 +19,9 @@ abstract class _HomePageModel with Store {
   Uint8List? userProfileImage;
 
   @observable
+  bool profanityFilter = true;
+
+  @observable
   ObservableList<Chat> chats = <Chat>[].asObservable();
 
   @computed

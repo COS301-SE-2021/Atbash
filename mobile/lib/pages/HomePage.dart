@@ -356,6 +356,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
+    String _filterContents(String unfilteredContents) {
+      Constants.profanityRegex.forEach((regex) {
+        unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
+            (match) => List.filled(match.end - match.start, "*").join());
+      });
+      return unfilteredContents;
+    }
+
     Text _buildMessagePreview(Message message) {
       var preview = "";
 
@@ -363,6 +371,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         preview = "This message was deleted";
       } else if (message.isMedia) {
         preview = "\u{1f4f7} Photo";
+      } else if (controller.model.profanityFilter) {
+        preview = _filterContents(message.contents);
       } else {
         preview = message.contents;
       }

@@ -814,7 +814,7 @@ class ChatCard extends StatelessWidget {
 
   String _filterContents(String unfilteredContents) {
     Constants.profanityRegex.forEach((regex) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex),
+      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
           (match) => List.filled(match.end - match.start, "*").join());
     });
     return unfilteredContents;

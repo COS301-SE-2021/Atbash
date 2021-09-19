@@ -76,7 +76,8 @@ void main() {
                   otherPartyPhoneNumber: "0836006179",
                   contents: "",
                   timestamp: DateTime.now(),
-                  isMedia: true),
+                  isMedia: true,
+                  liked: true),
               Message(
                   id: "04737",
                   chatId: "123",
@@ -92,7 +93,8 @@ void main() {
                   otherPartyPhoneNumber: "0836006179",
                   contents: "",
                   timestamp: DateTime.now(),
-                  isMedia: true)
+                  isMedia: true,
+                  liked: true)
             ]));
 
     when(messageService.fetchAllByChatId("789"))
@@ -111,14 +113,16 @@ void main() {
                   isIncoming: true,
                   otherPartyPhoneNumber: "0837772222",
                   contents: "TV and you?",
-                  timestamp: DateTime.now()),
+                  timestamp: DateTime.now(),
+                  liked: true),
               Message(
                   id: "63527",
                   chatId: "789",
                   isIncoming: false,
                   otherPartyPhoneNumber: "0837772222",
                   contents: "jolly",
-                  timestamp: DateTime.now()),
+                  timestamp: DateTime.now(),
+                  liked: true),
               Message(
                   id: "26354",
                   chatId: "789",
@@ -134,7 +138,8 @@ void main() {
                   otherPartyPhoneNumber: "0837772222",
                   contents: "",
                   timestamp: DateTime.now(),
-                  isMedia: true),
+                  isMedia: true,
+                  liked: true),
               Message(
                   id: "06985",
                   chatId: "789",

@@ -156,6 +156,9 @@ void main() {
   );
 
   testWidgets("Clicking 'plus' and then 'Add' adds a contact", (tester) async {
+    when(blockedNumbersService.insert(any))
+        .thenAnswer((_) => Future.value(BlockedNumber(phoneNumber: "12345")));
+
     await tester.pumpWidget(
       MaterialApp(
         home: BlockedContactsPage(),
@@ -186,6 +189,9 @@ void main() {
   });
 
   testWidgets("Clicking 'plus' and then 'Cancel' adds nothing", (tester) async {
+    when(blockedNumbersService.insert(any))
+        .thenAnswer((_) => Future.value(BlockedNumber(phoneNumber: "12345")));
+
     await tester.pumpWidget(
       MaterialApp(
         home: BlockedContactsPage(),
@@ -214,6 +220,6 @@ void main() {
     final widgets = find.byType(Widget);
     tester.widgetList(widgets);
 
-    expect(find.text("+2712345"), findsOneWidget);
+    expect(find.text("+2712345"), findsNothing);
   });
 }

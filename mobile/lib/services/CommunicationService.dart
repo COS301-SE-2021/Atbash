@@ -195,6 +195,7 @@ class CommunicationService {
 
     print("Fetching unread messages for number");
     await _fetchUnreadMessages(encodedPhoneNumber);
+    await _fetchUnreadMessageboxMessages();
     await encryptionService.managePreKeys();
 
     channelNumber?.sink.close();
@@ -276,6 +277,27 @@ class CommunicationService {
   Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {
     final uri = Uri.parse(
         Constants.httpUrl + "message?phoneNumber=$encodedPhoneNumber");
+    final response = await get(uri);
+
+    if (response.statusCode == 200) {
+      final messages = jsonDecode(response.body) as List;
+      messages.forEach((message) async => await _handleEvent(message));
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
+  }
+
+  Future<void> _fetchUnreadMessageboxMessages() async {
+    final List<String> ids = await messageboxService.getAllMessageboxIds();
+
+    ids.forEach((mid) async {
+      await _fetchUnreadMessageboxMessage(mid);
+    });
+  }
+
+  Future<void> _fetchUnreadMessageboxMessage(String mId) async {
+    final uri = Uri.parse(
+        Constants.httpUrl + "message?messageboxId=$mId");
     final response = await get(uri);
 
     if (response.statusCode == 200) {

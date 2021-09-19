@@ -22,7 +22,7 @@ class Messagebox {
       COLUMN_M_ID: this.id,
       COLUMN_SERIALIZED_KEYPAIR: this.keypair.privateKey.toString(),
       COLUMN_NUMBER: this.number,
-      COLUMN_RECIPIENT_KEY: this.recipientKey.toString(),
+      COLUMN_RECIPIENT_KEY: this.recipientKey != null ? this.recipientKey.toString() : null,
       COLUMN_RECIPIENT_ID: this.recipientId,
       COLUMN_EXPIRES: this.expires,
     };
@@ -37,7 +37,7 @@ class Messagebox {
     final expires = map[Messagebox.COLUMN_EXPIRES] as int?;
 
     var recipientKey = null;
-    if(recipientKeyStr != null){
+    if(recipientKeyStr != null && recipientKeyStr.length > 10){
       recipientKey = RSAPublicKey.fromString(recipientKeyStr);
     }
 

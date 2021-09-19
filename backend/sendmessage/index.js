@@ -96,11 +96,11 @@ const sendToMessageboxId = async (id, recipientMid, encryptedContents) => {
         } catch (error) {
             console.log(error);
             if (error.statusCode === 410) {
-                // try {
-                //     await removeMessageboxConnection(recipientMid)
-                // } catch (error) {
-                //     console.log(`Found status code ${error.statusCode}`)
-                // }
+                try {
+                    await removeMessageboxConnection(recipientMid)
+                } catch (error) {
+                    console.log(`Found status code ${error.statusCode}`)
+                }
             }
         }
     } catch (error) {

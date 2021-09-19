@@ -204,28 +204,33 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
+    String anonymousId = Uuid().v4();
     channelAnonymous?.sink.close();
     channelAnonymous = IOWebSocketChannel.connect(
-      Uri.parse("${Constants.webSocketUrl}?phoneNumber=$encodedPhoneNumber"),
+      Uri.parse("${Constants.webSocketUrl}?anonymousId=$anonymousId"),
       pingInterval: Duration(minutes: 9),
     );
 
     channelAnonymous?.stream.listen((event) async {
 
-      if(anonymousConnectionId == null){
-        anonymousConnectionId = event as String;
-        print("AnonymousConnectionId is: " + anonymousConnectionId!);
-
-        final List<String> ids = await messageboxService.getAllMessageboxIds();
-
-        ids.forEach((element) async {
-          await registerConnectionForMessagebox(element);
-        });
-      } else {
-        print("Handling anonymous event");
-        await _handleEvent(event);
-      }
+      // if(anonymousConnectionId == null){
+      //   anonymousConnectionId = event as String;
+      //   print("AnonymousConnectionId is: " + anonymousConnectionId!);
+      //
+      //   final List<String> ids = await messageboxService.getAllMessageboxIds();
+      //
+      //   ids.forEach((element) async {
+      //     await registerConnectionForMessagebox(element);
+      //   });
+      // } else {
+      //   print("Handling anonymous event");
+      //   await _handleEvent(event);
+      // }
+      print("Handling anonymous event");
+      await _handleEvent(event);
     });
+
+    await _getAnonymousConnectionId(anonymousId);
 
     await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
@@ -243,6 +248,25 @@ class CommunicationService {
         });
       });
     });
+  }
+
+  Future<void> _getAnonymousConnectionId(String anonymousId) async {
+    final uri = Uri.parse(
+        Constants.httpUrl + "connection?anonymousId=$anonymousId");
+    final response = await get(uri);
+
+    if (response.statusCode == 200) {
+      anonymousConnectionId = response.body;
+      print("AnonymousConnectionId is: " + anonymousConnectionId!);
+
+      final List<String> ids = await messageboxService.getAllMessageboxIds();
+
+      ids.forEach((element) async {
+        await registerConnectionForMessagebox(element);
+      });
+    } else {
+      print("${response.statusCode} - ${response.body}");
+    }
   }
 
   Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {

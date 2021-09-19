@@ -60,15 +60,16 @@ exports.getConnectionOfMessageboxId = async (messageboxId) => {
                 ":i": messageboxId
             }
         }).promise()
-
+        console.log(response.Items);
         if (response.Items.length > 0) {
             connectionId = response.Items[0].connectionId
+            console.log(response.Items[0].connectionId);
         }
     } catch (error) {
         throw error
     }
 
-    if (connectionId === undefined || connectionId === null) {
+    if (connectionId === undefined) {
         throw `No messagebox of id ${messageboxId}`
     } else {
         return connectionId

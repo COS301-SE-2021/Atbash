@@ -94,6 +94,7 @@ const sendToMessageboxId = async (id, recipientMid, encryptedContents) => {
                 id, recipientMid, timestamp, encryptedContents
             })
         } catch (error) {
+            console.log(error);
             if (error.statusCode === 410) {
                 try {
                     await removeMessageboxConnection(recipientMid)

@@ -59,6 +59,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
               ),
               Expanded(
                 child: TextField(
+                  key: Key('BlockedContactsPage_search'),
                   onChanged: (String input) {
                     controller.updateQuery(input);
                   },

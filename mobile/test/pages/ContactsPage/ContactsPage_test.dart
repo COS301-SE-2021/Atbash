@@ -106,30 +106,20 @@ void main() {
       expect(find.text("Proud mom"), findsOneWidget);
     });
 
-    testWidgets("Page should contain 5 bubbles for ordering names'",
+    testWidgets("Page should contain bubbles for ordering names'",
         (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: ContactsPage(),
       ));
 
-      await tester.pumpAndSettle();
+      await tester.pump();
 
-      //TODO fix
       expect(find.text("C"), findsOneWidget);
+      expect(find.text("K"), findsWidgets);
     });
   });
 
   group("Functionality testing for ContactsPage", () {
-    testWidgets("Contacts should be ordered in Ascending order",
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: ContactsPage(),
-      ));
-
-      await tester.pumpAndSettle();
-
-      //TODO check contacts are ordered correctly
-    });
 
     testWidgets("Clicking the search icon hides 'Add Contact' text",
         (WidgetTester tester) async {

@@ -143,7 +143,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Widget _buildStatisticsWidget(String topText, String? bottomText, int topStat,
-      int? bottomStat, IconData icon, bool twoLines) {
+      int? bottomStat, IconData icon, bool twoLines,
+      {Key? topKey, Key? bottomKey}) {
     if (bottomStat == null) bottomStat = 0;
     return ListTile(
       title: Column(
@@ -151,7 +152,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           Row(children: [
             Text(topText),
             Expanded(child: Container()),
-            Text(topStat.toString())
+            Text(topStat.toString(), key: topKey)
           ]),
           if (twoLines)
             SizedBox(
@@ -161,7 +162,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             Row(children: [
               Text(bottomText ?? ""),
               Expanded(child: Container()),
-              Text(bottomStat.toString())
+              Text(bottomStat.toString(), key: bottomKey)
             ]),
         ],
       ),

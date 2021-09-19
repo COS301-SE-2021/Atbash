@@ -162,7 +162,8 @@ class _ContactsPageState extends State<ContactsPage> {
     showNewContactDialog(context).then((nameNumberPair) async {
       if (nameNumberPair != null) {
         controller
-            .addContact(nameNumberPair.phoneNumber, nameNumberPair.name)
+            .addContact(
+                context, nameNumberPair.phoneNumber, nameNumberPair.name)
             .catchError((_) {
           showSnackBar(
             context,

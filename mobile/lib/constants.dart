@@ -38,7 +38,7 @@ class Constants {
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[e3]r",
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[i1]ng",
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[s\\\$]",
-    "^cum[s\\\$]?\$",
+    "cum[s\\\$]?",
     "cumm??[e3]r",
     "cumm?[i1]ngcock",
     "(c|k|ck|q)um[s\\\$]h[o0][t\+]",
@@ -93,14 +93,4 @@ class Constants {
     "[s\\\$]punk[s\\\$]?",
     "[t\+]w[a@][t\+][s\\\$]?"
   ];
-}
-
-void main() {
-  String test = "as fuck bitch twat dick cummingcock";
-  Constants.profanityRegex.forEach((regex) {
-    test = test.replaceAllMapped(RegExp(regex),
-        (match) => List.filled(match.end - match.start, "*").join());
-  });
-  // String result = test.replaceAllMapped(RegExp(Constants.test), (match) => List.filled(match.end - match.start, "*").join());
-  print(test);
 }

@@ -111,7 +111,7 @@ class RegistrationService {
 
       final success = await registerKeys();
       if (success) {
-        _messageboxService.getMessageboxKeys(4);
+        _messageboxService.getMessageboxKeys(6);
         return verificationCode;
       } else {
         return null;

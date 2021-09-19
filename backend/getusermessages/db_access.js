@@ -32,7 +32,7 @@ exports.getMessagesForMessageboxId = async (messageboxId) => {
     try {
         const response = await db.scan({
             TableName: process.env.TABLE_MESSAGES,
-            FilterExpression: "recipientMessageboxId = :i",
+            FilterExpression: "recipientMid = :i",
             ExpressionAttributeValues: {
                 ":i": messageboxId
             }

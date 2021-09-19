@@ -157,14 +157,66 @@ void main() {
 
       final blockButton = find.byKey(Key('blockButton'));
       expect(blockButton, findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, "Block Contact"), findsOneWidget);
+      expect(
+          find.widgetWithText(ElevatedButton, "Block Contact"), findsOneWidget);
       expect(find.byKey(Key('unblockButton')), findsNothing);
 
       await tester.tap(blockButton);
       await tester.pump();
       expect(blockButton, findsNothing);
-      expect(find.widgetWithText(ElevatedButton, "Unblock Contact"), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, "Unblock Contact"),
+          findsOneWidget);
       expect(find.byKey(Key('unblockButton')), findsOneWidget);
+    });
+  });
+
+  group("Widget tests when the contact is blocked", () {
+    testWidgets("Button should display 'Unblock Contact'",
+        (WidgetTester tester) async {
+      when(blockedNumberService.checkIfBlocked(any))
+          .thenAnswer((_) => Future.value(true));
+
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('unblockButton')), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, "Unblock Contact"),
+          findsOneWidget);
+    });
+
+    testWidgets(
+        "When unblock Contact clicked, button should display 'Block Contact'",
+        (WidgetTester tester) async {
+      when(blockedNumberService.checkIfBlocked(any))
+          .thenAnswer((_) => Future.value(true));
+
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      final unblockButton = find.byKey(Key('unblockButton'));
+
+      expect(unblockButton, findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, "Unblock Contact"),
+          findsOneWidget);
+      expect(find.byKey(Key('blockButton')), findsNothing);
+
+      await tester.tap(unblockButton);
+      await tester.pump();
+
+      expect(unblockButton, findsNothing);
+      expect(
+          find.widgetWithText(ElevatedButton, "Block Contact"), findsOneWidget);
+      expect(find.byKey(Key('blockButton')), findsOneWidget);
     });
   });
 }

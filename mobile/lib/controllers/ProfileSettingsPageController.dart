@@ -89,7 +89,7 @@ class ProfileSettingsPageController {
             String phoneNumber = "+" + cullToE164(mobileNumber);
             get(Uri.parse(Constants.httpUrl + "user/$phoneNumber/exists"))
                 .then((response) {
-              if (response.statusCode == 200 && response.body == "true") {
+              if (response.statusCode == 204) {
                 _addContact(phoneNumber, name).catchError((_) {});
               }
             });

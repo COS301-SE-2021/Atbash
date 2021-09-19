@@ -42,6 +42,7 @@ class CommunicationService {
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   String? anonymousConnectionId = null;
+  String anonymousId = "";
 
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
@@ -177,6 +178,9 @@ class CommunicationService {
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {
+    if(anonymousConnectionId == null){
+      await _getAnonymousConnectionId(anonymousId);
+    }
     print("Registering connection for mid:" + mid);
     final uri = Uri.parse(
         Constants.httpUrl + "messageboxes/$mid/connectionId");
@@ -204,7 +208,7 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    String anonymousId = Uuid().v4();
+    anonymousId = Uuid().v4();
     channelAnonymous?.sink.close();
     channelAnonymous = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?anonymousId=$anonymousId"),
@@ -230,8 +234,6 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    await _getAnonymousConnectionId(anonymousId);
-
     await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
         final encodedContactPhoneNumber =
@@ -248,6 +250,8 @@ class CommunicationService {
         });
       });
     });
+
+    await _getAnonymousConnectionId(anonymousId);
   }
 
   Future<void> _getAnonymousConnectionId(String anonymousId) async {

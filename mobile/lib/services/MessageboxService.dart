@@ -177,8 +177,6 @@ class MessageboxService {
         Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, null, null, expires);
         storeMessagebox(messagebox);
 
-        //TODO: Send a request to the server to link this devices ConnectionID to the MID (for notifications)
-
         return messagebox.id;
       } else {
         //Soft fail

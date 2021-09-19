@@ -4,6 +4,7 @@ exports.handler = async event => {
     const connectionId = event.body
 
     try {
+        console.log("Updating " + messageboxId + " with " + connectionId);
         await setMessageboxConnectionId(messageboxId, connectionId)
         console.log("Successfully updated")
         return {statusCode: 200, body: "Successfully updated"}

@@ -20,7 +20,7 @@ exports.getAnonymousConnectionId = (anonymousId) => {
                 // resolve(response.Items[0].connectionId);
                 resolve(response.Items[0]["connectionId"]);
             } else {
-                reject("Specified anonymousId doesn't exits");
+                reject("Specified anonymousId doesn't exist: \"" + anonymousId + "\"");
             }
         } catch (error) {
             reject(error)

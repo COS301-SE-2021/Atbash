@@ -3,16 +3,16 @@ const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: pr
 
 exports.setMessageboxConnectionId = async (messageboxId, connectionId) => {
     try {
-        db.update({
+        await db.update({
             TableName: process.env.TABLE_MESSAGEBOXES,
             Key: {
                 "id": messageboxId
             },
-            UpdateExpression: "set connectionId = :c",
+            UpdateExpression: "SET connectionId = :c",
             ExpressionAttributeValues: {
                 ":c": connectionId
             }
-        })
+        }).promise()
     } catch (error) {
         throw error
     }

@@ -592,6 +592,7 @@ class ChatCard extends StatelessWidget {
                         ? Constants.darkGrey.withOpacity(0.88)
                         : Constants.orange.withOpacity(0.88),
                   ),
+                  //TODO swipe right to reply
                   child: InkWell(
                     onDoubleTap: onDoubleTap,
                     child: FocusedMenuHolder(

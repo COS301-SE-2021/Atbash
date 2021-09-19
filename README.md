@@ -7,7 +7,7 @@
 [![deletemessage CI](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml/badge.svg)](https://github.com/COS301-SE-2021/Atbash/actions/workflows/deletemessage.yml)
 
 # Bit by Bit - Atbash
-Atbash is a messaging application, where the privacy of messages is the top priority. Message content is only visible to the sender and the recipient.
+Atbash is a messaging application, where the privacy of users and their messages is the top priority. Atbash provides end-to-end encryption with the use of the [Signal Encryption Protocol](https://signal.org/docs/) which is currently the state of the art for end-to-end encryption applications. Atbash even takes this a step further by encrypting the sender and receiver addresses on messages using a solution proposed in a recently [published paper](https://cs-people.bu.edu/kaptchuk/publications/ndss21.pdf)
 
 ---
 ## Demo Recordings

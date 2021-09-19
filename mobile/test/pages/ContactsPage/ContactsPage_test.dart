@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/pages/ContactsPage.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -13,15 +13,17 @@ import 'package:mockito/mockito.dart';
 
 import 'ContactsPage_test.mocks.dart';
 
-@GenerateMocks([CommunicationService, ContactService, ChatService])
+@GenerateMocks([CommunicationService, ContactService, ChatService, http.Client])
 void main() {
   final communicationService = MockCommunicationService();
   final contactService = MockContactService();
   final chatService = MockChatService();
+  final mockClient = MockClient();
 
   GetIt.I.registerSingleton<CommunicationService>(communicationService);
   GetIt.I.registerSingleton<ContactService>(contactService);
   GetIt.I.registerSingleton<ChatService>(chatService);
+  GetIt.I.registerSingleton<http.Client>(mockClient);
 
   setUp(() {
     when(contactService.fetchAll()).thenAnswer((_) => Future.value([
@@ -305,9 +307,9 @@ void main() {
       await tester.tap(addButton);
       await tester.pumpAndSettle();
 
-      //TODO ask dylan about this error
-      //Need to return that user does exist on db
-      //Probably need to mock exception being thrown on contactService.insert
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 204)));
+
       expect(
           find.widgetWithText(
               SnackBar, "A contact already exists with the number 0728954829"),
@@ -315,7 +317,7 @@ void main() {
     });
 
     testWidgets(
-        "Trying to add a contact that already exists shows 'No user with phone number 0728954829 exists' snackbar",
+        "Trying to add a contact that doesn't exist shows 'No user with phone number 0728954829 exists' snackbar",
         (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(
         home: ContactsPage(),
@@ -348,8 +350,9 @@ void main() {
       await tester.tap(addButton);
       await tester.pump();
 
-      //TODO ask dylan about this error
-      //Need to return that user does not exist on db
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 404)));
+
       expect(
           find.widgetWithText(
               SnackBar, "No user with phone number 0728954829 exists"),
@@ -390,9 +393,8 @@ void main() {
       await tester.tap(addButton);
       await tester.pump();
 
-      //TODO ask dylan about this error
-      //Need to return that user does exist on db
-      //Need to check contact is added to page
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 204)));
     });
 
     testWidgets("Deleting a contact (Connor) removes them from the page",

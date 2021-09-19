@@ -2,14 +2,17 @@
 // in mobile/test/pages/ContactsPage/ContactsPage_test.dart.
 // Do not manually edit this file.
 
-import 'dart:async' as _i20;
+import 'dart:async' as _i21;
+import 'dart:convert' as _i23;
+import 'dart:typed_data' as _i24;
 
+import 'package:http/http.dart' as _i17;
 import 'package:mobile/domain/Chat.dart' as _i16;
 import 'package:mobile/domain/Contact.dart' as _i15;
-import 'package:mobile/domain/Message.dart' as _i19;
+import 'package:mobile/domain/Message.dart' as _i20;
 import 'package:mobile/services/BlockedNumbersService.dart' as _i2;
 import 'package:mobile/services/ChatService.dart' as _i5;
-import 'package:mobile/services/CommunicationService.dart' as _i17;
+import 'package:mobile/services/CommunicationService.dart' as _i18;
 import 'package:mobile/services/ContactService.dart' as _i6;
 import 'package:mobile/services/DatabaseService.dart' as _i14;
 import 'package:mobile/services/EncryptionService.dart' as _i3;
@@ -20,10 +23,10 @@ import 'package:mobile/services/MessageService.dart' as _i7;
 import 'package:mobile/services/NotificationService.dart' as _i11;
 import 'package:mobile/services/SettingsService.dart' as _i8;
 import 'package:mobile/services/UserService.dart' as _i4;
-import 'package:mobile/util/Tuple.dart' as _i21;
+import 'package:mobile/util/Tuple.dart' as _i22;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:synchronized/synchronized.dart' as _i13;
-import 'package:web_socket_channel/io.dart' as _i18;
+import 'package:web_socket_channel/io.dart' as _i19;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -69,11 +72,16 @@ class _FakeContact_13 extends _i1.Fake implements _i15.Contact {}
 
 class _FakeChat_14 extends _i1.Fake implements _i16.Chat {}
 
+class _FakeResponse_15 extends _i1.Fake implements _i17.Response {}
+
+class _FakeStreamedResponse_16 extends _i1.Fake
+    implements _i17.StreamedResponse {}
+
 /// A class which mocks [CommunicationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCommunicationService extends _i1.Mock
-    implements _i17.CommunicationService {
+    implements _i18.CommunicationService {
   MockCommunicationService() {
     _i1.throwOnMissingStub(this);
   }
@@ -132,11 +140,11 @@ class MockCommunicationService extends _i1.Mock
       Invocation.setter(#communicationLock, _communicationLock),
       returnValueForMissingStub: null);
   @override
-  set channelNumber(_i18.IOWebSocketChannel? _channelNumber) =>
+  set channelNumber(_i19.IOWebSocketChannel? _channelNumber) =>
       super.noSuchMethod(Invocation.setter(#channelNumber, _channelNumber),
           returnValueForMissingStub: null);
   @override
-  set channelAnonymous(_i18.IOWebSocketChannel? _channelAnonymous) => super
+  set channelAnonymous(_i19.IOWebSocketChannel? _channelAnonymous) => super
       .noSuchMethod(Invocation.setter(#channelAnonymous, _channelAnonymous),
           returnValueForMissingStub: null);
   @override
@@ -174,11 +182,11 @@ class MockCommunicationService extends _i1.Mock
               #shouldBlockNotifications, _shouldBlockNotifications),
           returnValueForMissingStub: null);
   @override
-  void onMessage(void Function(_i19.Message)? cb) =>
+  void onMessage(void Function(_i20.Message)? cb) =>
       super.noSuchMethod(Invocation.method(#onMessage, [cb]),
           returnValueForMissingStub: null);
   @override
-  void disposeOnMessage(void Function(_i19.Message)? cb) =>
+  void disposeOnMessage(void Function(_i20.Message)? cb) =>
       super.noSuchMethod(Invocation.method(#disposeOnMessage, [cb]),
           returnValueForMissingStub: null);
   @override
@@ -222,155 +230,155 @@ class MockCommunicationService extends _i1.Mock
       super.noSuchMethod(Invocation.method(#disposeOnMessageEdited, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i20.Future<void> registerConnectionForMessagebox(String? mid) =>
+  _i21.Future<void> registerConnectionForMessagebox(String? mid) =>
       (super.noSuchMethod(
               Invocation.method(#registerConnectionForMessagebox, [mid]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> goOnline() => (super.noSuchMethod(
+  _i21.Future<void> goOnline() => (super.noSuchMethod(
       Invocation.method(#goOnline, []),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i20.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> sendMessage(_i19.Message? message, _i16.ChatType? chatType,
+  _i21.Future<void> sendMessage(_i20.Message? message, _i16.ChatType? chatType,
           String? recipientPhoneNumber, String? repliedMessageId) =>
       (super.noSuchMethod(
               Invocation.method(#sendMessage,
                   [message, chatType, recipientPhoneNumber, repliedMessageId]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendImage(_i19.Message? message, _i16.ChatType? chatType,
+  _i21.Future<void> sendImage(_i20.Message? message, _i16.ChatType? chatType,
           String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(
                   #sendImage, [message, chatType, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendDelete(
+  _i21.Future<void> sendDelete(
           String? messageId, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendDelete, [messageId, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendLiked(
+  _i21.Future<void> sendLiked(
           String? messageId, bool? liked, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(
                   #sendLiked, [messageId, liked, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendEditedMessage(String? messageID, String? newMessage,
+  _i21.Future<void> sendEditedMessage(String? messageID, String? newMessage,
           String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendEditedMessage,
                   [messageID, newMessage, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendOnlineStatus(
+  _i21.Future<void> sendOnlineStatus(
           bool? online, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendOnlineStatus, [online, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i20.Future<void>);
+              Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> sendStatus(String? status, String? recipientPhoneNumber) =>
+  _i21.Future<void> sendStatus(String? status, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStatus, [status, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendBirthday(int? birthday, String? recipientPhoneNumber) =>
+  _i21.Future<void> sendBirthday(int? birthday, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendBirthday, [birthday, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i20.Future<void>);
+              Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> sendProfileImage(
+  _i21.Future<void> sendProfileImage(
           String? profileImageBase64, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(
               #sendProfileImage, [profileImageBase64, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i20.Future<void>);
+              Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> sendAck(String? messageId, String? recipientPhoneNumber) =>
+  _i21.Future<void> sendAck(String? messageId, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendAck, [messageId, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendAckSeen(
+  _i21.Future<void> sendAckSeen(
           List<String>? messageIds, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendAckSeen, [messageIds, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i20.Future<void>);
+              Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> sendRequestStatus(String? contactPhoneNumber) =>
+  _i21.Future<void> sendRequestStatus(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestStatus, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendRequestBirthday(String? contactPhoneNumber) =>
+  _i21.Future<void> sendRequestBirthday(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestBirthday, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendRequestProfileImage(String? contactPhoneNumber) =>
+  _i21.Future<void> sendRequestProfileImage(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestProfileImage, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendStartPrivateChat(String? recipientPhoneNumber) =>
+  _i21.Future<void> sendStartPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStartPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendStopPrivateChat(String? recipientPhoneNumber) =>
+  _i21.Future<void> sendStopPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStopPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> sendAcceptPrivateChat(String? recipientPhoneNumber) =>
+  _i21.Future<void> sendAcceptPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendAcceptPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<_i17.EventPayload?> getParsedEventPayload(
+  _i21.Future<_i18.EventPayload?> getParsedEventPayload(
           Map<String, Object?>? event) =>
       (super.noSuchMethod(Invocation.method(#getParsedEventPayload, [event]),
-              returnValue: Future<_i17.EventPayload?>.value())
-          as _i20.Future<_i17.EventPayload?>);
+              returnValue: Future<_i18.EventPayload?>.value())
+          as _i21.Future<_i18.EventPayload?>);
   @override
   String toString() => super.toString();
 }
@@ -396,57 +404,57 @@ class MockContactService extends _i1.Mock implements _i6.ContactService {
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i20.Future<List<_i15.Contact>> fetchAll() =>
+  _i21.Future<List<_i15.Contact>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
               returnValue: Future<List<_i15.Contact>>.value(<_i15.Contact>[]))
-          as _i20.Future<List<_i15.Contact>>);
+          as _i21.Future<List<_i15.Contact>>);
   @override
-  _i20.Future<_i15.Contact> fetchByPhoneNumber(String? phoneNumber) =>
+  _i21.Future<_i15.Contact> fetchByPhoneNumber(String? phoneNumber) =>
       (super.noSuchMethod(Invocation.method(#fetchByPhoneNumber, [phoneNumber]),
               returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i20.Future<_i15.Contact>);
+          as _i21.Future<_i15.Contact>);
   @override
-  _i20.Future<_i15.Contact> insert(_i15.Contact? contact) =>
+  _i21.Future<_i15.Contact> insert(_i15.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#insert, [contact]),
               returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i20.Future<_i15.Contact>);
+          as _i21.Future<_i15.Contact>);
   @override
-  _i20.Future<_i15.Contact> update(_i15.Contact? contact) =>
+  _i21.Future<_i15.Contact> update(_i15.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#update, [contact]),
               returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i20.Future<_i15.Contact>);
+          as _i21.Future<_i15.Contact>);
   @override
-  _i20.Future<void> setContactStatus(
+  _i21.Future<void> setContactStatus(
           String? contactPhoneNumber, String? status) =>
       (super.noSuchMethod(
           Invocation.method(#setContactStatus, [contactPhoneNumber, status]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i20.Future<void>);
+              Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<void> setContactProfileImage(
+  _i21.Future<void> setContactProfileImage(
           String? contactPhoneNumber, String? profileImage) =>
       (super.noSuchMethod(
               Invocation.method(
                   #setContactProfileImage, [contactPhoneNumber, profileImage]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> setContactBirthday(
+  _i21.Future<void> setContactBirthday(
           String? contactPhoneNumber, DateTime? birthday) =>
       (super.noSuchMethod(
               Invocation.method(
                   #setContactBirthday, [contactPhoneNumber, birthday]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i20.Future<void>);
+          as _i21.Future<void>);
   @override
-  _i20.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
+  _i21.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
           .noSuchMethod(Invocation.method(#deleteByPhoneNumber, [phoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-      as _i20.Future<void>);
+      as _i21.Future<void>);
   @override
   String toString() => super.toString();
 }
@@ -472,61 +480,143 @@ class MockChatService extends _i1.Mock implements _i5.ChatService {
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i20.Future<List<_i16.Chat>> fetchAll() =>
+  _i21.Future<List<_i16.Chat>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
               returnValue: Future<List<_i16.Chat>>.value(<_i16.Chat>[]))
-          as _i20.Future<List<_i16.Chat>>);
+          as _i21.Future<List<_i16.Chat>>);
   @override
-  _i20.Future<_i16.Chat> fetchById(String? chatId) =>
+  _i21.Future<_i16.Chat> fetchById(String? chatId) =>
       (super.noSuchMethod(Invocation.method(#fetchById, [chatId]),
               returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i20.Future<_i16.Chat>);
+          as _i21.Future<_i16.Chat>);
   @override
-  _i20.Future<List<_i21.Tuple<String, String>>> fetchIdsByContactPhoneNumbers(
+  _i21.Future<List<_i22.Tuple<String, String>>> fetchIdsByContactPhoneNumbers(
           List<String>? numbers) =>
       (super.noSuchMethod(
               Invocation.method(#fetchIdsByContactPhoneNumbers, [numbers]),
-              returnValue: Future<List<_i21.Tuple<String, String>>>.value(
-                  <_i21.Tuple<String, String>>[]))
-          as _i20.Future<List<_i21.Tuple<String, String>>>);
+              returnValue: Future<List<_i22.Tuple<String, String>>>.value(
+                  <_i22.Tuple<String, String>>[]))
+          as _i21.Future<List<_i22.Tuple<String, String>>>);
   @override
-  _i20.Future<List<_i16.Chat>> fetchByChatType(_i16.ChatType? chatType) =>
+  _i21.Future<List<_i16.Chat>> fetchByChatType(_i16.ChatType? chatType) =>
       (super.noSuchMethod(Invocation.method(#fetchByChatType, [chatType]),
               returnValue: Future<List<_i16.Chat>>.value(<_i16.Chat>[]))
-          as _i20.Future<List<_i16.Chat>>);
+          as _i21.Future<List<_i16.Chat>>);
   @override
-  _i20.Future<_i16.Chat> insert(_i16.Chat? chat) =>
+  _i21.Future<_i16.Chat> insert(_i16.Chat? chat) =>
       (super.noSuchMethod(Invocation.method(#insert, [chat]),
               returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i20.Future<_i16.Chat>);
+          as _i21.Future<_i16.Chat>);
   @override
-  _i20.Future<_i16.Chat> update(_i16.Chat? chat) =>
+  _i21.Future<_i16.Chat> update(_i16.Chat? chat) =>
       (super.noSuchMethod(Invocation.method(#update, [chat]),
               returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i20.Future<_i16.Chat>);
+          as _i21.Future<_i16.Chat>);
   @override
-  _i20.Future<void> deleteById(String? id) => (super.noSuchMethod(
+  _i21.Future<void> deleteById(String? id) => (super.noSuchMethod(
       Invocation.method(#deleteById, [id]),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i20.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i21.Future<void>);
   @override
-  _i20.Future<bool> existsById(String? id) =>
+  _i21.Future<bool> existsById(String? id) =>
       (super.noSuchMethod(Invocation.method(#existsById, [id]),
-          returnValue: Future<bool>.value(false)) as _i20.Future<bool>);
+          returnValue: Future<bool>.value(false)) as _i21.Future<bool>);
   @override
-  _i20.Future<bool> existsByPhoneNumberAndChatType(
+  _i21.Future<bool> existsByPhoneNumberAndChatType(
           String? phoneNumber, _i16.ChatType? chatType) =>
       (super.noSuchMethod(
           Invocation.method(
               #existsByPhoneNumberAndChatType, [phoneNumber, chatType]),
-          returnValue: Future<bool>.value(false)) as _i20.Future<bool>);
+          returnValue: Future<bool>.value(false)) as _i21.Future<bool>);
   @override
-  _i20.Future<String> findIdByPhoneNumberAndChatType(
+  _i21.Future<String> findIdByPhoneNumberAndChatType(
           String? phoneNumber, _i16.ChatType? chatType) =>
       (super.noSuchMethod(
           Invocation.method(
               #findIdByPhoneNumberAndChatType, [phoneNumber, chatType]),
-          returnValue: Future<String>.value('')) as _i20.Future<String>);
+          returnValue: Future<String>.value('')) as _i21.Future<String>);
+  @override
+  String toString() => super.toString();
+}
+
+/// A class which mocks [Client].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockClient extends _i1.Mock implements _i17.Client {
+  MockClient() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i21.Future<_i17.Response> head(Uri? url, {Map<String, String>? headers}) =>
+      (super.noSuchMethod(Invocation.method(#head, [url], {#headers: headers}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<_i17.Response> get(Uri? url, {Map<String, String>? headers}) =>
+      (super.noSuchMethod(Invocation.method(#get, [url], {#headers: headers}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<_i17.Response> post(Uri? url,
+          {Map<String, String>? headers,
+          Object? body,
+          _i23.Encoding? encoding}) =>
+      (super.noSuchMethod(
+              Invocation.method(#post, [url],
+                  {#headers: headers, #body: body, #encoding: encoding}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<_i17.Response> put(Uri? url,
+          {Map<String, String>? headers,
+          Object? body,
+          _i23.Encoding? encoding}) =>
+      (super.noSuchMethod(
+              Invocation.method(#put, [url],
+                  {#headers: headers, #body: body, #encoding: encoding}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<_i17.Response> patch(Uri? url,
+          {Map<String, String>? headers,
+          Object? body,
+          _i23.Encoding? encoding}) =>
+      (super.noSuchMethod(
+              Invocation.method(#patch, [url],
+                  {#headers: headers, #body: body, #encoding: encoding}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<_i17.Response> delete(Uri? url,
+          {Map<String, String>? headers,
+          Object? body,
+          _i23.Encoding? encoding}) =>
+      (super.noSuchMethod(
+              Invocation.method(#delete, [url],
+                  {#headers: headers, #body: body, #encoding: encoding}),
+              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
+          as _i21.Future<_i17.Response>);
+  @override
+  _i21.Future<String> read(Uri? url, {Map<String, String>? headers}) =>
+      (super.noSuchMethod(Invocation.method(#read, [url], {#headers: headers}),
+          returnValue: Future<String>.value('')) as _i21.Future<String>);
+  @override
+  _i21.Future<_i24.Uint8List> readBytes(Uri? url,
+          {Map<String, String>? headers}) =>
+      (super.noSuchMethod(
+              Invocation.method(#readBytes, [url], {#headers: headers}),
+              returnValue: Future<_i24.Uint8List>.value(_i24.Uint8List(0)))
+          as _i21.Future<_i24.Uint8List>);
+  @override
+  _i21.Future<_i17.StreamedResponse> send(_i17.BaseRequest? request) =>
+      (super.noSuchMethod(Invocation.method(#send, [request]),
+              returnValue: Future<_i17.StreamedResponse>.value(
+                  _FakeStreamedResponse_16()))
+          as _i21.Future<_i17.StreamedResponse>);
+  @override
+  void close() => super.noSuchMethod(Invocation.method(#close, []),
+      returnValueForMissingStub: null);
   @override
   String toString() => super.toString();
 }

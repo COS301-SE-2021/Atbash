@@ -76,7 +76,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
               builder: (context) {
                 return Text(
                   controller.model.contactName,
-                  key: Key("contactInfoPage_displayName"),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
                 );
@@ -89,7 +88,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
               builder: (context) {
                 return Text(
                   controller.model.status,
-                  key: Key("contactInfoPage_status"),
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 18),
                 );
@@ -100,7 +98,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             ),
             Text(
               controller.phoneNumber,
-              key: Key("contactInfoPage_phoneNumber"),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -113,7 +110,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
               birthday != null
                   ? "${birthday.day} ${DateFormat.MMMM().format(birthday)} ${birthday.year}"
                   : "Birthday not set",
-              key: Key("contactInfoPage_birthday"),
               textAlign: TextAlign.center,
             ),
             SizedBox(
@@ -126,7 +122,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 child: ElevatedButton(
                   onPressed: () => controller.unblockContact(),
                   child: Text("Unblock Contact"),
-                  key: Key('unblockButton'),
                 ),
               ),
             if (!controller.model.isBlocked)
@@ -136,7 +131,6 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 child: ElevatedButton(
                   onPressed: () => controller.blockContact(),
                   child: Text("Block Contact"),
-                  key: Key('blockButton'),
                 ),
               ),
           ],

@@ -298,7 +298,9 @@ class CommunicationService {
   }
 
   Future<void> _fetchUnreadMessageboxMessages() async {
+    print("Fetching Messagebox messages");
     final List<String> ids = await messageboxService.getAllMessageboxIds();
+    print("MessageboxIds: " + ids.toString());
 
     ids.forEach((mid) async {
       await _fetchUnreadMessageboxMessage(mid);
@@ -309,8 +311,10 @@ class CommunicationService {
     final uri = Uri.parse(Constants.httpUrl + "message?messageboxId=$mId");
     final response = await get(uri);
 
+    print("Fetching messages for mId: " + mId);
     if (response.statusCode == 200) {
       final messages = jsonDecode(response.body) as List;
+      print("Fetched " + messages.length.toString() + " messages");
       messages.forEach((message) async => await _handleEvent(message));
     } else {
       print("${response.statusCode} - ${response.body}");

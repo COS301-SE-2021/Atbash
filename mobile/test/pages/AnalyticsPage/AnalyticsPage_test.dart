@@ -189,4 +189,15 @@ void main() {
 
     expect(widget.data, "1");
   });
+
+  testWidgets("Total_liked_messages", (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: AnalyticsPage(),
+    ));
+    await tester.pump();
+    final finder = find.byKey(Key("AnalyticsPage_totalLikedMessages"));
+    final widget = tester.widget(finder) as Text;
+
+    expect(widget.data, "7");
+  });
 }

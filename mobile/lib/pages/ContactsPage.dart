@@ -69,6 +69,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
     if (_searching) {
       title = TextField(
+        key: Key("searchField"),
         controller: _searchController,
         focusNode: _searchFocusNode,
         onChanged: _filter,
@@ -92,6 +93,7 @@ class _ContactsPageState extends State<ContactsPage> {
           IconButton(
             onPressed: _startSearching,
             icon: Icon(Icons.search),
+            key: Key("searchButton"),
           )
       ],
     );
@@ -134,6 +136,7 @@ class _ContactsPageState extends State<ContactsPage> {
   InkWell _buildNewContactItem(BuildContext context) {
     return InkWell(
       onTap: () => _addContact(context),
+      key: Key("newContactButton"),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         child: Row(
@@ -263,6 +266,7 @@ class _ContactsPageState extends State<ContactsPage> {
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => ChatPage(chatId: chat.id))));
       },
+      key: Key("inkWell${contact.displayName}"),
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0),
         child: Container(
@@ -292,6 +296,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 color: Colors.red,
                 icon: Icons.delete,
                 onTap: () => _deleteContact(contact),
+                key: Key("delete${contact.displayName}"),
               )
             ],
           ),

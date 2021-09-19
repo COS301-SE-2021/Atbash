@@ -2,39 +2,30 @@ const AWS = require("aws-sdk")
 
 const db = new AWS.DynamoDB.DocumentClient({apiVersion: "2012-08-10", region: process.env.AWS_REGION})
 
-exports.getPhoneNumberOfConnection = async (connectionId) => {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const response = await db.query({
-                TableName: process.env.TABLE_CONNECTIONS,
-                KeyConditionExpression: "connectionId = :c",
-                ExpressionAttributeValues: {
-                    ":c": connectionId
-                }
-            }).promise()
-
-            if (response.Items.length === 0) {
-                reject("No phone number associated with connection")
-            } else {
-                resolve(response.Items[0].phoneNumber)
-            }
-        } catch (error) {
-            reject(error)
-        }
-    })
-}
-
-exports.saveMessage = async (id, senderPhoneNumber, recipientPhoneNumber, timestamp, contents) => {
+exports.saveMessage = async (id, recipientPhoneNumber, senderNumberEncrypted, recipientMid, timestamp, encryptedContents) => {
     try {
+        let messageItem
+
+        if (recipientMid === undefined) {
+            messageItem = {
+                id,
+                recipientPhoneNumber,
+                senderNumberEncrypted,
+                timestamp,
+                encryptedContents
+            }
+        } else {
+            messageItem = {
+                id,
+                recipientMid,
+                timestamp,
+                encryptedContents
+            }
+        }
+
         await db.put({
             TableName: process.env.TABLE_MESSAGES,
-            Item: {
-                id,
-                senderPhoneNumber,
-                recipientPhoneNumber,
-                timestamp,
-                contents
-            }
+            Item: messageItem
         }).promise()
     } catch (error) {
         throw error
@@ -58,6 +49,33 @@ exports.getConnectionsOfPhoneNumber = async (phoneNumber) => {
     }
 }
 
+exports.getConnectionOfMessageboxId = async (messageboxId) => {
+    let connectionId = undefined
+
+    try {
+        const response = await db.query({
+            TableName: process.env.TABLE_MESSAGEBOXES,
+            KeyConditionExpression: "id = :i",
+            ExpressionAttributeValues: {
+                ":i": messageboxId
+            }
+        }).promise()
+        console.log(response.Items);
+        if (response.Items.length > 0) {
+            connectionId = response.Items[0].connectionId
+            console.log(response.Items[0].connectionId);
+        }
+    } catch (error) {
+        throw error
+    }
+
+    if (connectionId === undefined) {
+        throw `No messagebox of id ${messageboxId}`
+    } else {
+        return connectionId
+    }
+}
+
 exports.removeConnection = async (connectionId) => {
     try {
         await db.delete({
@@ -69,21 +87,15 @@ exports.removeConnection = async (connectionId) => {
     }
 }
 
-exports.getDeviceTokenForPhoneNumber = async (phoneNumber) => {
+exports.removeMessageboxConnection = async (messageboxId) => {
     try {
-        const response = await db.query({
-            TableName: process.env.TABLE_USERS,
-            KeyConditionExpression: "phoneNumber = :n",
-            ExpressionAttributeValues: {
-                ":n": phoneNumber
-            }
+        await db.update({
+            TableName: process.env.TABLE_MESSAGEBOXES,
+            Key: {
+                "id": messageboxId
+            },
+            UpdateExpression: "set connectionId = null"
         }).promise()
-
-        if (response.Items.length > 0) {
-            return response.Items[0].deviceToken
-        } else {
-            return undefined
-        }
     } catch (error) {
         throw error
     }

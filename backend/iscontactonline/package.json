@@ -1,0 +1,11 @@
+{
+  "name": "iscontactonline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "Bit by Bit",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "aws-sdk": "^2.957.0"
+  }
+}

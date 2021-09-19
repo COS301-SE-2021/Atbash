@@ -1,22 +1,26 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mobile/pages/ProfileSetupPage.dart';
-import 'package:mobile/services/UserService.dart';
+import 'package:mobile/controllers/RegistrationPageController.dart';
+import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/util/Utils.dart';
-import 'package:mobile/constants.dart';
+
+import '../constants.dart';
 
 class RegistrationPage extends StatefulWidget {
-  final UserService userService;
-
-  RegistrationPage({required this.userService});
+  const RegistrationPage({Key? key}) : super(key: key);
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
+  final RegistrationPageController controller;
+
+  _RegistrationPageState() : controller = RegistrationPageController();
+
   final _phoneNumberController = TextEditingController();
 
   bool loading = false;
@@ -46,6 +50,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CountryCodePicker(
+                    showDropDownButton: true,
+                    padding: EdgeInsets.zero,
                     showFlag: false,
                     initialSelection: selectedDialCode,
                     onChanged: (countryCode) {
@@ -55,35 +61,36 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       }
                     },
                   ),
-                  Container(
-                    width: 160,
-                    child: TextField(
-                      cursorColor: Constants.darkGreyColor.withOpacity(0.6),
-                      cursorHeight: 20,
-                      textAlign: TextAlign.center,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        hintText: "Phone Number",
-                        hintStyle: TextStyle(
-                          color: Constants.darkGreyColor.withOpacity(0.6),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Constants.orangeColor,
+                  Expanded(
+                    child: Container(
+                      child: TextField(
+                        cursorColor: Constants.darkGrey.withOpacity(0.6),
+                        cursorHeight: 20,
+                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: "Phone Number",
+                          hintStyle: TextStyle(
+                            color: Constants.darkGrey.withOpacity(0.6),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Constants.orange,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.black,
-                          ),
+                        style: TextStyle(
+                          fontSize: 18,
                         ),
+                        controller: _phoneNumberController,
                       ),
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                      controller: _phoneNumberController,
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -94,7 +101,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           _buildRegisterButton(context),
           Spacer(
             flex: 2,
-          )
+          ),
         ],
       ),
     );
@@ -108,7 +115,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
       );
     } else {
       return MaterialButton(
-        color: Constants.orangeColor,
+        color: Constants.orange,
         elevation: 10,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -132,19 +139,28 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    widget.userService.register(phoneNumber).then(
-      (successful) {
-        if (successful) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => ProfileSetupPage()));
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text("Failed to register")));
-          setState(() {
-            loading = false;
-          });
-        }
-      },
-    );
+    controller.register(phoneNumber).then((verificationCode) {
+      print("Verification code is $verificationCode");
+      FlutterSecureStorage()
+          .write(key: "verification_code", value: verificationCode);
+
+      if (verificationCode != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => VerificationPage(code: verificationCode),
+          ),
+        );
+      } else {
+        showSnackBar(context, "This phone number is already registered");
+        setState(() {
+          loading = false;
+        });
+      }
+    }).catchError((error) {
+      setState(() {
+        loading = false;
+      });
+    });
   }
 }

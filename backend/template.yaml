@@ -30,10 +30,10 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
-  RecipientPhoneNumberIndex:
+  TableMessageboxes:
     Type: String
-    Default: 'recipientPhoneNumber-index'
-    Description: (Required) The name of the DyanmoDB global index for recipientPhoneNumber on the messages table
+    Default: 'atbash-messageboxes'
+    Description: (Required) The name of the DynamoDB table to store messageboxes
     MinLength: 3
     MaxLength: 50
     AllowedPattern: ^[A-Za-z\-]+$
@@ -61,6 +61,18 @@ Parameters:
     AllowedPattern: ^[A-Za-z\-]+$
     ConstraintDescription: 'Required. Can be characters and dash only. No numbers or special characters allowed.'
 
+  SNSAccessKeyId:
+    Type: String
+    Description: (Required) The access key id to send SNS requests
+
+  SNSSecretAccessKey:
+    Type: String
+    Description: (Required) The secret access key to send SNS requests
+
+  MessageboxKeypair:
+    Type: String
+    Description: (Required) The keypair for verifying creation of message boxes
+
 Resources:
   # --- DynamoDB Tables --- #
   ConnectionsTable:
@@ -75,8 +87,8 @@ Resources:
         - AttributeName: 'connectionId'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableConnections
@@ -86,10 +98,13 @@ Resources:
             - AttributeName: 'phoneNumber'
               KeyType: 'HASH'
           ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
+            ReadCapacityUnits: 4
+            WriteCapacityUnits: 4
           Projection:
             ProjectionType: ALL
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   UsersTable:
     Type: AWS::DynamoDB::Table
@@ -101,11 +116,14 @@ Resources:
         - AttributeName: 'phoneNumber'
           KeyType: 'HASH'
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
       SSESpecification:
         SSEEnabled: true
       TableName: !Ref TableUsers
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   MessagesTable:
     Type: AWS::DynamoDB::Table
@@ -119,21 +137,33 @@ Resources:
         - AttributeName: 'id'
           KeyType: 'HASH'
       ProvisionedThroughput:
+        ReadCapacityUnits: 4
+        WriteCapacityUnits: 4
+      SSESpecification:
+        SSEEnabled: true
+      TableName: !Ref TableMessages
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
+
+  MessageboxesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'id'
+          AttributeType: 'S'
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: 'HASH'
+      ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
       SSESpecification:
         SSEEnabled: true
-      TableName: !Ref TableMessages
-      GlobalSecondaryIndexes:
-        - IndexName: !Ref RecipientPhoneNumberIndex
-          KeySchema:
-            - AttributeName: 'recipientPhoneNumber'
-              KeyType: 'HASH'
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
-          Projection:
-            ProjectionType: ALL
+      TableName: !Ref TableMessageboxes
+      Tags:
+        - Key: 'auto-delete'
+          Value: 'no'
 
   MediaStorageBucket:
     Type: AWS::S3::Bucket
@@ -154,6 +184,12 @@ Resources:
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableConnections
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'execute-api:ManageConnections'
+              Resource:
+                - !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${AtbashWebSocket}/*'
 
   OnConnectPermission:
     Type: AWS::Lambda::Permission
@@ -190,16 +226,25 @@ Resources:
   RegisterFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: register/
+      CodeUri: register_user/
       Handler: index.handler
       Runtime: nodejs14.x
       MemorySize: 128
       Environment:
         Variables:
-          TABLE_NAME: !Ref TableUsers
+          TABLE_USERS: !Ref TableUsers
+          SNS_ACCESS_KEY_ID: !Ref SNSAccessKeyId
+          SNS_SECRET_ACCESS_KEY: !Ref SNSSecretAccessKey
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableUsers
+        - Statement:
+            - Effect: Allow
+              Action:
+                - 'sns:Publish'
+              Resource:
+                - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:*'
+
 
   RegisterPermission:
     Type: AWS::Lambda::Permission
@@ -208,6 +253,52 @@ Resources:
     Properties:
       Action: lambda:InvokeFunction
       FunctionName: !Ref RegisterFunction
+      Principal: apigateway.amazonaws.com
+
+  RegisterKeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: register_keys/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  RegisterKeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref RegisterKeysFunction
+      Principal: apigateway.amazonaws.com
+
+  GetPrekeyBundleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_prekey_bundle/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  GetPrekeyBundlePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetPrekeyBundleFunction
       Principal: apigateway.amazonaws.com
 
   SendMessageFunction:
@@ -222,8 +313,10 @@ Resources:
           TABLE_CONNECTIONS: !Ref TableConnections
           TABLE_MESSAGES: !Ref TableMessages
           TABLE_USERS: !Ref TableUsers
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
           INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
           FCMKey: !Ref FCMKey
+          WEB_SOCKET_DOMAIN: !GetAtt AtbashWebSocket.ApiEndpoint
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref TableMessages
@@ -231,6 +324,8 @@ Resources:
             TableName: !Ref TableConnections
         - DynamoDBReadPolicy:
             TableName: !Ref TableUsers
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
         - Statement:
             - Effect: Allow
               Action:
@@ -257,7 +352,6 @@ Resources:
       Environment:
         Variables:
           TABLE_MESSAGES: !Ref TableMessages
-          INDEX_RECIPIENT_PHONE_NUMBER: !Ref RecipientPhoneNumberIndex
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref TableMessages
@@ -340,6 +434,239 @@ Resources:
       FunctionName: !Ref GetRSAPublicKeyFunction
       Principal: apigateway.amazonaws.com
 
+  IsContactOnlineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: iscontactonline/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+          INDEX_PHONE_NUMBER: !Ref PhoneNumberIndex
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableConnections
+
+  IsContactOnlinePermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref IsContactOnlineFunction
+      Principal: apigateway.amazonaws.com
+
+  GetNumberPrekeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_number_prekeys/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
+
+  GetNumberPrekeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetNumberPrekeysFunction
+      Principal: apigateway.amazonaws.com
+
+  UploadKeysFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: upload_keys
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  UploadKeysPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref UploadKeysFunction
+      Principal: apigateway.amazonaws.com
+
+  DoesNumberExistFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: does_number_exist/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TableUsers
+
+  DoesNumberExistPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DoesNumberExistFunction
+      Principal: apigateway.amazonaws.com
+
+  SetMessageboxConnectionIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: set_messagebox_connection_id
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  SetMessageboxConnectionIdPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref SetMessageboxConnectionIdFunction
+      Principal: apigateway.amazonaws.com
+
+  GetServerPublicKeyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_serverpublickey
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+          TABLE_USERS: !Ref TableUsers
+
+  GetServerPublicKeyPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetServerPublicKeyFunction
+      Principal: apigateway.amazonaws.com
+
+  CreateMessageboxFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  CreateMessageboxPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxFunction
+      Principal: apigateway.amazonaws.com
+
+  CreateMessageboxTokensFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox_tokens/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Timeout: 20
+      Environment:
+        Variables:
+          TABLE_USERS: !Ref TableUsers
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableUsers
+
+  CreateMessageboxTokensPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxTokensFunction
+      Principal: apigateway.amazonaws.com
+
+  CreateMessageboxVerifiedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: create_messagebox_verified/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_MESSAGEBOXES: !Ref TableMessageboxes
+          MESSAGEBOX_KEYPAIR: !Ref MessageboxKeypair
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableMessageboxes
+
+  CreateMessageboxVerifiedPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref CreateMessageboxVerifiedFunction
+      Principal: apigateway.amazonaws.com
+
+  GetAnonymousConnectionIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_anonymous_connection_id/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableConnections
+
+  GetAnonymousConnectionIdPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetAnonymousConnectionIdFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -388,32 +715,11 @@ Resources:
       IntegrationType: AWS_PROXY
       IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OnDisconnectFunction.Arn}/invocations
 
-  SendMessageRoute:
-    Type: AWS::ApiGatewayV2::Route
-    Properties:
-      ApiId: !Ref AtbashWebSocket
-      RouteKey: sendmessage
-      OperationName: SendMessageRoute
-      AuthorizationType: NONE
-      Target: !Join
-        - '/'
-        - - 'integrations'
-          - !Ref SendMessageIntegration
-  SendMessageIntegration:
-    Type: AWS::ApiGatewayV2::Integration
-    DependsOn:
-      - SendMessageFunction
-    Properties:
-      ApiId: !Ref AtbashWebSocket
-      IntegrationType: AWS_PROXY
-      IntegrationUri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SendMessageFunction.Arn}/invocations
-
   AtbashWebSocketDeployment:
     Type: AWS::ApiGatewayV2::Deployment
     DependsOn:
       - ConnectRoute
       - DisconnectRoute
-      - SendMessageRoute
     Properties:
       ApiId: !Ref AtbashWebSocket
 
@@ -430,6 +736,36 @@ Resources:
     Properties:
       Name: atbash-rest
       ProtocolType: HTTP
+
+  SendMessageRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messages'
+      OperationName: SendMessageRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SendMessageIntegration
+  SendMessageIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SendMessageFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt SendMessageFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
 
   RegisterRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -460,6 +796,65 @@ Resources:
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'
+
+  RegisterKeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/register'
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref RegisterKeysIntegration
+  RegisterKeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - RegisterKeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt RegisterKeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetPrekeyBundleRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/get'
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetPrekeyBundleIntegration
+  GetPrekeyBundleIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetPrekeyBundleFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetPrekeyBundleFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
 
   GetMessagesRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -577,6 +972,306 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt GetRSAPublicKeyFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  IsContactOnlineRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /user/{phoneNumber}/online'
+      OperationName: IsContactOnlineRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref IsContactOnlineIntegration
+  IsContactOnlineIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - IsContactOnlineFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt IsContactOnlineFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetNumberPrekeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/getNumber'
+      OperationName: GetNumberPrekeysRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetNumberPrekeysIntegration
+  GetNumberPrekeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetNumberPrekeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetNumberPrekeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  UploadKeysRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /keys/upload'
+      OperationName: UploadKeysRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref UploadKeysIntegration
+  UploadKeysIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - UploadKeysFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt UploadKeysFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  SetMessageboxConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'PUT /messageboxes/{messageboxId}/connectionId'
+      OperationName: SetMessageboxConnectionIdRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref SetMessageboxConnectionIdIntegration
+  SetMessageboxConnectionIdIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - SetMessageboxConnectionIdFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt SetMessageboxConnectionIdFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetServerPublicKeyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /messageboxes/serverPublicKey'
+      OperationName: GetServerPublicKeyRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetServerPublicKeyIntegration
+  GetServerPublicKeyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetServerPublicKeyFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetServerPublicKeyFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  DoesNumberExistRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /user/{phoneNumber}/exists'
+      OperationName: DoesNumberExistRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref DoesNumberExistIntegration
+  DoesNumberExistIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - DoesNumberExistFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt DoesNumberExistFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  CreateMessageboxRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/create'
+      OperationName: CreateMessageboxRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxIntegration
+  CreateMessageboxIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  CreateMessageboxTokensRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/createTokens'
+      OperationName: CreateMessageboxTokensRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxTokensIntegration
+  CreateMessageboxTokensIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxTokensFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxTokensFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  CreateMessageboxVerifiedRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'POST /messageboxes/createVerify'
+      OperationName: CreateMessageboxVerifiedRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref CreateMessageboxVerifiedIntegration
+  CreateMessageboxVerifiedIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - CreateMessageboxVerifiedFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt CreateMessageboxVerifiedFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetAnonymousConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /connection'
+      OperationName: GetAnonymousConnectionIdRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetAnonymousConnectionIdIntegration
+  GetAnonymousConnectionIdIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetAnonymousConnectionIdFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetAnonymousConnectionIdFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_ui/Domain/Message.dart';
 import 'package:mobile_ui/Domain/constants.dart';
@@ -65,12 +67,16 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
           Container(
+            color: Constants.darkGreyColor.withOpacity(0.88),
             child: SafeArea(
               child: Row(
                 children: [
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(Icons.add_circle_outline),
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: Colors.white,
+                    ),
                   ),
                   SizedBox(
                     width: 5,
@@ -79,7 +85,7 @@ class _ChatPageState extends State<ChatPage> {
                     child: Container(
                       height: 35,
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.5),
+                        color: Constants.orangeColor,
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Padding(
@@ -100,7 +106,10 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                   IconButton(
                     onPressed: () {},
-                    icon: Icon(Icons.send),
+                    icon: Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
@@ -112,69 +121,110 @@ class _ChatPageState extends State<ChatPage> {
   }
 }
 
-class ChatCard extends StatelessWidget {
+class ChatCard extends StatefulWidget {
   const ChatCard({Key? key, required this.message}) : super(key: key);
 
   final Message message;
 
   @override
-  Widget build(BuildContext context) {
-    Alignment alignment;
-    EdgeInsets padding;
-    Color color;
+  _ChatCardState createState() => _ChatCardState();
+}
 
-    if (message.isSender) {
-      alignment = Alignment.centerRight;
-      padding = EdgeInsets.only(left: 100, right: 20);
-      color = Constants.orangeColor;
-    } else {
-      alignment = Alignment.centerLeft;
-      padding = EdgeInsets.only(left: 20, right: 100);
-      color = Constants.darkGreyColor;
-    }
+class _ChatCardState extends State<ChatCard> {
+  var isLiked = true;
+
+  @override
+  Widget build(BuildContext context) {
+    bool rnd = Random().nextBool();
 
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 2.5, horizontal: 15),
       child: Align(
-        alignment: alignment,
-        child: Padding(
-          padding: padding,
-          child: Card(
-            color: color.withOpacity(0.8),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-                  child: Text(
-                    message.contents,
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
+        alignment: widget.message.isSender
+            ? Alignment.centerLeft
+            : Alignment.centerRight,
+        child: IntrinsicWidth(
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                Positioned(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      "11:11",
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.white,
+                child: InkWell(
+                  onDoubleTap: () {
+                    setState(() {
+                      isLiked = !isLiked;
+                    });
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (rnd)
+                        Container(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.reply,
+                                textDirection: TextDirection.rtl,
+                                size: 16,
+                                color: Colors.black.withOpacity(0.69),
+                              ),
+                              Text(
+                                "Forwarded",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black.withOpacity(0.69)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(5, 2, 0, 0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "12:34",
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
+                            if (!widget.message.isSender)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 2),
+                                child: Icon(
+                                  Icons.done_all,
+                                  size: 16,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Container(
+                        padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+                        child: Text(widget.message.contents),
+                        constraints: BoxConstraints(
+                            maxWidth:
+                                MediaQuery.of(context).size.width * (7 / 10)),
+                      ),
+                    ],
                   ),
                 ),
-                Positioned(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(35, 7, 8, 0),
-                    child: Icon(
-                      Icons.bookmark_border,
-                      size: 15,
-                      color: Colors.white,
-                    ),
+              ),
+              if (isLiked)
+                Container(
+                  alignment: widget.message.isSender
+                      ? Alignment.topLeft
+                      : Alignment.topRight,
+                  child: Icon(
+                    Icons.favorite,
+                    size: 16,
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

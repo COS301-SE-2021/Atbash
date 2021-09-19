@@ -1,21 +1,16 @@
-import 'package:mobile/domain/Message.dart';
+import 'package:flutter/material.dart';
 
 String cullToE164(String phoneNumber) {
   return phoneNumber.replaceAll(RegExp("(\s|[^0-9]|^0*)"), "");
 }
 
-ReadReceipt? parseReadReceipt(Object? value) {
-  if (!(value is String)) {
-    return null;
-  }
-  switch (value) {
-    case "ReadReceipt.delivered":
-      return ReadReceipt.delivered;
-    case "ReadReceipt.undelivered":
-      return ReadReceipt.undelivered;
-    case "ReadReceipt.seen":
-      return ReadReceipt.seen;
-    default:
-      return null;
-  }
+void showSnackBar(BuildContext context, String message,
+    {Duration duration = const Duration(seconds: 4)}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: duration,
+      key: Key("snackBar"),
+    ),
+  );
 }

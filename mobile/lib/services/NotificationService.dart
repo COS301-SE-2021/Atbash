@@ -1,16 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:mobile/pages/ChatPage.dart';
+import 'dart:convert';
+import 'dart:math';
 
-import 'DatabaseService.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
-  final _localNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-  final DatabaseService _databaseService;
-  final GlobalKey<NavigatorState> _navigatorKey;
-
-  NotificationService(this._databaseService, this._navigatorKey);
+  final _lnp = FlutterLocalNotificationsPlugin();
+  void Function(String? payload)? onNotificationPressed;
 
   Future<bool> init() async {
     final androidInitSettings = AndroidInitializationSettings("atbash_64");
@@ -22,23 +17,15 @@ class NotificationService {
       onDidReceiveLocalNotification: null,
     );
 
-    final initializationSettings = InitializationSettings(
+    final initSettings = InitializationSettings(
       android: androidInitSettings,
       iOS: iosInitSettings,
     );
 
-    final permissionGranted = await _localNotificationsPlugin.initialize(
-      initializationSettings,
-      onSelectNotification: (payload
-          /* payload should be sender number */) async {
-        if (payload != null) {
-          final sender = await _databaseService.fetchContactByNumber(payload);
-
-          if (sender != null) {
-            await _navigatorKey.currentState?.push(
-                MaterialPageRoute(builder: (context) => ChatPage(sender)));
-          }
-        }
+    final permissionGranted = await _lnp.initialize(
+      initSettings,
+      onSelectNotification: (payload) async {
+        onNotificationPressed?.call(payload);
       },
     );
 
@@ -49,13 +36,12 @@ class NotificationService {
     }
   }
 
-  void showNotification(
-    int id,
-    String title,
-    String body,
-    String payload,
-    bool withSound,
-  ) {
+  void showNotification({
+    required String title,
+    required String body,
+    bool withSound = false,
+    Map<String, Object>? payload,
+  }) {
     final androidNotificationDetails = AndroidNotificationDetails(
       "message",
       "Messages",
@@ -76,12 +62,12 @@ class NotificationService {
       iOS: iosNotificationDetails,
     );
 
-    _localNotificationsPlugin.show(
-      id,
+    _lnp.show(
+      Random().nextInt(25000),
       title,
       body,
       notificationDetails,
-      payload: payload,
+      payload: jsonEncode(payload),
     );
   }
 }

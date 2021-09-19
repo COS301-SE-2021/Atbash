@@ -20,13 +20,35 @@ void main() {
   GetIt.I.registerSingleton<MessageService>(messageService);
   GetIt.I.registerSingleton<ChatService>(chatService);
 
-  setUpAll((){
+  setUpAll(() {
     when(chatService.fetchByChatType(any)).thenAnswer((_) => Future.value([
-      Chat(id: "123", contactPhoneNumber: "0837772222", contact: Contact(phoneNumber: "0837772222", displayName: "John", profileImage: "", status: "Hi"), chatType: ChatType.general),
-      Chat(id: "456", contactPhoneNumber: "0721233413", contact: Contact(phoneNumber: "0721233413", displayName: "Liam", profileImage: "", status: "New to Atbash"), chatType: ChatType.general),
-      Chat(id: "789", contactPhoneNumber: "0836006179", contact: Contact(phoneNumber: "0836006179", displayName: "Dylan", profileImage: "", status: "Yum"), chatType: ChatType.general)
-    ]));
+          Chat(
+              id: "123",
+              contactPhoneNumber: "0837772222",
+              contact: Contact(
+                  phoneNumber: "0837772222",
+                  displayName: "John",
+                  profileImage: "",
+                  status: "Hi"),
+              chatType: ChatType.general),
+          Chat(
+              id: "456",
+              contactPhoneNumber: "0721233413",
+              contact: Contact(
+                  phoneNumber: "0721233413",
+                  displayName: "Liam",
+                  profileImage: "",
+                  status: "New to Atbash"),
+              chatType: ChatType.general),
+          Chat(
+              id: "789",
+              contactPhoneNumber: "0836006179",
+              contact: Contact(
+                  phoneNumber: "0836006179",
+                  displayName: "Dylan",
+                  profileImage: "",
+                  status: "Yum"),
+              chatType: ChatType.general)
+        ]));
   });
-
-
 }

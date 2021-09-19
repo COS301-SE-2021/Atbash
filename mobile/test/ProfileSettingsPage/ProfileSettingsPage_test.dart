@@ -50,23 +50,6 @@ void main() {
 
       expect(find.widgetWithText(MaterialButton, "Next"), findsOneWidget);
     });
-
-    testWidgets("When clicking next, should display alertDialog",
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: ProfileSettingsPage(
-          setup: true,
-          controller: controller,
-        ),
-      ));
-
-      final button = find.byKey(Key('button'));
-
-      await tester.tap(button);
-      await tester.pump();
-
-      expect(find.byKey(Key('alertDialog')), findsOneWidget);
-    });
   });
 
   group("Widget tests for entering the page after initial setup", () {

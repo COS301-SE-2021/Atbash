@@ -253,28 +253,4 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       });
     }
   }
-
-  showAlertDialog(BuildContext context) {
-    // Create button
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          Widget okButton = TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          );
-
-          AlertDialog alert = AlertDialog(
-            title: Text("ALERT"),
-            content: Text("Your device does not have a functional camera."),
-            actions: [
-              okButton,
-            ],
-          );
-          return alert;
-        });
-  }
 }

@@ -129,6 +129,7 @@ class _ContactsPageState extends State<ContactsPage> {
           _buildNewContactItem(context),
           ..._buildContactList(context, _searching)
         ],
+        key: Key("ListView"),
       );
     });
   }

@@ -62,8 +62,8 @@ describe("Unit tests for index.handler for sendmessage", () => {
             requestContext: {connectionId: "123"},
             body: JSON.stringify({
                 id: "123",
-                contents: "contents",
-                senderPhoneNumber: "123",
+                encryptedContents: "contents",
+                senderNumberEncrypted: "123",
                 recipientPhoneNumber: "123"
             })
         }

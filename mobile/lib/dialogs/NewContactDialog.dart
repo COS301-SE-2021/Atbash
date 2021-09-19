@@ -37,6 +37,7 @@ class __NewContactDialogState extends State<_NewContactDialog> {
             TextField(
               controller: _nameController,
               decoration: InputDecoration(hintText: "Name"),
+              key: Key("NewContactDialog_nameField"),
             ),
             Row(
               children: [
@@ -57,6 +58,7 @@ class __NewContactDialogState extends State<_NewContactDialog> {
                     controller: _phoneNumberController,
                     decoration: InputDecoration(hintText: "Phone number"),
                     keyboardType: TextInputType.phone,
+                    key: Key("NewContactDialog_phoneField"),
                   ),
                 ),
               ],
@@ -85,6 +87,7 @@ class __NewContactDialogState extends State<_NewContactDialog> {
                   SnackBar(content: Text("Both name and number are required")));
             }
           },
+          key: Key("NewContactDialog_AddButton"),
           child: Text("ADD"),
         ),
       ],

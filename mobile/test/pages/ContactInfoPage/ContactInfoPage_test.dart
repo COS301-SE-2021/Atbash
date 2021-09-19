@@ -85,5 +85,59 @@ void main() {
       expect(find.byKey(Key('contactInfoPage_status')), findsOneWidget);
       expect(find.text('Hello'), findsOneWidget);
     });
+
+    testWidgets("Phone number should show '0728954829'",
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('contactInfoPage_phoneNumber')), findsOneWidget);
+      expect(find.text('0728954829'), findsOneWidget);
+    });
+
+    testWidgets("When birthday not set, should show 'Birthday not set'",
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('contactInfoPage_birthday')), findsOneWidget);
+      expect(find.text('Birthday not set'), findsOneWidget);
+    });
+
+    testWidgets("When birthday is set, should show birthday",
+        (WidgetTester tester) async {
+      when(contactService.fetchByPhoneNumber(any)).thenAnswer(
+        (_) => Future.value(
+          Contact(
+            phoneNumber: "0728954829",
+            displayName: "ABC",
+            status: "Hello",
+            profileImage: "",
+            birthday: DateTime(2000, 9, 11),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('contactInfoPage_birthday')), findsOneWidget);
+      expect(find.text('11 September 2000'), findsOneWidget);
+    });
   });
 }

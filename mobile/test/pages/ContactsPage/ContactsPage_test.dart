@@ -274,8 +274,56 @@ void main() {
     });
 
     testWidgets(
+        "Trying to add a contact that doesn't exist on the server shows 'No user with phone number 0728954829 exists' snackbar",
+        (WidgetTester tester) async {
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 404)));
+
+      await tester.pumpWidget(MaterialApp(
+        home: ContactsPage(),
+      ));
+
+      await tester.pump();
+
+      final newContactButton = find.byKey(Key("newContactButton"));
+      expect(newContactButton, findsOneWidget);
+
+      await tester.tap(newContactButton);
+      await tester.pump();
+
+      final newContactDialog = find.byType(AlertDialog);
+      expect(newContactDialog, findsOneWidget);
+
+      final nameField = find.byKey(Key("NewContactDialog_nameField"));
+      final numberField = find.byKey(Key("NewContactDialog_phoneField"));
+      expect(nameField, findsOneWidget);
+      expect(numberField, findsOneWidget);
+
+      await tester.enterText(nameField, "Connor");
+      await tester.enterText(numberField, "0728954829");
+
+      await tester.pump();
+
+      final addButton = find.byKey(Key("NewContactDialog_AddButton"));
+      expect(addButton, findsOneWidget);
+
+      await tester.tap(addButton);
+      await tester.pump();
+
+      expect(
+          find.widgetWithText(
+              SnackBar, "No user with phone number +27728954829 exists"),
+          findsOneWidget);
+    });
+
+    testWidgets(
         "Trying to add a contact that already exists shows 'A contact already exists with the number ...' snackbar",
         (WidgetTester tester) async {
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 204)));
+      when(contactService.insert(any))
+          .thenThrow(DuplicateContactPhoneNumberException());
+
       await tester.pumpWidget(MaterialApp(
         home: ContactsPage(),
       ));
@@ -307,18 +355,26 @@ void main() {
       await tester.tap(addButton);
       await tester.pumpAndSettle();
 
-      when(mockClient.get(any))
-          .thenAnswer((_) => Future.value(http.Response("", 204)));
-
       expect(
-          find.widgetWithText(
-              SnackBar, "A contact already exists with the number 0728954829"),
+          find.widgetWithText(SnackBar,
+              "A contact already exists with the number +27728954829"),
           findsOneWidget);
     });
 
-    testWidgets(
-        "Trying to add a contact that doesn't exist shows 'No user with phone number 0728954829 exists' snackbar",
+    testWidgets("Adding a contact successfully adds the list item",
         (WidgetTester tester) async {
+      when(mockClient.get(any))
+          .thenAnswer((_) => Future.value(http.Response("", 204)));
+      when(contactService.insert(any)).thenAnswer((realInvocation) =>
+          Future.value(Contact(
+              phoneNumber: "", displayName: "", status: "", profileImage: "")));
+      when(communicationService.sendRequestStatus(any))
+          .thenAnswer((realInvocation) => Future.value());
+      when(communicationService.sendRequestProfileImage(any))
+          .thenAnswer((realInvocation) => Future.value());
+      when(communicationService.sendRequestBirthday(any))
+          .thenAnswer((realInvocation) => Future.value());
+
       await tester.pumpWidget(MaterialApp(
         home: ContactsPage(),
       ));
@@ -339,8 +395,8 @@ void main() {
       expect(nameField, findsOneWidget);
       expect(numberField, findsOneWidget);
 
-      await tester.enterText(nameField, "Connor");
-      await tester.enterText(numberField, "0728954829");
+      await tester.enterText(nameField, "Adam");
+      await tester.enterText(numberField, "07245341231828");
 
       await tester.pump();
 
@@ -350,51 +406,7 @@ void main() {
       await tester.tap(addButton);
       await tester.pump();
 
-      when(mockClient.get(any))
-          .thenAnswer((_) => Future.value(http.Response("", 404)));
-
-      expect(
-          find.widgetWithText(
-              SnackBar, "No user with phone number 0728954829 exists"),
-          findsOneWidget);
-    });
-
-    testWidgets(
-        "Trying to add a contact that already exists shows 'A contact already exists with the number ...' snackbar",
-        (WidgetTester tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: ContactsPage(),
-      ));
-
-      await tester.pump();
-
-      final newContactButton = find.byKey(Key("newContactButton"));
-      expect(newContactButton, findsOneWidget);
-
-      await tester.tap(newContactButton);
-      await tester.pump();
-
-      final newContactDialog = find.byType(AlertDialog);
-      expect(newContactDialog, findsOneWidget);
-
-      final nameField = find.byKey(Key("NewContactDialog_nameField"));
-      final numberField = find.byKey(Key("NewContactDialog_phoneField"));
-      expect(nameField, findsOneWidget);
-      expect(numberField, findsOneWidget);
-
-      await tester.enterText(nameField, "Connor");
-      await tester.enterText(numberField, "0728954829");
-
-      await tester.pump();
-
-      final addButton = find.byKey(Key("NewContactDialog_AddButton"));
-      expect(addButton, findsOneWidget);
-
-      await tester.tap(addButton);
-      await tester.pump();
-
-      when(mockClient.get(any))
-          .thenAnswer((_) => Future.value(http.Response("", 204)));
+      expect(find.byKey(Key("inkWellAdam")), findsOneWidget);
     });
 
     testWidgets("Deleting a contact (Connor) removes them from the page",

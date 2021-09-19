@@ -50,7 +50,7 @@ void main() {
               Message(
                   id: "12345",
                   chatId: "123",
-                  isIncoming: true,
+                  isIncoming: false,
                   otherPartyPhoneNumber: "0836006179",
                   contents: "Hi, how are you?",
                   timestamp: DateTime.now()),
@@ -61,7 +61,14 @@ void main() {
                   otherPartyPhoneNumber: "0836006179",
                   contents: "I'm good. What are you doing?",
                   timestamp: DateTime.now(),
-                  liked: true)
+                  liked: true),
+              Message(
+                  id: "35287",
+                  chatId: "123",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0836006179",
+                  contents: "what's up",
+                  timestamp: DateTime.now())
             ]));
 
     when(messageService.fetchAllByChatId("789"))
@@ -69,7 +76,7 @@ void main() {
               Message(
                   id: "54353",
                   chatId: "789",
-                  isIncoming: true,
+                  isIncoming: false,
                   otherPartyPhoneNumber: "0837772222",
                   contents: "I am good and you?",
                   timestamp: DateTime.now(),
@@ -80,7 +87,25 @@ void main() {
                   isIncoming: true,
                   otherPartyPhoneNumber: "0837772222",
                   contents: "TV and you?",
+                  timestamp: DateTime.now()),
+              Message(
+                  id: "63527",
+                  chatId: "789",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0837772222",
+                  contents: "jolly",
                   timestamp: DateTime.now())
             ]));
+  });
+
+  testWidgets("Total text messages sent", (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: AnalyticsPage(),
+    ));
+    await tester.pump();
+    final finder = find.byKey(Key("AnalyticsPage_totalMessagesSent"));
+    final widget = tester.widget(finder) as Text;
+
+    expect(widget.data, "4");
   });
 }

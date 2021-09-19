@@ -261,21 +261,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 dense: true,
               ),
-              ListTile(
-                leading: Icon(
-                  Icons.delete_forever,
-                  color: Constants.orange,
-                ),
-                title: Text(
-                  "Delete Account",
-                  style: TextStyle(fontSize: 16),
-                ),
-                trailing: Icon(Icons.arrow_forward_rounded),
-                onTap: () {
-                  //TODO Delete Account Logic
-                },
-                dense: true,
-              ),
+              // ListTile(
+              //   leading: Icon(
+              //     Icons.delete_forever,
+              //     color: Constants.orange,
+              //   ),
+              //   title: Text(
+              //     "Delete Account",
+              //     style: TextStyle(fontSize: 16),
+              //   ),
+              //   trailing: Icon(Icons.arrow_forward_rounded),
+              //   onTap: () {
+              //     //TODO Delete Account Logic
+              //   },
+              //   dense: true,
+              // ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(

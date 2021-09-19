@@ -619,11 +619,11 @@ class ChatCard extends StatelessWidget {
                             onPressed: onMediaDownload,
                             trailingIcon: Icon(Icons.save_alt),
                           ),
-                        if (!_message.deleted && chatType == ChatType.general)
-                          FocusedMenuItem(
-                              title: Text("Tag"),
-                              onPressed: () {},
-                              trailingIcon: Icon(Icons.tag)),
+                        // if (!_message.deleted && chatType == ChatType.general)
+                        //   FocusedMenuItem(
+                        //       title: Text("Tag"),
+                        //       onPressed: () {},
+                        //       trailingIcon: Icon(Icons.tag)),
                         if (!_message.deleted &&
                             !_message.isMedia &&
                             !_message.isIncoming)

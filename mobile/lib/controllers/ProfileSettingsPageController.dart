@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ProfileSettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
@@ -10,6 +11,8 @@ import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:contacts_service/contacts_service.dart' as ImportContact;
+
+import '../constants.dart';
 
 class ProfileSettingsPageController {
   final UserService userService = GetIt.I.get();
@@ -84,7 +87,12 @@ class ProfileSettingsPageController {
           String? name = contact.displayName;
           if (mobileNumber != null && name != null) {
             String phoneNumber = "+" + cullToE164(mobileNumber);
-            _addContact(phoneNumber, name).catchError((_) {});
+            get(Uri.parse(Constants.httpUrl + "user/$phoneNumber/exists"))
+                .then((response) {
+              if (response.statusCode == 200 && response.body == "true") {
+                _addContact(phoneNumber, name).catchError((_) {});
+              }
+            });
           }
         }
       });

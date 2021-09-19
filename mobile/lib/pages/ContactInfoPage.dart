@@ -126,6 +126,7 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 child: ElevatedButton(
                   onPressed: () => controller.unblockContact(),
                   child: Text("Unblock Contact"),
+                  key: Key('unblockButton'),
                 ),
               ),
             if (!controller.model.isBlocked)
@@ -135,6 +136,7 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 child: ElevatedButton(
                   onPressed: () => controller.blockContact(),
                   child: Text("Block Contact"),
+                  key: Key('blockButton'),
                 ),
               ),
           ],

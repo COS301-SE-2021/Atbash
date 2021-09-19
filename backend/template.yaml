@@ -643,6 +643,29 @@ Resources:
       FunctionName: !Ref CreateMessageboxVerifiedFunction
       Principal: apigateway.amazonaws.com
 
+  GetAnonymousConnectionIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: get_anonymous_connection_id/
+      Handler: index.handler
+      Runtime: nodejs14.x
+      MemorySize: 128
+      Environment:
+        Variables:
+          TABLE_CONNECTIONS: !Ref TableConnections
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TableConnections
+
+  GetAnonymousConnectionIdPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn:
+      - AtbashREST
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GetAnonymousConnectionIdFunction
+      Principal: apigateway.amazonaws.com
+
   # --- Web Socket API --- #
   AtbashWebSocket:
     Type: AWS::ApiGatewayV2::Api
@@ -1218,6 +1241,36 @@ Resources:
           - !Ref 'AWS::Region'
           - ':lambda:path/2015-03-31/functions/'
           - !GetAtt CreateMessageboxVerifiedFunction.Arn
+          - '/invocations'
+      IntegrationMethod: POST
+      PayloadFormatVersion: '2.0'
+
+  GetAnonymousConnectionIdRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref AtbashREST
+      RouteKey: 'GET /connection'
+      OperationName: GetAnonymousConnectionIdRoute
+      AuthorizationType: NONE
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref GetAnonymousConnectionIdIntegration
+  GetAnonymousConnectionIdIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - GetAnonymousConnectionIdFunction
+    Properties:
+      ApiId: !Ref AtbashREST
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Join
+        - ''
+        - - 'arn:'
+          - !Ref 'AWS::Partition'
+          - ':apigateway:'
+          - !Ref 'AWS::Region'
+          - ':lambda:path/2015-03-31/functions/'
+          - !GetAtt GetAnonymousConnectionIdFunction.Arn
           - '/invocations'
       IntegrationMethod: POST
       PayloadFormatVersion: '2.0'

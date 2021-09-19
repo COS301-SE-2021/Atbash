@@ -14,7 +14,10 @@ exports.getAnonymousConnectionId = (anonymousId) => {
             }).promise()
 
             if(response.Count > 0){
-                console.log(response.Items);
+                // console.log(response.Items);
+                // console.log(response.Items[0]);
+                // console.log(response.Items[0]["connectionId"]);
+                // resolve(response.Items[0].connectionId);
                 resolve(response.Items[0]["connectionId"]);
             } else {
                 reject("Specified anonymousId doesn't exits");
@@ -25,11 +28,11 @@ exports.getAnonymousConnectionId = (anonymousId) => {
     })
 }
 
-exports.deleteAnonymousConnectionById = async (id) => {
+exports.deleteAnonymousConnectionById = async (connectionId) => {
     try {
         await db.delete({
             TableName: process.env.TABLE_CONNECTIONS,
-            Key: {id}
+            Key: {connectionId}
         }).promise()
     } catch (error) {
         throw error

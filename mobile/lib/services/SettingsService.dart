@@ -7,19 +7,6 @@ class SettingsService {
     await _storage.write(key: "settings_safe_search_pin", value: pin);
   }
 
-  Future<void> addBlockedNumber(String number) async {
-    //TODO Implement functionality
-  }
-
-  Future<void> removeBlockedNumber(String number) async {
-    //TODO Implement functionality
-  }
-
-  Future<List<String>> fetchAllBlockedNumbers() async {
-    //TODO Implement functionality
-    return [];
-  }
-
   Future<bool> getBlurImages() async {
     final bool blurImage =
         await _storage.read(key: "settings_blur_images") == "true";

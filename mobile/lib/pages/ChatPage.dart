@@ -307,16 +307,11 @@ class _ChatPageState extends State<ChatPage> {
                       color: Colors.white12.withOpacity(0.6),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: InkWell(
-                      onTap: () {
-                        //TODO navigate to help page
-                      },
-                      child: Text(
-                        "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves. Tap to learn more",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                        ),
+                    child: Text(
+                      "Private chats are end-to-end encrypted and are PERMANENTLY removed when either party leaves",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -805,7 +800,6 @@ class ChatCard extends StatelessWidget {
         _message.deleted
             ? "This message was deleted"
             : profanityFilter
-                //TODO maybe change if to not
                 ? _filterContents(_message.contents)
                 : _message.contents,
         style: TextStyle(

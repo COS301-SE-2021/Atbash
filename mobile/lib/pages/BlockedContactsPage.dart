@@ -59,6 +59,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
               ),
               Expanded(
                 child: TextField(
+                  key: Key('BlockedContactsPage_search'),
                   onChanged: (String input) {
                     controller.updateQuery(input);
                   },
@@ -125,7 +126,10 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                     if (value != null && value)
                       _removeBlockedContact(blockedNumber);
                   }),
-                  icon: Icon(Icons.cancel),
+                  icon: Icon(
+                    Icons.cancel,
+                    key: Key('BlockedContactsPage_remove_$blockedNumber'),
+                  ),
                   splashRadius: 24,
                 )
               ],

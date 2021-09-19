@@ -27,7 +27,8 @@ void main() {
     );
   });
 
-  testWidgets("ContactEditPage has a TextField and a button",
+  testWidgets(
+      "ContactEditPage has a TextField, an ElevatedButton & a TextButton",
       (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: ContactEditPage(
@@ -36,10 +37,12 @@ void main() {
     ));
 
     final textFieldFinder = find.byType(TextField);
-    final buttonFinder = find.byType(ElevatedButton);
+    final elevatedButtonFinder = find.byType(ElevatedButton);
+    final textButtonFinder = find.byType(TextButton);
 
     expect(textFieldFinder, findsOneWidget);
-    expect(buttonFinder, findsOneWidget);
+    expect(elevatedButtonFinder, findsOneWidget);
+    expect(textButtonFinder, findsOneWidget);
   });
 
   testWidgets("Verify that the initial text is the contacts name",
@@ -52,6 +55,46 @@ void main() {
       ),
     );
 
-    expect(find.text("Joshua"), findsOneWidget);
+    expect(find.widgetWithText(TextField, "Joshua"), findsOneWidget);
+  });
+
+  testWidgets("Verify that if birthday is not set 'Select Birthday' shows",
+      (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ContactEditPage(
+          phoneNumber: "0721985674",
+        ),
+      ),
+    );
+
+    expect(find.widgetWithText(TextButton, "Select Birthday"), findsOneWidget);
+  });
+
+  testWidgets("Verify that if birthday is set the birthday shows",
+      (WidgetTester tester) async {
+    when(contactService.fetchByPhoneNumber(any)).thenAnswer(
+      (realInvocation) => Future.value(
+        Contact(
+          phoneNumber: "0721985674",
+          displayName: "Joshua",
+          status: "Hello",
+          profileImage: "",
+          birthday: DateTime(2000, 9, 11),
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ContactEditPage(
+          phoneNumber: "0721985674",
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    expect(find.widgetWithText(TextButton, "Sep 11, 2000"), findsOneWidget);
   });
 }

@@ -62,6 +62,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             Text(
                               controller.model.userName,
                               style: TextStyle(fontSize: 20),
+                              key: Key("SettingsPage_displayName"),
                             ),
                             SizedBox(
                               height: 2,
@@ -69,6 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             Text(
                               controller.model.userStatus,
                               style: TextStyle(fontSize: 14),
+                              key: Key("SettingsPage_status"),
                             ),
                           ],
                         ),
@@ -89,6 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
+                key: Key("blurImages"),
                 value: controller.model.blurImages,
                 onChanged: (bool newValue) {
                   controller.setBlurImages(newValue);
@@ -106,6 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Hide images by default. Images can still be viewed if selected"),
               ),
               SwitchListTile(
+                key: Key("safeMode"),
                 value: controller.model.safeMode,
                 onChanged: (bool newValue) {
                   //TODO Create Pin logic
@@ -123,6 +127,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text("Enables text profanity filter for all chats"),
               ),
               SwitchListTile(
+                key: Key("sharedProfilePicture"),
                 value: controller.model.sharedProfilePicture,
                 onChanged: (bool newValue) {
                   controller.setSharedProfilePicture(newValue);
@@ -140,6 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable or disable whether your profile photo is visible to others"),
               ),
               SwitchListTile(
+                key: Key("shareStatus"),
                 value: controller.model.shareStatus,
                 onChanged: (bool newValue) {
                   controller.setShareStatus(newValue);
@@ -157,6 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Enable or disable whether your status is visible to others"),
               ),
               SwitchListTile(
+                key: Key("shareBirthday"),
                 value: controller.model.shareBirthday,
                 onChanged: (bool newValue) {
                   controller.setShareBirthday(newValue);
@@ -174,6 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Choose whether you want to share your birthday to contacts"),
               ),
               SwitchListTile(
+                key: Key("shareReadReceipts"),
                 value: controller.model.shareReadReceipts,
                 onChanged: (bool newValue) {
                   controller.setShareReadReceipts(newValue);
@@ -191,6 +199,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Choose whether others can see if you've read their messages"),
               ),
               ListTile(
+                key: Key("blockedContacts"),
                 leading: Icon(
                   Icons.block,
                   color: Constants.orange,
@@ -217,6 +226,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               ListTile(
+                key: Key("changeWallpaper"),
                 leading: Icon(
                   Icons.wallpaper,
                   color: Constants.orange,
@@ -234,6 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               ListTile(
+                key: Key("chatAnalytics"),
                 leading: Icon(
                   Icons.analytics,
                   color: Constants.orange,
@@ -250,6 +261,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               ListTile(
+                key: Key("importContacts"),
                 leading: Icon(
                   Icons.import_contacts,
                   color: Constants.orange,
@@ -286,6 +298,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               SwitchListTile(
+                key: Key("disableNotifications"),
                 value: controller.model.disableNotifications,
                 onChanged: (bool newValue) {
                   controller.setDisableNotifications(newValue);
@@ -301,6 +314,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
               ),
               SwitchListTile(
+                key: Key("disableMessagePreview"),
                 value: controller.model.disableMessagePreview,
                 onChanged: controller.model.disableNotifications
                     ? null
@@ -346,6 +360,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               ListTile(
+                key: Key("help"),
                 leading: Icon(
                   Icons.help,
                   color: Constants.orange,

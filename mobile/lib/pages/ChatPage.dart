@@ -456,6 +456,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: TextField(
+                    cursorColor: Constants.black,
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: "Type message",
@@ -813,7 +814,7 @@ class ChatCard extends StatelessWidget {
 
   String _filterContents(String unfilteredContents) {
     Constants.profanityRegex.forEach((regex) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex),
+      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
           (match) => List.filled(match.end - match.start, "*").join());
     });
     return unfilteredContents;

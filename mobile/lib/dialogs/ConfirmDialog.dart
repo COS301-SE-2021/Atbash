@@ -26,12 +26,14 @@ class _ConfirmDialog extends StatelessWidget {
       title: Text(message),
       actions: [
         TextButton(
+          key: Key('ConfirmDialogNegative'),
           onPressed: () {
             Navigator.of(context).pop(false);
           },
           child: Text(negative.toUpperCase()),
         ),
         TextButton(
+          key: Key('ConfirmDialogPositive'),
           onPressed: () {
             Navigator.of(context).pop(true);
           },

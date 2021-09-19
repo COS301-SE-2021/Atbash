@@ -138,12 +138,10 @@ void main() {
       expect(find.widgetWithText(MaterialButton, "Save"), findsOneWidget);
     });
 
-    testWidgets("Fields should display data from database",
+    testWidgets("DisplayName field should display 'Connor'",
         (WidgetTester tester) async {
       when(userService.getDisplayName())
           .thenAnswer((_) => Future.value("Connor"));
-      when(userService.getStatus())
-          .thenAnswer((_) => Future.value("Living life"));
 
       await tester.pumpWidget(MaterialApp(
         home: ProfileSettingsPage(
@@ -151,8 +149,41 @@ void main() {
         ),
       ));
 
+      await tester.pump();
+
       expect(find.widgetWithText(TextField, "Connor"), findsOneWidget);
-      expect(find.widgetWithText(TextField, "Living life"), findsOneWidget);
     });
+
+    testWidgets("Status field should display 'Living life'",
+            (WidgetTester tester) async {
+          when(userService.getStatus())
+              .thenAnswer((_) => Future.value("Living life"));
+
+          await tester.pumpWidget(MaterialApp(
+            home: ProfileSettingsPage(
+              setup: false,
+            ),
+          ));
+
+          await tester.pump();
+
+          expect(find.widgetWithText(TextField, "Living life"), findsOneWidget);
+        });
+
+    testWidgets("Birthday field should display birthday",
+            (WidgetTester tester) async {
+          when(userService.getBirthday())
+              .thenAnswer((_) => Future.value(DateTime(2000, 9, 11)));
+
+          await tester.pumpWidget(MaterialApp(
+            home: ProfileSettingsPage(
+              setup: false,
+            ),
+          ));
+
+          await tester.pump();
+
+          expect(find.widgetWithText(TextButton, "Sep 11, 2000"), findsOneWidget);
+        });
   });
 }

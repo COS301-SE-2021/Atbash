@@ -45,6 +45,7 @@ class _WallpaperPageState extends State<WallpaperPage> {
                 showSnackBar(context, "Saved", duration: Duration(seconds: 2));
               },
               icon: Icon(Icons.done),
+              key: Key("WallpaperPage_snackbarAppears"),
             ),
           ],
         ),

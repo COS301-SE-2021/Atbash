@@ -456,6 +456,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: TextField(
+                    cursorColor: Constants.black,
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: "Type message",

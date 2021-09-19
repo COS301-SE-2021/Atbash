@@ -38,6 +38,7 @@ class _ConfirmDialog extends StatelessWidget {
           child: Text(positive.toUpperCase()),
         ),
       ],
+      key: Key("importContactDialog"),
     );
   }
 }

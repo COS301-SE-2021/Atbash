@@ -14,6 +14,7 @@ exports.getAnonymousConnectionId = (anonymousId) => {
             }).promise()
 
             if(response.Count > 0){
+                console.log(response.Items);
                 resolve(response.Items[0]["connectionId"]);
             } else {
                 reject("Specified anonymousId doesn't exits");

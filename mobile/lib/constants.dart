@@ -22,7 +22,7 @@ class Constants {
 
   //Regex
   static const List<String> profanityRegex = [
-    "[a@][s\\\$][s\\\$]",
+    "^[a@][s\\\$][s\\\$]\$",
     "[a@][s\\\$][s\\\$]h[o0][l1][e3][s\\\$]?",
     "b[a@][s\\\$][t\+][a@]rd",
     "b[e3][a@][s\\\$][t\+][i1][a@]?[l1]([i1][t\+]y)?",
@@ -40,7 +40,7 @@ class Constants {
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[e3]r",
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[i1]ng",
     "(c|k|ck|q)[o0](c|k|ck|q)[s\\\$]u(c|k|ck|q)[s\\\$]",
-    "cum[s\\\$]?",
+    "^cum[s\\\$]?\$",
     "cumm??[e3]r",
     "cumm?[i1]ngcock",
     "(c|k|ck|q)um[s\\\$]h[o0][t\+]",

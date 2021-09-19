@@ -68,7 +68,31 @@ void main() {
                   isIncoming: false,
                   otherPartyPhoneNumber: "0836006179",
                   contents: "what's up",
-                  timestamp: DateTime.now())
+                  timestamp: DateTime.now()),
+              Message(
+                  id: "17264",
+                  chatId: "123",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0836006179",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true),
+              Message(
+                  id: "04737",
+                  chatId: "123",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0836006179",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true),
+              Message(
+                  id: "17265",
+                  chatId: "123",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0836006179",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true)
             ]));
 
     when(messageService.fetchAllByChatId("789"))
@@ -94,11 +118,35 @@ void main() {
                   isIncoming: false,
                   otherPartyPhoneNumber: "0837772222",
                   contents: "jolly",
-                  timestamp: DateTime.now())
+                  timestamp: DateTime.now()),
+              Message(
+                  id: "26354",
+                  chatId: "789",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0837772222",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true),
+              Message(
+                  id: "26358",
+                  chatId: "789",
+                  isIncoming: true,
+                  otherPartyPhoneNumber: "0837772222",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true),
+              Message(
+                  id: "06985",
+                  chatId: "789",
+                  isIncoming: false,
+                  otherPartyPhoneNumber: "0837772222",
+                  contents: "",
+                  timestamp: DateTime.now(),
+                  isMedia: true)
             ]));
   });
 
-  testWidgets("Total text messages sent", (WidgetTester tester) async {
+  testWidgets("Total_text_messages_sent", (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: AnalyticsPage(),
     ));

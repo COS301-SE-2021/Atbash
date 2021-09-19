@@ -19,8 +19,7 @@ void main() {
   GetIt.I.registerSingleton<ContactService>(contactService);
   GetIt.I.registerSingleton<BlockedNumbersService>(blockedNumberService);
 
-  testWidgets("Page should contain correct widgets",
-      (WidgetTester tester) async {
+  setUp(() {
     when(contactService.fetchByPhoneNumber(any)).thenAnswer(
       (_) => Future.value(
         Contact(
@@ -34,7 +33,10 @@ void main() {
 
     when(blockedNumberService.checkIfBlocked(any))
         .thenAnswer((_) => Future.value(false));
+  });
 
+  testWidgets("Page should contain correct widgets",
+      (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: ContactInfoPage(
         phoneNumber: "0728954829",
@@ -43,5 +45,45 @@ void main() {
 
     expect(find.byType(Text), findsNWidgets(6));
     expect(find.byType(AvatarIcon), findsOneWidget);
+  });
+
+  group("Widget tests for when the contact is not blocked", () {
+    testWidgets("Button should say 'Block Contact'",
+        (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      expect(
+          find.widgetWithText(ElevatedButton, "Block Contact"), findsOneWidget);
+    });
+
+    testWidgets("Display name should show 'ABC'", (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('contactInfoPage_displayName')), findsOneWidget);
+      expect(find.text('ABC'), findsOneWidget);
+    });
+
+    testWidgets("Status should show 'Hello'", (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        home: ContactInfoPage(
+          phoneNumber: "0728954829",
+        ),
+      ));
+
+      await tester.pump();
+
+      expect(find.byKey(Key('contactInfoPage_status')), findsOneWidget);
+      expect(find.text('Hello'), findsOneWidget);
+    });
   });
 }

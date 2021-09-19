@@ -167,4 +167,15 @@ void main() {
 
     expect(widget.data, "2");
   });
+
+  testWidgets("Total_photos_sent", (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: AnalyticsPage(),
+    ));
+    await tester.pump();
+    final finder = find.byKey(Key("AnalyticsPage_totalPhotosSent"));
+    final widget = tester.widget(finder) as Text;
+
+    expect(widget.data, "5");
+  });
 }

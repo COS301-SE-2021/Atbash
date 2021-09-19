@@ -39,6 +39,7 @@ class _NewNumberDialogState extends State<NewNumberDialog> {
           ),
           Expanded(
             child: TextField(
+              key: Key('NewNumberDialogField'),
               controller: _phoneNumberController,
               decoration: InputDecoration(hintText: "Phone number"),
               keyboardType: TextInputType.phone,
@@ -48,12 +49,14 @@ class _NewNumberDialogState extends State<NewNumberDialog> {
       ),
       actions: [
         TextButton(
+          key: Key('NewNumberDialogCancel'),
           onPressed: () {
             Navigator.of(context).pop(null);
           },
           child: Text("CANCEL"),
         ),
         TextButton(
+          key: Key('NewNumberDialogAdd'),
           onPressed: () {
             final phoneNumber =
                 selectedDialCode + cullToE164(_phoneNumberController.text);

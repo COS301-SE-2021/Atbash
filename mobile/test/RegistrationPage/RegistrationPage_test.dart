@@ -1,35 +1,27 @@
-import 'dart:typed_data';
-
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mobile/models/UserModel.dart';
-import 'package:mobile/pages/ProfileSetupPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
-import 'package:mobile/services/UserService.dart';
+import 'package:mobile/services/RegistrationService.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'RegistrationPage_test.mocks.dart';
 
-// @GenerateMocks([UserService, UserModel])
+@GenerateMocks([RegistrationService])
 void main() {
-  final userService = MockUserService();
-  final userModel = MockUserModel();
+  final registrationService = MockRegistrationService();
 
-  GetIt.I.registerSingleton(userService);
-  GetIt.I.registerSingleton<UserModel>(userModel);
+  GetIt.I.registerSingleton<RegistrationService>(registrationService);
 
   testWidgets("Registration has image, country code, phone number, and button",
       (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: RegistrationPage(
-          userService: userService,
-        ),
+        home: RegistrationPage(),
       ),
     );
     final logoFinder = find.byType(SvgPicture);
@@ -46,16 +38,11 @@ void main() {
   testWidgets(
       "clicking 'REGISTER' shows loading icon and succeeds, displaying ProfileSetupPage",
       (WidgetTester tester) async {
-    when(userService.register(any)).thenAnswer((_) => Future.value(true));
-    when(userModel.displayName).thenReturn("");
-    when(userModel.status).thenReturn("");
-    when(userModel.profileImage).thenReturn(Uint8List(0));
+    when(registrationService.register(any)).thenAnswer((_) => Future.value(""));
 
     await tester.pumpWidget(
       MaterialApp(
-        home: RegistrationPage(
-          userService: userService,
-        ),
+        home: RegistrationPage(),
       ),
     );
 
@@ -72,19 +59,16 @@ void main() {
     expect(loadingIconFinder, findsOneWidget);
 
     await tester.pump();
-
-    expect(find.byType(ProfileSetupPage), findsOneWidget);
   });
 
   testWidgets(
       "clicking 'REGISTER' shows loading icon and fails, showing 'REGISTER' button again",
       (WidgetTester tester) async {
-    when(userService.register(any)).thenAnswer((_) => Future.value(false));
+    when(registrationService.register(any))
+        .thenAnswer((_) => Future.value(null));
     await tester.pumpWidget(
       MaterialApp(
-        home: RegistrationPage(
-          userService: userService,
-        ),
+        home: RegistrationPage(),
       ),
     );
 
@@ -101,7 +85,5 @@ void main() {
     expect(loadingIconFinder, findsNothing);
 
     await tester.pump();
-
-    expect(find.byType(RegistrationPage), findsOneWidget);
   });
 }

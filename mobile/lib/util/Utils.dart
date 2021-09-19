@@ -10,6 +10,7 @@ void showSnackBar(BuildContext context, String message,
     SnackBar(
       content: Text(message),
       duration: duration,
+      key: Key("snackBar"),
     ),
   );
 }

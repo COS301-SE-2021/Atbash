@@ -8,6 +8,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ProfileSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/pages/HomePage.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobx/mobx.dart';
 
@@ -190,35 +191,37 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           _selectedProfileImage ?? Uint8List(0);
                       final birthday = chosenBirthday;
 
-                      if (displayName.isNotEmpty)
+                      if (displayName.isNotEmpty) {
                         controller.setDisplayName(displayName);
+                        if (status.isNotEmpty) controller.setStatus(status);
 
-                      if (status.isNotEmpty) controller.setStatus(status);
+                        controller.setProfilePicture(profileImage);
 
-                      controller.setProfilePicture(profileImage);
+                        if (birthday != null) controller.setBirthday(birthday);
 
-                      if (birthday != null) controller.setBirthday(birthday);
-
-                      if (widget.setup) {
-                        showConfirmDialog(
-                          context,
-                          "Do you want to import your phone's contacts?",
-                          positive: "Yes",
-                          negative: "No",
-                        ).then((response) async {
-                          if (response == true) {
-                            await controller.importContacts();
-                          }
-                          Navigator.pushReplacement(
+                        if (widget.setup) {
+                          showConfirmDialog(
                             context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(),
-                              settings: RouteSettings(name: "/"),
-                            ),
-                          );
-                        });
+                            "Do you want to import your phone's contacts?",
+                            positive: "Yes",
+                            negative: "No",
+                          ).then((response) async {
+                            if (response == true) {
+                              await controller.importContacts();
+                            }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => HomePage(),
+                                settings: RouteSettings(name: "/"),
+                              ),
+                            );
+                          });
+                        } else {
+                          Navigator.pop(context);
+                        }
                       } else {
-                        Navigator.pop(context);
+                        showSnackBar(context, "Please enter a display name");
                       }
                     },
                     child: Text(widget.setup ? "Next" : "Save"),
@@ -252,29 +255,5 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         _selectedProfileImage = imageBytes;
       });
     }
-  }
-
-  showAlertDialog(BuildContext context) {
-    // Create button
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          Widget okButton = TextButton(
-            child: Text("OK"),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          );
-
-          AlertDialog alert = AlertDialog(
-            title: Text("ALERT"),
-            content: Text("Your device does not have a functional camera."),
-            actions: [
-              okButton,
-            ],
-          );
-          return alert;
-        });
   }
 }

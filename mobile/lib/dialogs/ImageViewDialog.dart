@@ -48,7 +48,7 @@ class __ImageViewDialogState extends State<_ImageViewDialog> {
                       });
                     },
                     icon: Icon(
-                      Icons.add,
+                      Icons.download,
                     ),
                   ),
                 ),

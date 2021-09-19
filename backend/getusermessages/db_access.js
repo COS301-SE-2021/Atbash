@@ -32,7 +32,7 @@ exports.getMessagesForMessageboxId = async (messageboxId) => {
     try {
         const response = await db.scan({
             TableName: process.env.TABLE_MESSAGES,
-            FilterExpression: "recipientMessageboxId = :i",
+            FilterExpression: "recipientMid = :i",
             ExpressionAttributeValues: {
                 ":i": messageboxId
             }
@@ -40,9 +40,9 @@ exports.getMessagesForMessageboxId = async (messageboxId) => {
 
         return response.Items.map(each => ({
             id: each.id,
-            recipientMessageboxId: messageboxId,
+            recipientMid: messageboxId,
             timestamp: each.timestamp,
-            contents: each.contents
+            encryptedContents: each.encryptedContents
         }))
     } catch (error) {
         throw error

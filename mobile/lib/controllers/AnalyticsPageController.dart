@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/models/AnalyticsPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -13,7 +14,7 @@ class AnalyticsPageController {
   final AnalyticsPageModel model = AnalyticsPageModel();
 
   AnalyticsPageController() {
-    chatService.fetchAll().then((chats) async {
+    chatService.fetchByChatType(ChatType.general).then((chats) async {
       int totalTextMessagesSent = 0;
       int totalTextMessagesReceived = 0;
       int totalPhotosSent = 0;

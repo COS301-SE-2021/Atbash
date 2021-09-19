@@ -31,24 +31,39 @@ import '../constants.dart';
 class ChatPage extends StatefulWidget {
   final String chatId;
   final Chat? privateChat;
+  final bool isInitiator;
 
   const ChatPage({Key? key, required this.chatId})
       : privateChat = null,
+        isInitiator = false,
         super(key: key);
 
-  ChatPage.privateChat({required this.chatId, this.privateChat});
+  ChatPage.privateChat({
+    required this.chatId,
+    this.privateChat,
+    this.isInitiator = false,
+  });
 
   @override
-  _ChatPageState createState() =>
-      _ChatPageState(chatId: chatId, privateChat: privateChat);
+  _ChatPageState createState() => _ChatPageState(
+        chatId: chatId,
+        privateChat: privateChat,
+        privateChatIsInitiator: isInitiator,
+      );
 }
 
 class _ChatPageState extends State<ChatPage> {
   final ChatPageController controller;
 
-  _ChatPageState({required String chatId, Chat? privateChat})
-      : controller =
-            ChatPageController(chatId: chatId, privateChat: privateChat);
+  _ChatPageState({
+    required String chatId,
+    Chat? privateChat,
+    required bool privateChatIsInitiator,
+  }) : controller = ChatPageController(
+          chatId: chatId,
+          privateChat: privateChat,
+          privateChatIsInitiator: privateChatIsInitiator,
+        );
 
   late final ReactionDisposer _backgroundDisposer;
   bool _selecting = false;

@@ -35,7 +35,11 @@ class ChatPageController {
   late final String contactPhoneNumber;
   bool privateChatAccepted = false;
 
-  ChatPageController({required this.chatId, Chat? privateChat}) {
+  ChatPageController({
+    required this.chatId,
+    Chat? privateChat,
+    required bool privateChatIsInitiator,
+  }) {
     communicationService.onMessage(_onMessage);
 
     communicationService.onDelete(_onDelete);
@@ -52,6 +56,7 @@ class ChatPageController {
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 
     if (privateChat != null) {
+      privateChatAccepted = !privateChatIsInitiator;
       chat = Future.value(privateChat);
       communicationService.onAcceptPrivateChat = () async {
         privateChatAccepted = true;

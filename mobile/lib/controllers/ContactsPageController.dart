@@ -16,6 +16,7 @@ class ContactsPageController {
   final CommunicationService communicationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final ChatService chatService = GetIt.I.get();
+  final Client http = GetIt.I.get();
 
   final ContactsPageModel model = ContactsPageModel();
 
@@ -36,7 +37,7 @@ class ContactsPageController {
   Future<void> addContact(
       BuildContext context, String number, String name) async {
     final response =
-        await get(Uri.parse(Constants.httpUrl + "user/$number/exists"));
+        await http.get(Uri.parse(Constants.httpUrl + "user/$number/exists"));
 
     if (response.statusCode == 204) {
       Contact contact = new Contact(

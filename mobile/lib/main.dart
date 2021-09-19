@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:mobile/encryption/services/IdentityKeyStoreService.dart';
 import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
@@ -94,6 +95,9 @@ class AtbashApp extends StatelessWidget {
 enum RegistrationState { unregistered, unverified, registered }
 
 void _registerServices() async {
+  final client = Client();
+  GetIt.I.registerSingleton(client);
+
   final navigationObserver = NavigationObserver();
   GetIt.I.registerSingleton(navigationObserver);
 

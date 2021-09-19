@@ -140,7 +140,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   ? contact.displayName
                   : contact.phoneNumber
               : chat.first.contactPhoneNumber),
-          subtitle: Text("Total messages: ${chat.second}"),
+          subtitle: Text(
+            "Total messages: ${chat.second}",
+            key: Key(
+                "AnalyticsPage_totalMessagesBetweenContacts_${chat.first.id}"),
+          ),
         ),
         Divider(
           height: 2,

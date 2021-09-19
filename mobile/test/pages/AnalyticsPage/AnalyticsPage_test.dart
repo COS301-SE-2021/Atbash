@@ -108,4 +108,15 @@ void main() {
 
     expect(widget.data, "4");
   });
+
+  testWidgets("Total_text_messages_received", (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: AnalyticsPage(),
+    ));
+    await tester.pump();
+    final finder = find.byKey(Key("AnalyticsPage_totalMessagesReceived"));
+    final widget = tester.widget(finder) as Text;
+
+    expect(widget.data, "2");
+  });
 }

@@ -16,6 +16,7 @@ class BlockedContactsPage extends StatefulWidget {
 
 class _BlockedContactsPageState extends State<BlockedContactsPage> {
   final BlockedContactsPageController controller;
+
   _BlockedContactsPageState() : controller = BlockedContactsPageController();
 
   @override

@@ -21,7 +21,6 @@ import 'package:web_socket_channel/io.dart';
 
 import 'package:synchronized/synchronized.dart';
 
-
 class CommunicationService {
   final BlockedNumbersService blockedNumbersService;
   final EncryptionService encryptionService;
@@ -113,14 +112,19 @@ class CommunicationService {
     _messageQueue.stream.listen(
       (payload) async {
         await communicationLock.synchronized(() async {
-          print("Acquired communication lock for message to " + payload.recipientPhoneNumber + ": " + payload.contents);
+          print("Acquired communication lock for message to " +
+              payload.recipientPhoneNumber +
+              ": " +
+              payload.contents);
           var messagePayload;
-          final messagebox = await messageboxService.fetchMessageboxForNumber(payload.recipientPhoneNumber);
+          final messagebox = await messageboxService
+              .fetchMessageboxForNumber(payload.recipientPhoneNumber);
 
-          if(messagebox == null || messagebox.recipientId == null){
-            print("Messagebox for " + payload.recipientPhoneNumber + " is null");
+          if (messagebox == null || messagebox.recipientId == null) {
+            print(
+                "Messagebox for " + payload.recipientPhoneNumber + " is null");
             String? senderMid;
-            if(messagebox == null) {
+            if (messagebox == null) {
               senderMid = await messageboxService
                   .createMessageBox(payload.recipientPhoneNumber);
               if (senderMid == null) {
@@ -131,16 +135,20 @@ class CommunicationService {
             } else {
               senderMid = messagebox.id;
             }
-            final encryptedContents = await encryptionService.encryptMessageContent(
-                jsonEncode({
-                  "senderMid": senderMid,
-                  "rsaKey": (await userService.fetchRSAKeyPair()).publicKey.toString(),
-                  "messageContents": payload.contents
-                }),
-                payload.recipientPhoneNumber);
-            final senderNumberEncrypted = await encryptionService.encryptNumberFor(payload.recipientPhoneNumber);
+            final encryptedContents =
+                await encryptionService.encryptMessageContent(
+                    jsonEncode({
+                      "senderMid": senderMid,
+                      "rsaKey": (await userService.fetchRSAKeyPair())
+                          .publicKey
+                          .toString(),
+                      "messageContents": payload.contents
+                    }),
+                    payload.recipientPhoneNumber);
+            final senderNumberEncrypted = await encryptionService
+                .encryptNumberFor(payload.recipientPhoneNumber);
 
-            if(senderNumberEncrypted == null){
+            if (senderNumberEncrypted == null) {
               print("Failed to encrypt number using rsa key");
               return;
             }
@@ -152,14 +160,18 @@ class CommunicationService {
               "encryptedContents": encryptedContents
             };
           } else {
-            print("Messagebox for " + payload.recipientPhoneNumber + " is " + messagebox.recipientId!);
+            print("Messagebox for " +
+                payload.recipientPhoneNumber +
+                " is " +
+                messagebox.recipientId!);
             final senderMid = messagebox.id;
-            final encryptedContents = await encryptionService.encryptMessageContent(
-                jsonEncode({
-                  "senderMid": senderMid,
-                  "messageContents": payload.contents
-                }),
-                payload.recipientPhoneNumber);
+            final encryptedContents =
+                await encryptionService.encryptMessageContent(
+                    jsonEncode({
+                      "senderMid": senderMid,
+                      "messageContents": payload.contents
+                    }),
+                    payload.recipientPhoneNumber);
             final recipientMid = messagebox.recipientId!;
 
             messagePayload = {
@@ -178,12 +190,11 @@ class CommunicationService {
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {
-    if(anonymousConnectionId == null){
+    if (anonymousConnectionId == null) {
       await _getAnonymousConnectionId(anonymousId);
     }
     print("Registering connection for mid:" + mid);
-    final uri = Uri.parse(
-        Constants.httpUrl + "messageboxes/$mid/connectionId");
+    final uri = Uri.parse(Constants.httpUrl + "messageboxes/$mid/connectionId");
     await put(uri, body: anonymousConnectionId);
   }
 
@@ -217,7 +228,6 @@ class CommunicationService {
     );
 
     channelAnonymous?.stream.listen((event) async {
-
       // if(anonymousConnectionId == null){
       //   anonymousConnectionId = event as String;
       //   print("AnonymousConnectionId is: " + anonymousConnectionId!);
@@ -256,8 +266,8 @@ class CommunicationService {
   }
 
   Future<void> _getAnonymousConnectionId(String anonymousId) async {
-    final uri = Uri.parse(
-        Constants.httpUrl + "connection?anonymousId=$anonymousId");
+    final uri =
+        Uri.parse(Constants.httpUrl + "connection?anonymousId=$anonymousId");
     final response = await get(uri);
 
     if (response.statusCode == 200) {
@@ -296,8 +306,7 @@ class CommunicationService {
   }
 
   Future<void> _fetchUnreadMessageboxMessage(String mId) async {
-    final uri = Uri.parse(
-        Constants.httpUrl + "message?messageboxId=$mId");
+    final uri = Uri.parse(Constants.httpUrl + "message?messageboxId=$mId");
     final response = await get(uri);
 
     if (response.statusCode == 200) {
@@ -312,12 +321,12 @@ class CommunicationService {
     await communicationLock.synchronized(() async {
       print("Acquired communication lock for handling event.");
       final Map<String, Object?> parsedEvent =
-      event is Map ? event : jsonDecode(event);
+          event is Map ? event : jsonDecode(event);
 
       print("Parsing event payload");
       final eventPayload = await getParsedEventPayload(parsedEvent);
 
-      if(eventPayload == null){
+      if (eventPayload == null) {
         print("Event payload is null");
       }
       if (eventPayload != null) {
@@ -333,18 +342,18 @@ class CommunicationService {
         print("Decrypted message: " +
             jsonDecode(eventPayload.contents).toString());
         final Map<String, Object?> decryptedContents =
-        jsonDecode(eventPayload.contents);
+            jsonDecode(eventPayload.contents);
         final type = decryptedContents["type"] as String?;
 
         switch (type) {
           case "message":
             final chatTypeStr = decryptedContents["chatType"] as String;
             final chatType =
-            ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+                ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
             final forwarded = decryptedContents["forwarded"] as bool? ?? false;
             final text = decryptedContents["text"] as String;
             final repliedMessageId =
-            decryptedContents["repliedMessageId"] as String?;
+                decryptedContents["repliedMessageId"] as String?;
 
             await _handleMessage(
               senderPhoneNumber: senderPhoneNumber,
@@ -360,14 +369,14 @@ class CommunicationService {
           case "imageMessage":
             final chatTypeStr = decryptedContents["chatType"] as String;
             final chatType =
-            ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+                ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
             final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
             final imageId = decryptedContents["imageId"] as String;
             final secretKeyBase64 = decryptedContents["key"] as String;
 
-            final image = await mediaService.fetchMedia(
-                imageId, secretKeyBase64);
+            final image =
+                await mediaService.fetchMedia(imageId, secretKeyBase64);
 
             if (image != null) {
               _handleMessage(
@@ -428,8 +437,8 @@ class CommunicationService {
             final imageId = decryptedContents["imageId"] as String;
             final secretKeyBase64 = decryptedContents["key"] as String;
 
-            final image = await mediaService.fetchMedia(
-                imageId, secretKeyBase64);
+            final image =
+                await mediaService.fetchMedia(imageId, secretKeyBase64);
 
             if (image != null) {
               contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -504,7 +513,7 @@ class CommunicationService {
             String body = "";
             try {
               final contact =
-              await contactService.fetchByPhoneNumber(senderPhoneNumber);
+                  await contactService.fetchByPhoneNumber(senderPhoneNumber);
               body = "${contact.displayName} wants to chat privately.";
             } on ContactWithPhoneNumberDoesNotExistException {
               body = "$senderPhoneNumber wants to chat privately.";
@@ -721,9 +730,7 @@ class CommunicationService {
     if (!shareStatus) _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendBirthday(
-      int birthday,
-      String recipientPhoneNumber) async {
+  Future<void> sendBirthday(int birthday, String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "birthday", "birthday": birthday});
     bool shareBirthday = await settingsService.getShareBirthday();
     if (!shareBirthday) _queueForSending(contents, recipientPhoneNumber);
@@ -811,62 +818,72 @@ class CommunicationService {
     _messageQueue.sink.add(payload);
   }
 
-  Future<EventPayload?> getParsedEventPayload(Map<String, Object?> event) async {
+  Future<EventPayload?> getParsedEventPayload(
+      Map<String, Object?> event) async {
     final id = event["id"] as String?;
     final senderNumberEncrypted = event["senderNumberEncrypted"] as String?;
     final recipientMid = event["recipientMid"] as String?;
     final encryptedContents = event["encryptedContents"] as String?;
     final timestamp = event["timestamp"] as int?;
 
-    if(id == null || encryptedContents == null || timestamp == null){
+    if (id == null || encryptedContents == null || timestamp == null) {
       print("Error: Invalid event");
       return null;
     }
     print("Event id: " + id);
-    if(recipientMid == null){
-      if(senderNumberEncrypted == null){
+    if (recipientMid == null) {
+      if (senderNumberEncrypted == null) {
         print("Error: Invalid event");
         return null;
       }
-      final senderPhoneNumber = await encryptionService.decryptSenderNumber(senderNumberEncrypted);
+      final senderPhoneNumber =
+          await encryptionService.decryptSenderNumber(senderNumberEncrypted);
       var decryptedContentsEncoded;
 
       try {
-        decryptedContentsEncoded = await encryptionService.decryptMessageContents(encryptedContents, senderPhoneNumber);
+        decryptedContentsEncoded = await encryptionService
+            .decryptMessageContents(encryptedContents, senderPhoneNumber);
       } on Exception catch (exception) {
         print("Failed to decrypt message");
         print(exception.toString());
         return null;
       }
 
-      final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      final decryptedContents =
+          jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
       final senderMid = decryptedContents["senderMid"] as String?;
       final rsaKey = decryptedContents["rsaKey"] as String?;
       final messageContents = decryptedContents["messageContents"] as String?;
 
-      if(messageContents == null){
+      if (messageContents == null) {
         print("Failed to extract message contents after decryption");
         return null;
       }
 
-      if(senderMid != null){
-        final messagebox = await messageboxService.fetchMessageboxForNumber(senderPhoneNumber);
-        if(messagebox == null){
-          final newMid = await messageboxService.createMessageBox(senderPhoneNumber);
-          if(newMid == null){
+      if (senderMid != null) {
+        final messagebox =
+            await messageboxService.fetchMessageboxForNumber(senderPhoneNumber);
+        if (messagebox == null) {
+          final newMid =
+              await messageboxService.createMessageBox(senderPhoneNumber);
+          if (newMid == null) {
             print("Failed to create message box on reception of message");
           } else {
-            await messageboxService.updateMessageboxRecipientId(newMid, senderMid);
-            if(rsaKey != null){
-              await messageboxService.updateMessageboxRSAKey(newMid, RSAPublicKey.fromString(rsaKey));
+            await messageboxService.updateMessageboxRecipientId(
+                newMid, senderMid);
+            if (rsaKey != null) {
+              await messageboxService.updateMessageboxRSAKey(
+                  newMid, RSAPublicKey.fromString(rsaKey));
             }
             await registerConnectionForMessagebox(newMid);
           }
         } else {
-          if(messagebox.recipientId != senderMid){
-            await messageboxService.updateMessageboxRecipientId(messagebox.id, senderMid);
-            if(rsaKey != null){
-              await messageboxService.updateMessageboxRSAKey(messagebox.id, RSAPublicKey.fromString(rsaKey));
+          if (messagebox.recipientId != senderMid) {
+            await messageboxService.updateMessageboxRecipientId(
+                messagebox.id, senderMid);
+            if (rsaKey != null) {
+              await messageboxService.updateMessageboxRSAKey(
+                  messagebox.id, RSAPublicKey.fromString(rsaKey));
             }
           }
         }
@@ -874,11 +891,15 @@ class CommunicationService {
         print("Failed to extract senders Messagebox ID after decryption");
       }
 
-      return new EventPayload(id: id, senderPhoneNumber: senderPhoneNumber, timestamp: timestamp, contents: messageContents);
-
+      return new EventPayload(
+          id: id,
+          senderPhoneNumber: senderPhoneNumber,
+          timestamp: timestamp,
+          contents: messageContents);
     } else {
-      final messagebox = await messageboxService.fetchMessageboxWithID(recipientMid);
-      if (messagebox == null || messagebox.number == null){
+      final messagebox =
+          await messageboxService.fetchMessageboxWithID(recipientMid);
+      if (messagebox == null || messagebox.number == null) {
         //This shouldn't be possible
         return null;
       }
@@ -887,27 +908,34 @@ class CommunicationService {
       var decryptedContentsEncoded;
 
       try {
-        decryptedContentsEncoded = await encryptionService.decryptMessageContents(encryptedContents, senderPhoneNumber);
+        decryptedContentsEncoded = await encryptionService
+            .decryptMessageContents(encryptedContents, senderPhoneNumber);
       } on Exception catch (exception) {
         print("Failed to decrypt message");
         print(exception.toString());
         return null;
       }
 
-      final decryptedContents = jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      final decryptedContents =
+          jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
       final senderMid = decryptedContents["senderMid"] as String?;
       final messageContents = decryptedContents["messageContents"] as String?;
 
-      if(messageContents == null){
+      if (messageContents == null) {
         print("Failed to extract message contents after decryption");
         return null;
       }
 
-      if(senderMid != null && senderMid != messagebox.recipientId){
-        await messageboxService.updateMessageboxRecipientId(messagebox.id, senderMid);
+      if (senderMid != null && senderMid != messagebox.recipientId) {
+        await messageboxService.updateMessageboxRecipientId(
+            messagebox.id, senderMid);
       }
 
-      return new EventPayload(id: id, senderPhoneNumber: senderPhoneNumber, timestamp: timestamp, contents: messageContents);
+      return new EventPayload(
+          id: id,
+          senderPhoneNumber: senderPhoneNumber,
+          timestamp: timestamp,
+          contents: messageContents);
     }
   }
 }
@@ -971,9 +999,9 @@ class EventPayload {
   });
 
   Map<String, Object> get asMap => {
-    "id": id,
-    "senderPhoneNumber": senderPhoneNumber,
-    "timestamp": timestamp,
-    "contents": contents
-  };
+        "id": id,
+        "senderPhoneNumber": senderPhoneNumber,
+        "timestamp": timestamp,
+        "contents": contents
+      };
 }

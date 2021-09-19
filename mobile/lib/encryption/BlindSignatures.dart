@@ -40,16 +40,16 @@ class BlindSignatures {
     BigInt r;
     final sGen = Random.secure();
     do {
-      r = decodeBigIntWithSign(1, Uint8List.fromList(List.generate(32, (_) => sGen.nextInt(255))));
+      r = decodeBigIntWithSign(
+          1, Uint8List.fromList(List.generate(32, (_) => sGen.nextInt(255))));
       gcd = r.gcd(bigN);
-    } while (
-    gcd.compareTo(bigOne) != 0 ||
+    } while (gcd.compareTo(bigOne) != 0 ||
         r.compareTo(bigN) >= 0 ||
-        r.compareTo(bigOne) <= 0
-    );
+        r.compareTo(bigOne) <= 0);
 
     // now that we got an r that satisfies the restrictions described we can proceed with calculation of mu
-    final mu = ((r.modPow(bigE, bigN)) * messageHash) % bigN; // Alice computes mu = H(msg) * r^e mod N
+    final mu = ((r.modPow(bigE, bigN)) * messageHash) %
+        bigN; // Alice computes mu = H(msg) * r^e mod N
     return {
       "blinded": mu,
       "r": r,
@@ -57,7 +57,8 @@ class BlindSignatures {
   }
 
   ///This function signs the blinded message using the private keys parameters provided
-  BigInt sign(BigInt blinded, BigInt bigN, BigInt bigP, BigInt bigQ, BigInt bigD) {
+  BigInt sign(
+      BigInt blinded, BigInt bigN, BigInt bigP, BigInt bigQ, BigInt bigD) {
     // const { bigN, bigP, bigQ, bigD } = keyProperties(key);
     final mu = BigInt.parse(blinded.toString());
 
@@ -69,7 +70,8 @@ class BlindSignatures {
     final m2 = (mu.modPow(bigD, bigN)) % (bigQ); // calculate m2=(mu^d modN)modQ
     // We combine the calculated m1 and m2 in order to calculate muprime
     // We calculate muprime: (m1*Q*QinverseModP + m2*P*PinverseModQ) mod N where N =P*Q
-    final muprime = ((m1 * bigQ * QinverseModP) + (m2 * bigP * PinverseModQ)) % bigN;
+    final muprime =
+        ((m1 * bigQ * QinverseModP) + (m2 * bigP * PinverseModQ)) % bigN;
 
     return muprime;
   }
@@ -79,7 +81,8 @@ class BlindSignatures {
   BigInt unblind(BigInt signed, BigInt r, BigInt N) {
     final bigN = BigInt.parse(N.toString());
     final muprime = BigInt.parse(signed.toString());
-    final s = (r.modInverse(bigN) * muprime) % bigN;// Alice computes sig = mu'*r^-1 mod N, inverse of r mod N multiplied with muprime mod N, to remove the blinding factor
+    final s = (r.modInverse(bigN) * muprime) %
+        bigN; // Alice computes sig = mu'*r^-1 mod N, inverse of r mod N multiplied with muprime mod N, to remove the blinding factor
     return s;
   }
 
@@ -90,7 +93,8 @@ class BlindSignatures {
     final messageHash = messageToHashInt(message);
     final bigN = BigInt.parse(N.toString());
     final bigE = BigInt.parse(E.toString());
-    final signedMessageBigInt = signature.modPow(bigE, bigN);// calculate sig^e modN, if we get back the initial message that means that the signature is valid, this works because (m^d)^e modN = m
+    final signedMessageBigInt = signature.modPow(bigE,
+        bigN); // calculate sig^e modN, if we get back the initial message that means that the signature is valid, this works because (m^d)^e modN = m
     final result = (messageHash.compareTo(signedMessageBigInt) == 0);
     return result;
   }
@@ -102,13 +106,15 @@ class BlindSignatures {
     final messageHash = messageToHashInt(message);
     final bigN = BigInt.parse(N.toString());
     final bigD = BigInt.parse(D.toString());
-    final msgSig = messageHash.modPow(bigD, bigN); // calculate H(msg)^d modN, if we get back the signature that means the message was signed
+    final msgSig = messageHash.modPow(bigD,
+        bigN); // calculate H(msg)^d modN, if we get back the signature that means the message was signed
     final result = (signature.compareTo(msgSig) == 0);
     return result;
   }
 
   ///This function verifies that a blinded message was blinded correctly.
-  bool verifyBlinding(BigInt blinded, BigInt r, String unblinded, BigInt E, BigInt N) {
+  bool verifyBlinding(
+      BigInt blinded, BigInt r, String unblinded, BigInt E, BigInt N) {
     final messageHash = messageToHashInt(unblinded);
     r = BigInt.parse(r.toString());
     N = BigInt.parse(N.toString());
@@ -118,6 +124,4 @@ class BlindSignatures {
     final result = (blindedHere.compareTo(blinded) == 0);
     return result;
   }
-
 }
-

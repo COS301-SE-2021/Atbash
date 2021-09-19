@@ -8,21 +8,16 @@ class Messagebox {
   final String? recipientId;
   final int expires;
 
-  Messagebox(
-      this.id,
-      this.keypair,
-      this.number,
-      this.recipientKey,
-      this.recipientId,
-      this.expires
-      );
+  Messagebox(this.id, this.keypair, this.number, this.recipientKey,
+      this.recipientId, this.expires);
 
   Map<String, dynamic> toMap() {
     return {
       COLUMN_M_ID: this.id,
       COLUMN_SERIALIZED_KEYPAIR: this.keypair.privateKey.toString(),
       COLUMN_NUMBER: this.number,
-      COLUMN_RECIPIENT_KEY: this.recipientKey != null ? this.recipientKey.toString() : null,
+      COLUMN_RECIPIENT_KEY:
+          this.recipientKey != null ? this.recipientKey.toString() : null,
       COLUMN_RECIPIENT_ID: this.recipientId,
       COLUMN_EXPIRES: this.expires,
     };
@@ -37,19 +32,13 @@ class Messagebox {
     final expires = map[Messagebox.COLUMN_EXPIRES] as int?;
 
     var recipientKey = null;
-    if(recipientKeyStr != null && recipientKeyStr.length > 10){
+    if (recipientKeyStr != null && recipientKeyStr.length > 10) {
       recipientKey = RSAPublicKey.fromString(recipientKeyStr);
     }
 
     if (id is String && keypair is String && expires is int) {
-      return Messagebox(
-          id,
-          RSAKeypair(RSAPrivateKey.fromString(keypair)),
-          number,
-          recipientKey,
-          recipientId,
-          expires
-      );
+      return Messagebox(id, RSAKeypair(RSAPrivateKey.fromString(keypair)),
+          number, recipientKey, recipientId, expires);
     } else {
       return null;
     }

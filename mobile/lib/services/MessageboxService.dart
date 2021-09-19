@@ -1,12 +1,9 @@
-import 'dart:typed_data';
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/encryption/Messagebox.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:uuid/uuid.dart';
 
 //Services
 import 'DatabaseService.dart';
@@ -21,7 +18,6 @@ import 'package:crypton/crypton.dart';
 
 import '../constants.dart';
 
-
 class MessageboxService {
   MessageboxService(this._userService, this._databaseService);
 
@@ -30,10 +26,10 @@ class MessageboxService {
 
   final _storage = FlutterSecureStorage();
 
-  List<RSAKeypair> generateRSAKeyPairs(int numPairs){
+  List<RSAKeypair> generateRSAKeyPairs(int numPairs) {
     List<RSAKeypair> keys = [];
 
-    for(var i = 0; i < numPairs; i++){
+    for (var i = 0; i < numPairs; i++) {
       keys.add(RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE));
     }
 
@@ -45,7 +41,8 @@ class MessageboxService {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBodyJson =
+          jsonDecode(response.body) as Map<String, dynamic>;
 
       BigInt N = BigInt.parse(responseBodyJson["n"] as String);
       BigInt E = BigInt.parse(responseBodyJson["e"] as String);
@@ -111,7 +108,10 @@ class MessageboxService {
         final signedBlindedPK = responseBodyJson[i]["signedPK"] as String;
 
         //Unblind signed Keys
-        final signedPKBigInt = blindSignatures.unblind(BigInt.parse(signedBlindedPK), blindedPKs[index]["r"] as BigInt, serverKey.asPointyCastle.n!);
+        final signedPKBigInt = blindSignatures.unblind(
+            BigInt.parse(signedBlindedPK),
+            blindedPKs[index]["r"] as BigInt,
+            serverKey.asPointyCastle.n!);
         final signedPK = signedPKBigInt.toString();
 
         await storeMessageboxToken(MessageboxToken(
@@ -158,10 +158,13 @@ class MessageboxService {
 
     if (response.statusCode == 200) {
       // final decodedBodyJson = jsonDecode(messageboxToken.keypair.privateKey.decrypt(response.body)) as Map<String, dynamic>;
-      final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBodyJson =
+          jsonDecode(response.body) as Map<String, dynamic>;
 
-      String mid =  messageboxToken.keypair.privateKey.decrypt(responseBodyJson["mid"] as String);
-      String randomString = messageboxToken.keypair.privateKey.decrypt(responseBodyJson["random"] as String);
+      String mid = messageboxToken.keypair.privateKey
+          .decrypt(responseBodyJson["mid"] as String);
+      String randomString = messageboxToken.keypair.privateKey
+          .decrypt(responseBodyJson["random"] as String);
 
       url = Uri.parse(Constants.httpUrl + "messageboxes/createVerify");
 
@@ -174,7 +177,8 @@ class MessageboxService {
 
       if (response.statusCode == 200) {
         int expires = jsonDecode(response.body) as int;
-        Messagebox messagebox = Messagebox(mid, messageboxToken.keypair, number, null, null, expires);
+        Messagebox messagebox = Messagebox(
+            mid, messageboxToken.keypair, number, null, null, expires);
         storeMessagebox(messagebox);
 
         return messagebox.id;
@@ -265,11 +269,12 @@ class MessageboxService {
   Future<void> removeMessageboxToken(int messageboxTokenId) async {
     final db = await _databaseService.database;
 
-    if(await db.delete(
-      MessageboxToken.TABLE_NAME,
-      where: "${MessageboxToken.COLUMN_MT_ID} = ?",
-      whereArgs: [messageboxTokenId],
-      ) > 0){
+    if (await db.delete(
+          MessageboxToken.TABLE_NAME,
+          where: "${MessageboxToken.COLUMN_MT_ID} = ?",
+          whereArgs: [messageboxTokenId],
+        ) >
+        0) {
       await setNumMessageboxTokens(await getNumMessageboxTokens() - 1);
     }
   }
@@ -320,24 +325,21 @@ class MessageboxService {
 
     await db.update(
       Messagebox.TABLE_NAME,
-      {
-        Messagebox.COLUMN_RECIPIENT_KEY: key.toString()
-      },
-      where:"${Messagebox.COLUMN_M_ID} = ?",
+      {Messagebox.COLUMN_RECIPIENT_KEY: key.toString()},
+      where: "${Messagebox.COLUMN_M_ID} = ?",
       whereArgs: [id],
-      );
+    );
   }
 
   ///Updates the recipients RSA key for the Messagebox with given number
-  Future<void> updateMessageboxRSAKeyForNumber(String number, RSAPublicKey key) async {
+  Future<void> updateMessageboxRSAKeyForNumber(
+      String number, RSAPublicKey key) async {
     final db = await _databaseService.database;
 
     await db.update(
       Messagebox.TABLE_NAME,
-      {
-        Messagebox.COLUMN_RECIPIENT_KEY: key.toString()
-      },
-      where:"${Messagebox.COLUMN_NUMBER} = ?",
+      {Messagebox.COLUMN_RECIPIENT_KEY: key.toString()},
+      where: "${Messagebox.COLUMN_NUMBER} = ?",
       whereArgs: [number],
     );
   }
@@ -357,15 +359,14 @@ class MessageboxService {
   // }
 
   ///Updates the recipients MessageboxId for the Messagebox
-  Future<void> updateMessageboxRecipientId(String id, String recipientId) async {
+  Future<void> updateMessageboxRecipientId(
+      String id, String recipientId) async {
     final db = await _databaseService.database;
 
     await db.update(
       Messagebox.TABLE_NAME,
-      {
-        Messagebox.COLUMN_RECIPIENT_ID: recipientId
-      },
-      where:"${Messagebox.COLUMN_M_ID} = ?",
+      {Messagebox.COLUMN_RECIPIENT_ID: recipientId},
+      where: "${Messagebox.COLUMN_M_ID} = ?",
       whereArgs: [id],
     );
   }

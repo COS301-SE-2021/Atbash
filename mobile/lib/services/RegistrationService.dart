@@ -49,7 +49,8 @@ class RegistrationService {
     ///(that is used to verify the authenticity of requests)
     ///and send it back encrypted
     /// See: https://stackoverflow.com/questions/59586980/encrypt-and-decrypt-from-javascript-nodejs-to-dart-flutter-and-from-dart-to/63775191
-    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
+    RSAKeypair rsaKeypair =
+        RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
     final pubRsaKey = rsaKeypair.publicKey.asPointyCastle;
 
     var data = {
@@ -76,7 +77,8 @@ class RegistrationService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      final responseBodyJson = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBodyJson =
+          jsonDecode(response.body) as Map<String, dynamic>;
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
       final verificationCode = responseBodyJson["verification"] as String?;
@@ -144,7 +146,8 @@ class RegistrationService {
       return false;
     }
 
-    RSAKeypair rsaKeypair = RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
+    RSAKeypair rsaKeypair =
+        RSAKeypair.fromRandom(keySize: Constants.RSAKEYSIZE);
     await _userService.storeRSAKeyPair(rsaKeypair);
 
     List<Map<String, Object>> preKeysArr = [];

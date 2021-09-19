@@ -80,7 +80,7 @@ class UserService {
   /// during registration and is expected to be saved.
   Future<String> getDeviceAuthTokenEncoded() async {
     final token =
-    await _storage.read(key: "device_authentication_token_base64");
+        await _storage.read(key: "device_authentication_token_base64");
     if (token == null) {
       throw StateError("device_authentication_token_base64 is not readable");
     } else {

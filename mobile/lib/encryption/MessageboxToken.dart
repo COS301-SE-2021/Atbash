@@ -5,11 +5,7 @@ class MessageboxToken {
   final RSAKeypair keypair;
   final BigInt signedPK;
 
-  MessageboxToken(
-      this.id,
-      this.keypair,
-      this.signedPK
-      );
+  MessageboxToken(this.id, this.keypair, this.signedPK);
 
   Map<String, dynamic> toMap() {
     return {
@@ -25,11 +21,8 @@ class MessageboxToken {
     final signedPK = map[MessageboxToken.COLUMN_SIGNED_PK];
 
     if (id is int && keypair is String && signedPK is String) {
-      return MessageboxToken(
-        id,
-        RSAKeypair(RSAPrivateKey.fromString(keypair)),
-        BigInt.parse(signedPK)
-      );
+      return MessageboxToken(id, RSAKeypair(RSAPrivateKey.fromString(keypair)),
+          BigInt.parse(signedPK));
     } else {
       return null;
     }

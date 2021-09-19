@@ -1,17 +1,11 @@
 import 'dart:typed_data';
 import 'dart:convert';
-import 'dart:math';
 
-// import 'package:crypto/crypto.dart'; //For Hmac function
-
-// import 'package:cryptography/cryptography.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
-import 'package:mobile/exceptions/InvalidParametersException.dart';
 import 'package:mobile/exceptions/InvalidPreKeyBundleFormat.dart';
 import 'package:mobile/exceptions/PreKeyBundleFetchError.dart';
 import 'package:mobile/exceptions/UnsupportedCiphertextMessageType.dart';
@@ -29,11 +23,7 @@ import 'package:mobile/encryption/services/PreKeyStoreService.dart';
 import 'package:mobile/encryption/services/SessionStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 
-// import 'package:pointycastle/export.dart' as Pointy;
-// import 'package:pointycastle/src/utils.dart' as PointyUtils;
-
 //RSA Cryptography
-import 'package:crypton/crypton.dart';
 
 //Mutex/Locking functionality
 import 'package:synchronized/synchronized.dart';
@@ -93,7 +83,7 @@ class EncryptionService {
       final encodedSerializedCipherMessage =
           base64Encode(serializedCipherMessage);
 
-      if (ciphertext.getType() == CiphertextMessage.prekeyType){
+      if (ciphertext.getType() == CiphertextMessage.prekeyType) {
         print("Created PreKey message to: " + recipientNumber);
       } else {
         print("Created normal Signal message to: " + recipientNumber);
@@ -173,9 +163,10 @@ class EncryptionService {
         // }
         // plaintext = await _decryptCipherTextMessage(
         //     senderPhoneNumber, reconstructedCipherMessage);
-        try{
-          plaintext = await _decryptCipherTextMessage(senderPhoneNumber, SignalMessage.fromSerialized(decodedEncryptedContents));
-        } catch (e){
+        try {
+          plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
+              SignalMessage.fromSerialized(decodedEncryptedContents));
+        } catch (e) {
           print("Not Plain Signal Message");
           try {
             plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
@@ -320,10 +311,10 @@ class EncryptionService {
                 ". Recieved body: " +
                 response.body);
       }
-      _messageboxService.updateMessageboxRSAKeyForNumber(number, preKeyBundlePackage.rsaPublicKey);
+      _messageboxService.updateMessageboxRSAKeyForNumber(
+          number, preKeyBundlePackage.rsaPublicKey);
 
       PreKeyBundle preKeyBundle = preKeyBundlePackage.createPreKeyBundle();
-
 
       print("Returning created PKBundle");
       return preKeyBundle;
@@ -385,22 +376,25 @@ class EncryptionService {
 
       final numKeys = responseBody["keys"] as int?;
 
-      if(numKeys != null){
-        if(numKeys >= minServerStoredPreKeys){
+      if (numKeys != null) {
+        if (numKeys >= minServerStoredPreKeys) {
           //No need to do anything
           return;
         }
         final requiredKeys = desiredStoredPreKeys - numKeys;
         final numServerPreKeys = await getNumServerPreKeys();
-        final keysToGenerate = requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
+        final keysToGenerate =
+            requiredKeys - (await getNumGeneratedPreKeys() - numServerPreKeys);
 
-        if(keysToGenerate > 0){
-          await generateAdditionalPreKeys(keysToGenerate + 10); //Generate a few extra
+        if (keysToGenerate > 0) {
+          await generateAdditionalPreKeys(
+              keysToGenerate + 10); //Generate a few extra
         }
 
-        final preKeys = await _preKeyStoreService.loadPreKeysRange(numServerPreKeys, requiredKeys);
+        final preKeys = await _preKeyStoreService.loadPreKeysRange(
+            numServerPreKeys, requiredKeys);
 
-        if(preKeys.isEmpty){
+        if (preKeys.isEmpty) {
           // Soft fail
           print("Failed to get generated prekeys from database.");
         }
@@ -427,8 +421,10 @@ class EncryptionService {
         //     body: data, headers: {"Authorization": "Basic $authTokenEncoded"});
         final response2 = await http.post(url2, body: jsonEncode(data));
 
-        if (response2.statusCode == 200){
-          print("Successfully uploaded " + requiredKeys.toString() + " additional PreKeys");
+        if (response2.statusCode == 200) {
+          print("Successfully uploaded " +
+              requiredKeys.toString() +
+              " additional PreKeys");
           return;
         } else {
           // Soft fail
@@ -467,7 +463,8 @@ class EncryptionService {
 
   /// This function records the number of prekeys that have been generated
   Future<void> setNumGeneratedPreKeys(int index) async {
-    await _storage.write(key: "max_generated_prekey_index", value: index.toString());
+    await _storage.write(
+        key: "max_generated_prekey_index", value: index.toString());
   }
 
   /// This function retrieves the number of prekeys that have been generated
@@ -484,7 +481,8 @@ class EncryptionService {
   /// This function records the number of prekeys that have been sent to
   /// the server
   Future<void> setNumServerPreKeys(int index) async {
-    await _storage.write(key: "max_server_prekey_index", value: index.toString());
+    await _storage.write(
+        key: "max_server_prekey_index", value: index.toString());
   }
 
   /// This function retrieves the number of prekeys that have been sent to
@@ -518,16 +516,17 @@ class EncryptionService {
 
   /// This method encrypts this users number with the recipients RSA key
   Future<String?> encryptNumberFor(String number) async {
-    final messagebox = await _messageboxService.fetchMessageboxForNumber(number);
+    final messagebox =
+        await _messageboxService.fetchMessageboxForNumber(number);
 
-    if(messagebox == null){
+    if (messagebox == null) {
       print("Error: Messagebox for $number doesn't exist");
       return null;
     }
 
     final key = messagebox.recipientKey;
 
-    if(key == null){
+    if (key == null) {
       print("Error: Messagebox for $number doesn't have a rsa key");
       return null;
     }

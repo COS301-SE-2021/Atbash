@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
 
 class Constants {
-    //Key sizes
-    static const int RSAKEYSIZE = 1024;
+  //Key sizes
+  static const int RSAKEYSIZE = 1024;
 
-    //paddings
-    static const double screenBorderPadding = 15;
+  //paddings
+  static const double screenBorderPadding = 15;
 
-    //Colors
-    static const Color orange = Color.fromARGB(255, 255, 153, 0);
-    static const Color darkGrey = Color.fromARGB(255, 35, 47, 62);
-    static const Color black = Color.fromARGB(255, 19, 26, 34);
-    static const Color white = Colors.white;
+  //Colors
+  static const Color orange = Color.fromARGB(255, 255, 153, 0);
+  static const Color darkGrey = Color.fromARGB(255, 35, 47, 62);
+  static const Color black = Color.fromARGB(255, 19, 26, 34);
+  static const Color white = Colors.white;
 
-    static const String webSocketUrl =
-    "wss://ny2m9x8oj7.execute-api.eu-west-1.amazonaws.com/dev/";
-    static const String httpUrl =
-    "https://jsvaci1qg1.execute-api.eu-west-1.amazonaws.com/dev/";
+  static const String webSocketUrl =
+      "wss://ny2m9x8oj7.execute-api.eu-west-1.amazonaws.com/dev/";
+  static const String httpUrl =
+      "https://jsvaci1qg1.execute-api.eu-west-1.amazonaws.com/dev/";
 
-    //Regex
-    static const List<String> profanityRegex = ["[a@][s\\\$][s\\\$]",
+  //Regex
+  static const List<String> profanityRegex = [
+    "[a@][s\\\$][s\\\$]",
     "[a@][s\\\$][s\\\$]h[o0][l1][e3][s\\\$]?",
     "b[a@][s\\\$][t\+][a@]rd",
     "b[e3][a@][s\\\$][t\+][i1][a@]?[l1]([i1][t\+]y)?",
@@ -90,13 +91,15 @@ class Constants {
     "[s\\\$][l1]u[t\+][s\\\$]?",
     "[s\\\$]mu[t\+][s\\\$]?",
     "[s\\\$]punk[s\\\$]?",
-    "[t\+]w[a@][t\+][s\\\$]?"];
+    "[t\+]w[a@][t\+][s\\\$]?"
+  ];
 }
 
-void main(){
+void main() {
   String test = "as fuck bitch twat dick cummingcock";
   Constants.profanityRegex.forEach((regex) {
-      test = test.replaceAllMapped(RegExp(regex), (match) => List.filled(match.end - match.start, "*").join());
+    test = test.replaceAllMapped(RegExp(regex),
+        (match) => List.filled(match.end - match.start, "*").join());
   });
   // String result = test.replaceAllMapped(RegExp(Constants.test), (match) => List.filled(match.end - match.start, "*").join());
   print(test);

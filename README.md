@@ -39,7 +39,7 @@ Atbash is a messaging application, where the privacy of users and their messages
 - Please see our [User Manual document](/Documentation/Demo3/User_Manual.pdf) to see more about how to use our application.
 
 ---
-# Demo 4 Documentation [SRS document]
+# Demo 4 Documentation
 
 - Please see our [SRS document](/Documentation/Demo4/Atbash_SRS.pdf) to see more about the technical details of our application.
 - Please see our [Architectural Requirements document](/Documentation/Demo4/Atbash_Architectural_Requirements.pdf) to see more about the architectural details of our application.

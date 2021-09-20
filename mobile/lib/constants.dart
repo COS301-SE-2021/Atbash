@@ -18,7 +18,7 @@ class Constants {
   static const String httpUrl =
       "https://jsvaci1qg1.execute-api.eu-west-1.amazonaws.com/dev/";
   static const userManualUrl =
-      "https://raw.githubusercontent.com/COS301-SE-2021/Atbash/master/Documentation/Demo3/User_Manual.pdf";
+      "https://raw.githubusercontent.com/COS301-SE-2021/Atbash/master/Documentation/Demo4/Atbash_User_Manual.pdf";
 
   //Regex
   static const List<String> profanityRegex = [

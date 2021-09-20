@@ -57,13 +57,18 @@ You visit our [project manangement tool](https://github.com/COS301-SE-2021/Atbas
 ---
 ## Team Members
 
-### Dylan Pfab
+### Dylan Pfab (u19003961) [GitHub Profile](https://github.com/DYLERN), [LinkedIn](https://www.linkedin.com/in/dylan-pfab-8376a2151) <br>
+
+<details><summary>Expand details</summary>
+
 - __Interests__: Playing games, coding, climbing
 - __Strong skills__: Spring Boot, Angular, NodeJS
 - __Experience with__: Flutter, Android Native, PostgreSQL
 - __About Me__:
   I am a 3rd year computer science student. I have been programming recreationally since I was 10, and professionaly since 2019.
 
+</details>
+  
 ### Liam Mayston (u19027801) [GitHub Profile](https://github.com/Blackbird0911), [LinkedIn](https://www.linkedin.com/in/liam-mayston-a28a1020b/) <br>
 
 <details><summary>Expand details</summary> 

@@ -44,7 +44,7 @@ Atbash is a messaging application, where the privacy of users and their messages
 - Please see our [SRS document](/Documentation/Demo4/Atbash_SRS.pdf) to see more about the technical details of our application.
 - Please see our [Architectural Requirements document](/Documentation/Demo4/Atbash_Architectural_Requirements.pdf) to see more about the architectural details of our application.
 - Please see our [Coding Standards document](/Documentation/Demo4/Atbash_Coding_Standards.pdf) to see more about the coding details of our application.
-- Please see our [Technical Installation Manual document](/Documentation/Demo4/Atbash_Technical_Installation_Manual.pdf) to see more about the installation details of our application.
+- Please see our [Technical Installation Manual document](/Documentation/Demo4/Atbash_Technical_Installations_Manual.pdf) to see more about the installation details of our application.
 - Please see our [User Manual document](/Documentation/Demo4/Atbash_User_Manual.pdf) to see more about how to use our application.
 - Please see our [Testing Policy](/Documentation/Demo4/Atbash_Testing_Policy.pdf) to see more about how aour application's testing procedures take place.
 

@@ -45,34 +45,42 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   child: ListView(
                     children: [
                       _buildStatisticsWidget(
-                          "Total text messages sent:",
-                          "Total messages received:",
-                          controller.model.totalTextMessagesSent,
-                          controller.model.totalTextMessagesReceived,
-                          Icons.chat,
-                          true),
+                        "Total text messages sent:",
+                        "Total messages received:",
+                        controller.model.totalTextMessagesSent,
+                        controller.model.totalTextMessagesReceived,
+                        Icons.chat,
+                        true,
+                        topKey: Key("AnalyticsPage_totalMessagesSent"),
+                        bottomKey: Key("AnalyticsPage_totalMessagesReceived"),
+                      ),
                       Divider(
                         height: 2,
                         thickness: 2,
                       ),
                       _buildStatisticsWidget(
-                          "Total photos sent:",
-                          "Total photos received:",
-                          controller.model.totalPhotosSent,
-                          controller.model.totalPhotosReceived,
-                          Icons.photo,
-                          true),
+                        "Total photos sent:",
+                        "Total photos received:",
+                        controller.model.totalPhotosSent,
+                        controller.model.totalPhotosReceived,
+                        Icons.photo,
+                        true,
+                        topKey: Key("AnalyticsPage_totalPhotosSent"),
+                        bottomKey: Key("AnalyticsPage_totalPhotosReceived"),
+                      ),
                       Divider(
                         height: 2,
                         thickness: 2,
                       ),
                       _buildStatisticsWidget(
-                          "Total messages liked:",
-                          null,
-                          controller.model.totalMessagesLiked,
-                          null,
-                          Icons.favorite,
-                          false),
+                        "Total messages liked:",
+                        null,
+                        controller.model.totalMessagesLiked,
+                        null,
+                        Icons.favorite,
+                        false,
+                        topKey: Key("AnalyticsPage_totalLikedMessages"),
+                      ),
                       Divider(
                         height: 2,
                         thickness: 2,
@@ -132,7 +140,11 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                   ? contact.displayName
                   : contact.phoneNumber
               : chat.first.contactPhoneNumber),
-          subtitle: Text("Total messages: ${chat.second}"),
+          subtitle: Text(
+            "Total messages: ${chat.second}",
+            key: Key(
+                "AnalyticsPage_totalMessagesBetweenContacts_${chat.first.id}"),
+          ),
         ),
         Divider(
           height: 2,
@@ -143,7 +155,8 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
   }
 
   Widget _buildStatisticsWidget(String topText, String? bottomText, int topStat,
-      int? bottomStat, IconData icon, bool twoLines) {
+      int? bottomStat, IconData icon, bool twoLines,
+      {Key? topKey, Key? bottomKey}) {
     if (bottomStat == null) bottomStat = 0;
     return ListTile(
       title: Column(
@@ -151,7 +164,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
           Row(children: [
             Text(topText),
             Expanded(child: Container()),
-            Text(topStat.toString())
+            Text(topStat.toString(), key: topKey)
           ]),
           if (twoLines)
             SizedBox(
@@ -161,7 +174,7 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
             Row(children: [
               Text(bottomText ?? ""),
               Expanded(child: Container()),
-              Text(bottomStat.toString())
+              Text(bottomStat.toString(), key: bottomKey)
             ]),
         ],
       ),

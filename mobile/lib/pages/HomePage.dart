@@ -425,6 +425,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         Navigator.push(context,
             MaterialPageRoute(builder: (context) => ChatPage(chatId: chat.id)));
       },
+      key: Key("chatCard${chat.contactPhoneNumber}"),
       child: Slidable(
         actionPane: SlidableScrollActionPane(),
         secondaryActions: [
@@ -435,6 +436,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             onTap: () {
               controller.deleteChat(chat.id);
             },
+            key: Key("deleteButton${chat.contactPhoneNumber}"),
           ),
         ],
         child: Column(

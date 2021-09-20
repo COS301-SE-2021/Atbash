@@ -64,5 +64,6 @@ void main() {
     ));
 
     expect(find.byKey(Key('searchButton')), findsOneWidget);
+    expect(find.byKey(Key('settingsButton')), findsOneWidget);
   });
 }

@@ -258,6 +258,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             key: Key("searchButton"),
           ),
         PopupMenuButton(
+          key: Key("settingsButton"),
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
             return ["Settings"].map((menuItem) {

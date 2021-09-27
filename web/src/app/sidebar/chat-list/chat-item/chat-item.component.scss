@@ -1,3 +1,11 @@
+.chat-item {
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .profile-image {
   border-radius: 50%;
   width: 48px;

@@ -4,11 +4,35 @@ class ChildsChats {
   final String otherPartyNumber;
   String? otherPartyName;
 
-  ChildsChats({
-    required this.id,
-    required this.childId,
-    required this.otherPartyNumber,
-  });
+  ChildsChats(
+      {required this.id,
+      required this.childId,
+      required this.otherPartyNumber,
+      this.otherPartyName});
+
+  Map<String, Object?> toMap() {
+    return {
+      COLUMN_ID: id,
+      COLUMN_CHILD_ID: childId,
+      COLUMN_OTHER_PARTY_NUMBER: otherPartyNumber,
+      COLUMN_OTHER_PARTY_NAME: otherPartyName,
+    };
+  }
+
+  static ChildsChats? fromMap(Map<String, Object?> map) {
+    final id = map[COLUMN_ID] as String?;
+    final childId = map[COLUMN_CHILD_ID] as String?;
+    final otherPartyNumber = map[COLUMN_OTHER_PARTY_NUMBER] as String?;
+    final otherPartyName = map[COLUMN_OTHER_PARTY_NAME] as String?;
+
+    if (id != null && childId != null && otherPartyNumber != null) {
+      return ChildsChats(
+          id: id,
+          childId: childId,
+          otherPartyNumber: otherPartyNumber,
+          otherPartyName: otherPartyName);
+    }
+  }
 
   static const String TABLE_NAME = "childs_chats";
   static const String COLUMN_ID = "id";

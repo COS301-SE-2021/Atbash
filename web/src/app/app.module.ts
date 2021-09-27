@@ -3,8 +3,8 @@ import { BrowserModule } from "@angular/platform-browser";
 
 import { AppComponent } from "./app.component";
 import { ChatComponent } from "./chat/chat.component";
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { TitleBarComponent } from './sidebar/title-bar/title-bar.component';
+import { SidebarComponent } from "./sidebar/sidebar.component";
+import { TitleBarComponent } from "./sidebar/title-bar/title-bar.component";
 
 @NgModule({
     declarations: [

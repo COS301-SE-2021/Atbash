@@ -1,4 +1,4 @@
-class ChildsMessages {
+class ChildMessage {
   final String id;
   final String chatId;
   final bool isIncoming;
@@ -7,7 +7,7 @@ class ChildsMessages {
   final DateTime timestamp;
   final isMedia = false;
 
-  ChildsMessages(
+  ChildMessage(
       {required this.id,
       required this.chatId,
       required this.isIncoming,

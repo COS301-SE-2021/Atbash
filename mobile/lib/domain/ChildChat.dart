@@ -1,10 +1,10 @@
-class ChildsChats {
+class ChildChat {
   final String id;
   final String childId;
   final String otherPartyNumber;
   String? otherPartyName;
 
-  ChildsChats(
+  ChildChat(
       {required this.id,
       required this.childId,
       required this.otherPartyNumber,
@@ -19,14 +19,14 @@ class ChildsChats {
     };
   }
 
-  static ChildsChats? fromMap(Map<String, Object?> map) {
+  static ChildChat? fromMap(Map<String, Object?> map) {
     final id = map[COLUMN_ID] as String?;
     final childId = map[COLUMN_CHILD_ID] as String?;
     final otherPartyNumber = map[COLUMN_OTHER_PARTY_NUMBER] as String?;
     final otherPartyName = map[COLUMN_OTHER_PARTY_NAME] as String?;
 
     if (id != null && childId != null && otherPartyNumber != null) {
-      return ChildsChats(
+      return ChildChat(
           id: id,
           childId: childId,
           otherPartyNumber: otherPartyNumber,

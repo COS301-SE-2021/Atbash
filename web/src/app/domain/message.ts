@@ -30,7 +30,7 @@ export class Message {
     }
 }
 
-enum ReadReceipt {
+export enum ReadReceipt {
     undelivered,
     delivered,
     seen

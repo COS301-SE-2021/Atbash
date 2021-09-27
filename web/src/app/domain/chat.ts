@@ -17,7 +17,7 @@ export class Chat {
     }
 }
 
-enum ChatType {
+export enum ChatType {
     general,
     private
 }

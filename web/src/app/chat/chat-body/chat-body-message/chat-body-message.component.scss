@@ -1,0 +1,20 @@
+@import "~src/variables";
+
+.message-card {
+  display: inline-block;
+  max-width: 100ch;
+  padding: 10px 20px;
+  border-radius: 12px;
+  text-align: start;
+  margin-top: 8px;
+}
+
+.message-incoming {
+  background-color: $color-dark-grey;
+  color: white;
+}
+
+.message-outgoing {
+  background-color: $color-orange;
+  color: black;
+}

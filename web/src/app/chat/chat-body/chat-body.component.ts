@@ -21,7 +21,7 @@ export class ChatBodyComponent implements OnInit {
                 "",
                 isIncoming,
                 "6789",
-                "This is a message",
+                "This is a message that is very long so as to extend the maximum width available to force it to wrap. This means that it will wrap now",
                 new Date(),
                 false,
                 false,

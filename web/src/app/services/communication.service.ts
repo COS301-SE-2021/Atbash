@@ -27,6 +27,14 @@ export class CommunicationService {
         return array
     }
 
+    async fetchContactList(): Promise<Contact[]> {
+        const array: Contact[] = []
+        for (let i = 0; i < 20; i++) {
+            array.push(CommunicationService.randomContact())
+        }
+        return array
+    }
+
     async fetchMessagesForChat(chatId: string): Promise<Message[]> {
         const array: Message[] = []
         for (let i = 0; i < 20; i++) {
@@ -67,14 +75,26 @@ export class CommunicationService {
         )
     }
 
+    private static randomContact(): Contact {
+        const phoneNumber = this.randomString("0123456789", 10)
+        const displayName = this.randomString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 12)
+
+        return new Contact(
+            phoneNumber,
+            displayName,
+            "",
+            "",
+            null
+        )
+    }
+
     private static randomChat(): Chat {
-        const contactPhoneNumber = this.randomString("0123456789", 10)
-        const contactDisplayName = this.randomString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 12)
+        const contact = this.randomContact()
 
         return new Chat(
             "",
-            contactPhoneNumber,
-            new Contact(contactPhoneNumber, contactDisplayName, "", "", null),
+            contact.phoneNumber,
+            contact,
             ChatType.general,
             this.randomMessage()
         )

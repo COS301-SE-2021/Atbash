@@ -1,15 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from "@angular/core";
+import { Message } from "../../../domain/message";
 
 @Component({
-  selector: 'app-chat-body-message',
-  templateUrl: './chat-body-message.component.html',
-  styleUrls: ['./chat-body-message.component.scss']
+    selector: "app-chat-body-message",
+    templateUrl: "./chat-body-message.component.html",
+    styleUrls: ["./chat-body-message.component.scss"]
 })
 export class ChatBodyMessageComponent implements OnInit {
 
-  constructor() { }
+    @Input() message: Message | null = null
 
-  ngOnInit(): void {
-  }
+    constructor() {
+    }
+
+    ngOnInit(): void {
+    }
 
 }

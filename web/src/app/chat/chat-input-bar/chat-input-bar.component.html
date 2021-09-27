@@ -7,11 +7,11 @@
   </div>
 
   <div class="flex-grow-1 mx-2">
-    <input type="text" class="w-100 form-control">
+    <input type="text" class="w-100 form-control" [(ngModel)]="inputBarContents">
   </div>
 
   <div>
-    <button class="btn">
+    <button class="btn" (click)="sendMessage()">
       <img src="assets/send_black_24dp.svg" alt="Send Message">
     </button>
   </div>

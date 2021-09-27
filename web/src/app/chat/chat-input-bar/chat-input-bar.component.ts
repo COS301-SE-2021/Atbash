@@ -1,15 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
+import { MessageService } from "../../services/message.service";
 
 @Component({
-  selector: 'app-chat-input-bar',
-  templateUrl: './chat-input-bar.component.html',
-  styleUrls: ['./chat-input-bar.component.scss']
+    selector: "app-chat-input-bar",
+    templateUrl: "./chat-input-bar.component.html",
+    styleUrls: ["./chat-input-bar.component.scss"]
 })
 export class ChatInputBarComponent implements OnInit {
 
-  constructor() { }
+    inputBarContents: string = ""
 
-  ngOnInit(): void {
-  }
+    constructor(private messageService: MessageService) {
+    }
+
+    ngOnInit(): void {
+    }
+
+    sendMessage() {
+        const contents = this.inputBarContents.trim()
+        if (contents) {
+            this.messageService.sendMessage(contents, "")
+        }
+    }
 
 }

@@ -12,9 +12,11 @@
 .message-incoming {
   background-color: $color-dark-grey;
   color: white;
+  margin-left: 8px;
 }
 
 .message-outgoing {
   background-color: $color-orange;
   color: black;
+  margin-right: 8px;
 }

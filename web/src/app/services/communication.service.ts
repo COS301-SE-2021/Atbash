@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Chat, ChatType } from "../domain/chat";
 import { Message, ReadReceipt } from "../domain/message";
+import { Contact } from "../domain/contact";
 
 @Injectable({
     providedIn: "root"
@@ -11,94 +12,19 @@ export class CommunicationService {
     }
 
     async fetchChatList(): Promise<Chat[]> {
-        return [
-            new Chat("1", "123", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "123",
-                "Hey there!",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            )),
-            new Chat("2", "456", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "456",
-                "Is this the right number?",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            )),
-            new Chat("3", "789", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "789",
-                "Pay me back my money",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            )),
-            new Chat("4", "12345", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "12345",
-                "Hey there, this is a really long message designed to test the text-overflow property",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            )),
-            new Chat("5", "6789", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "6789",
-                "Hey there, this is a really long message designed to test the text-overflow property",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            ))
-        ]
+        const array: Chat[] = []
+        for (let i = 0; i < 20; i++) {
+            array.push(CommunicationService.randomChat())
+        }
+        return array
     }
 
     async fetchMessagesForChat(chatId: string): Promise<Message[]> {
-        return [
-            CommunicationService.randomMessage(),
-            CommunicationService.randomMessage(),
-            CommunicationService.randomMessage(),
-            CommunicationService.randomMessage(),
-            CommunicationService.randomMessage(),
-            CommunicationService.randomMessage(),
-        ]
+        const array: Message[] = []
+        for (let i = 0; i < 20; i++) {
+            array.push(CommunicationService.randomMessage())
+        }
+        return array
     }
 
     private static randomMessage(): Message {
@@ -131,5 +57,26 @@ export class CommunicationService {
             liked,
             false
         )
+    }
+
+    private static randomChat(): Chat {
+        const contactPhoneNumber = this.randomString("0123456789", 10)
+        const contactDisplayName = this.randomString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 12)
+
+        return new Chat(
+            "",
+            contactPhoneNumber,
+            new Contact(contactPhoneNumber, contactDisplayName, "", "", null),
+            ChatType.general,
+            this.randomMessage()
+        )
+    }
+
+    private static randomString(characterPool: string, length: number): string {
+        let result = ""
+        for (let i = 0; i < length; i++) {
+            result += characterPool.charAt(Math.floor(Math.random() * characterPool.length))
+        }
+        return result
     }
 }

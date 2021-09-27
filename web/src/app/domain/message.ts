@@ -3,10 +3,10 @@ export class Message {
     public readonly chatId: string
     public readonly isIncoming: boolean
     public readonly otherPartyPhoneNumber: string
-    public readonly contents: string
+    public contents: string
     public readonly timestamp: Date
-    public isMedia: boolean = false
-    public forwarded: boolean = false
+    public readonly isMedia: boolean = false
+    public readonly forwarded: boolean = false
     public readReceipt: ReadReceipt = ReadReceipt.undelivered
     public repliedMessageId: string | null = null
     public deleted: boolean = false

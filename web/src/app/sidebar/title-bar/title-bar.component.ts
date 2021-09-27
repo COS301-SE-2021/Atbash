@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { UserService } from "../../services/user.service";
+import { SidebarService } from "../sidebar-service/sidebar.service";
 
 @Component({
     selector: "app-title-bar",
@@ -8,7 +9,7 @@ import { UserService } from "../../services/user.service";
 })
 export class TitleBarComponent implements OnInit {
 
-    constructor(private userService: UserService) {
+    constructor(private userService: UserService, private sidebarService: SidebarService) {
     }
 
     ngOnInit(): void {
@@ -24,6 +25,18 @@ export class TitleBarComponent implements OnInit {
 
     get displayName() {
         return this.userService.displayName
+    }
+
+    get shouldShowBackArrow() {
+        return this.sidebarService.showContactList
+    }
+
+    startNewChat() {
+        this.sidebarService.showContactList = true
+    }
+
+    backPressed() {
+        this.sidebarService.showContactList = false
     }
 
 }

@@ -1,16 +1,22 @@
 import { Component, OnInit } from "@angular/core";
+import { SidebarService } from "./sidebar-service/sidebar.service";
 
 @Component({
     selector: "app-sidebar",
     templateUrl: "./sidebar.component.html",
-    styleUrls: ["./sidebar.component.scss"]
+    styleUrls: ["./sidebar.component.scss"],
+    providers: [SidebarService]
 })
 export class SidebarComponent implements OnInit {
 
-    constructor() {
+    constructor(private sidebarService: SidebarService) {
     }
 
     ngOnInit(): void {
+    }
+
+    get shouldShowContactList() {
+        return this.sidebarService.showContactList
     }
 
 }

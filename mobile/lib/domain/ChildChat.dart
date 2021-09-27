@@ -34,7 +34,7 @@ class ChildChat {
     }
   }
 
-  static const String TABLE_NAME = "childs_chats";
+  static const String TABLE_NAME = "child_chat";
   static const String COLUMN_ID = "id";
   static const String COLUMN_CHILD_ID = "child_id";
   static const String COLUMN_OTHER_PARTY_NUMBER = "other_party_number";

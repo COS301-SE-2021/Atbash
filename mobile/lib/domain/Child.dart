@@ -41,18 +41,18 @@ class Child {
       COLUMN_PHONE_NUMBER: phoneNumber,
       COLUMN_NAME: name,
       COLUMN_PIN: pin,
-      COLUMN_EDITABLE_SETTINGS: editableSettings,
-      COLUMN_BLUR_IMAGES: blurImages,
-      COLUMN_SAFE_MODE: safeMode,
-      COLUMN_SHARE_PROFILE_PICTURE: shareProfilePicture,
-      COLUMN_SHARE_STATUS: shareStatus,
-      COLUMN_SHARE_READ_RECEIPTS: shareReadReceipts,
-      COLUMN_SHARE_BIRTHDAY: shareBirthday,
-      COLUMN_LOCKED_ACCOUNT: lockedAccount,
-      COLUMN_PRIVATE_CHAT_ACCESS: privateChatAccess,
-      COLUMN_BLOCK_SAVE_MEDIA: blockSaveMedia,
-      COLUMN_BLOCK_EDITING_MESSAGES: blockEditingMessages,
-      COLUMN_BLOCK_DELETING_MESSAGES: blockDeletingMessages,
+      COLUMN_EDITABLE_SETTINGS: editableSettings ? 1 : 0,
+      COLUMN_BLUR_IMAGES: blurImages ? 1 : 0,
+      COLUMN_SAFE_MODE: safeMode ? 1 : 0,
+      COLUMN_SHARE_PROFILE_PICTURE: shareProfilePicture ? 1 : 0,
+      COLUMN_SHARE_STATUS: shareStatus ? 1 : 0,
+      COLUMN_SHARE_READ_RECEIPTS: shareReadReceipts ? 1 : 0,
+      COLUMN_SHARE_BIRTHDAY: shareBirthday ? 1 : 0,
+      COLUMN_LOCKED_ACCOUNT: lockedAccount ? 1 : 0,
+      COLUMN_PRIVATE_CHAT_ACCESS: privateChatAccess ? 1 : 0,
+      COLUMN_BLOCK_SAVE_MEDIA: blockSaveMedia ? 1 : 0,
+      COLUMN_BLOCK_EDITING_MESSAGES: blockEditingMessages ? 1 : 0,
+      COLUMN_BLOCK_DELETING_MESSAGES: blockDeletingMessages ? 1 : 0,
     };
   }
 
@@ -61,18 +61,18 @@ class Child {
     final phoneNumber = map[COLUMN_PHONE_NUMBER] as String?;
     final name = map[COLUMN_NAME] as String?;
     final pin = map[COLUMN_PIN] as String?;
-    final editableSettings = map[COLUMN_EDITABLE_SETTINGS] as bool?;
-    final blurImages = map[COLUMN_BLUR_IMAGES] as bool?;
-    final safeMode = map[COLUMN_SAFE_MODE] as bool?;
-    final shareProfilePicture = map[COLUMN_SHARE_PROFILE_PICTURE] as bool?;
-    final shareStatus = map[COLUMN_SHARE_STATUS] as bool?;
-    final shareReadReceipts = map[COLUMN_SHARE_READ_RECEIPTS] as bool?;
-    final shareBirthday = map[COLUMN_SHARE_BIRTHDAY] as bool?;
-    final lockedAccount = map[COLUMN_LOCKED_ACCOUNT] as bool?;
-    final privateChatAccess = map[COLUMN_PRIVATE_CHAT_ACCESS] as bool?;
-    final blockSaveMedia = map[COLUMN_BLOCK_SAVE_MEDIA] as bool?;
-    final blockEditingMessages = map[COLUMN_BLOCK_EDITING_MESSAGES] as bool?;
-    final blockDeletingMessages = map[COLUMN_BLOCK_DELETING_MESSAGES] as bool?;
+    final editableSettings = map[COLUMN_EDITABLE_SETTINGS] as int?;
+    final blurImages = map[COLUMN_BLUR_IMAGES] as int?;
+    final safeMode = map[COLUMN_SAFE_MODE] as int?;
+    final shareProfilePicture = map[COLUMN_SHARE_PROFILE_PICTURE] as int?;
+    final shareStatus = map[COLUMN_SHARE_STATUS] as int?;
+    final shareReadReceipts = map[COLUMN_SHARE_READ_RECEIPTS] as int?;
+    final shareBirthday = map[COLUMN_SHARE_BIRTHDAY] as int?;
+    final lockedAccount = map[COLUMN_LOCKED_ACCOUNT] as int?;
+    final privateChatAccess = map[COLUMN_PRIVATE_CHAT_ACCESS] as int?;
+    final blockSaveMedia = map[COLUMN_BLOCK_SAVE_MEDIA] as int?;
+    final blockEditingMessages = map[COLUMN_BLOCK_EDITING_MESSAGES] as int?;
+    final blockDeletingMessages = map[COLUMN_BLOCK_DELETING_MESSAGES] as int?;
 
     if (id != null &&
         phoneNumber != null &&
@@ -95,18 +95,18 @@ class Child {
           phoneNumber: phoneNumber,
           name: name,
           pin: pin,
-          editableSettings: editableSettings,
-          blurImages: blurImages,
-          safeMode: safeMode,
-          shareProfilePicture: shareProfilePicture,
-          shareStatus: shareStatus,
-          shareReadReceipts: shareReadReceipts,
-          shareBirthday: shareBirthday,
-          lockedAccount: lockedAccount,
-          privateChatAccess: privateChatAccess,
-          blockSaveMedia: blockSaveMedia,
-          blockEditingMessages: blockEditingMessages,
-          blockDeletingMessages: blockDeletingMessages);
+          editableSettings: editableSettings != 0,
+          blurImages: blurImages != 0,
+          safeMode: safeMode != 0,
+          shareProfilePicture: shareProfilePicture != 0,
+          shareStatus: shareStatus != 0,
+          shareReadReceipts: shareReadReceipts != 0,
+          shareBirthday: shareBirthday != 0,
+          lockedAccount: lockedAccount != 0,
+          privateChatAccess: privateChatAccess != 0,
+          blockSaveMedia: blockSaveMedia != 0,
+          blockEditingMessages: blockEditingMessages != 0,
+          blockDeletingMessages: blockDeletingMessages != 0);
     }
   }
 

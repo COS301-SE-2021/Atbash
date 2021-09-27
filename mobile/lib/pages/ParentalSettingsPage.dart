@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
@@ -27,6 +29,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               ),
             ),
             ListTile(
+              onTap: () {
+                showNewNumberDialog(context,
+                    "Please enter the number of the phone you wish to monitor");
+              },
               title: Text(
                 "Add child's number",
                 style: TextStyle(fontSize: 16),
@@ -41,8 +47,12 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               dense: true,
             ),
             ListTile(
+              onTap: () {
+                showInputDialog(
+                    context, "Please enter the pin you wish to use.");
+              },
               title: Text(
-                "Change pin",
+                "Change pin for 'Child name'",
                 style: TextStyle(fontSize: 16),
               ),
               leading: Icon(
@@ -51,6 +61,22 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               ),
               trailing: Icon(Icons.arrow_forward_rounded),
               dense: true,
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+              height: 50,
+              padding: EdgeInsets.all(10),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 3,
+                itemBuilder: (_, index) {
+                  return Container(
+                    child: _buildChildBubble("Liam Mayston"),
+                  );
+                },
+              ),
             ),
             Container(
               padding: EdgeInsets.all(15),
@@ -286,6 +312,24 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildChildBubble(String displayName) {
+    return Row(
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 10),
+          padding: EdgeInsets.all(5),
+          child: Text(displayName),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

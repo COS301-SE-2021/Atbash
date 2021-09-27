@@ -13,6 +13,7 @@ import { ChatInputBarComponent } from "./chat/chat-input-bar/chat-input-bar.comp
 import { ChatBodyMessageComponent } from "./chat/chat-body/chat-body-message/chat-body-message.component";
 import { FormsModule } from "@angular/forms";
 import { ContactListComponent } from './sidebar/contact-list/contact-list.component';
+import { ContactItemComponent } from './sidebar/contact-list/contact-item/contact-item.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +27,8 @@ import { ContactListComponent } from './sidebar/contact-list/contact-list.compon
         ChatBodyComponent,
         ChatInputBarComponent,
         ChatBodyMessageComponent,
-        ContactListComponent
+        ContactListComponent,
+        ContactItemComponent
     ],
     imports: [
         BrowserModule,

@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
+import { MessageService } from "../../services/message.service";
 
 @Component({
     selector: "app-chat-title-bar",
@@ -11,10 +12,14 @@ export class ChatTitleBarComponent implements OnInit {
     @Input() profileImage: string | null = null
     @Input() displayName: string | null = null
 
-    constructor() {
+    constructor(private messageService: MessageService) {
     }
 
     ngOnInit(): void {
+    }
+
+    get isInChat() {
+        return this.messageService.selectedChat != null
     }
 
 }

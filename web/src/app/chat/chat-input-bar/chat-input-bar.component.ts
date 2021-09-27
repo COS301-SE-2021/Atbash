@@ -24,4 +24,8 @@ export class ChatInputBarComponent implements OnInit {
         }
     }
 
+    get isInChat() {
+        return this.messageService.selectedChat != null
+    }
+
 }

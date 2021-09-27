@@ -34,8 +34,8 @@ export class ChatItemComponent implements OnInit {
         return this.chat?.mostRecentMessage
     }
 
-    selectChat() {
-        this.messageService.enterChat(this.chat)
+    async selectChat() {
+        await this.messageService.enterChat(this.chat)
     }
 
 }

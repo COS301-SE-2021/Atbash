@@ -1,1 +1,11 @@
-<p>contact-item works!</p>
+<div class="contact-item d-flex flex-row justify-contents-start align-items-center p-2 w-100">
+
+  <div>
+    <img [src]="profileImage" alt="Contact Profile Image" class="profile-image">
+  </div>
+
+  <div class="mx-2 flex-grow-1 min-width-0">
+    <span class="display-name">{{displayName}}</span>
+  </div>
+
+</div>

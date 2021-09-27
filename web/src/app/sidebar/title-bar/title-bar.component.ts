@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { UserService } from "../../services/user.service";
 
 @Component({
     selector: "app-title-bar",
@@ -7,14 +8,22 @@ import { Component, OnInit } from "@angular/core";
 })
 export class TitleBarComponent implements OnInit {
 
-    // LOCAL STATE
-    profileImage: string | null = "https://static01.nyt.com/images/2021/09/14/science/07CAT-STRIPES/07CAT-STRIPES-mediumSquareAt3X-v2.jpg"
-    displayName: string = "Dylan Pfab"
-
-    constructor() {
+    constructor(private userService: UserService) {
     }
 
     ngOnInit(): void {
+    }
+
+    get profileImage() {
+        let profileImage = this.userService.profileImage
+        if (profileImage == null || profileImage.trim() == "") {
+            profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        }
+        return profileImage
+    }
+
+    get displayName() {
+        return this.userService.displayName
     }
 
 }

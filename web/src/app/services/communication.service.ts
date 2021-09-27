@@ -11,6 +11,14 @@ export class CommunicationService {
     constructor() {
     }
 
+    async fetchUserDisplayName(): Promise<string> {
+        return "Dylan Pfab"
+    }
+
+    async fetchUserProfileImage(): Promise<string> {
+        return "https://static01.nyt.com/images/2021/09/14/science/07CAT-STRIPES/07CAT-STRIPES-mediumSquareAt3X-v2.jpg"
+    }
+
     async fetchChatList(): Promise<Chat[]> {
         const array: Chat[] = []
         for (let i = 0; i < 20; i++) {

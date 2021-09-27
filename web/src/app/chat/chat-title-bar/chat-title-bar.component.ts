@@ -14,16 +14,24 @@ export class ChatTitleBarComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    get chat() {
+        return this.messageService.selectedChat
+    }
+
     get profileImage() {
-        return this.messageService.selectedChat?.contact?.profileImage ?? "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        let profileImage = this.chat?.contact?.profileImage
+        if (profileImage == null || profileImage.trim() == "") {
+            profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        }
+        return profileImage
     }
 
     get displayName() {
-        return this.messageService.selectedChat?.contact?.displayName ?? this.messageService?.selectedChat?.contactPhoneNumber
+        return this.chat?.contact?.displayName ?? this.chat?.contactPhoneNumber ?? ""
     }
 
     get isInChat() {
-        return this.messageService.selectedChat != null
+        return this.chat != null
     }
 
 }

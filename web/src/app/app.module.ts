@@ -12,6 +12,7 @@ import { ChatBodyComponent } from "./chat/chat-body/chat-body.component";
 import { ChatInputBarComponent } from "./chat/chat-input-bar/chat-input-bar.component";
 import { ChatBodyMessageComponent } from "./chat/chat-body/chat-body-message/chat-body-message.component";
 import { FormsModule } from "@angular/forms";
+import { ContactListComponent } from './sidebar/contact-list/contact-list.component';
 
 @NgModule({
     declarations: [
@@ -24,7 +25,8 @@ import { FormsModule } from "@angular/forms";
         ChatTitleBarComponent,
         ChatBodyComponent,
         ChatInputBarComponent,
-        ChatBodyMessageComponent
+        ChatBodyMessageComponent,
+        ContactListComponent
     ],
     imports: [
         BrowserModule,

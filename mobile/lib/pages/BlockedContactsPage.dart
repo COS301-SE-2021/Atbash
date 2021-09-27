@@ -145,7 +145,8 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   }
 
   void _addBlockedContact() async {
-    final input = await showNewNumberDialog(context);
+    final input = await showNewNumberDialog(
+        context, "Please insert the number you wish to block.");
     if (input != null)
       controller.addNumber(input).catchError((_) {
         showSnackBar(context, "This number has already been blocked.");

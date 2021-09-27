@@ -16,6 +16,10 @@ export class ChatInputBarComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    get chat() {
+        return this.messageService.selectedChat
+    }
+
     sendMessage() {
         const contents = this.inputBarContents.trim()
         if (contents) {
@@ -25,7 +29,7 @@ export class ChatInputBarComponent implements OnInit {
     }
 
     get isInChat() {
-        return this.messageService.selectedChat != null
+        return this.chat != null
     }
 
 }

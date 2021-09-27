@@ -1,1 +1,16 @@
-<p>title-bar works!</p>
+<div class="title-bar d-flex flex-row justify-content-start align-items-center">
+
+  <div>
+    <img [src]="profileImage" alt="Profile Image" class="profile-image">
+  </div>
+
+  <div class="mx-2 flex-grow-1">
+    <span class="display-name my-0">{{displayName}}</span>
+  </div>
+
+  <div>
+    <img src="assets/chat_black_24dp.svg" alt="New Chat" class="mx-3">
+    <img src="assets/more_vert_black_24dp.svg" alt="More Options" class="mx-3">
+  </div>
+
+</div>

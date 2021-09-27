@@ -1,0 +1,16 @@
+@import "~src/variables";
+
+.title-bar {
+  background-color: $color-orange;
+  padding: 10px;
+}
+
+.profile-image {
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+}
+
+.display-name {
+  font-size: 24px;
+}

@@ -1,4 +1,5 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
+import { Chat } from "../../../domain/chat";
 
 @Component({
     selector: "app-chat-item",
@@ -6,6 +7,9 @@ import { Component, OnInit } from "@angular/core";
     styleUrls: ["./chat-item.component.scss"]
 })
 export class ChatItemComponent implements OnInit {
+
+    // LOCAL STATE
+    @Input() chat: Chat | null = null
 
     constructor() {
     }

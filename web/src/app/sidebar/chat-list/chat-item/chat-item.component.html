@@ -1,1 +1,24 @@
-<p>chat-item works!</p>
+<div class="d-flex flex-row justify-contents-start align-items-center p-2 w-100">
+
+  <div>
+    <img *ngIf="chat?.contact?.profileImage != null else defaultProfileImage" [src]="chat?.contact?.profileImage"
+         alt="Contact Profile Image" class="profile-image">
+    <ng-template #defaultProfileImage>
+      <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+           alt="Contact Profile Image" class="profile-image">
+    </ng-template>
+  </div>
+
+  <div class="mx-2 flex-grow-1 min-width-0">
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row justify-content-between">
+        <span class="display-name">{{chat?.contact?.displayName ?? chat?.contactPhoneNumber}}</span>
+
+        <span>{{chat?.mostRecentMessage?.timestamp | date:"HH:mm"}}</span>
+      </div>
+
+      <span class="most-recent-message">{{chat?.mostRecentMessage?.contents}}</span>
+    </div>
+  </div>
+
+</div>

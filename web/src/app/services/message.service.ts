@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Message, ReadReceipt } from "../domain/message";
 import { Chat } from "../domain/chat";
+import { CommunicationService } from "./communication.service";
 
 @Injectable({
     providedIn: "root"
@@ -10,12 +11,15 @@ export class MessageService {
     selectedChat: Chat | null = null
     chatMessages: Message[] = []
 
-    constructor() {
+    constructor(private com: CommunicationService) {
     }
 
-    enterChat(chat: Chat | null) {
+    async enterChat(chat: Chat | null) {
         this.selectedChat = chat
         this.chatMessages = []
+        if (chat != null) {
+            this.chatMessages = await this.com.fetchMessagesForChat(chat.id)
+        }
     }
 
     sendMessage(contents: string) {

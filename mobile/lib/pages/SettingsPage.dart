@@ -4,6 +4,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
+import 'package:mobile/pages/ParentalSettingsPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
 import 'package:mobile/util/Utils.dart';
@@ -81,6 +82,17 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black)),
+                child: Text(
+                  "Privacy settings have been disabled. Please contact \n'phone number'\nto allow access.",
+                  textAlign: TextAlign.center,
                 ),
               ),
               Container(
@@ -224,6 +236,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   "Account",
                   style: TextStyle(fontSize: 20),
                 ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.perm_contact_calendar_rounded,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Parental Controls",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => ParentalSettingsPage()),
+                  );
+                },
+                dense: true,
               ),
               ListTile(
                 key: Key("changeWallpaper"),

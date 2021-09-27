@@ -18,6 +18,22 @@ export class ChatItemComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    get profileImage() {
+        let profileImage = this.chat?.contact?.profileImage
+        if (profileImage == null || profileImage.trim() == "") {
+            profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        }
+        return profileImage
+    }
+
+    get displayName() {
+        return this.chat?.contact?.displayName ?? this.chat?.contactPhoneNumber ?? ""
+    }
+
+    get mostRecentMessage() {
+        return this.chat?.mostRecentMessage
+    }
+
     selectChat() {
         this.messageService.enterChat(this.chat)
     }

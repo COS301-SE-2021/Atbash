@@ -9,6 +9,7 @@ import { ChatListComponent } from "./sidebar/chat-list/chat-list.component";
 import { ChatItemComponent } from "./sidebar/chat-list/chat-item/chat-item.component";
 import { ChatTitleBarComponent } from './chat/chat-title-bar/chat-title-bar.component';
 import { ChatBodyComponent } from './chat/chat-body/chat-body.component';
+import { ChatInputBarComponent } from './chat/chat-input-bar/chat-input-bar.component';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,8 @@ import { ChatBodyComponent } from './chat/chat-body/chat-body.component';
         ChatListComponent,
         ChatItemComponent,
         ChatTitleBarComponent,
-        ChatBodyComponent
+        ChatBodyComponent,
+        ChatInputBarComponent
     ],
     imports: [
         BrowserModule

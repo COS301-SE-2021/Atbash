@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { Chat, ChatType } from "../../domain/chat";
-import { Message, ReadReceipt } from "../../domain/message";
+import { ChatService } from "../../services/chat.service";
 
 @Component({
     selector: "app-chat-list",
@@ -9,34 +8,14 @@ import { Message, ReadReceipt } from "../../domain/message";
 })
 export class ChatListComponent implements OnInit {
 
-    // LOCAL STATE
-    chatList: Chat[] = []
-
-    constructor() {
+    constructor(private chatService: ChatService) {
     }
 
     ngOnInit(): void {
-        this.chatList = [
-            new Chat("1", "123", null, ChatType.general, null),
-            new Chat("2", "456", null, ChatType.general, null),
-            new Chat("3", "789", null, ChatType.general, null),
-            new Chat("4", "12345", null, ChatType.general, null),
-            new Chat("5", "6789", null, ChatType.general, new Message(
-                "",
-                "",
-                true,
-                "6789",
-                "Hey there, this is a really long message designed to test the text-overflow property",
-                new Date(),
-                false,
-                false,
-                ReadReceipt.undelivered,
-                null,
-                false,
-                false,
-                false,
-            )),
-        ]
+    }
+
+    get chatList() {
+        return this.chatService.chatList
     }
 
 }

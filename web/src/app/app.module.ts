@@ -7,6 +7,7 @@ import { SidebarComponent } from "./sidebar/sidebar.component";
 import { TitleBarComponent } from "./sidebar/title-bar/title-bar.component";
 import { ChatListComponent } from "./sidebar/chat-list/chat-list.component";
 import { ChatItemComponent } from "./sidebar/chat-list/chat-item/chat-item.component";
+import { ChatTitleBarComponent } from './chat/chat-title-bar/chat-title-bar.component';
 
 @NgModule({
     declarations: [
@@ -15,7 +16,8 @@ import { ChatItemComponent } from "./sidebar/chat-list/chat-item/chat-item.compo
         SidebarComponent,
         TitleBarComponent,
         ChatListComponent,
-        ChatItemComponent
+        ChatItemComponent,
+        ChatTitleBarComponent
     ],
     imports: [
         BrowserModule

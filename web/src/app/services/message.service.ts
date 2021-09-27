@@ -1,34 +1,45 @@
 import { Injectable } from "@angular/core";
 import { Message, ReadReceipt } from "../domain/message";
-import { Subject } from "rxjs";
+import { Chat } from "../domain/chat";
 
 @Injectable({
     providedIn: "root"
 })
 export class MessageService {
 
-    messages = new Subject<Message>()
+    selectedChat: Chat | null = null
+    chatMessages: Message[] = []
 
     constructor() {
     }
 
-    sendMessage(contents: string, recipientPhoneNumber: string) {
-        const message = new Message(
-            "123",
-            "123",
-            false,
-            recipientPhoneNumber,
-            contents,
-            new Date(),
-            false,
-            false,
-            ReadReceipt.undelivered,
-            null,
-            false,
-            false,
-            false
-        )
+    enterChat(chat: Chat | null) {
+        this.selectedChat = chat
+        this.chatMessages = []
+    }
 
-        this.messages.next(message)
+    sendMessage(contents: string) {
+        const chatId = this.selectedChat?.id
+        const recipientPhoneNumber = this.selectedChat?.contactPhoneNumber
+
+        if (chatId != null && recipientPhoneNumber != null) {
+            const message = new Message(
+                "123",
+                chatId,
+                false,
+                recipientPhoneNumber,
+                contents,
+                new Date(),
+                false,
+                false,
+                ReadReceipt.undelivered,
+                null,
+                false,
+                false,
+                false
+            )
+
+            this.chatMessages.push(message)
+        }
     }
 }

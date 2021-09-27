@@ -19,7 +19,8 @@ export class ChatInputBarComponent implements OnInit {
     sendMessage() {
         const contents = this.inputBarContents.trim()
         if (contents) {
-            this.messageService.sendMessage(contents, "")
+            this.messageService.sendMessage(contents)
+            this.inputBarContents = ""
         }
     }
 

@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Chat } from "../../../domain/chat";
+import { MessageService } from "../../../services/message.service";
 
 @Component({
     selector: "app-chat-item",
@@ -11,10 +12,14 @@ export class ChatItemComponent implements OnInit {
     // LOCAL STATE
     @Input() chat: Chat | null = null
 
-    constructor() {
+    constructor(private messageService: MessageService) {
     }
 
     ngOnInit(): void {
+    }
+
+    selectChat() {
+        this.messageService.enterChat(this.chat)
     }
 
 }

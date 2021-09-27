@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { Message } from "../../domain/message";
 import { MessageService } from "../../services/message.service";
 
 @Component({
@@ -9,15 +8,14 @@ import { MessageService } from "../../services/message.service";
 })
 export class ChatBodyComponent implements OnInit {
 
-    messages: Message[] = []
-
-    constructor(private messageService: MessageService) {
+    constructor(public messageService: MessageService) {
     }
 
     ngOnInit(): void {
-        this.messageService.messages.subscribe(nextMessage => {
-            this.messages.push(nextMessage)
-        })
+    }
+
+    get isInChat() {
+        return this.messageService.selectedChat != null
     }
 
 }

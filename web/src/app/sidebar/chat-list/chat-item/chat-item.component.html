@@ -1,4 +1,4 @@
-<div class="chat-item d-flex flex-row justify-contents-start align-items-center p-2 w-100">
+<div class="chat-item d-flex flex-row justify-contents-start align-items-center p-2 w-100" (click)="selectChat()">
 
   <div>
     <img *ngIf="chat?.contact?.profileImage != null else defaultProfileImage" [src]="chat?.contact?.profileImage"

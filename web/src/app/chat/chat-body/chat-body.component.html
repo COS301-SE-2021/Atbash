@@ -1,5 +1,5 @@
 <ng-container *ngIf="isInChat else notInChat">
-  <app-chat-body-message *ngFor="let message of messageService.chatMessages" [message]="message"></app-chat-body-message>
+  <app-chat-body-message *ngFor="let message of messages" [message]="message"></app-chat-body-message>
 </ng-container>
 <ng-template #notInChat>
   <div class="d-flex justify-content-center align-items-center h-100">

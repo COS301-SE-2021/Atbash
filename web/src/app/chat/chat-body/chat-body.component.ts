@@ -8,14 +8,22 @@ import { MessageService } from "../../services/message.service";
 })
 export class ChatBodyComponent implements OnInit {
 
-    constructor(public messageService: MessageService) {
+    constructor(private messageService: MessageService) {
     }
 
     ngOnInit(): void {
     }
 
+    get chat() {
+        return this.messageService.selectedChat
+    }
+
+    get messages() {
+        return this.messageService.chatMessages
+    }
+
     get isInChat() {
-        return this.messageService.selectedChat != null
+        return this.chat != null
     }
 
 }

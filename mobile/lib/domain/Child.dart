@@ -5,6 +5,7 @@ class Child {
   final String pin;
   bool editableSettings = false;
   bool blurImages = false;
+  bool safeMode = false;
   bool shareProfilePicture = false;
   bool shareStatus = false;
   bool shareReadReceipts = false;
@@ -22,6 +23,7 @@ class Child {
     required this.pin,
     required this.editableSettings,
     required this.blurImages,
+    required this.safeMode,
     required this.shareProfilePicture,
     required this.shareStatus,
     required this.shareReadReceipts,
@@ -40,6 +42,7 @@ class Child {
   static const String COLUMN_PIN = "pin";
   static const String COLUMN_EDITABLE_SETTINGS = "editable_settings";
   static const String COLUMN_BLUR_IMAGES = "blur_images";
+  static const String COLUMN_SAFE_MODE = "safe_mode";
   static const String COLUMN_SHARE_PROFILE_PICTURE = "share_profile_picture";
   static const String COLUMN_SHARE_STATUS = "share_status";
   static const String COLUMN_SHARE_READ_RECEIPTS = "share_read_receipts";
@@ -57,6 +60,7 @@ class Child {
       "$COLUMN_PIN text not null,"
       "$COLUMN_EDITABLE_SETTINGS tinyint not null,"
       "$COLUMN_BLUR_IMAGES tinyint not null,"
+      "$COLUMN_SAFE_MODE tinyint not null,"
       "$COLUMN_SHARE_PROFILE_PICTURE tinyint not null,"
       "$COLUMN_SHARE_STATUS tinyint not null,"
       "$COLUMN_SHARE_READ_RECEIPTS tinyint not null,"

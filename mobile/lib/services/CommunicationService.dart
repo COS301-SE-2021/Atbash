@@ -203,9 +203,9 @@ class CommunicationService {
       "type": "setup",
       "userDisplayName": "",
       "userProfilePhoto": "",
-      "contacts": [],
-      "chats": [],
-      "messages": [],
+      "contacts": jsonEncode(await contactService.fetchAll()),
+      "chats": jsonEncode(await chatService.fetchAll()),
+      "messages": jsonEncode(await messageService.fetchAll()),
     });
   }
 

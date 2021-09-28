@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/util/Utils.dart';
 
@@ -15,6 +16,17 @@ class ProfanityFilterListPage extends StatefulWidget {
 
 class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   final ProfanityWordService profanityWordService = GetIt.I.get();
+  List<ProfanityWord> profanityWordList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    profanityWordService.fetchAll().then((wordList) {
+      setState(() {
+        profanityWordList = wordList;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

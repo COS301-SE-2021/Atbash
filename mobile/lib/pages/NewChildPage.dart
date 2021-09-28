@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/controllers/NewChildPageController.dart';
+import 'package:mobile/domain/Child.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
@@ -11,11 +14,13 @@ class NewChildPage extends StatefulWidget {
 }
 
 class _NewChildPageState extends State<NewChildPage> {
-  // final NewChildPageController controller;
-  // _NewChildPageState() : controller = NewChildPageController();
+  final NewChildPageController controller;
+
+  _NewChildPageState() : controller = NewChildPageController();
 
   final filterTextController = TextEditingController();
   final pinTextController = TextEditingController();
+  Contact? chosenContact;
 
   @override
   Widget build(BuildContext context) {
@@ -71,14 +76,21 @@ class _NewChildPageState extends State<NewChildPage> {
                 onPressed: () {
                   if (RegExp(r"^[0-9]{4}$")
                           .firstMatch(pinTextController.text) !=
-                      null)
-                    //TODO: Save contact as child.
+                      null) {
+                    final newContact = chosenContact;
+                    if (newContact != null) {
+                      final child = Child(
+                          phoneNumber: newContact.phoneNumber,
+                          name: newContact.displayName,
+                          pin: pinTextController.text);
+                      controller.addChild(child);
+                    }
                     return;
-                  else
+                  } else
                     showSnackBar(context, "The pin must be exactly 4 digits");
                 },
                 child: Text(
-                  "Add 'child name'",
+                  "Add child",
                   style: TextStyle(color: Colors.black),
                 ),
               ),
@@ -91,18 +103,19 @@ class _NewChildPageState extends State<NewChildPage> {
 
   Widget _buildContacts() {
     return ListView.builder(
-      itemCount: 15,
+      itemCount: controller.model.filteredContacts.length,
       itemBuilder: (context, index) {
-        return _buildContact();
+        return _buildContact(controller.model.filteredContacts[index]);
       },
     );
   }
 
-  ListTile _buildContact() {
+  ListTile _buildContact(Contact contact) {
     return ListTile(
-      title: Text("Display Name"),
-      subtitle: Text("Status"),
-      leading: AvatarIcon.fromString(""),
+      title: Text(contact.displayName),
+      subtitle: Text(contact.status),
+      leading: AvatarIcon.fromString(contact.profileImage),
+      onTap: () => chosenContact = contact,
       dense: true,
     );
   }
@@ -119,7 +132,7 @@ class _NewChildPageState extends State<NewChildPage> {
           Expanded(
               child: TextField(
             onChanged: (String newValue) {
-              //TODO: filter contacts
+              controller.model.filter = newValue;
             },
             controller: filterTextController,
             decoration: InputDecoration(isDense: true),

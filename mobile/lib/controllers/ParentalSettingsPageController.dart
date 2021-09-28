@@ -40,12 +40,6 @@ class ParentalSettingsPageController {
     });
   }
 
-  void addChild(Child child) {
-    //TODO send pin to see if matches on both phones
-    model.children.add(child);
-    childService.insert(child);
-  }
-
   void removeChild(Child child) async {
     //TODO free up settings of child associated
     model.children.remove(child);

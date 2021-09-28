@@ -9,19 +9,34 @@ part of 'ParentalSettingsPageModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$ParentalSettingsPageModel on _ParentalSettingsPageModel, Store {
-  final _$childrenNamesAtom =
-      Atom(name: '_ParentalSettingsPageModel.childrenNames');
+  final _$childrenAtom = Atom(name: '_ParentalSettingsPageModel.children');
 
   @override
-  ObservableList<String> get childrenNames {
-    _$childrenNamesAtom.reportRead();
-    return super.childrenNames;
+  ObservableList<Child> get children {
+    _$childrenAtom.reportRead();
+    return super.children;
   }
 
   @override
-  set childrenNames(ObservableList<String> value) {
-    _$childrenNamesAtom.reportWrite(value, super.childrenNames, () {
-      super.childrenNames = value;
+  set children(ObservableList<Child> value) {
+    _$childrenAtom.reportWrite(value, super.children, () {
+      super.children = value;
+    });
+  }
+
+  final _$currentlySelectedAtom =
+      Atom(name: '_ParentalSettingsPageModel.currentlySelected');
+
+  @override
+  int get currentlySelected {
+    _$currentlySelectedAtom.reportRead();
+    return super.currentlySelected;
+  }
+
+  @override
+  set currentlySelected(int value) {
+    _$currentlySelectedAtom.reportWrite(value, super.currentlySelected, () {
+      super.currentlySelected = value;
     });
   }
 
@@ -220,7 +235,8 @@ mixin _$ParentalSettingsPageModel on _ParentalSettingsPageModel, Store {
   @override
   String toString() {
     return '''
-childrenNames: ${childrenNames},
+children: ${children},
+currentlySelected: ${currentlySelected},
 editableSettings: ${editableSettings},
 blurImages: ${blurImages},
 safeMode: ${safeMode},

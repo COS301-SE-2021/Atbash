@@ -12,26 +12,18 @@ class ParentalSettingsPageController {
   final ChildChatService childChatService = GetIt.I.get();
   final ChildMessageService childMessageService = GetIt.I.get();
 
-  List<Child> children = [];
-
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
   ParentalSettingsPageController() {
     childService.fetchAll().then((elements) {
-      children = elements;
-      if (children.isNotEmpty) {
-        final names = <String>[];
-        children.forEach((child) {
-          names.add(child.name);
-        });
-        model.childrenNames.clear();
-        model.childrenNames.addAll(names);
-        reload(children[0]);
-      }
+      model.children.clear();
+      model.children.addAll(elements);
+      if (model.children.isNotEmpty) reload(model.children[0], 0);
     });
   }
 
-  void reload(Child child) {
+  void reload(Child child, int index) {
+    model.currentlySelected = index;
     childService.fetchByPhoneNumber(child.phoneNumber).then((value) {
       model.editableSettings = child.editableSettings;
       model.blurImages = child.blurImages;
@@ -48,30 +40,32 @@ class ParentalSettingsPageController {
     });
   }
 
-  void addChild(String phoneNumber, String pin, String name) {
+  void addChild(Child child) {
     //TODO send pin to see if matches on both phones
-    final child = Child(phoneNumber: phoneNumber, name: name, pin: pin);
-    model.childrenNames.add(name);
+    model.children.add(child);
     childService.insert(child);
   }
 
-  void removeChild(String phoneNumber, name) async {
+  void removeChild(Child child) async {
     //TODO free up settings of child associated
-    //Does this work
-    model.childrenNames.remove(name);
-    final chats = await childChatService.fetchAllChatsByChildNumber(
-        phoneNumber);
+    model.children.remove(child);
+    final chats =
+        await childChatService.fetchAllChatsByChildNumber(child.phoneNumber);
     chats.forEach((chat) {
       childMessageService.deleteAllByChatId(chat.id);
     });
-    childChatService.deleteAllByNumber(phoneNumber);
-    childService.deleteByNumber(phoneNumber);
+    childChatService.deleteAllByNumber(child.phoneNumber);
+    childService.deleteByNumber(child.phoneNumber);
   }
 
-  void setName(String oldName, String newName, String phoneNumber) {
-    int index = model.childrenNames.indexOf(oldName);
-    model.childrenNames[index] = newName;
-    childService.update(phoneNumber, name: newName);
+  void setName(String name, String phoneNumber, int index) {
+    model.children[index].name = name;
+    childService.update(phoneNumber, name: name);
+  }
+
+  void setPin(String phoneNumber, String pin, int index) {
+    model.children[index].pin = pin;
+    childService.update(phoneNumber, pin: pin);
   }
 
   void setEditableSettings(bool value, String phoneNumber) {

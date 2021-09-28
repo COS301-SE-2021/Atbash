@@ -1,3 +1,4 @@
+import 'package:mobile/domain/Child.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ParentalSettingsPageModel.g.dart';
@@ -7,7 +8,10 @@ class ParentalSettingsPageModel = _ParentalSettingsPageModel
 
 abstract class _ParentalSettingsPageModel with Store {
   @observable
-  ObservableList<String> childrenNames = <String>[].asObservable();
+  ObservableList<Child> children = <Child>[].asObservable();
+
+  @observable
+  int currentlySelected = 0;
 
   @observable
   bool editableSettings = false;

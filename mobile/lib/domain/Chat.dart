@@ -59,7 +59,7 @@ class Chat extends _Chat with _$Chat {
     var chatTypeStr = json['chatType'] as String?;
     final chatType = (chatTypeStr != null) ? ChatType.values.firstWhere((e) => describeEnum(e) == chatTypeStr) : null;
     var mostRecentMessageStr = json['mostRecentMessage'] as String?;
-    Message mostRecentMessage = (mostRecentMessageStr != null) ? Message.fromJson(jsonDecode(mostRecentMessageStr)) : null;
+    Message? mostRecentMessage = (mostRecentMessageStr != null) ? Message.fromJson(jsonDecode(mostRecentMessageStr)) : null;
 
     if (id != null && contactPhoneNumber != null && chatType != null) {
       return Chat(

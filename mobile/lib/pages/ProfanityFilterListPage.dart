@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
+import 'package:mobile/util/Utils.dart';
 
 class ProfanityFilterListPage extends StatefulWidget {
   const ProfanityFilterListPage({Key? key}) : super(key: key);
@@ -10,6 +14,8 @@ class ProfanityFilterListPage extends StatefulWidget {
 }
 
 class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
+  final ProfanityWordService profanityWordService = GetIt.I.get();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +49,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
             ListTile(
               title: Text("Add filter"),
               trailing: IconButton(
-                onPressed: () {},
+                onPressed: () => _addProfanityWord(),
                 icon: Icon(Icons.add),
                 splashRadius: 18,
               ),
@@ -116,5 +122,14 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         ),
       ),
     );
+  }
+
+  void _addProfanityWord() async {
+    final input = await showInputDialog(
+        context, "Please insert the profanity you want to filter.");
+    if (input != null)
+      profanityWordService.addWord(input).catchError((_) {
+        showSnackBar(context, "This word has already been added.");
+      });
   }
 }

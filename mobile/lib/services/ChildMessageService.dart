@@ -10,7 +10,7 @@ class ChildMessageService {
     final db = await databaseService.database;
 
     final response = await db.query(ChildMessage.TABLE_NAME,
-        where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id]);
+        where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id], orderBy: "${ChildMessage.COLUMN_TIMESTAMP} desc");
 
     final messages = <ChildMessage>[];
     response.forEach((element) {

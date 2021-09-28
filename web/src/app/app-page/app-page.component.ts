@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import { ChatService } from "../services/chat.service";
-import { ContactService } from "../services/contact.service";
-import { MessageService } from "../services/message.service";
-import { UserService } from "../services/user.service";
+import { ChatService } from "./services/chat.service";
+import { ContactService } from "./services/contact.service";
+import { MessageService } from "./services/message.service";
+import { UserService } from "./services/user.service";
 
 @Component({
     selector: "app-app-page",

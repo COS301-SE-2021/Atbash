@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { CommunicationService } from "./communication.service";
-import { Chat } from "../domain/chat";
+import { CommunicationService } from "../../services/communication.service";
+import { Chat } from "../../domain/chat";
 
 @Injectable()
 export class ChatService {

@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { UserService } from "../../services/user.service";
-import { SidebarService } from "../sidebar-service/sidebar.service";
+import { SidebarService } from "../services/sidebar.service";
 
 @Component({
     selector: "app-title-bar",

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Message, ReadReceipt } from "../domain/message";
-import { Chat } from "../domain/chat";
-import { CommunicationService } from "./communication.service";
+import { Message, ReadReceipt } from "../../domain/message";
+import { Chat } from "../../domain/chat";
+import { CommunicationService } from "../../services/communication.service";
 
 @Injectable()
 export class MessageService {

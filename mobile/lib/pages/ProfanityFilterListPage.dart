@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
+import 'package:mobile/util/Utils.dart';
 
 class ProfanityFilterListPage extends StatefulWidget {
   const ProfanityFilterListPage({Key? key}) : super(key: key);
@@ -10,6 +15,21 @@ class ProfanityFilterListPage extends StatefulWidget {
 }
 
 class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
+  final ProfanityWordService profanityWordService = GetIt.I.get();
+  List<ProfanityWord> profanityWordList = [];
+  List<ProfanityWord> filteredProfanityWordList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    profanityWordService.fetchAll().then((wordList) {
+      setState(() {
+        profanityWordList = List.of(wordList);
+        filteredProfanityWordList = List.of(wordList);
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,7 +63,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
             ListTile(
               title: Text("Add filter"),
               trailing: IconButton(
-                onPressed: () {},
+                onPressed: () => _addProfanityWord(),
                 icon: Icon(Icons.add),
                 splashRadius: 18,
               ),
@@ -51,12 +71,14 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 20,
+                itemCount: filteredProfanityWordList.length,
                 itemBuilder: (_, index) {
                   return ListTile(
-                    title: Text("Regex"),
+                    title: Text(
+                        filteredProfanityWordList[index].profanityOriginalWord),
                     trailing: IconButton(
-                      onPressed: () {},
+                      onPressed: () => _removeProfanityWord(
+                          filteredProfanityWordList[index]),
                       icon: Icon(Icons.cancel_outlined),
                       splashRadius: 18,
                     ),
@@ -69,6 +91,15 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         ),
       ),
     );
+  }
+
+  void _filter(String value) {
+    setState(() {
+      filteredProfanityWordList = profanityWordList
+          .where((profanityWord) => profanityWord.profanityOriginalWord
+              .contains(RegExp(value, caseSensitive: false)))
+          .toList();
+    });
   }
 
   Container _buildSearchBar(BuildContext context) {
@@ -86,7 +117,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
           ),
           Expanded(
             child: TextField(
-              onChanged: (String input) {},
+              onChanged: (String input) => _filter(input),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -116,5 +147,30 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         ),
       ),
     );
+  }
+
+  void _addProfanityWord() async {
+    final input = await showInputDialog(
+        context, "Please insert the profanity you want to filter.");
+    if (input != null)
+      profanityWordService.addWord(input).then((profanityWord) {
+        setState(() {
+          profanityWordList.add(profanityWord);
+          filteredProfanityWordList.add(profanityWord);
+        });
+      }).catchError((_) {
+        showSnackBar(context, "This word has already been added.");
+      });
+  }
+
+  void _removeProfanityWord(ProfanityWord profanityWord) {
+    profanityWordService.deleteByID(profanityWord.profanityID).then((_) {
+      setState(() {
+        profanityWordList.remove(profanityWord);
+        filteredProfanityWordList.remove(profanityWord);
+      });
+    }).catchError((_) {
+      showSnackBar(context, "The word you tried to remove is not added.");
+    });
   }
 }

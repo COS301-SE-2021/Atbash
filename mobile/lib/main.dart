@@ -22,6 +22,7 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -113,6 +114,7 @@ void _registerServices() async {
 
   GetIt.I.registerSingleton(registrationService);
 
+  final profanityWordService = ProfanityWordService(databaseService);
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
@@ -136,6 +138,7 @@ void _registerServices() async {
     messageboxService,
   );
 
+  GetIt.I.registerSingleton(profanityWordService);
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);

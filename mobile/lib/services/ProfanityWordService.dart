@@ -33,8 +33,10 @@ class ProfanityWordService {
     newWord = newWord.replaceAll(RegExp(r'o'), '[o0]');
     newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
 
-    final profanityWord =
-        ProfanityWord(profanityWordRegex: newWord, profanityID: Uuid().v4());
+    final profanityWord = ProfanityWord(
+        profanityWordRegex: newWord,
+        profanityID: Uuid().v4(),
+        profanityOriginalWord: baseWord);
 
     await db.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
 

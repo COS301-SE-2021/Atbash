@@ -7,6 +7,7 @@ class ParentalSettingsPageModel = _ParentalSettingsPageModel
     with _$ParentalSettingsPageModel;
 
 abstract class _ParentalSettingsPageModel with Store {
+  //TODO, does child not need to be observable now? domain wise
   @observable
   ObservableList<Child> children = <Child>[].asObservable();
 

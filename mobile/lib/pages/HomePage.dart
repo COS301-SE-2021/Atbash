@@ -12,6 +12,7 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/pages/QRScanPage.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/NotificationService.dart';
@@ -260,7 +261,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
-            return ["Settings"].map((menuItem) {
+            return ["Settings", "Atbash Web"].map((menuItem) {
               return PopupMenuItem(
                 child: Text(menuItem),
                 value: menuItem,
@@ -272,6 +273,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            } else if (value == "Atbash Web") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => QRScanPage()),
               );
             }
           },
@@ -358,7 +364,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     String _filterContents(String unfilteredContents) {
       Constants.profanityRegex.forEach((regex) {
-        unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
+        unfilteredContents = unfilteredContents.replaceAllMapped(
+            RegExp(regex, caseSensitive: false),
             (match) => List.filled(match.end - match.start, "*").join());
       });
       return unfilteredContents;

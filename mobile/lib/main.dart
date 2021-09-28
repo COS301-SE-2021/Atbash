@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -50,16 +51,19 @@ class AtbashApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registrationState = _registrationState();
+    final firebaseInit = Firebase.initializeApp();
 
     return FutureBuilder(
-      future: registrationState,
+      future: Future.wait([registrationState, firebaseInit]),
       builder: (context, snapshot) {
         Widget page = LoadingPage();
 
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.data == RegistrationState.registered) {
+          final snapshotData = snapshot.data as List;
+
+          if (snapshotData[0] == RegistrationState.registered) {
             page = HomePage();
-          } else if (snapshot.data == RegistrationState.unverified) {
+          } else if (snapshotData[0] == RegistrationState.unverified) {
             page = VerificationPage();
           } else {
             page = RegistrationPage();

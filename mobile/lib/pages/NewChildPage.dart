@@ -33,17 +33,30 @@ class _NewChildPageState extends State<NewChildPage> {
               ),
             ),
             _buildSearchBar(),
-            Expanded(child: _buildContacts()),
+            Container(child: Expanded(child: _buildContacts())),
+            Container(
+              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.black)),
+              child: Text(
+                "Please provide a 4 digit pin that will be used to control the child's account.",
+                style: TextStyle(fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
             Container(
               margin: EdgeInsets.symmetric(vertical: 10),
               constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.35),
+                  maxWidth: MediaQuery.of(context).size.width * 0.2),
               child: TextField(
                 keyboardType: TextInputType.number,
                 maxLength: 4,
                 controller: pinTextController,
+                textAlign: TextAlign.center,
                 decoration: InputDecoration(
                   isDense: true,
+                  hintText: "1234",
                 ),
               ),
             ),

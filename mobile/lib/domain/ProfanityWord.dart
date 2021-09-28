@@ -2,10 +2,7 @@ class ProfanityWord {
   final String profanityWordRegex;
   final String profanityID;
 
-  ProfanityWord({
-    required this.profanityWordRegex,
-    required this.profanityID
-  });
+  ProfanityWord({required this.profanityWordRegex, required this.profanityID});
 
   Map<String, Object?> toMap() {
     return {
@@ -14,12 +11,13 @@ class ProfanityWord {
     };
   }
 
-  static ProfanityWord? fromMap(Map<String, Object?> map){
+  static ProfanityWord? fromMap(Map<String, Object?> map) {
     final profanityWordRegex = map[COLUMN_PROFANITY_WORD_REGEX] as String?;
     final profanityID = map[COLUMN_PROFANITY_ID] as String?;
 
-    if(profanityID !=null && profanityWordRegex !=null){
-      return ProfanityWord(profanityWordRegex: profanityWordRegex, profanityID: profanityID);
+    if (profanityID != null && profanityWordRegex != null) {
+      return ProfanityWord(
+          profanityWordRegex: profanityWordRegex, profanityID: profanityID);
     }
   }
 

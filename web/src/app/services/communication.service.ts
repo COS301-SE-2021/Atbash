@@ -2,13 +2,19 @@ import { Injectable } from "@angular/core";
 import { Chat, ChatType } from "../domain/chat";
 import { Message, ReadReceipt } from "../domain/message";
 import { Contact } from "../domain/contact";
+import { Subject } from "rxjs";
 
 @Injectable({
     providedIn: "root"
 })
 export class CommunicationService {
 
+    readonly loadingState = new Subject<boolean>()
+
     constructor() {
+        this.loadingState.next(false)
+
+        setTimeout(() => this.loadingState.next(true), 3000)
     }
 
     async fetchUserDisplayName(): Promise<string> {

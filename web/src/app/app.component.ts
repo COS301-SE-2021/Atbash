@@ -11,8 +11,6 @@ export class AppComponent {
     loaded = false
 
     constructor(private com: CommunicationService) {
-        setTimeout(() => {
-            this.loaded = true
-        }, 5000)
+        com.loadingState.subscribe(loadingState => this.loaded = loadingState)
     }
 }

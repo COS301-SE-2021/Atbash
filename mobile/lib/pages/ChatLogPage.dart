@@ -1,42 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:mobile/controllers/ChatLogPageController.dart';
+import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/pages/MonitoredChatPage.dart';
 
 class ChatLogPage extends StatefulWidget {
-  const ChatLogPage({Key? key}) : super(key: key);
+  final String phoneNumber;
+
+  const ChatLogPage({Key? key, required this.phoneNumber}) : super(key: key);
 
   @override
-  _ChatLogPageState createState() => _ChatLogPageState();
+  _ChatLogPageState createState() =>
+      _ChatLogPageState(phoneNumber: phoneNumber);
 }
 
 class _ChatLogPageState extends State<ChatLogPage> {
+  final ChatLogPageController controller;
+
+  _ChatLogPageState({required String phoneNumber})
+      : controller = ChatLogPageController(phoneNumber);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("'child names' chat log"),
+        title: Text("${controller.model.childName}'s chat log"),
       ),
       body: SafeArea(
         child: ListView.builder(
-            itemCount: 6,
+            itemCount: controller.model.chats.length,
             itemBuilder: (_, index) {
-              return _buildChatItem("Liam Mayston");
+              return _buildChatItem(controller.model.chats[index]);
             }),
       ),
     );
   }
 
-  Widget _buildChatItem(String displayName) {
+  Widget _buildChatItem(ChildChat chat) {
+    final displayName = chat.otherPartyName;
+
     return Slidable(
       actionPane: SlidableScrollActionPane(),
       child: ListTile(
-        title: Text(displayName),
+        title: Text(displayName == null
+            ? chat.otherPartyNumber
+            : chat.otherPartyNumber),
         onTap: () {
-          //TODO: Enter correct chat
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => MonitoredChatPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MonitoredChatPage(
+                chat: chat,
+              ),
+            ),
+          );
         },
-        subtitle: Text("View 'child names' chat with 'recipient'"),
+        subtitle: Text(
+            "View ${controller.model.childName}'s chat with ${displayName == null ? chat.otherPartyNumber : displayName}"),
         leading: Icon(
           Icons.account_circle_rounded,
           size: 36,

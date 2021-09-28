@@ -1,4 +1,4 @@
-<ng-container *ngIf="loaded else notLoaded">
+<ng-container *ngIf="loadingState == connected else notLoaded">
   <app-app-page></app-app-page>
 </ng-container>
 <ng-template #notLoaded>

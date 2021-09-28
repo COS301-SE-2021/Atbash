@@ -3,20 +3,78 @@ import { Chat, ChatType } from "../domain/chat";
 import { Message, ReadReceipt } from "../domain/message";
 import { Contact } from "../domain/contact";
 import { Subject } from "rxjs";
-import { Firestore } from "@angular/fire/firestore";
-import { addDoc, collection } from "@angular/fire/firestore";
+import { addDoc, collection, doc, Firestore, onSnapshot, setDoc } from "@angular/fire/firestore";
 
 @Injectable({
     providedIn: "root"
 })
 export class CommunicationService {
 
-    readonly loadingState = new Subject<boolean>()
+    readonly connection = new RTCPeerConnection({
+        iceServers: [
+            { urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }
+        ],
+        iceCandidatePoolSize: 10
+    })
+
+    readonly loadingState = new Subject<LoadingState>()
 
     constructor(firestore: Firestore) {
-        this.loadingState.next(false)
+        this.loadingState.next(LoadingState.loading)
 
-        setTimeout(() => this.loadingState.next(true), 3000)
+        this.establishConnection(firestore).then(connected => this.loadingState.next(LoadingState.waiting_connection))
+    }
+
+    async establishConnection(firestore: Firestore): Promise<boolean> {
+        const pc = this.connection
+
+        pc.ondatachannel = (e) => {
+            e.channel.onopen = () => {
+                console.log("RTC connected")
+                this.loadingState.next(LoadingState.connected)
+            }
+
+            e.channel.onmessage = (message) => {
+                console.log(`RTC message ${message.data}`)
+            }
+        }
+
+        const callDoc = doc(collection(firestore, "calls"))
+        const offerCandidates = collection(callDoc, "offerCandidates")
+        const answerCandidates = collection(callDoc, "answerCandidates")
+
+        pc.onicecandidate = event => {
+            event.candidate && addDoc(offerCandidates, event.candidate.toJSON())
+        }
+
+        const offerDescription = await pc.createOffer()
+        await pc.setLocalDescription(offerDescription)
+
+        const offer = {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type
+        }
+
+        setDoc(callDoc, { offer })
+
+        onSnapshot(callDoc, snapshot => {
+            const data = snapshot.data()
+            if (!pc.currentRemoteDescription && data?.answer) {
+                const answerDescription = new RTCSessionDescription(data.answer)
+                pc.setRemoteDescription(answerDescription)
+            }
+        })
+
+        onSnapshot(answerCandidates, snapshot => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type == "added") {
+                    const candidate = new RTCIceCandidate(change.doc.data())
+                    pc.addIceCandidate(candidate)
+                }
+            })
+        })
+
+        return true
     }
 
     async fetchUserDisplayName(): Promise<string> {
@@ -115,4 +173,10 @@ export class CommunicationService {
         }
         return result
     }
+}
+
+export enum LoadingState {
+    loading,
+    waiting_connection,
+    connected
 }

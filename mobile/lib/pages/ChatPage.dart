@@ -410,7 +410,7 @@ class _ChatPageState extends State<ChatPage> {
       onDelete: () => _deleteSingleMessage(message),
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () => controller.forwardMessage(
-          context, message.contents, controller.model.contactTitle),
+          context, message, controller.model.contactTitle),
       onEditPressed: () => _editMessage(message),
       onReplyPressed: () => _startReplying(message),
       onRepliedMessagePressed: () {
@@ -814,7 +814,8 @@ class ChatCard extends StatelessWidget {
 
   String _filterContents(String unfilteredContents) {
     Constants.profanityRegex.forEach((regex) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
+      unfilteredContents = unfilteredContents.replaceAllMapped(
+          RegExp(regex, caseSensitive: false),
           (match) => List.filled(match.end - match.start, "*").join());
     });
     return unfilteredContents;

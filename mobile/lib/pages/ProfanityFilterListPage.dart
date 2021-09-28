@@ -19,6 +19,9 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
       body: SafeArea(
         child: Column(
           children: [
+            SizedBox(
+              height: 10,
+            ),
             _buildSearchBar(context),
             Container(
               margin: EdgeInsets.symmetric(vertical: 10),
@@ -28,7 +31,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
                       flex: 1,
                       child: Align(
                           alignment: Alignment.center,
-                          child: _buildBubble("Added filters"))),
+                          child: _buildBubble("Additional filters"))),
                   Expanded(
                       flex: 1,
                       child: Align(
@@ -38,12 +41,13 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
               ),
             ),
             ListTile(
-              title: Text("Add/Remove filter"),
+              title: Text("Add filter"),
               trailing: IconButton(
                 onPressed: () {},
                 icon: Icon(Icons.add),
                 splashRadius: 18,
               ),
+              tileColor: Constants.orange,
             ),
             Expanded(
               child: ListView.builder(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
@@ -39,11 +40,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                     MaterialPageRoute(builder: (context) => NewChildPage()));
               },
               title: Text(
-                "Add parent's number",
+                "Add child's number",
                 style: TextStyle(fontSize: 16),
               ),
-              subtitle:
-                  Text("Add the number of the parent account for this phone"),
+              subtitle: Text("Add a child to this account."),
               leading: Icon(
                 Icons.phone_android,
                 color: Constants.orange,
@@ -51,11 +51,13 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               trailing: Icon(Icons.arrow_forward_rounded),
               dense: true,
             ),
-            if (controller.model.childrenNames.isNotEmpty)
+            if (controller.model.children.isNotEmpty)
               ListTile(
                 onTap: () {
-                  showPinDialog(
-                      context, "Please enter the pin you wish to use.", null);
+                  showPinDialog(context, "Please enter a new pin.", null)
+                      .then((newPin) {
+                    if (newPin != null) controller.setPin(newPin);
+                  });
                 },
                 title: Text(
                   "Change pin for 'Child name'",
@@ -71,23 +73,24 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
             SizedBox(
               height: 15,
             ),
-            if (controller.model.childrenNames.isNotEmpty)
+            if (controller.model.children.isNotEmpty)
               Container(
                 height: 50,
                 padding: EdgeInsets.all(10),
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: controller.model.childrenNames.length,
+                  itemCount: controller.model.children.length,
                   itemBuilder: (_, index) {
                     return Container(
                       child: _buildChildBubble(
-                          controller.model.childrenNames[index]),
+                          controller.model.children[index].name, index),
                     );
                   },
                 ),
               ),
-            if (controller.model.childrenNames.isNotEmpty)
+            if (controller.model.children.isNotEmpty)
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: EdgeInsets.all(15),
@@ -97,8 +100,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                     ),
                   ),
                   SwitchListTile(
-                    value: false,
-                    onChanged: (bool newValue) {},
+                    value: controller.model.editableSettings,
+                    onChanged: (bool newValue) {
+                      controller.setEditableSettings(newValue);
+                    },
                     title: Text(
                       "Allow child to access settings",
                       style: TextStyle(fontSize: 16),
@@ -116,7 +121,6 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                     thickness: 2,
                   ),
                   SwitchListTile(
-                    key: Key("blurImages"),
                     value: false,
                     onChanged: (bool newValue) {},
                     title: Text(
@@ -253,8 +257,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                   ),
                 ],
               ),
-            if (controller.model.childrenNames.isNotEmpty)
+            if (controller.model.children.isNotEmpty)
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: EdgeInsets.all(15),
@@ -364,21 +369,25 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
     );
   }
 
-  Widget _buildChildBubble(String displayName) {
-    return Row(
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          padding: EdgeInsets.all(5),
-          child: Text(displayName),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.black,
-            ),
-          ),
+  Widget _buildChildBubble(String displayName, int index) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10),
+      padding: EdgeInsets.all(5),
+      child: TextButton(
+        onPressed: () {
+          controller.reload(index);
+        },
+        child: Text(displayName),
+      ),
+      decoration: BoxDecoration(
+        color: index == controller.model.currentlySelected
+            ? Constants.orange.withOpacity(0.88)
+            : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.black,
         ),
-      ],
+      ),
     );
   }
 }

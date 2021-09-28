@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/NewChildPageController.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'package:mobx/mobx.dart';
 
 class NewChildPage extends StatefulWidget {
   const NewChildPage({Key? key}) : super(key: key);
@@ -38,7 +40,9 @@ class _NewChildPageState extends State<NewChildPage> {
               ),
             ),
             _buildSearchBar(),
-            Container(child: Expanded(child: _buildContacts())),
+            Observer(builder: (context) {
+              return Container(child: Expanded(child: _buildContacts()));
+            }),
             Container(
               margin: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
               decoration: BoxDecoration(
@@ -65,36 +69,37 @@ class _NewChildPageState extends State<NewChildPage> {
                 ),
               ),
             ),
-            //if(contact selected)
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: Constants.orange,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: TextButton(
-                onPressed: () {
-                  if (RegExp(r"^[0-9]{4}$")
-                          .firstMatch(pinTextController.text) !=
-                      null) {
-                    final newContact = chosenContact;
-                    if (newContact != null) {
-                      final child = Child(
-                          phoneNumber: newContact.phoneNumber,
-                          name: newContact.displayName,
-                          pin: pinTextController.text);
-                      controller.addChild(child);
-                    }
-                    return;
-                  } else
-                    showSnackBar(context, "The pin must be exactly 4 digits");
-                },
-                child: Text(
-                  "Add child",
-                  style: TextStyle(color: Colors.black),
+            if (chosenContact != null)
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Constants.orange,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-            )
+                child: TextButton(
+                  onPressed: () {
+                    if (RegExp(r"^[0-9]{4}$")
+                            .firstMatch(pinTextController.text) !=
+                        null) {
+                      final newContact = chosenContact;
+                      if (newContact != null) {
+                        final child = Child(
+                            phoneNumber: newContact.phoneNumber,
+                            name: newContact.displayName,
+                            pin: pinTextController.text);
+                        controller.addChild(child);
+                        Navigator.pop(context);
+                      }
+                      return;
+                    } else
+                      showSnackBar(context, "The pin must be exactly 4 digits");
+                  },
+                  child: Text(
+                    "Add ${chosenContact?.displayName}",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              )
           ],
         ),
       ),
@@ -112,10 +117,17 @@ class _NewChildPageState extends State<NewChildPage> {
 
   ListTile _buildContact(Contact contact) {
     return ListTile(
+      tileColor: contact.phoneNumber == chosenContact?.phoneNumber
+          ? Constants.orange.withOpacity(0.88)
+          : null,
       title: Text(contact.displayName),
       subtitle: Text(contact.status),
       leading: AvatarIcon.fromString(contact.profileImage),
-      onTap: () => chosenContact = contact,
+      onTap: () {
+        setState(() {
+          chosenContact = contact;
+        });
+      },
       dense: true,
     );
   }

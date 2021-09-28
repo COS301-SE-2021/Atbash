@@ -10,14 +10,18 @@ class NewChildPageController {
 
   final NewChildPageModel model = NewChildPageModel();
 
-  NewChildPageController(){
-    contactService.fetchAll().then((contacts) async{
+  NewChildPageController() {
+    contactService.fetchAll().then((contacts) async {
       model.contacts.clear();
       model.contacts.addAll(contacts);
     });
   }
 
-  void addChild(Child child){
+  void updateQuery(String query) {
+    model.filter = query;
+  }
+
+  void addChild(Child child) {
     //TODO send pin to see if matches on both phones
     childService.insert(child);
   }

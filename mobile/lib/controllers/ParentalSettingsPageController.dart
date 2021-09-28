@@ -18,13 +18,15 @@ class ParentalSettingsPageController {
     childService.fetchAll().then((elements) {
       model.children.clear();
       model.children.addAll(elements);
-      if (model.children.isNotEmpty) reload(model.children[0], 0);
+      if (model.children.isNotEmpty) reload(0);
     });
   }
 
-  void reload(Child child, int index) {
+  void reload(int index) {
     model.currentlySelected = index;
-    childService.fetchByPhoneNumber(child.phoneNumber).then((value) {
+    childService
+        .fetchByPhoneNumber(model.children[index].phoneNumber)
+        .then((child) {
       model.editableSettings = child.editableSettings;
       model.blurImages = child.blurImages;
       model.safeMode = child.safeMode;
@@ -52,73 +54,87 @@ class ParentalSettingsPageController {
     childService.deleteByNumber(child.phoneNumber);
   }
 
-  void setName(String name, String phoneNumber, int index) {
-    model.children[index].name = name;
-    childService.update(phoneNumber, name: name);
+  void setName(String name) {
+    model.children[model.currentlySelected].name = name;
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        name: name);
   }
 
-  void setPin(String phoneNumber, String pin, int index) {
-    model.children[index].pin = pin;
-    childService.update(phoneNumber, pin: pin);
+  void setPin(String pin) {
+    model.children[model.currentlySelected].pin = pin;
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        pin: pin);
   }
 
-  void setEditableSettings(bool value, String phoneNumber) {
+  void setEditableSettings(bool value) {
     model.editableSettings = value;
-    childService.update(phoneNumber, editableSettings: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        editableSettings: value);
   }
 
-  void setBlurImages(bool value, String phoneNumber) {
+  void setBlurImages(bool value) {
     model.blurImages = value;
-    childService.update(phoneNumber, blurImages: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        blurImages: value);
   }
 
-  void setSafeMode(bool value, String phoneNumber) {
+  void setSafeMode(bool value) {
     model.safeMode = value;
-    childService.update(phoneNumber, safeMode: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        safeMode: value);
   }
 
-  void setShareProfilePicture(bool value, String phoneNumber) {
+  void setShareProfilePicture(bool value) {
     model.shareProfilePicture = value;
-    childService.update(phoneNumber, shareProfilePicture: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        shareProfilePicture: value);
   }
 
-  void setShareStatus(bool value, String phoneNumber) {
+  void setShareStatus(bool value) {
     model.shareStatus = value;
-    childService.update(phoneNumber, shareStatus: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        shareStatus: value);
   }
 
-  void setShareReadReceipts(bool value, String phoneNumber) {
+  void setShareReadReceipts(bool value) {
     model.shareReadReceipts = value;
-    childService.update(phoneNumber, shareReadReceipts: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        shareReadReceipts: value);
   }
 
-  void setShareBirthday(bool value, String phoneNumber) {
+  void setShareBirthday(bool value) {
     model.shareBirthday = value;
-    childService.update(phoneNumber, shareBirthday: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        shareBirthday: value);
   }
 
-  void setLockedAccount(bool value, String phoneNumber) {
+  void setLockedAccount(bool value) {
     model.lockedAccount = value;
-    childService.update(phoneNumber, lockedAccount: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        lockedAccount: value);
   }
 
-  void setPrivateChatAccess(bool value, String phoneNumber) {
+  void setPrivateChatAccess(bool value) {
     model.privateChatAccess = value;
-    childService.update(phoneNumber, privateChatAccess: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        privateChatAccess: value);
   }
 
-  void setBlockSaveMedia(bool value, String phoneNumber) {
+  void setBlockSaveMedia(bool value) {
     model.blockSaveMedia = value;
-    childService.update(phoneNumber, blockSaveMedia: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        blockSaveMedia: value);
   }
 
-  void setBlockEditingMessages(bool value, String phoneNumber) {
+  void setBlockEditingMessages(bool value) {
     model.blockEditingMessages = value;
-    childService.update(phoneNumber, blockEditingMessages: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        blockEditingMessages: value);
   }
 
-  void setBlockDeletingMessages(bool value, String phoneNumber) {
+  void setBlockDeletingMessages(bool value) {
     model.blockDeletingMessages = value;
-    childService.update(phoneNumber, blockDeletingMessages: value);
+    childService.update(model.children[model.currentlySelected].phoneNumber,
+        blockDeletingMessages: value);
   }
 }

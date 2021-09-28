@@ -14,7 +14,8 @@ abstract class _NewChildPageModel with Store {
 
   @computed
   ObservableList<Contact> get filteredContacts => contacts
-      .where((element) => element.displayName.contains(filter))
+      .where((element) =>
+          element.displayName.toLowerCase().contains(filter.toLowerCase()))
       .toList()
       .asObservable();
 }

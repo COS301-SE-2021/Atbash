@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
@@ -29,15 +30,30 @@ class _QRScanPageState extends State<QRScanPage> {
     return Scaffold(
       body: QRView(
         key: qrKey,
-        onQRViewCreated: _onQRViewCreated,
+        onQRViewCreated: (controller) => _onQRViewCreated(context, controller),
       ),
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
+  void _onQRViewCreated(BuildContext context, QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      print(scanData.code);
+      final code = scanData.code;
+
+      if (code.startsWith("@b")) {
+        final splitCode = code.split(",");
+        final relayId = splitCode[1];
+
+        FirebaseFirestore.instance.collection(relayId).add({
+          "origin": "phone",
+          "type": "connected",
+        });
+
+        Future.delayed(Duration.zero, () async {
+          await controller.pauseCamera();
+          Navigator.popUntil(context, ModalRoute.withName("/"));
+        });
+      }
     });
   }
 

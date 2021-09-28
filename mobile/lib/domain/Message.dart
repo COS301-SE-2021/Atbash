@@ -257,6 +257,7 @@ abstract class _Message with Store {
 enum ReadReceipt { undelivered, delivered, seen }
 
 //package:flutter/foundation.dart
+//https://stackoverflow.com/questions/27673781/enum-from-string
 
 // String str = Fruit.banana.toString();
 // Fruit f = Fruit.values.firstWhere((e) => describeEnum(e) == str);

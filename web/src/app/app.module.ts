@@ -15,6 +15,7 @@ import { FormsModule } from "@angular/forms";
 import { ContactListComponent } from './sidebar/contact-list/contact-list.component';
 import { ContactItemComponent } from './sidebar/contact-list/contact-item/contact-item.component';
 import { LoadingPageComponent } from './loading-page/loading-page.component';
+import { AppPageComponent } from './app-page/app-page.component';
 
 @NgModule({
     declarations: [
@@ -30,7 +31,8 @@ import { LoadingPageComponent } from './loading-page/loading-page.component';
         ChatBodyMessageComponent,
         ContactListComponent,
         ContactItemComponent,
-        LoadingPageComponent
+        LoadingPageComponent,
+        AppPageComponent
     ],
     imports: [
         BrowserModule,

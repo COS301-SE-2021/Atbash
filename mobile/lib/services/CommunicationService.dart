@@ -197,6 +197,16 @@ class CommunicationService {
       "origin": "phone",
       "type": "connected",
     });
+
+    FirebaseFirestore.instance.collection(relayId).add({
+      "origin": "phone",
+      "type": "setup",
+      "userDisplayName": "",
+      "userProfilePhoto": "",
+      "contacts": [],
+      "chats": [],
+      "messages": [],
+    });
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

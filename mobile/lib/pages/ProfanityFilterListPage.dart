@@ -149,4 +149,14 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         showSnackBar(context, "This word has already been added.");
       });
   }
+
+  void _removeProfanityWord(ProfanityWord profanityWord) {
+    profanityWordService.deleteByID(profanityWord.profanityID).then((_) {
+      setState(() {
+        profanityWordList.remove(profanityWord);
+      });
+    }).catchError((_) {
+      showSnackBar(context, "The word you tried to remove is not added.");
+    });
+  }
 }

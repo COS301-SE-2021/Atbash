@@ -28,15 +28,31 @@ mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
       Atom(name: '_MonitoredChatPageModel.otherMemberName');
 
   @override
-  String get otherMemberName {
+  String? get otherMemberName {
     _$otherMemberNameAtom.reportRead();
     return super.otherMemberName;
   }
 
   @override
-  set otherMemberName(String value) {
+  set otherMemberName(String? value) {
     _$otherMemberNameAtom.reportWrite(value, super.otherMemberName, () {
       super.otherMemberName = value;
+    });
+  }
+
+  final _$otherMemberNumberAtom =
+      Atom(name: '_MonitoredChatPageModel.otherMemberNumber');
+
+  @override
+  String get otherMemberNumber {
+    _$otherMemberNumberAtom.reportRead();
+    return super.otherMemberNumber;
+  }
+
+  @override
+  set otherMemberNumber(String value) {
+    _$otherMemberNumberAtom.reportWrite(value, super.otherMemberNumber, () {
+      super.otherMemberNumber = value;
     });
   }
 
@@ -60,6 +76,7 @@ mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
     return '''
 childName: ${childName},
 otherMemberName: ${otherMemberName},
+otherMemberNumber: ${otherMemberNumber},
 messages: ${messages}
     ''';
   }

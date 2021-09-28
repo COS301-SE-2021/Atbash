@@ -17,13 +17,15 @@ class ProfanityFilterListPage extends StatefulWidget {
 class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   final ProfanityWordService profanityWordService = GetIt.I.get();
   List<ProfanityWord> profanityWordList = [];
+  List<ProfanityWord> filteredProfanityWordList = [];
 
   @override
   void initState() {
     super.initState();
     profanityWordService.fetchAll().then((wordList) {
       setState(() {
-        profanityWordList = wordList;
+        profanityWordList = List.of(wordList);
+        filteredProfanityWordList = List.of(wordList);
       });
     });
   }
@@ -69,13 +71,14 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: profanityWordList.length,
+                itemCount: filteredProfanityWordList.length,
                 itemBuilder: (_, index) {
                   return ListTile(
-                    title: Text(profanityWordList[index].profanityOriginalWord),
+                    title: Text(
+                        filteredProfanityWordList[index].profanityOriginalWord),
                     trailing: IconButton(
-                      onPressed: () =>
-                          _removeProfanityWord(profanityWordList[index]),
+                      onPressed: () => _removeProfanityWord(
+                          filteredProfanityWordList[index]),
                       icon: Icon(Icons.cancel_outlined),
                       splashRadius: 18,
                     ),
@@ -88,6 +91,15 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         ),
       ),
     );
+  }
+
+  void _filter(String value) {
+    setState(() {
+      filteredProfanityWordList = profanityWordList
+          .where((profanityWord) => profanityWord.profanityOriginalWord
+              .contains(RegExp(value, caseSensitive: false)))
+          .toList();
+    });
   }
 
   Container _buildSearchBar(BuildContext context) {
@@ -105,7 +117,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
           ),
           Expanded(
             child: TextField(
-              onChanged: (String input) {},
+              onChanged: (String input) => _filter(input),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -144,6 +156,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
       profanityWordService.addWord(input).then((profanityWord) {
         setState(() {
           profanityWordList.add(profanityWord);
+          filteredProfanityWordList.add(profanityWord);
         });
       }).catchError((_) {
         showSnackBar(context, "This word has already been added.");
@@ -154,6 +167,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
     profanityWordService.deleteByID(profanityWord.profanityID).then((_) {
       setState(() {
         profanityWordList.remove(profanityWord);
+        filteredProfanityWordList.remove(profanityWord);
       });
     }).catchError((_) {
       showSnackBar(context, "The word you tried to remove is not added.");

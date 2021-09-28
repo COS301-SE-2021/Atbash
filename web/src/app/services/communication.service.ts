@@ -17,12 +17,12 @@ export class CommunicationService {
         iceCandidatePoolSize: 10
     })
 
-    readonly loadingState = new Subject<LoadingState>()
+    readonly loadingState = new Subject<boolean>()
 
     constructor(firestore: Firestore) {
-        this.loadingState.next(LoadingState.loading)
+        this.loadingState.next(false)
 
-        this.establishConnection(firestore).then(connected => this.loadingState.next(LoadingState.waiting_connection))
+        this.establishConnection(firestore).then(connected => this.loadingState.next(connected))
     }
 
     async establishConnection(firestore: Firestore): Promise<boolean> {
@@ -31,7 +31,7 @@ export class CommunicationService {
         pc.ondatachannel = (e) => {
             e.channel.onopen = () => {
                 console.log("RTC connected")
-                this.loadingState.next(LoadingState.connected)
+                this.loadingState.next(true)
             }
 
             e.channel.onmessage = (message) => {
@@ -173,10 +173,4 @@ export class CommunicationService {
         }
         return result
     }
-}
-
-export enum LoadingState {
-    loading,
-    waiting_connection,
-    connected
 }

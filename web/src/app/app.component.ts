@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { CommunicationService, LoadingState } from "./services/communication.service";
+import { CommunicationService } from "./services/communication.service";
 
 @Component({
     selector: "app-root",
@@ -8,13 +8,9 @@ import { CommunicationService, LoadingState } from "./services/communication.ser
 })
 export class AppComponent {
 
-    readonly loading = LoadingState.loading
-    readonly waiting_connection = LoadingState.waiting_connection
-    readonly connected = LoadingState.connected
-
-    loadingState = LoadingState.loading
+    loaded = false
 
     constructor(private com: CommunicationService) {
-        com.loadingState.subscribe(loadingState => this.loadingState = loadingState)
+        com.loadingState.subscribe(loadingState => this.loaded = loadingState)
     }
 }

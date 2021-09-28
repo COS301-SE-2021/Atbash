@@ -3,6 +3,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
+import 'package:mobile/pages/ChatLogPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
   const ParentalSettingsPage({Key? key}) : super(key: key);
@@ -247,6 +248,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                 color: Colors.orange,
               ),
               trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ChatLogPage()));
+              },
               dense: true,
             ),
             SwitchListTile(

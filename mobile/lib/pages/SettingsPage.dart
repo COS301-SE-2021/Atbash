@@ -5,6 +5,7 @@ import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ParentalSettingsPage.dart';
+import 'package:mobile/pages/ProfanityFilterListPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
 import 'package:mobile/util/Utils.dart';
@@ -209,6 +210,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 dense: true,
                 subtitle: Text(
                     "Choose whether others can see if you've read their messages"),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.admin_panel_settings_sharp,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Profanity Filtering List",
+                  style: TextStyle(fontSize: 16),
+                ),
+                subtitle: Text("Add or remove words from the profanity filter"),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfanityFilterListPage()));
+                },
+                dense: true,
               ),
               ListTile(
                 key: Key("blockedContacts"),

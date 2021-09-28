@@ -1,43 +1,40 @@
 class Child {
-  final String id;
   final String phoneNumber;
-  final String name;
-  final String pin;
-  bool editableSettings = false;
-  bool blurImages = false;
-  bool safeMode = false;
-  bool shareProfilePicture = false;
-  bool shareStatus = false;
-  bool shareReadReceipts = false;
-  bool shareBirthday = false;
-  bool lockedAccount = false;
-  bool privateChatAccess = false;
-  bool blockSaveMedia = false;
-  bool blockEditingMessages = false;
-  bool blockDeletingMessages = false;
+  String name;
+  String pin;
+  bool editableSettings;
+  bool blurImages;
+  bool safeMode;
+  bool shareProfilePicture;
+  bool shareStatus;
+  bool shareReadReceipts;
+  bool shareBirthday;
+  bool lockedAccount;
+  bool privateChatAccess;
+  bool blockSaveMedia;
+  bool blockEditingMessages;
+  bool blockDeletingMessages;
 
   Child({
-    required this.id,
     required this.phoneNumber,
     required this.name,
     required this.pin,
-    required this.editableSettings,
-    required this.blurImages,
-    required this.safeMode,
-    required this.shareProfilePicture,
-    required this.shareStatus,
-    required this.shareReadReceipts,
-    required this.shareBirthday,
-    required this.lockedAccount,
-    required this.privateChatAccess,
-    required this.blockSaveMedia,
-    required this.blockEditingMessages,
-    required this.blockDeletingMessages,
+    this.editableSettings = false,
+    this.blurImages = false,
+    this.safeMode = false,
+    this.shareProfilePicture = false,
+    this.shareStatus = false,
+    this.shareReadReceipts = false,
+    this.shareBirthday = false,
+    this.lockedAccount = false,
+    this.privateChatAccess = false,
+    this.blockSaveMedia = false,
+    this.blockEditingMessages = false,
+    this.blockDeletingMessages = false,
   });
 
   Map<String, Object?> toMap() {
     return {
-      COLUMN_ID: id,
       COLUMN_PHONE_NUMBER: phoneNumber,
       COLUMN_NAME: name,
       COLUMN_PIN: pin,
@@ -57,7 +54,6 @@ class Child {
   }
 
   static Child? fromMap(Map<String, Object?> map) {
-    final id = map[COLUMN_ID] as String?;
     final phoneNumber = map[COLUMN_PHONE_NUMBER] as String?;
     final name = map[COLUMN_NAME] as String?;
     final pin = map[COLUMN_PIN] as String?;
@@ -74,7 +70,7 @@ class Child {
     final blockEditingMessages = map[COLUMN_BLOCK_EDITING_MESSAGES] as int?;
     final blockDeletingMessages = map[COLUMN_BLOCK_DELETING_MESSAGES] as int?;
 
-    if (id != null &&
+    if (
         phoneNumber != null &&
         name != null &&
         pin != null &&
@@ -91,7 +87,6 @@ class Child {
         blockEditingMessages != null &&
         blockDeletingMessages != null) {
       return Child(
-          id: id,
           phoneNumber: phoneNumber,
           name: name,
           pin: pin,
@@ -111,7 +106,6 @@ class Child {
   }
 
   static const String TABLE_NAME = "child";
-  static const String COLUMN_ID = "id";
   static const String COLUMN_PHONE_NUMBER = "phone_number";
   static const String COLUMN_NAME = "name";
   static const String COLUMN_PIN = "pin";
@@ -129,8 +123,7 @@ class Child {
   static const String COLUMN_BLOCK_DELETING_MESSAGES =
       "block_deleting_messages";
   static const String CREATE_TABLE = "create table $TABLE_NAME ("
-      "$COLUMN_ID text primary key,"
-      "$COLUMN_PHONE_NUMBER text not null,"
+      "$COLUMN_PHONE_NUMBER text primary key,"
       "$COLUMN_NAME text not null,"
       "$COLUMN_PIN text not null,"
       "$COLUMN_EDITABLE_SETTINGS tinyint not null,"

@@ -16,6 +16,18 @@ import { ContactListComponent } from './app-page/sidebar/contact-list/contact-li
 import { ContactItemComponent } from './app-page/sidebar/contact-list/contact-item/contact-item.component';
 import { LoadingPageComponent } from './loading-page/loading-page.component';
 import { AppPageComponent } from './app-page/app-page.component';
+import { initializeApp, provideFirebaseApp } from "@angular/fire/app";
+import { getFirestore, provideFirestore } from "@angular/fire/firestore";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCh6lYwbK46C5UarTn0NE9dCTnaAVdD2Qo",
+    authDomain: "atbash-f0b75.firebaseapp.com",
+    projectId: "atbash-f0b75",
+    storageBucket: "atbash-f0b75.appspot.com",
+    messagingSenderId: "953759627144",
+    appId: "1:953759627144:web:eaf9e8bf7f1cbbe3172c3d",
+    measurementId: "G-BTLQ773TKN"
+}
 
 @NgModule({
     declarations: [
@@ -36,7 +48,9 @@ import { AppPageComponent } from './app-page/app-page.component';
     ],
     imports: [
         BrowserModule,
-        FormsModule
+        FormsModule,
+        provideFirebaseApp(() => initializeApp(firebaseConfig)),
+        provideFirestore(() => getFirestore())
     ],
     providers: [],
     bootstrap: [AppComponent]

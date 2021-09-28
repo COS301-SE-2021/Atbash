@@ -3,6 +3,8 @@ import { Chat, ChatType } from "../domain/chat";
 import { Message, ReadReceipt } from "../domain/message";
 import { Contact } from "../domain/contact";
 import { Subject } from "rxjs";
+import { Firestore } from "@angular/fire/firestore";
+import { addDoc, collection } from "@angular/fire/firestore";
 
 @Injectable({
     providedIn: "root"
@@ -11,7 +13,7 @@ export class CommunicationService {
 
     readonly loadingState = new Subject<boolean>()
 
-    constructor() {
+    constructor(firestore: Firestore) {
         this.loadingState.next(false)
 
         setTimeout(() => this.loadingState.next(true), 3000)

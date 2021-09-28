@@ -13,5 +13,8 @@ abstract class _MonitoredChatPageModel with Store{
   String otherMemberName = "";
 
   @observable
+  String otherMemberNumber = "";
+
+  @observable
   List<ChildMessage> messages = <ChildMessage>[].asObservable();
 }

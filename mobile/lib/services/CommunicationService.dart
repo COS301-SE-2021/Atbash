@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
@@ -38,6 +39,7 @@ class CommunicationService {
 
   IOWebSocketChannel? channelNumber;
   IOWebSocketChannel? channelAnonymous;
+  String? pcRelayId;
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   String? anonymousConnectionId = null;
@@ -187,6 +189,14 @@ class CommunicationService {
       },
       onDone: () => _messageQueue.close(),
     );
+  }
+
+  Future<void> connectToPc(String relayId) async {
+    this.pcRelayId = relayId;
+    FirebaseFirestore.instance.collection(relayId).add({
+      "origin": "phone",
+      "type": "connected",
+    });
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

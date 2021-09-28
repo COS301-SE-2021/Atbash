@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanPage extends StatefulWidget {
@@ -12,6 +13,7 @@ class QRScanPage extends StatefulWidget {
 }
 
 class _QRScanPageState extends State<QRScanPage> {
+  final CommunicationService communicationService = GetIt.I.get();
   final GlobalKey qrKey = GlobalKey(debugLabel: "QR");
   QRViewController? controller;
 
@@ -44,10 +46,7 @@ class _QRScanPageState extends State<QRScanPage> {
         final splitCode = code.split(",");
         final relayId = splitCode[1];
 
-        FirebaseFirestore.instance.collection(relayId).add({
-          "origin": "phone",
-          "type": "connected",
-        });
+        communicationService.connectToPc(relayId);
 
         Future.delayed(Duration.zero, () async {
           await controller.pauseCamera();

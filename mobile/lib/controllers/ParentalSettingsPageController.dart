@@ -15,6 +15,7 @@ class ParentalSettingsPageController {
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
   ParentalSettingsPageController() {
+    //TODO remove already added contacts as children from list (Cross reference lists)
     childService.fetchAll().then((elements) {
       model.children.clear();
       model.children.addAll(elements);

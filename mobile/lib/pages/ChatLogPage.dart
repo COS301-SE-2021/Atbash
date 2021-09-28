@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:mobile/pages/MonitoredChatPage.dart';
 
 class ChatLogPage extends StatefulWidget {
   const ChatLogPage({Key? key}) : super(key: key);
@@ -31,7 +32,9 @@ class _ChatLogPageState extends State<ChatLogPage> {
       child: ListTile(
         title: Text(displayName),
         onTap: () {
-          //TODO: Enter chat
+          //TODO: Enter correct chat
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => MonitoredChatPage()));
         },
         subtitle: Text("View 'child names' chat with 'recipient'"),
         leading: Icon(

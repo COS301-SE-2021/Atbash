@@ -69,12 +69,13 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: 20,
+                itemCount: profanityWordList.length,
                 itemBuilder: (_, index) {
                   return ListTile(
-                    title: Text("Regex"),
+                    title: Text(profanityWordList[index].profanityWordRegex),
                     trailing: IconButton(
-                      onPressed: () {},
+                      onPressed: () =>
+                          _removeProfanityWord(profanityWordList[index]),
                       icon: Icon(Icons.cancel_outlined),
                       splashRadius: 18,
                     ),
@@ -140,7 +141,11 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
     final input = await showInputDialog(
         context, "Please insert the profanity you want to filter.");
     if (input != null)
-      profanityWordService.addWord(input).catchError((_) {
+      profanityWordService.addWord(input).then((profanityWord) {
+        setState(() {
+          profanityWordList.add(profanityWord);
+        });
+      }).catchError((_) {
         showSnackBar(context, "This word has already been added.");
       });
   }

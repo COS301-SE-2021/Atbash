@@ -34,6 +34,6 @@ class ChildBlockedNumber {
   static const CREATE_TABLE = "create table $TABLE_NAME ("
       "$COLUMN_ID text primary key,"
       "$COLUMN_CHILD_NUMBER text not null,"
-      "$COLUMN_BLOCKED_NUMBER text not null,"
+      "$COLUMN_BLOCKED_NUMBER text not null"
       ");";
 }

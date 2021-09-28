@@ -63,6 +63,6 @@ class ChildMessage {
       "$COLUMN_IS_INCOMING tinyint not null,"
       "$COLUMN_OTHER_PARTY_NUMBER text not null,"
       "$COLUMN_CONTENTS text not null,"
-      "$COLUMN_TIMESTAMP int not null,"
+      "$COLUMN_TIMESTAMP int not null"
       ");";
 }

@@ -43,6 +43,6 @@ class ChildChat {
       "$COLUMN_ID text primary key,"
       "$COLUMN_CHILD_PHONE_NUMBER text not null,"
       "$COLUMN_OTHER_PARTY_NUMBER text not null,"
-      "$COLUMN_OTHER_PARTY_NAME text,"
+      "$COLUMN_OTHER_PARTY_NAME text"
       ");";
 }

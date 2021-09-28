@@ -135,7 +135,6 @@ class Child {
       "$COLUMN_SHARE_BIRTHDAY tinyint not null,"
       "$COLUMN_LOCKED_ACCOUNT tinyint not null,"
       "$COLUMN_PRIVATE_CHAT_ACCESS tinyint not null,"
-      "$COLUMN_PRIVATE_CHAT_ACCESS tinyint not null,"
       "$COLUMN_BLOCK_SAVE_MEDIA tinyint not null,"
       "$COLUMN_BLOCK_EDITING_MESSAGES tinyint not null,"
       "$COLUMN_BLOCK_DELETING_MESSAGES tinyint not null"

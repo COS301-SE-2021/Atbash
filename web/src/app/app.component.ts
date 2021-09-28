@@ -8,9 +8,10 @@ import { CommunicationService } from "./services/communication.service";
 })
 export class AppComponent {
 
-    loaded = false
-
     constructor(private com: CommunicationService) {
-        com.loadingState.subscribe(loadingState => this.loaded = loadingState)
+    }
+
+    get loaded() {
+        return this.com.loadingState
     }
 }

@@ -2,79 +2,36 @@ import { Injectable } from "@angular/core";
 import { Chat, ChatType } from "../domain/chat";
 import { Message, ReadReceipt } from "../domain/message";
 import { Contact } from "../domain/contact";
-import { Subject } from "rxjs";
-import { addDoc, collection, doc, Firestore, onSnapshot, setDoc } from "@angular/fire/firestore";
+import { collection, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
+import * as uuid from "uuid";
+import { SHA256 } from "crypto-js";
 
 @Injectable({
     providedIn: "root"
 })
 export class CommunicationService {
 
-    readonly connection = new RTCPeerConnection({
-        iceServers: [
-            { urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }
-        ],
-        iceCandidatePoolSize: 10
-    })
-
-    readonly loadingState = new Subject<boolean>()
+    readonly relayId = uuid.v4()
+    readonly relaySymmetricKey = SHA256(uuid.v4())
+    loadingState = false
+    readonly relayCollection: any | null
 
     constructor(firestore: Firestore) {
-        this.loadingState.next(false)
+        this.relayCollection = collection(firestore, this.relayId)
+        setDoc(doc(this.relayCollection), { type: "hello" })
 
-        this.establishConnection(firestore).then(connected => this.loadingState.next(connected))
-    }
-
-    async establishConnection(firestore: Firestore): Promise<boolean> {
-        const pc = this.connection
-
-        pc.ondatachannel = (e) => {
-            e.channel.onopen = () => {
-                console.log("RTC connected")
-                this.loadingState.next(true)
-            }
-
-            e.channel.onmessage = (message) => {
-                console.log(`RTC message ${message.data}`)
-            }
-        }
-
-        const callDoc = doc(collection(firestore, "calls"))
-        const offerCandidates = collection(callDoc, "offerCandidates")
-        const answerCandidates = collection(callDoc, "answerCandidates")
-
-        pc.onicecandidate = event => {
-            event.candidate && addDoc(offerCandidates, event.candidate.toJSON())
-        }
-
-        const offerDescription = await pc.createOffer()
-        await pc.setLocalDescription(offerDescription)
-
-        const offer = {
-            sdp: offerDescription.sdp,
-            type: offerDescription.type
-        }
-
-        setDoc(callDoc, { offer })
-
-        onSnapshot(callDoc, snapshot => {
-            const data = snapshot.data()
-            if (!pc.currentRemoteDescription && data?.answer) {
-                const answerDescription = new RTCSessionDescription(data.answer)
-                pc.setRemoteDescription(answerDescription)
-            }
-        })
-
-        onSnapshot(answerCandidates, snapshot => {
-            snapshot.docChanges().forEach(change => {
-                if (change.type == "added") {
-                    const candidate = new RTCIceCandidate(change.doc.data())
-                    pc.addIceCandidate(candidate)
-                }
+        const q = query(this.relayCollection)
+        onSnapshot(q, snapshot => {
+            snapshot.forEach(document => {
+                this.handleEvent(document.data())
             })
         })
+    }
 
-        return true
+    private handleEvent(event: any) {
+        if (event.type == "connected") {
+            this.loadingState = true
+        }
     }
 
     async fetchUserDisplayName(): Promise<string> {

@@ -1,9 +1,7 @@
 import { Injectable } from "@angular/core";
 import { CommunicationService } from "./communication.service";
 
-@Injectable({
-    providedIn: "root"
-})
+@Injectable()
 export class UserService {
 
     profileImage: string | null = null

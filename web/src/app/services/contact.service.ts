@@ -2,9 +2,7 @@ import { Injectable } from "@angular/core";
 import { Contact } from "../domain/contact";
 import { CommunicationService } from "./communication.service";
 
-@Injectable({
-    providedIn: "root"
-})
+@Injectable()
 export class ContactService {
 
     contactList: Contact[] = []

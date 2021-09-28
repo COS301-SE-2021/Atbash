@@ -3,9 +3,7 @@ import { Message, ReadReceipt } from "../domain/message";
 import { Chat } from "../domain/chat";
 import { CommunicationService } from "./communication.service";
 
-@Injectable({
-    providedIn: "root"
-})
+@Injectable()
 export class MessageService {
 
     selectedChat: Chat | null = null

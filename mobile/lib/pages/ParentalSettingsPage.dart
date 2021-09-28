@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/constants.dart';
-import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/NewNumberDialog.dart';
+import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
+import 'package:mobile/pages/ProfanityFilterListPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
   const ParentalSettingsPage({Key? key}) : super(key: key);
@@ -49,8 +51,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
             ),
             ListTile(
               onTap: () {
-                showInputDialog(
-                    context, "Please enter the pin you wish to use.");
+                showPinDialog(
+                    context, "Please enter the pin you wish to use.", null);
               },
               title: Text(
                 "Change pin for 'Child name'",
@@ -124,9 +126,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
             SwitchListTile(
               key: Key("safeMode"),
               value: false,
-              onChanged: (bool newValue) {
-                //TODO Create Pin logic
-              },
+              onChanged: (bool newValue) {},
               title: Text(
                 "Profanity Filter",
                 style: TextStyle(fontSize: 16),
@@ -203,6 +203,25 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                   "Choose whether others can see if you've read their messages"),
             ),
             ListTile(
+              leading: Icon(
+                Icons.admin_panel_settings_sharp,
+                color: Constants.orange,
+              ),
+              title: Text(
+                "Profanity Filtering List",
+                style: TextStyle(fontSize: 16),
+              ),
+              subtitle: Text("Add or remove words from the profanity filter"),
+              trailing: Icon(Icons.arrow_forward_rounded),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProfanityFilterListPage()));
+              },
+              dense: true,
+            ),
+            ListTile(
               key: Key("blockedContacts"),
               leading: Icon(
                 Icons.block,
@@ -230,6 +249,12 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               ),
             ),
             ListTile(
+              onTap: () {
+                showConfirmDialog(
+                    context,
+                    "Are you sure you want to lock 'child name's account? You will have to enter their "
+                    "unique pin to unlock the application.");
+              },
               title: Text("Lock Account", style: TextStyle(fontSize: 16)),
               subtitle: Text(
                   "Lock the child's account so the application cannot be used without entering the pin"),

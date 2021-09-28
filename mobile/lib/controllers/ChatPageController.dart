@@ -318,7 +318,7 @@ class ChatPageController {
   }
 
   void forwardMessage(
-      BuildContext context, String message, String currentContactName) {
+      BuildContext context, Message message, String currentContactName) {
     contactService.fetchAll().then((contacts) {
       showForwardDialog(context, contacts, currentContactName)
           .then((forwardContacts) async {
@@ -342,14 +342,14 @@ class ChatPageController {
 
         allNumberChats.forEach((element) {
           final newMessage = Message(
-            id: Uuid().v4(),
-            chatId: element.second,
-            isIncoming: false,
-            otherPartyPhoneNumber: element.first,
-            contents: message,
-            timestamp: DateTime.now(),
-            forwarded: true,
-          );
+              id: Uuid().v4(),
+              chatId: element.second,
+              isIncoming: false,
+              otherPartyPhoneNumber: element.first,
+              contents: message.contents,
+              timestamp: DateTime.now(),
+              forwarded: true,
+              isMedia: message.isMedia);
 
           communicationService.sendMessage(
               newMessage, ChatType.general, element.first, null);

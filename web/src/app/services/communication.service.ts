@@ -18,7 +18,7 @@ export class CommunicationService {
 
     constructor(firestore: Firestore) {
         this.relayCollection = collection(firestore, this.relayId)
-        setDoc(doc(this.relayCollection), { type: "hello" })
+        setDoc(doc(this.relayCollection), { type: "connected", origin: "web" })
 
         const q = query(this.relayCollection)
         onSnapshot(q, snapshot => {
@@ -29,7 +29,7 @@ export class CommunicationService {
     }
 
     private handleEvent(event: any) {
-        if (event.type == "connected") {
+        if (event.origin == "phone" && event.type == "connected") {
             this.loadingState = true
         }
     }

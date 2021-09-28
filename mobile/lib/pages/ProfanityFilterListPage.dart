@@ -72,7 +72,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
                 itemCount: profanityWordList.length,
                 itemBuilder: (_, index) {
                   return ListTile(
-                    title: Text(profanityWordList[index].profanityWordRegex),
+                    title: Text(profanityWordList[index].profanityOriginalWord),
                     trailing: IconButton(
                       onPressed: () =>
                           _removeProfanityWord(profanityWordList[index]),

@@ -39,12 +39,12 @@ class ChildChatService {
     });
   }
 
-  Future<void> updateOtherPartyNameById(String id, String name) async {
+  Future<void> updateOtherPartyNameByNumbers(String childNumber, String otherNumber, String name) async {
     final db = await databaseService.database;
 
     //Check if exists?
     final response = await db.query(ChildChat.TABLE_NAME,
-        where: "${ChildChat.COLUMN_ID} = ?", whereArgs: [id]);
+        where: "${ChildChat.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildChat.COLUMN_OTHER_PARTY_NUMBER} = ?", whereArgs: [childNumber, otherNumber]);
 
     if (response.isNotEmpty) {
       final chat = ChildChat.fromMap(response.first);
@@ -56,17 +56,17 @@ class ChildChatService {
     }
   }
 
-  Future<void> deleteById(String id) async {
+  Future<void> deleteByNumbers(String childNumber, String otherNumber) async {
     final db = await databaseService.database;
 
     await db.transaction((txn) async {
       final chatExists = await txn.query(ChildChat.TABLE_NAME,
-          where: "${ChildChat.COLUMN_ID} = ?", whereArgs: [id]);
+          where: "${ChildChat.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildChat.COLUMN_OTHER_PARTY_NUMBER} = ?", whereArgs: [childNumber, otherNumber]);
 
       if (chatExists.isEmpty) throw ChildChatDoesNotExistException();
 
       await txn.delete(ChildChat.TABLE_NAME,
-          where: "${ChildChat.COLUMN_ID} = ?", whereArgs: [id]);
+          where: "${ChildChat.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildChat.COLUMN_OTHER_PARTY_NUMBER} = ?", whereArgs: [childNumber, otherNumber]);
     });
   }
 }

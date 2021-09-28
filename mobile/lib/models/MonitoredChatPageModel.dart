@@ -10,7 +10,7 @@ abstract class _MonitoredChatPageModel with Store{
   String childName = "";
 
   @observable
-  String otherMemberName = "";
+  String? otherMemberName;
 
   @observable
   String otherMemberNumber = "";

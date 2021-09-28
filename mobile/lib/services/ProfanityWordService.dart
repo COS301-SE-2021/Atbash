@@ -41,24 +41,12 @@ class ProfanityWordService {
     return profanityWord;
   }
 
-  //
-  // Future<void> delete(String number) async {
-  //   final db = await databaseService.database;
-  //
-  //   await db.transaction((txn) async {
-  //     final existingNumber = await txn.query(BlockedNumber.TABLE_NAME,
-  //         where: "${BlockedNumber.COLUMN_PHONE_NUMBER} = ?",
-  //         whereArgs: [number]);
-  //
-  //     if (existingNumber.isEmpty) throw blockedNumberDoesNotExistException();
-  //
-  //     await txn.delete(BlockedNumber.TABLE_NAME,
-  //         where: "${BlockedNumber.COLUMN_PHONE_NUMBER} =?",
-  //         whereArgs: [number]);
-  //   });
-  //
-  //   _notifyListeners();
-  // }
+  Future<void> deleteByID(String id) async {
+    final db = await databaseService.database;
+
+    db.delete(ProfanityWord.TABLE_NAME,
+        where: "${ProfanityWord.COLUMN_PROFANITY_ID} =?", whereArgs: [id]);
+  }
 
   //HELPER FUNCTION TO MANIPULATE STRING
   String replaceCharAt(String oldString, int index, String newChar) {
@@ -67,5 +55,3 @@ class ProfanityWordService {
         oldString.substring(index + 1);
   }
 }
-
-class duplicateProfanityWordException implements Exception {}

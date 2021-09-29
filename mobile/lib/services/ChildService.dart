@@ -100,7 +100,9 @@ class ChildService {
         if (blockDeletingMessages != null)
           child.blockDeletingMessages = blockDeletingMessages;
 
-        await txn.update(Child.TABLE_NAME, child.toMap());
+        await txn.update(Child.TABLE_NAME, child.toMap(),
+            where: "${Child.COLUMN_PHONE_NUMBER} = ?",
+            whereArgs: [child.phoneNumber]);
       }
     });
   }
@@ -118,7 +120,8 @@ class ChildService {
 
       if (child != null)
         txn.delete(Child.TABLE_NAME,
-            where: "${Child.COLUMN_PHONE_NUMBER} = ?", whereArgs: [child.phoneNumber]);
+            where: "${Child.COLUMN_PHONE_NUMBER} = ?",
+            whereArgs: [child.phoneNumber]);
     });
   }
 }

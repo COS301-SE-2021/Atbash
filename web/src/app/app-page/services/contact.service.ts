@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Contact } from "../../domain/contact";
-import { CommunicationService, EventType } from "../../services/communication.service";
+import { CommunicationService, IncomingEventType } from "../../services/communication.service";
 
 @Injectable()
 export class ContactService {
@@ -9,7 +9,7 @@ export class ContactService {
 
     constructor(private com: CommunicationService) {
         com.contacts$.subscribe(event => {
-            if (event.type == EventType.PUT) {
+            if (event.type == IncomingEventType.PUT) {
                 const contact = event.contact
 
                 if (contact != null) {
@@ -20,7 +20,7 @@ export class ContactService {
                         this.contactList[index] = contact
                     }
                 }
-            } else if (event.type == EventType.DELETE) {
+            } else if (event.type == IncomingEventType.DELETE) {
                 this.contactList = this.contactList.filter(c => c.phoneNumber != event.contactPhoneNumber)
             }
         })

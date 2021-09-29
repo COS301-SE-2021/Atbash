@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { CommunicationService, EventType } from "../../services/communication.service";
+import { CommunicationService, IncomingEventType } from "../../services/communication.service";
 import { Chat } from "../../domain/chat";
 
 @Injectable()
@@ -9,7 +9,7 @@ export class ChatService {
 
     constructor(private com: CommunicationService) {
         com.chats$.subscribe(event => {
-            if (event.type == EventType.PUT) {
+            if (event.type == IncomingEventType.PUT) {
                 const chat = event.chat
 
                 if (chat != null) {
@@ -20,7 +20,7 @@ export class ChatService {
                         this.chatList[index] = chat
                     }
                 }
-            } else if (event.type == EventType.DELETE) {
+            } else if (event.type == IncomingEventType.DELETE) {
                 this.chatList = this.chatList.filter(c => c.id != event.chatId)
             }
         })

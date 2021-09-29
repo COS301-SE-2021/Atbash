@@ -4,6 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
@@ -54,6 +55,27 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                 subtitle: Text("Add a child to this account."),
                 leading: Icon(
                   Icons.phone_android,
+                  color: Constants.orange,
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                dense: true,
+              ),
+              ListTile(
+                onTap: () {
+                  showInputDialog(context,
+                          "Enter the code shown on the parents screen.")
+                      .then((code) {
+                    if (code != null) // && code is correct
+                      return; //add parent and child respectively
+                  });
+                },
+                title: Text(
+                  "Set parent",
+                  style: TextStyle(fontSize: 16),
+                ),
+                subtitle: Text("Add a parent to control this phone."),
+                leading: Icon(
+                  Icons.phonelink_lock,
                   color: Constants.orange,
                 ),
                 trailing: Icon(Icons.arrow_forward_rounded),

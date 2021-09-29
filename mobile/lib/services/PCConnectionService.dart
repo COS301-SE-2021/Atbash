@@ -4,8 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:uuid/uuid.dart';
 
 class PCConnectionService {
+  void Function(Message message)? onMessageEvent;
+
   String? pcRelayId;
 
   Future<void> connectToPc(
@@ -60,7 +63,23 @@ class PCConnectionService {
   }
 
   void handleMessage(Map<String, dynamic> event) {
-    print(event["message"]);
+    final messageEvent = event["message"] as Map<String, dynamic>;
+
+    final chatId = messageEvent["chatId"] as String;
+    final recipientPhoneNumber = messageEvent["recipientPhoneNumber"] as String;
+    final contents = messageEvent["contents"] as String;
+    final timestamp = messageEvent["timestamp"] as int;
+
+    final message = Message(
+      id: Uuid().v4(),
+      chatId: chatId,
+      isIncoming: false,
+      otherPartyPhoneNumber: recipientPhoneNumber,
+      contents: contents,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+    );
+
+    onMessageEvent?.call(message);
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {

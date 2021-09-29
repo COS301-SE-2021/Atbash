@@ -91,6 +91,14 @@ export class CommunicationService {
         })
     }
 
+    createChat(contactPhoneNumber: string) {
+        setDoc(doc(this.communicationCollection), {
+            origin: "web",
+            type: "newChat",
+            contactPhoneNumber: contactPhoneNumber,
+        })
+    }
+
     private get communicationCollection() {
         return collection(this.firestore, `relays/${this.relayId}/communication`)
     }

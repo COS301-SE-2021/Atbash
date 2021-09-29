@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Contact } from "../../../../domain/contact";
+import { MessageService } from "../../../services/message.service";
+import { ChatService } from "../../../services/chat.service";
 
 @Component({
     selector: "app-contact-item",
@@ -11,7 +13,7 @@ export class ContactItemComponent implements OnInit {
     // LOCAL STATE
     @Input() contact: Contact | null = null
 
-    constructor() {
+    constructor(private messageService: MessageService, private chatService: ChatService) {
     }
 
     ngOnInit(): void {
@@ -27,6 +29,15 @@ export class ContactItemComponent implements OnInit {
 
     get displayName() {
         return this.contact?.displayName ?? this.contact?.phoneNumber ?? ""
+    }
+
+    async selectContact() {
+        const contactPhoneNumber = this.contact?.phoneNumber ?? null
+        if (contactPhoneNumber != null) {
+            const chat = this.chatService.createChatIfNone(contactPhoneNumber)
+
+            this.messageService.enterChat(chat)
+        }
     }
 
 }

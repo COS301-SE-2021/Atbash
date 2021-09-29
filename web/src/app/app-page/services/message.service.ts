@@ -39,7 +39,7 @@ export class MessageService {
         })
     }
 
-    async enterChat(chat: Chat | null) {
+    enterChat(chat: Chat | null) {
         this.selectedChat = chat
         this.chatMessages = []
         this.chatMessages = this.messageList.filter(message => message.chatId == chat?.id)

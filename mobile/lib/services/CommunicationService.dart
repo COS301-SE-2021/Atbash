@@ -17,6 +17,7 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
@@ -26,6 +27,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CommunicationService {
+  final ProfanityWordService profanityWordService;
   final BlockedNumbersService blockedNumbersService;
   final EncryptionService encryptionService;
   final UserService userService;
@@ -100,6 +102,7 @@ class CommunicationService {
 
   CommunicationService(
     this.blockedNumbersService,
+    this.profanityWordService,
     this.encryptionService,
     this.userService,
     this.chatService,
@@ -562,7 +565,16 @@ class CommunicationService {
             break;
 
           case "newProfanityWordToChild":
-            //TODO add given profanity word to my ProfanityWord table (This is on child phone)
+            //This adds/deletes word from profanity table
+            //TODO ask if this decrypting contents works & if need a listener for this
+            final profanityWord = decryptedContents["word"] as ProfanityWord;
+            final operation = decryptedContents["operation"] as String;
+            if (operation == "insert") {
+              profanityWordService.addWord(profanityWord.profanityOriginalWord);
+            } else {
+              profanityWordService
+                  .deleteByWord(profanityWord.profanityOriginalWord);
+            }
             break;
 
           case "blockedNumberToChild":
@@ -905,7 +917,7 @@ class CommunicationService {
   }
 
   Future<void> sendNewProfanityWordToChild(
-      String childNumber, ProfanityWord word, bool operation) async {
+      String childNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToChild",
       "word": "${jsonEncode(word)}",
@@ -914,7 +926,7 @@ class CommunicationService {
   }
 
   Future<void> sendBlockedNumberToChild(String childNumber,
-      ChildBlockedNumber blockedNumber, bool operation) async {
+      ChildBlockedNumber blockedNumber, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToChild",
       "blockedNumber": "${jsonEncode(blockedNumber)}",
@@ -971,7 +983,7 @@ class CommunicationService {
   }
 
   Future<void> sendNewProfanityWordToParent(
-      String parentNumber, ProfanityWord word, bool operation) async {
+      String parentNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToParent",
       "word": "${jsonEncode(word)}",
@@ -980,7 +992,7 @@ class CommunicationService {
   }
 
   Future<void> sendBlockedNumberToParent(
-      String parentNumber, BlockedNumber number, bool operation) async {
+      String parentNumber, BlockedNumber number, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToParent",
       "blockedNumber": "${jsonEncode(number)}",
@@ -989,7 +1001,7 @@ class CommunicationService {
   }
 
   Future<void> sendChatToParent(
-      String parentNumber, Chat chat, bool operation) async {
+      String parentNumber, Chat chat, String operation) async {
     final contents = jsonEncode({
       "type": "chatToParent",
       "chat": "${jsonEncode(chat)}",
@@ -998,7 +1010,7 @@ class CommunicationService {
   }
 
   Future<void> sendChildMessageToParent(
-      String parentNumber, Message message, bool operation) async {
+      String parentNumber, Message message, String operation) async {
     final contents = jsonEncode({
       "type": "messageToParent",
       "message": "${jsonEncode(message)}",
@@ -1007,7 +1019,7 @@ class CommunicationService {
   }
 
   Future<void> sendContactToParent(
-      String parentNumber, Contact contact, bool operation) async {
+      String parentNumber, Contact contact, String operation) async {
     //TODO check if jsonEncode works this way
     final contents = jsonEncode({
       "type": "contactToParent",

@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/controllers/ChildBlockedContactsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/NewNumberDialog.dart';
+import 'package:mobile/domain/Child.dart';
 import 'package:mobile/util/Utils.dart';
 
 class ChildBlockedContactsPage extends StatefulWidget {
-  const ChildBlockedContactsPage({Key? key}) : super(key: key);
+  final Child child;
+
+  const ChildBlockedContactsPage({Key? key, required this.child})
+      : super(key: key);
 
   @override
   _ChildBlockedContactsPageState createState() =>
-      _ChildBlockedContactsPageState();
+      _ChildBlockedContactsPageState(child: child);
 }
 
 class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
+  final ChildBlockedContactsPageController controller;
+  final childNumber;
+
+  _ChildBlockedContactsPageState({required Child child})
+      : controller = ChildBlockedContactsPageController(child.phoneNumber),
+        childNumber = child.phoneNumber;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,7 +33,7 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
         title: Text("Blocked Contacts"),
         actions: [
           IconButton(
-            onPressed: () => _addBlockedContact(),
+            onPressed: () => _addBlockedContact(childNumber),
             icon: Icon(
               Icons.add,
             ),
@@ -66,24 +78,15 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
           ),
           Observer(
             builder: (_) {
-              String name = "";
               return ListView.builder(
                 shrinkWrap: true,
                 itemCount: controller.model.filteredNumbers.length,
                 itemBuilder: (BuildContext context, int index) {
-                  if (controller.model.contacts.any((element) =>
-                      element.phoneNumber ==
-                      controller.model.filteredNumbers[index].phoneNumber))
-                    name = controller.model.contacts
-                        .firstWhere((element) =>
-                            element.phoneNumber ==
-                            controller.model.filteredNumbers[index].phoneNumber)
-                        .displayName;
-                  else
-                    name = controller.model.filteredNumbers[index].phoneNumber;
                   return _buildContactItem(
-                      controller.model.filteredNumbers[index].phoneNumber,
-                      name);
+                      controller.model.filteredNumbers[index].blockedNumber,
+                      controller.model.chats[index].otherPartyName == null
+                          ? controller.model.chats[index].otherPartyNumber
+                          : controller.model.chats[index].otherPartyName);
                 },
               );
             },
@@ -134,17 +137,17 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
     );
   }
 
-  void _addBlockedContact() async {
+  void _addBlockedContact(String childNumber) async {
     final input = await showNewNumberDialog(
         context, "Please insert the number you wish to block.");
     if (input != null)
-      controller.addNumber(input).catchError((_) {
+      controller.addNumber(childNumber, input).catchError((_) {
         showSnackBar(context, "This number has already been blocked.");
       });
   }
 
   void _removeBlockedContact(String blockedNumber) {
-    controller.deleteNumber(blockedNumber).catchError((_) {
+    controller.deleteNumber(childNumber, blockedNumber).catchError((_) {
       showSnackBar(context, "The number you tried to remove is not blocked.");
     });
   }

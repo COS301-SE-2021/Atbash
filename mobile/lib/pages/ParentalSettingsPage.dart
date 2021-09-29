@@ -4,6 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
+import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';

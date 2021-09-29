@@ -32,6 +32,8 @@ class ProfanityWordService {
     newWord = newWord.replaceAll(RegExp(r'i'), '[i!]');
     newWord = newWord.replaceAll(RegExp(r'o'), '[o0]');
     newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
+    newWord = newWord.replaceAll(RegExp(r'f'), '(ph|f)');
+    newWord = newWord.replaceAll(RegExp(r'ph'), '(ph|f)');
 
     final profanityWord = ProfanityWord(
         profanityWordRegex: newWord,

@@ -24,6 +24,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$profanityWordsAtom = Atom(name: '_ChatPageModel.profanityWords');
+
+  @override
+  List<ProfanityWord> get profanityWords {
+    _$profanityWordsAtom.reportRead();
+    return super.profanityWords;
+  }
+
+  @override
+  set profanityWords(List<ProfanityWord> value) {
+    _$profanityWordsAtom.reportWrite(value, super.profanityWords, () {
+      super.profanityWords = value;
+    });
+  }
+
   final _$onlineAtom = Atom(name: '_ChatPageModel.online');
 
   @override
@@ -244,6 +259,7 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   String toString() {
     return '''
 contactTitle: ${contactTitle},
+profanityWords: ${profanityWords},
 online: ${online},
 contactStatus: ${contactStatus},
 wallpaperImage: ${wallpaperImage},

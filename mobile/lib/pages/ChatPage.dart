@@ -19,6 +19,7 @@ import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/MessageEditDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
@@ -426,6 +427,7 @@ class _ChatPageState extends State<ChatPage> {
       profanityFilter: controller.model.profanityFilter,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
+      words: controller.model.profanityWords,
     );
   }
 
@@ -551,6 +553,7 @@ class ChatCard extends StatelessWidget {
   final ChatType chatType;
   final Message? repliedMessage;
   final String contactTitle;
+  final List<ProfanityWord> words;
 
   ChatCard(
     this._message, {
@@ -567,6 +570,7 @@ class ChatCard extends StatelessWidget {
     this.chatType = ChatType.general,
     this.repliedMessage,
     required this.contactTitle,
+    required this.words,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -705,7 +709,7 @@ class ChatCard extends StatelessWidget {
                             height: 4,
                           ),
                           Container(
-                            child: _renderMessageContents(),
+                            child: _renderMessageContents(words),
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,
                             ),
@@ -770,7 +774,7 @@ class ChatCard extends StatelessWidget {
     });
   }
 
-  Widget _renderMessageContents() {
+  Widget _renderMessageContents(List<ProfanityWord> words) {
     if (_message.isMedia) {
       if (blurImages) {
         return Row(
@@ -802,7 +806,7 @@ class ChatCard extends StatelessWidget {
         _message.deleted
             ? "This message was deleted"
             : profanityFilter
-                ? _filterContents(_message.contents)
+                ? _filterContents(_message.contents, words)
                 : _message.contents,
         style: TextStyle(
           color: Colors.white,
@@ -812,10 +816,16 @@ class ChatCard extends StatelessWidget {
     }
   }
 
-  String _filterContents(String unfilteredContents) {
-    Constants.profanityRegex.forEach((regex) {
+  String _filterContents(String unfilteredContents, List<ProfanityWord> words) {
+    // Constants.profanityRegex.forEach((regex) {
+    //   unfilteredContents = unfilteredContents.replaceAllMapped(
+    //       RegExp(regex, caseSensitive: false),
+    //       (match) => List.filled(match.end - match.start, "*").join());
+    // });
+    // return unfilteredContents;
+    words.forEach((profanityWord) {
       unfilteredContents = unfilteredContents.replaceAllMapped(
-          RegExp(regex, caseSensitive: false),
+          RegExp(profanityWord.profanityWordRegex, caseSensitive: false),
           (match) => List.filled(match.end - match.start, "*").join());
     });
     return unfilteredContents;

@@ -83,11 +83,20 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
                   shrinkWrap: true,
                   itemCount: controller.model.filteredNumbers.length,
                   itemBuilder: (BuildContext context, int index) {
+                    String name =
+                        controller.model.filteredNumbers[index].blockedNumber;
+                    controller.model.filteredNumbers.forEach((number) {
+                      controller.model.chats.forEach((chat) {
+                        if (number.blockedNumber == chat.otherPartyNumber) {
+                          final chatName = chat.otherPartyName;
+                          if (chatName != null) name = chatName;
+                        }
+                      });
+                    });
+
                     return _buildContactItem(
                         controller.model.filteredNumbers[index].blockedNumber,
-                        controller.model.chats[index].otherPartyName == null
-                            ? controller.model.chats[index].otherPartyNumber
-                            : controller.model.chats[index].otherPartyName);
+                        name);
                   },
                 ),
               );

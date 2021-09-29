@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
@@ -860,16 +861,16 @@ class CommunicationService {
   //START OF NEW METHODS
   //TODO:MAKE PROPER
 
-  Future<void> sendAddChild(String recipientPhoneNumber) async {}
+  Future<void> sendAddChild(String childNumber) async {
+    final contents = jsonEncode({"type": "addChild"});
+  }
 
-  Future<void> sendRemoveChild(String recipientPhoneNumber) async {}
-
-  Future<void> sendSetupChild(String recipientPhoneNumber) async {}
-
-  Future<void> sendPin(String recipientPhoneNumber) async {}
+  Future<void> sendRemoveChild(String childNumber) async {
+    final contents = jsonEncode({"type": "removeChild"});
+  }
 
   Future<void> sendAllSettingsToChild(
-      String recipientPhoneNumber,
+      String childNumber,
       bool editableSettings,
       bool blurImages,
       bool safeMode,
@@ -881,21 +882,75 @@ class CommunicationService {
       bool privateChatAccess,
       bool blockSaveMedia,
       bool blockEditingMessages,
-      bool blockDeletingMessages) async {}
+      bool blockDeletingMessages) async {
+    final contents = jsonEncode({
+      "type": "allSettingsToChild",
+      "editableSettings": "${editableSettings ? 1 : 0}",
+      "blurImages": "${blurImages ? 1 : 0}",
+      "safeMode": "${safeMode ? 1 : 0}",
+      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
+      "shareStatus": "${shareStatus ? 1 : 0}",
+      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
+      "shareBirthday": "${shareBirthday ? 1 : 0}",
+      "lockedAccount": "${lockedAccount ? 1 : 0}",
+      "privateChatAccess": "${privateChatAccess ? 1 : 0}",
+      "blockSaveMedia": "${blockSaveMedia ? 1 : 0}",
+      "blockEditingMessages": "${blockEditingMessages ? 1 : 0}",
+      "blockDeletingMessages": "${blockDeletingMessages ? 1 : 0}"
+    });
+  }
 
-  Future<void> sendNewProfanityWordToChild(String recipientPhoneNumber) async {}
+  Future<void> sendNewProfanityWordToChild(
+      String childNumber, ProfanityWord word) async {
+    final contents = jsonEncode(
+        {"type": "newProfanityWordToChild", "word": "${jsonEncode(word)}"});
+  }
 
-  Future<void> sendBlockedContactToChild(String recipientPhoneNumber) async {}
+  Future<void> sendBlockedNumberToChild(
+      String childNumber, ChildBlockedNumber blockedNumber) async {
+    final contents = jsonEncode({
+      "type": "blockedNumberToChild",
+      "blockedNumber": "${jsonEncode(blockedNumber)}"
+    });
+  }
+
+  Future<void> sendSetupChild(
+      String parentNumber,
+      List<Contact> contacts,
+      List<ProfanityWord> words,
+      List<BlockedNumber> blockedNumbers,
+      List<Chat> chats,
+      List<Message> messages,
+      bool blurImages,
+      bool safeMode,
+      bool shareProfilePicture,
+      bool shareStatus,
+      bool shareReadReceipts,
+      bool shareBirthday) async {
+    final contents = jsonEncode({
+      "type": "setupChild",
+      "contacts": "${jsonEncode(contacts)}",
+      "words": "${jsonEncode(words)}",
+      "blockedNumbers": "${jsonEncode(blockedNumbers)}",
+      "chats": "${jsonEncode(chats)}",
+      "messages": "${jsonEncode(messages)}",
+      "blurImages": "${blurImages ? 1 : 0}",
+      "safeMode": "${safeMode ? 1 : 0}",
+      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
+      "shareStatus": "${shareStatus ? 1 : 0}",
+      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
+      "shareBirthday": "${shareBirthday ? 1 : 0}",
+    });
+  }
 
   Future<void> sendAllSettingsToParent(
-    String parentNumber,
-    bool blurImages,
-    bool safeMode,
-    bool shareProfilePicture,
-    bool shareStatus,
-    bool shareReadReceipts,
-    bool shareBirthday,
-  ) async {
+      String parentNumber,
+      bool blurImages,
+      bool safeMode,
+      bool shareProfilePicture,
+      bool shareStatus,
+      bool shareReadReceipts,
+      bool shareBirthday) async {
     final contents = {
       "type": "allSettingsToParent",
       "blurImages": "${blurImages ? 1 : 0}",

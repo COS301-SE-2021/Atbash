@@ -15,7 +15,7 @@ export class ContactListComponent implements OnInit {
     }
 
     get contactList() {
-        return this.contactService.contactList
+        return this.contactService.contactList.slice()
     }
 
 }

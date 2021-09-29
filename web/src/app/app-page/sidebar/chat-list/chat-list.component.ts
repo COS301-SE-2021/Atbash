@@ -15,7 +15,7 @@ export class ChatListComponent implements OnInit {
     }
 
     get chatList() {
-        return this.chatService.chatList
+        return this.chatService.chatList.slice()
     }
 
 }

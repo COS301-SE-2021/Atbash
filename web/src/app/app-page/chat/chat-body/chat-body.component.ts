@@ -19,7 +19,7 @@ export class ChatBodyComponent implements OnInit {
     }
 
     get messages() {
-        return this.messageService.chatMessages
+        return this.messageService.chatMessages.slice()
     }
 
     get isInChat() {

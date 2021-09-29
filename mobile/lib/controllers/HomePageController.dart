@@ -7,6 +7,7 @@ import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 
@@ -19,6 +20,7 @@ class HomePageController {
   final MessageService messageService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final SettingsService settingsService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
 
   final HomePageModel model = HomePageModel();
 
@@ -97,6 +99,11 @@ class HomePageController {
     settingsService
         .getSafeMode()
         .then((value) => model.profanityFilter = value);
+
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
   }
 
   void deleteChat(String chatId) {

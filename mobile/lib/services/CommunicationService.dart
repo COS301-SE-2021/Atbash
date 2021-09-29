@@ -5,6 +5,7 @@ import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -197,12 +198,10 @@ class CommunicationService {
         .collection("relays")
         .doc(relayId)
         .collection("communication")
-        .add(
-      {
-        "origin": "phone",
-        "type": "connected",
-      },
-    );
+        .add({
+      "origin": "phone",
+      "type": "connected",
+    });
 
     FirebaseFirestore.instance
         .collection("relays")
@@ -217,6 +216,38 @@ class CommunicationService {
       "chats": jsonEncode(await chatService.fetchAll()),
       "messages": jsonEncode(await messageService.fetchAll()),
     });
+  }
+
+  Future<void> notifyPcPutContact(Contact contact) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      FirebaseFirestore.instance
+          .collection("relays")
+          .doc(relayId)
+          .collection("communication")
+          .add({
+        "origin": "phone",
+        "type": "putContact",
+        "contact": jsonEncode(contact),
+      });
+    }
+  }
+
+  Future<void> notifyPcDeleteContact(String contactPhoneNumber) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      FirebaseFirestore.instance
+          .collection("relays")
+          .doc(relayId)
+          .collection("communication")
+          .add({
+        "origin": "phone",
+        "type": "deleteContact",
+        "contactPhoneNumber": contactPhoneNumber,
+      });
+    }
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

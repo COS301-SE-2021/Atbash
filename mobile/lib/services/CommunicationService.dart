@@ -549,48 +549,52 @@ class CommunicationService {
 
           //Parental cases below this
 
-          case "childOTP":
-            //TODO create parent entity
-            break;
-
-          case "confirmOTP":
-            //TODO send back confirmation to parent to add me as child
-            break;
-
-          case "requestChildData":
-            //TODO send back all your settings, blockedContacts, profanityWords, chats and messages
-            break;
-
-          case "allChildData":
-            //TODO Insert all child local settings, blockedContacts, profanityWords, chats and messages
-            break;
-
-          case "pinToChild":
-            //TODO update pin in parent domain
+          case "addChild":
+            //TODO create parent object (This is on child Phone)
             break;
 
           case "removeChild":
-            //TODO remove number as my parent
+            //TODO set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
             break;
 
-          case "allSettings":
-            //TODO: check if these were sent from parent or child and update settings accordingly
+          case "allSettingsToChild":
+            //TODO update all settings in flutter_secure_storage (This is on child phone)
             break;
 
-          case "childChat":
-            //TODO add chat to associated child
+          case "newProfanityWordToChild":
+            //TODO add given profanity word to my ProfanityWord table (This is on child phone)
             break;
 
-          case "childMessage":
-            //TODO add childs message to associated chat
+          case "blockedNumberToChild":
+            //TODO add given blocked number to my blockedNumbers table (This is on child phone)
             break;
 
-          case "profanityWord":
-            //TODO check if for parent or child and add or delete the profanity word
+          case "setupChild":
+            //TODO create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
             break;
 
-          case "blockedChildContact":
-            //TODO check if for parent or child and add or delete blocked contact
+          case "allSettingsToParent":
+            //TODO update all parents settings for relative child (This is on parent phone)
+            break;
+
+          case "newProfanityWordToParent":
+            //TODO update associated child ProfanityTable with new word (This is on parent phone)
+            break;
+
+          case "blockedNumberToParent":
+            //TODO update associated child BlockedNumber table with new number (This is on parent phone)
+            break;
+
+          case "chatToParent":
+            //TODO update associated child Chat table with new chat (This is on parent phone)
+            break;
+
+          case "messageToParent":
+            //TODO update associated child Message table with new message (This is on parent phone)
+            break;
+
+          case "contactToParent":
+            //TODO update associated child Contact table with new contact (This is on parent phone)
             break;
         }
 
@@ -901,16 +905,20 @@ class CommunicationService {
   }
 
   Future<void> sendNewProfanityWordToChild(
-      String childNumber, ProfanityWord word) async {
-    final contents = jsonEncode(
-        {"type": "newProfanityWordToChild", "word": "${jsonEncode(word)}"});
+      String childNumber, ProfanityWord word, bool operation) async {
+    final contents = jsonEncode({
+      "type": "newProfanityWordToChild",
+      "word": "${jsonEncode(word)}",
+      "operation": "$operation"
+    });
   }
 
-  Future<void> sendBlockedNumberToChild(
-      String childNumber, ChildBlockedNumber blockedNumber) async {
+  Future<void> sendBlockedNumberToChild(String childNumber,
+      ChildBlockedNumber blockedNumber, bool operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToChild",
-      "blockedNumber": "${jsonEncode(blockedNumber)}"
+      "blockedNumber": "${jsonEncode(blockedNumber)}",
+      "operation": "$operation"
     });
   }
 
@@ -963,34 +971,49 @@ class CommunicationService {
   }
 
   Future<void> sendNewProfanityWordToParent(
-      String parentNumber, ProfanityWord word) async {
-    final contents = jsonEncode(
-        {"type": "newProfanityWordToParent", "word": "${jsonEncode(word)}"});
-  }
-
-  Future<void> sendBlockedNumberToParent(
-      String parentNumber, BlockedNumber number) async {
+      String parentNumber, ProfanityWord word, bool operation) async {
     final contents = jsonEncode({
-      "type": "blockedNumberToParent",
-      "blockedNumber": "${jsonEncode(number)}"
+      "type": "newProfanityWordToParent",
+      "word": "${jsonEncode(word)}",
+      "operation": "$operation"
     });
   }
 
-  Future<void> sendChatToParent(String parentNumber, Chat chat) async {
-    final contents =
-        jsonEncode({"type": "chatToParent", "chat": "${jsonEncode(chat)}"});
+  Future<void> sendBlockedNumberToParent(
+      String parentNumber, BlockedNumber number, bool operation) async {
+    final contents = jsonEncode({
+      "type": "blockedNumberToParent",
+      "blockedNumber": "${jsonEncode(number)}",
+      "operation": "$operation"
+    });
+  }
+
+  Future<void> sendChatToParent(
+      String parentNumber, Chat chat, bool operation) async {
+    final contents = jsonEncode({
+      "type": "chatToParent",
+      "chat": "${jsonEncode(chat)}",
+      "operation": "$operation"
+    });
   }
 
   Future<void> sendChildMessageToParent(
-      String parentNumber, Message message) async {
-    final contents = jsonEncode(
-        {"type": "messageToParent", "message": "${jsonEncode(message)}"});
+      String parentNumber, Message message, bool operation) async {
+    final contents = jsonEncode({
+      "type": "messageToParent",
+      "message": "${jsonEncode(message)}",
+      "operation": "$operation"
+    });
   }
 
-  Future<void> sendContactToParent(String parentNumber, Contact contact) async {
+  Future<void> sendContactToParent(
+      String parentNumber, Contact contact, bool operation) async {
     //TODO check if jsonEncode works this way
-    final contents = jsonEncode(
-        {"type": "contactToParent", "contact": "${jsonEncode(contact)}"});
+    final contents = jsonEncode({
+      "type": "contactToParent",
+      "contact": "${jsonEncode(contact)}",
+      "operation": "$operation"
+    });
   }
 
   //END OF NEW METHODS

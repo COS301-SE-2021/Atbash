@@ -57,32 +57,67 @@ export class CommunicationService {
             this.userDisplayName$.next(userDisplayName)
         }
 
-        chats?.forEach(chat => {
-            chat = chat as Chat | null
+        chats?.forEach(c => {
+            const chat = c as Chat | null
             if (chat != null) {
-                this.chats$.next(chat)
+                this.chats$.next({
+                    type: EventType.PUT,
+                    chat: chat,
+                    chatId: chat.id
+                })
             }
         })
 
-        contacts?.forEach(contact => {
-            contact = contact as Contact | null
+        contacts?.forEach(c => {
+            const contact = c as Contact | null
             if (contact != null) {
-                this.contacts$.next(contact)
+                this.contacts$.next({
+                    type: EventType.PUT,
+                    contact: contact,
+                    contactPhoneNumber: contact.phoneNumber
+                })
             }
         })
 
-        messages?.forEach(message => {
-            message = message as Message | null
+        messages?.forEach(m => {
+            const message = m as Message | null
             if (message != null) {
-                this.messages$.next(message)
+                this.messages$.next({
+                    type: EventType.PUT,
+                    message: message,
+                    messageId: message.id
+                })
             }
         })
     }
 
     userDisplayName$ = new ReplaySubject<string>()
     userProfileImage$ = new ReplaySubject<string>()
-    chats$ = new ReplaySubject<Chat>()
-    contacts$ = new ReplaySubject<Contact>()
-    messages$ = new ReplaySubject<Message>()
+    chats$ = new ReplaySubject<ChatEvent>()
+    contacts$ = new ReplaySubject<ContactEvent>()
+    messages$ = new ReplaySubject<MessageEvent>()
 
+}
+
+interface ChatEvent {
+    type: EventType,
+    chat: Chat | null,
+    chatId: string
+}
+
+interface ContactEvent {
+    type: EventType,
+    contact: Contact | null,
+    contactPhoneNumber: string
+}
+
+interface MessageEvent {
+    type: EventType,
+    message: Message | null,
+    messageId: string
+}
+
+export enum EventType {
+    PUT,
+    DELETE
 }

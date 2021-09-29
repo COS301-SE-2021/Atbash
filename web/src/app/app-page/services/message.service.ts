@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Message, ReadReceipt } from "../../domain/message";
 import { Chat } from "../../domain/chat";
-import { CommunicationService } from "../../services/communication.service";
+import { CommunicationService, EventType } from "../../services/communication.service";
 
 @Injectable()
 export class MessageService {
@@ -11,7 +11,32 @@ export class MessageService {
     chatMessages: Message[] = []
 
     constructor(private com: CommunicationService) {
-        com.messages$.subscribe(next => this.messageList.push(next))
+        com.messages$.subscribe(event => {
+            if (event.type == EventType.PUT) {
+                const message = event.message
+
+                if (message != null) {
+                    const messageListIndex = this.messageList.findIndex(m => m.id == message.id)
+                    if (messageListIndex == -1) {
+                        this.messageList.push(message)
+                    } else {
+                        this.messageList[messageListIndex] = message
+                    }
+
+                    if (message.chatId == this.selectedChat?.id) {
+                        const chatMessagesIndex = this.chatMessages.findIndex(m => m.id == message.id)
+                        if (chatMessagesIndex == -1) {
+                            this.chatMessages.push(message)
+                        } else {
+                            this.chatMessages[chatMessagesIndex] = message
+                        }
+                    }
+                }
+            } else if (event.type == EventType.DELETE) {
+                this.messageList = this.messageList.filter(m => m.id != event.messageId)
+                this.chatMessages = this.chatMessages.filter(m => m.id != event.messageId)
+            }
+        })
     }
 
     async enterChat(chat: Chat | null) {

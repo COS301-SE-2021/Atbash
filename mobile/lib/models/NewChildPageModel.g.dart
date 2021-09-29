@@ -33,6 +33,21 @@ mixin _$NewChildPageModel on _NewChildPageModel, Store {
     });
   }
 
+  final _$childrenAtom = Atom(name: '_NewChildPageModel.children');
+
+  @override
+  List<Child> get children {
+    _$childrenAtom.reportRead();
+    return super.children;
+  }
+
+  @override
+  set children(List<Child> value) {
+    _$childrenAtom.reportWrite(value, super.children, () {
+      super.children = value;
+    });
+  }
+
   final _$filterAtom = Atom(name: '_NewChildPageModel.filter');
 
   @override
@@ -52,6 +67,7 @@ mixin _$NewChildPageModel on _NewChildPageModel, Store {
   String toString() {
     return '''
 contacts: ${contacts},
+children: ${children},
 filter: ${filter},
 filteredContacts: ${filteredContacts}
     ''';

@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/Chat.dart';
-import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -15,6 +13,7 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
@@ -35,12 +34,12 @@ class CommunicationService {
   final MemoryStoreService memoryStoreService;
   final NotificationService notificationService;
   final MessageboxService messageboxService;
+  final PCConnectionService pcConnectionService;
 
   var communicationLock = new Lock();
 
   IOWebSocketChannel? channelNumber;
   IOWebSocketChannel? channelAnonymous;
-  String? pcRelayId;
   StreamController<MessagePayload> _messageQueue = StreamController();
 
   String? anonymousConnectionId = null;
@@ -109,6 +108,7 @@ class CommunicationService {
     this.memoryStoreService,
     this.notificationService,
     this.messageboxService,
+    this.pcConnectionService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -193,61 +193,34 @@ class CommunicationService {
   }
 
   Future<void> connectToPc(String relayId) async {
-    this.pcRelayId = relayId;
-    FirebaseFirestore.instance
-        .collection("relays")
-        .doc(relayId)
-        .collection("communication")
-        .add({
-      "origin": "phone",
-      "type": "connected",
-    });
+    final userDisplayNameFuture = userService.getDisplayName();
+    final userProfilePhotoFuture = userService.getProfileImage();
+    final contactsFuture = contactService.fetchAll();
+    final chatsFuture = chatService.fetchAll();
+    final messagesFuture = messageService.fetchAll();
 
-    FirebaseFirestore.instance
-        .collection("relays")
-        .doc(relayId)
-        .collection("communication")
-        .add({
-      "origin": "phone",
-      "type": "setup",
-      "userDisplayName": await userService.getDisplayName(),
-      "userProfilePhoto": "",
-      "contacts": jsonEncode(await contactService.fetchAll()),
-      "chats": jsonEncode(await chatService.fetchAll()),
-      "messages": jsonEncode(await messageService.fetchAll()),
-    });
-  }
+    await Future.wait([
+      userDisplayNameFuture,
+      userProfilePhotoFuture,
+      contactsFuture,
+      chatsFuture,
+      messagesFuture
+    ]);
 
-  Future<void> notifyPcPutContact(Contact contact) async {
-    final relayId = this.pcRelayId;
+    final userDisplayName = await userDisplayNameFuture;
+    final userProfilePhoto = await userProfilePhotoFuture;
+    final contacts = await contactsFuture;
+    final chats = await chatsFuture;
+    final messages = await messagesFuture;
 
-    if (relayId != null) {
-      FirebaseFirestore.instance
-          .collection("relays")
-          .doc(relayId)
-          .collection("communication")
-          .add({
-        "origin": "phone",
-        "type": "putContact",
-        "contact": jsonEncode(contact),
-      });
-    }
-  }
-
-  Future<void> notifyPcDeleteContact(String contactPhoneNumber) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      FirebaseFirestore.instance
-          .collection("relays")
-          .doc(relayId)
-          .collection("communication")
-          .add({
-        "origin": "phone",
-        "type": "deleteContact",
-        "contactPhoneNumber": contactPhoneNumber,
-      });
-    }
+    pcConnectionService.connectToPc(
+      relayId,
+      userDisplayName: userDisplayName,
+      userProfilePhoto: "",
+      contacts: contacts,
+      chats: chats,
+      messages: messages,
+    );
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

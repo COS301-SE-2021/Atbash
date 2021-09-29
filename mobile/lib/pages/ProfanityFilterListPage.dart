@@ -43,22 +43,8 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
               height: 10,
             ),
             _buildSearchBar(context),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                      flex: 1,
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: _buildBubble("Additional filters"))),
-                  Expanded(
-                      flex: 1,
-                      child: Align(
-                          alignment: Alignment.center,
-                          child: _buildBubble("Removed filters"))),
-                ],
-              ),
+            SizedBox(
+              height: 10,
             ),
             ListTile(
               title: Text("Add filter"),

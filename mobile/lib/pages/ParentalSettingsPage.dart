@@ -1,365 +1,448 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
-import 'package:mobile/dialogs/NewNumberDialog.dart';
 import 'package:mobile/dialogs/PinDialog.dart';
-import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
+import 'package:mobile/pages/NewChildPage.dart';
 import 'package:mobile/pages/ProfanityFilterListPage.dart';
 
-class ParentalSettingsPage extends StatefulWidget {
-  const ParentalSettingsPage({Key? key}) : super(key: key);
+import 'ChildBlockedContactsPage.dart';
 
+class ParentalSettingsPage extends StatefulWidget {
   @override
   _ParentalSettingsPageState createState() => _ParentalSettingsPageState();
 }
 
 class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
+  final ParentalSettingsPageController controller;
+
+  _ParentalSettingsPageState() : controller = ParentalSettingsPageController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Parental control settings"),
       ),
-      body: SafeArea(
-        child: ListView(
-          children: [
-            Container(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "General",
-                style: TextStyle(fontSize: 20),
+      body: Observer(builder: (context) {
+        return SafeArea(
+          child: ListView(
+            children: [
+              Container(
+                padding: EdgeInsets.all(15),
+                child: Text(
+                  "General",
+                  style: TextStyle(fontSize: 20),
+                ),
               ),
-            ),
-            ListTile(
-              onTap: () {
-                showNewNumberDialog(context,
-                    "Please enter the number of the phone you wish to monitor");
-              },
-              title: Text(
-                "Add child's number",
-                style: TextStyle(fontSize: 16),
-              ),
-              subtitle:
-                  Text("Add the number of the account you wish to control."),
-              leading: Icon(
-                Icons.phone_android,
-                color: Constants.orange,
-              ),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              dense: true,
-            ),
-            ListTile(
-              onTap: () {
-                showPinDialog(
-                    context, "Please enter the pin you wish to use.", null);
-              },
-              title: Text(
-                "Change pin for 'Child name'",
-                style: TextStyle(fontSize: 16),
-              ),
-              leading: Icon(
-                Icons.password,
-                color: Constants.orange,
-              ),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              dense: true,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              height: 50,
-              padding: EdgeInsets.all(10),
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3,
-                itemBuilder: (_, index) {
-                  return Container(
-                    child: _buildChildBubble("Liam Mayston"),
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NewChildPage(),
+                    ),
                   );
                 },
+                title: Text(
+                  "Add child's number",
+                  style: TextStyle(fontSize: 16),
+                ),
+                subtitle: Text("Add a child to this account."),
+                leading: Icon(
+                  Icons.phone_android,
+                  color: Constants.orange,
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                dense: true,
               ),
-            ),
-            Container(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "Child's Privacy Controls",
-                style: TextStyle(fontSize: 20),
+              if (controller.model.children.isNotEmpty)
+                ListTile(
+                  onTap: () {
+                    showPinDialog(
+                            context,
+                            "Please enter a new pin.",
+                            controller
+                                .model
+                                .children[controller.model.currentlySelected]
+                                .pin)
+                        .then((newPin) {
+                      if (newPin != null) controller.setPin(newPin);
+                    });
+                  },
+                  title: Text(
+                    "Change pin for ${controller.model.children[controller.model.currentlySelected].name}",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  leading: Icon(
+                    Icons.password,
+                    color: Constants.orange,
+                  ),
+                  trailing: Icon(Icons.arrow_forward_rounded),
+                  dense: true,
+                ),
+              SizedBox(
+                height: 15,
               ),
-            ),
-            SwitchListTile(
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Allow child to access settings",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.settings_rounded,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Choose whether you or your child controls their settings"),
-            ),
-            Divider(
-              height: 2,
-              thickness: 2,
-            ),
-            SwitchListTile(
-              key: Key("blurImages"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Hide images",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.remove_red_eye_outlined,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Hide images by default. Images can still be viewed if selected"),
-            ),
-            SwitchListTile(
-              key: Key("safeMode"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Profanity Filter",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.health_and_safety,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text("Enables text profanity filter for all chats"),
-            ),
-            SwitchListTile(
-              key: Key("sharedProfilePicture"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Don't share profile photo",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.photo,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Enable or disable whether your profile photo is visible to others"),
-            ),
-            SwitchListTile(
-              key: Key("shareStatus"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Don't share status",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.wysiwyg,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Enable or disable whether your status is visible to others"),
-            ),
-            SwitchListTile(
-              key: Key("shareBirthday"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Don't share birthday",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.cake,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Choose whether you want to share your birthday to contacts"),
-            ),
-            SwitchListTile(
-              key: Key("shareReadReceipts"),
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Don't share read receipts",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.done_all,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Choose whether others can see if you've read their messages"),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.admin_panel_settings_sharp,
-                color: Constants.orange,
-              ),
-              title: Text(
-                "Profanity Filtering List",
-                style: TextStyle(fontSize: 16),
-              ),
-              subtitle: Text("Add or remove words from the profanity filter"),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ProfanityFilterListPage()));
-              },
-              dense: true,
-            ),
-            ListTile(
-              key: Key("blockedContacts"),
-              leading: Icon(
-                Icons.block,
-                color: Constants.orange,
-              ),
-              title: Text(
-                "Blocked contacts",
-                style: TextStyle(fontSize: 16),
-              ),
-              subtitle: Text("View a list of all blocked contacts"),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => BlockedContactsPage()));
-              },
-              dense: true,
-            ),
-            Container(
-              padding: EdgeInsets.all(15),
-              child: Text(
-                "Management",
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            ListTile(
-              onTap: () {
-                showConfirmDialog(
-                    context,
-                    "Are you sure you want to lock 'child name's account? You will have to enter their "
-                    "unique pin to unlock the application.");
-              },
-              title: Text("Lock Account", style: TextStyle(fontSize: 16)),
-              subtitle: Text(
-                  "Lock the child's account so the application cannot be used without entering the pin"),
-              leading: Icon(
-                Icons.lock,
-                color: Colors.orange,
-              ),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              dense: true,
-            ),
-            ListTile(
-              title: Text("Chat Log", style: TextStyle(fontSize: 16)),
-              subtitle: Text("Access your child's chat log"),
-              leading: Icon(
-                Icons.mark_chat_read_sharp,
-                color: Colors.orange,
-              ),
-              trailing: Icon(Icons.arrow_forward_rounded),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ChatLogPage()));
-              },
-              dense: true,
-            ),
-            SwitchListTile(
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Block Private Chats",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.screen_lock_landscape,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle:
-                  Text("Choose whether your child can access private chats"),
-            ),
-            SwitchListTile(
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Block saving of media",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.hide_image,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle: Text(
-                  "Choose whether your child can save media to their phone"),
-            ),
-            SwitchListTile(
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Block editing of messages",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.edit_off,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle:
-                  Text("Choose whether your child can edit their messages"),
-            ),
-            SwitchListTile(
-              value: false,
-              onChanged: (bool newValue) {},
-              title: Text(
-                "Block deletion of messages",
-                style: TextStyle(fontSize: 16),
-              ),
-              secondary: Icon(
-                Icons.delete_forever_outlined,
-                color: Constants.orange,
-              ),
-              dense: true,
-              subtitle:
-                  Text("Choose whether your child can delete their messages"),
-            ),
-          ],
-        ),
-      ),
+              if (controller.model.children.isNotEmpty)
+                Container(
+                  height: 50,
+                  padding: EdgeInsets.all(10),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: controller.model.children.length,
+                    itemBuilder: (_, index) {
+                      return Container(
+                        child: _buildChildBubble(
+                            controller.model.children[index].name, index),
+                      );
+                    },
+                  ),
+                ),
+              if (controller.model.children.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "Child's Privacy Controls",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.editableSettings,
+                      onChanged: (bool newValue) {
+                        controller.setEditableSettings(newValue);
+                      },
+                      title: Text(
+                        "Allow child to access settings",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.settings_rounded,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether you or your child controls their settings"),
+                    ),
+                    Divider(
+                      height: 2,
+                      thickness: 2,
+                    ),
+                    SwitchListTile(
+                      value: controller.model.blurImages,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setBlurImages(newValue);
+                            },
+                      title: Text(
+                        "Hide images",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.remove_red_eye_outlined,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Hide images by default. Images can still be viewed if selected"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.safeMode,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setSafeMode(newValue);
+                            },
+                      title: Text(
+                        "Profanity Filter",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.health_and_safety,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle:
+                          Text("Enables text profanity filter for all chats"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.shareProfilePicture,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setShareProfilePicture(newValue);
+                            },
+                      title: Text(
+                        "Don't share profile photo",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.photo,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Enable or disable whether your profile photo is visible to others"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.shareStatus,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setShareStatus(newValue);
+                            },
+                      title: Text(
+                        "Don't share status",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.wysiwyg,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Enable or disable whether your status is visible to others"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.shareBirthday,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setShareBirthday(newValue);
+                            },
+                      title: Text(
+                        "Don't share birthday",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.cake,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether you want to share your birthday to contacts"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.shareReadReceipts,
+                      onChanged: controller.model.editableSettings
+                          ? null
+                          : (bool newValue) {
+                              controller.setShareReadReceipts(newValue);
+                            },
+                      title: Text(
+                        "Don't share read receipts",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.done_all,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether others can see if you've read their messages"),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.admin_panel_settings_sharp,
+                        color: Constants.orange,
+                      ),
+                      title: Text(
+                        "Profanity Filtering List",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      subtitle:
+                          Text("Add or remove words from the profanity filter"),
+                      trailing: Icon(Icons.arrow_forward_rounded),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    ProfanityFilterListPage()));
+                      },
+                      dense: true,
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.block,
+                        color: Constants.orange,
+                      ),
+                      title: Text(
+                        "Blocked contacts",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      subtitle: Text("View a list of all blocked contacts"),
+                      trailing: Icon(Icons.arrow_forward_rounded),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChildBlockedContactsPage(
+                                    child: controller.model.children[
+                                        controller.model.currentlySelected])));
+                      },
+                      dense: true,
+                    ),
+                  ],
+                ),
+              if (controller.model.children.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      child: Text(
+                        "Management",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    ListTile(
+                      onTap: () {
+                        showConfirmDialog(
+                                context,
+                                "Are you sure you want to lock 'child name's account? You will have to enter their "
+                                "unique pin to unlock the application.")
+                            .then((value) {
+                          if (value != null) controller.setLockedAccount(value);
+                        });
+                      },
+                      title: Text(
+                          "${controller.model.lockedAccount ? 'Unlock' : 'Lock'} Account",
+                          style: TextStyle(fontSize: 16)),
+                      subtitle: Text(
+                          "Lock or unlock the child's account so the application cannot be used without entering the pin"),
+                      leading: Icon(
+                        Icons.lock,
+                        color: Colors.orange,
+                      ),
+                      trailing: Icon(Icons.arrow_forward_rounded),
+                      dense: true,
+                    ),
+                    ListTile(
+                      title: Text("Chat Log", style: TextStyle(fontSize: 16)),
+                      subtitle: Text("Access your child's chat log"),
+                      leading: Icon(
+                        Icons.mark_chat_read_sharp,
+                        color: Colors.orange,
+                      ),
+                      trailing: Icon(Icons.arrow_forward_rounded),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatLogPage(
+                              child: controller.model
+                                  .children[controller.model.currentlySelected],
+                            ),
+                          ),
+                        );
+                      },
+                      dense: true,
+                    ),
+                    SwitchListTile(
+                      value: controller.model.privateChatAccess,
+                      onChanged: (bool newValue) {
+                        controller.setPrivateChatAccess(newValue);
+                      },
+                      title: Text(
+                        "Block Private Chats",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.screen_lock_landscape,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether your child can access private chats"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.blockSaveMedia,
+                      onChanged: (bool newValue) {
+                        controller.setBlockSaveMedia(newValue);
+                      },
+                      title: Text(
+                        "Block saving of media",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.hide_image,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether your child can save media to their phone"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.blockEditingMessages,
+                      onChanged: (bool newValue) {
+                        controller.setBlockEditingMessages(newValue);
+                      },
+                      title: Text(
+                        "Block editing of messages",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.edit_off,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether your child can edit their messages"),
+                    ),
+                    SwitchListTile(
+                      value: controller.model.blockDeletingMessages,
+                      onChanged: (bool newValue) {
+                        controller.setBlockDeletingMessages(newValue);
+                      },
+                      title: Text(
+                        "Block deletion of messages",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      secondary: Icon(
+                        Icons.delete_forever_outlined,
+                        color: Constants.orange,
+                      ),
+                      dense: true,
+                      subtitle: Text(
+                          "Choose whether your child can delete their messages"),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  Widget _buildChildBubble(String displayName) {
-    return Row(
-      children: [
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          padding: EdgeInsets.all(5),
-          child: Text(displayName),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: Colors.black,
-            ),
+  Widget _buildChildBubble(String displayName, int index) {
+    return InkWell(
+      onTap: () => controller.reload(index),
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 10),
+        padding: EdgeInsets.all(5),
+        child: Text(
+          displayName,
+          style: TextStyle(color: Colors.black),
+        ),
+        decoration: BoxDecoration(
+          color: index == controller.model.currentlySelected
+              ? Constants.orange.withOpacity(0.88)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.black,
           ),
         ),
-      ],
+      ),
     );
   }
 }

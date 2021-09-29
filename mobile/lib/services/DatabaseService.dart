@@ -1,5 +1,9 @@
 import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Child.dart';
+import 'package:mobile/domain/ChildBlockedNumber.dart';
+import 'package:mobile/domain/ChildChat.dart';
+import 'package:mobile/domain/ChildMessage.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
@@ -31,6 +35,10 @@ class DatabaseService {
 
   static Future<void> _dropTables(Database db) async {
     await Future.wait([
+      db.execute("drop table if exists ${Child.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildBlockedNumber.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildChat.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildMessage.TABLE_NAME};"),
       db.execute("drop table if exists ${Chat.TABLE_NAME};"),
       db.execute("drop table if exists ${Message.TABLE_NAME};"),
       db.execute("drop table if exists ${Contact.TABLE_NAME};"),
@@ -50,6 +58,10 @@ class DatabaseService {
 
   static Future<void> _createTables(Database db) async {
     await Future.wait([
+      db.execute(Child.CREATE_TABLE),
+      db.execute(ChildBlockedNumber.CREATE_TABLE),
+      db.execute(ChildChat.CREATE_TABLE),
+      db.execute(ChildMessage.CREATE_TABLE),
       db.execute(Chat.CREATE_TABLE),
       db.execute(Message.CREATE_TABLE),
       db.execute(Contact.CREATE_TABLE),

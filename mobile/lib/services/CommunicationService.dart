@@ -542,6 +542,52 @@ class CommunicationService {
           case "acceptPrivateChat":
             onAcceptPrivateChat?.call();
             break;
+
+          //Parental cases below this
+
+          case "childOTP":
+            //TODO create parent entity
+            break;
+
+          case "confirmOTP":
+            //TODO send back confirmation to parent to add me as child
+            break;
+
+          case "requestChildData":
+            //TODO send back all your settings, blockedContacts, profanityWords, chats and messages
+            break;
+
+          case "allChildData":
+            //TODO Insert all child local settings, blockedContacts, profanityWords, chats and messages
+            break;
+
+          case "pinToChild":
+            //TODO update pin in parent domain
+            break;
+
+          case "removeChild":
+            //TODO remove number as my parent
+            break;
+
+          case "allSettings":
+            //TODO: check if these were sent from parent or child and update settings accordingly
+            break;
+
+          case "childChat":
+            //TODO add chat to associated child
+            break;
+
+          case "childMessage":
+            //TODO add childs message to associated chat
+            break;
+
+          case "profanityWord":
+            //TODO check if for parent or child and add or delete the profanity word
+            break;
+
+          case "blockedChildContact":
+            //TODO check if for parent or child and add or delete blocked contact
+            break;
         }
 
         await _deleteMessageFromServer(id);
@@ -806,8 +852,8 @@ class CommunicationService {
   Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "acceptPrivateChat"});
     _queueForSending(contents, recipientPhoneNumber);
+  } //START OF NEW METHODS
 
-  }//START OF NEW METHODS
   Future<void> sendChildOTP(String recipientPhoneNumber) async {
     //TODO create OTP and check against it
     final contents = jsonEncode({"type": "childOTP", "otp": "OTP"});
@@ -825,6 +871,7 @@ class CommunicationService {
   }
 
   Future<void> sendAllChildData(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "allChildData"});
     //TODO send everything
   }
 
@@ -833,7 +880,7 @@ class CommunicationService {
     // _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendRemoveChild(String recipientPhoneNumber) async{
+  Future<void> sendRemoveChild(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "removeChild"});
     // _queueForSending(contents, recipientPhoneNumber);
   }
@@ -853,28 +900,29 @@ class CommunicationService {
       bool? blockEditingMessages,
       bool? blockDeletingMessages) async {
     //TODO ask how best to do this
-    final contents = jsonEncode({
-      "type": "settingsToChild",
-      "blurImages":
-          "${blurImages ? 1 : 0}"
-    });
+    final contents = jsonEncode(
+        {"type": "allSettings", "blurImages": "${blurImages ? 1 : 0}"});
     // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendChatToParent(String recipientPhoneNumber, Chat chat) async {
     //TODO send chat data
+    //childChat
   }
 
   Future<void> sendChildMessageToParent(String recipientPhoneNumber) async {
     //TODO send every message a child types to the parent
+    //childMessage
   }
 
   Future<void> sendNewProfanityWord(String recipientPhoneNumber) async {
     //TODO send new/deleted profanity word to child
+    //profanityWord
   }
 
   Future<void> sendBlockedContact(String recipientPhoneNumber) async {
     //TODO send new/deleted blocked contact both ways?
+    //blockedChildContact
   }
 
   //END OF NEW METHODS

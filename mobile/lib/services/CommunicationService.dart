@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -885,25 +888,55 @@ class CommunicationService {
   Future<void> sendBlockedContactToChild(String recipientPhoneNumber) async {}
 
   Future<void> sendAllSettingsToParent(
-    String recipientPhoneNumber,
+    String parentNumber,
     bool blurImages,
     bool safeMode,
     bool shareProfilePicture,
     bool shareStatus,
     bool shareReadReceipts,
     bool shareBirthday,
-  ) async {}
+  ) async {
+    final contents = {
+      "type": "allSettingsToParent",
+      "blurImages": "${blurImages ? 1 : 0}",
+      "safeMode": "${safeMode ? 1 : 0}",
+      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
+      "shareStatus": "${shareStatus ? 1 : 0}",
+      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
+      "shareBirthday": "${shareBirthday ? 1 : 0}"
+    };
+  }
 
   Future<void> sendNewProfanityWordToParent(
-      String recipientPhoneNumber) async {}
+      String parentNumber, ProfanityWord word) async {
+    final contents = jsonEncode(
+        {"type": "newProfanityWordToParent", "word": "${jsonEncode(word)}"});
+  }
 
-  Future<void> sendBlockedContactToParent(String recipientPhoneNumber) async {}
+  Future<void> sendBlockedNumberToParent(
+      String parentNumber, BlockedNumber number) async {
+    final contents = jsonEncode({
+      "type": "blockedNumberToParent",
+      "blockedNumber": "${jsonEncode(number)}"
+    });
+  }
 
-  Future<void> sendChatToParent(String recipientPhoneNumber, Chat chat) async {}
+  Future<void> sendChatToParent(String parentNumber, Chat chat) async {
+    final contents =
+        jsonEncode({"type": "chatToParent", "chat": "${jsonEncode(chat)}"});
+  }
 
-  Future<void> sendChildMessageToParent(String recipientPhoneNumber) async {}
+  Future<void> sendChildMessageToParent(
+      String parentNumber, Message message) async {
+    final contents = jsonEncode(
+        {"type": "messageToParent", "message": "${jsonEncode(message)}"});
+  }
 
-  Future<void> sendContactToParent() async {}
+  Future<void> sendContactToParent(String parentNumber, Contact contact) async {
+    //TODO check if jsonEncode works this way
+    final contents = jsonEncode(
+        {"type": "contactToParent", "contact": "${jsonEncode(contact)}"});
+  }
 
   //END OF NEW METHODS
 

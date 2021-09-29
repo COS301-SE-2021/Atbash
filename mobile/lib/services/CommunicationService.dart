@@ -578,7 +578,15 @@ class CommunicationService {
             break;
 
           case "blockedNumberToChild":
-            //TODO add given blocked number to my blockedNumbers table (This is on child phone)
+          //add given blocked number to my blockedNumbers table (This is on child phone)
+            final blockedNumber =
+                decryptedContents["blockedNumber"] as BlockedNumber;
+            final operation = decryptedContents["operation"] as String;
+            if (operation == "insert") {
+              blockedNumbersService.insert(blockedNumber);
+            } else {
+              blockedNumbersService.delete(blockedNumber.phoneNumber);
+            }
             break;
 
           case "setupChild":

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/MonitoredChatPageController.dart';
 import 'package:mobile/domain/ChildChat.dart';
@@ -29,19 +30,22 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
   Widget build(BuildContext context) {
     final otherName = controller.model.otherMemberName;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            otherName == null ? controller.model.otherMemberNumber : otherName),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Flexible(child: _buildMessages()),
-          ],
+    return Observer(builder: (context) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(otherName == null
+              ? controller.model.otherMemberNumber
+              : otherName),
         ),
-      ),
-    );
+        body: SafeArea(
+          child: Column(
+            children: [
+              Flexible(child: _buildMessages()),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildMessages() {

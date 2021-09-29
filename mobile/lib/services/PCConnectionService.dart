@@ -17,20 +17,12 @@ class PCConnectionService {
     required List<Message> messages,
   }) async {
     this.pcRelayId = relayId;
-    FirebaseFirestore.instance
-        .collection("relays")
-        .doc(relayId)
-        .collection("communication")
-        .add({
+    _collection(relayId).add({
       "origin": "phone",
       "type": "connected",
     });
 
-    FirebaseFirestore.instance
-        .collection("relays")
-        .doc(relayId)
-        .collection("communication")
-        .add({
+    _collection(relayId).add({
       "origin": "phone",
       "type": "setup",
       "userDisplayName": userDisplayName,
@@ -45,11 +37,7 @@ class PCConnectionService {
     final relayId = this.pcRelayId;
 
     if (relayId != null) {
-      FirebaseFirestore.instance
-          .collection("relays")
-          .doc(relayId)
-          .collection("communication")
-          .add({
+      _collection(relayId).add({
         "origin": "phone",
         "type": "putContact",
         "contact": jsonEncode(contact),
@@ -72,4 +60,58 @@ class PCConnectionService {
       });
     }
   }
+
+  Future<void> notifyPcPutChat(Chat chat) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      _collection(relayId).add({
+        "origin": "phone",
+        "type": "putChat",
+        "chat": jsonEncode(chat),
+      });
+    }
+  }
+
+  Future<void> notifyPcDeleteChat(String chatId) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      _collection(relayId).add({
+        "origin": "phone",
+        "type": "deleteChat",
+        "chatId": chatId,
+      });
+    }
+  }
+
+  Future<void> notifyPcPutMessage(Message message) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      _collection(relayId).add({
+        "origin": "phone",
+        "type": "putMessage",
+        "message": jsonEncode(message),
+      });
+    }
+  }
+
+  Future<void> notifyPcDeleteMessage(String messageId) async {
+    final relayId = this.pcRelayId;
+
+    if (relayId != null) {
+      _collection(relayId).add({
+        "origin": "phone",
+        "type": "deleteMessage",
+        "messageId": messageId,
+      });
+    }
+  }
+
+  CollectionReference<Map<String, dynamic>> _collection(String relayId) =>
+      FirebaseFirestore.instance
+          .collection("relays")
+          .doc(relayId)
+          .collection("communication");
 }

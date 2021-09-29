@@ -1,9 +1,12 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Tag.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 
 class MessageService {
   final DatabaseService databaseService;
+  final PCConnectionService pcConnectionService = GetIt.I.get();
 
   MessageService(this.databaseService);
 
@@ -137,6 +140,8 @@ class MessageService {
       await Future.wait([messageInsert, ...tagRelationInserts]);
     });
 
+    pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -227,6 +232,8 @@ class MessageService {
         whereArgs: [id],
       );
     });
+
+    pcConnectionService.notifyPcDeleteMessage(id);
   }
 
   Future<void> deleteAllByChatId(String chatId) async {

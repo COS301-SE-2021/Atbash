@@ -32,15 +32,6 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
       return Scaffold(
         appBar: AppBar(
           title: Text(controller.model.otherMemberName),
-          actions: [
-            Observer(builder: (context) {
-              if (controller.model.blocked) return SizedBox.shrink();
-              return IconButton(
-                  onPressed: () => controller.blockContact(
-                      chat.childPhoneNumber, chat.otherPartyNumber),
-                  icon: Icon(Icons.block));
-            })
-          ],
         ),
         body: SafeArea(
           child: Column(

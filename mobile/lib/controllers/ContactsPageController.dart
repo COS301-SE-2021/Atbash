@@ -32,6 +32,7 @@ class ContactsPageController {
   void deleteContact(String phoneNumber) {
     model.removeContact(phoneNumber);
     contactService.deleteByPhoneNumber(phoneNumber);
+    communicationService.notifyPcDeleteContact(phoneNumber);
   }
 
   Future<void> addContact(
@@ -47,6 +48,7 @@ class ContactsPageController {
       communicationService.sendRequestStatus(number);
       communicationService.sendRequestProfileImage(number);
       communicationService.sendRequestBirthday(number);
+      communicationService.notifyPcPutContact(contact);
     } else {
       showSnackBar(context, "No user with phone number $number exists");
     }

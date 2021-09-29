@@ -811,17 +811,17 @@ class CommunicationService {
   Future<void> sendChildOTP(String recipientPhoneNumber) async {
     //TODO create OTP and check against it
     final contents = jsonEncode({"type": "childOTP", "otp": "OTP"});
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendConfirmOTP(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "confirmOTP"});
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendRequestChildData(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "requestChildData"});
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendAllChildData(String recipientPhoneNumber) async {
@@ -830,12 +830,12 @@ class CommunicationService {
 
   Future<void> sendPinToChild(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "pinToChild"});
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendRemoveChild(String recipientPhoneNumber) async{
     final contents = jsonEncode({"type": "removeChild"});
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendAllSettings(
@@ -858,7 +858,7 @@ class CommunicationService {
       "blurImages":
           "${blurImages ? 1 : 0}"
     });
-    _queueForSending(contents, recipientPhoneNumber);
+    // _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendChatToParent(String recipientPhoneNumber, Chat chat) async {

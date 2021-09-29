@@ -20,7 +20,7 @@ abstract class _NewChildPageModel with Store {
   ObservableList<Contact> get filteredContacts => contacts
       .where((contact) =>
           contact.displayName.toLowerCase().contains(filter.toLowerCase()) &&
-          children.any((child) => child.phoneNumber != contact.phoneNumber))
+          !children.any((child) => child.phoneNumber == contact.phoneNumber))
       .toList()
       .asObservable();
 }

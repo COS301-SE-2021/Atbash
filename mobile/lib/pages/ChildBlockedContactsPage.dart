@@ -78,16 +78,18 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
           ),
           Observer(
             builder: (_) {
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: controller.model.filteredNumbers.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildContactItem(
-                      controller.model.filteredNumbers[index].blockedNumber,
-                      controller.model.chats[index].otherPartyName == null
-                          ? controller.model.chats[index].otherPartyNumber
-                          : controller.model.chats[index].otherPartyName);
-                },
+              return Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.model.filteredNumbers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildContactItem(
+                        controller.model.filteredNumbers[index].blockedNumber,
+                        controller.model.chats[index].otherPartyName == null
+                            ? controller.model.chats[index].otherPartyNumber
+                            : controller.model.chats[index].otherPartyName);
+                  },
+                ),
               );
             },
           )

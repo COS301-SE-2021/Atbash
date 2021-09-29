@@ -6,7 +6,6 @@ import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
-import 'package:mobx/mobx.dart';
 
 class NewChildPage extends StatefulWidget {
   const NewChildPage({Key? key}) : super(key: key);
@@ -41,7 +40,7 @@ class _NewChildPageState extends State<NewChildPage> {
             ),
             _buildSearchBar(),
             Observer(builder: (context) {
-              return Container(child: Expanded(child: _buildContacts()));
+              return Expanded(child: _buildContacts());
             }),
             Container(
               margin: EdgeInsets.symmetric(vertical: 10, horizontal: 50),

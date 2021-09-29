@@ -852,40 +852,20 @@ class CommunicationService {
   Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "acceptPrivateChat"});
     _queueForSending(contents, recipientPhoneNumber);
-  } //START OF NEW METHODS
-
-  Future<void> sendChildOTP(String recipientPhoneNumber) async {
-    //TODO create OTP and check against it
-    final contents = jsonEncode({"type": "childOTP", "otp": "OTP"});
-    // _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendConfirmOTP(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "confirmOTP"});
-    // _queueForSending(contents, recipientPhoneNumber);
-  }
+  //START OF NEW METHODS
+  //TODO:MAKE PROPER
 
-  Future<void> sendRequestChildData(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "requestChildData"});
-    // _queueForSending(contents, recipientPhoneNumber);
-  }
+  Future<void> sendAddChild(String recipientPhoneNumber) async {}
 
-  Future<void> sendAllChildData(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "allChildData"});
-    //TODO send everything
-  }
+  Future<void> sendRemoveChild(String recipientPhoneNumber) async {}
 
-  Future<void> sendPinToChild(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "pinToChild"});
-    // _queueForSending(contents, recipientPhoneNumber);
-  }
+  Future<void> sendSetupChild(String recipientPhoneNumber) async {}
 
-  Future<void> sendRemoveChild(String recipientPhoneNumber) async {
-    final contents = jsonEncode({"type": "removeChild"});
-    // _queueForSending(contents, recipientPhoneNumber);
-  }
+  Future<void> sendPin(String recipientPhoneNumber) async {}
 
-  Future<void> sendAllSettings(
+  Future<void> sendAllSettingsToChild(
       String recipientPhoneNumber,
       bool editableSettings,
       bool blurImages,
@@ -894,36 +874,36 @@ class CommunicationService {
       bool shareStatus,
       bool shareReadReceipts,
       bool shareBirthday,
-      bool? lockedAccount,
-      bool? privateChatAccess,
-      bool? blockSaveMedia,
-      bool? blockEditingMessages,
-      bool? blockDeletingMessages) async {
-    //TODO ask how best to do this
-    final contents = jsonEncode(
-        {"type": "allSettings", "blurImages": "${blurImages ? 1 : 0}"});
-    // _queueForSending(contents, recipientPhoneNumber);
-  }
+      bool lockedAccount,
+      bool privateChatAccess,
+      bool blockSaveMedia,
+      bool blockEditingMessages,
+      bool blockDeletingMessages) async {}
 
-  Future<void> sendChatToParent(String recipientPhoneNumber, Chat chat) async {
-    //TODO send chat data
-    //childChat
-  }
+  Future<void> sendNewProfanityWordToChild(String recipientPhoneNumber) async {}
 
-  Future<void> sendChildMessageToParent(String recipientPhoneNumber) async {
-    //TODO send every message a child types to the parent
-    //childMessage
-  }
+  Future<void> sendBlockedContactToChild(String recipientPhoneNumber) async {}
 
-  Future<void> sendNewProfanityWord(String recipientPhoneNumber) async {
-    //TODO send new/deleted profanity word to child
-    //profanityWord
-  }
+  Future<void> sendAllSettingsToParent(
+    String recipientPhoneNumber,
+    bool blurImages,
+    bool safeMode,
+    bool shareProfilePicture,
+    bool shareStatus,
+    bool shareReadReceipts,
+    bool shareBirthday,
+  ) async {}
 
-  Future<void> sendBlockedContact(String recipientPhoneNumber) async {
-    //TODO send new/deleted blocked contact both ways?
-    //blockedChildContact
-  }
+  Future<void> sendNewProfanityWordToParent(
+      String recipientPhoneNumber) async {}
+
+  Future<void> sendBlockedContactToParent(String recipientPhoneNumber) async {}
+
+  Future<void> sendChatToParent(String recipientPhoneNumber, Chat chat) async {}
+
+  Future<void> sendChildMessageToParent(String recipientPhoneNumber) async {}
+
+  Future<void> sendContactToParent() async {}
 
   //END OF NEW METHODS
 

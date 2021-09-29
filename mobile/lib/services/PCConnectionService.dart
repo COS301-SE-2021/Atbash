@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 
 class PCConnectionService {
   void Function(Message message)? onMessageEvent;
+  void Function(String contactPhoneNumber)? onNewChatEvent;
 
   String? pcRelayId;
 
@@ -80,6 +81,14 @@ class PCConnectionService {
     );
 
     onMessageEvent?.call(message);
+  }
+
+  void handleNewChat(Map<String, dynamic> event) {
+    final newChatEvent = event["newChat"] as Map<String, dynamic>;
+
+    final contactPhoneNumber = newChatEvent["contactPhoneNumber"] as String;
+
+    onNewChatEvent?.call(contactPhoneNumber);
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {

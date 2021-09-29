@@ -19,23 +19,28 @@ class MonitoredChatPage extends StatefulWidget {
 
 class _MonitoredChatPageState extends State<MonitoredChatPage> {
   final MonitoredChatPageController controller;
+  final ChildChat chat;
 
   _MonitoredChatPageState({required ChildChat chat})
       : controller = MonitoredChatPageController(
-            //TODO maybe change this to accept a chat entity
-            chat.childPhoneNumber,
-            chat.otherPartyNumber);
+            chat.childPhoneNumber, chat.otherPartyNumber),
+        chat = chat;
 
   @override
   Widget build(BuildContext context) {
-    final otherName = controller.model.otherMemberName;
-
     return Observer(builder: (context) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(otherName == null
-              ? controller.model.otherMemberNumber
-              : otherName),
+          title: Text(controller.model.otherMemberName),
+          actions: [
+            Observer(builder: (context) {
+              if (controller.model.blocked) return SizedBox.shrink();
+              return IconButton(
+                  onPressed: () => controller.blockContact(
+                      chat.childPhoneNumber, chat.otherPartyNumber),
+                  icon: Icon(Icons.block));
+            })
+          ],
         ),
         body: SafeArea(
           child: Column(

@@ -806,8 +806,8 @@ class CommunicationService {
   Future<void> sendAcceptPrivateChat(String recipientPhoneNumber) async {
     final contents = jsonEncode({"type": "acceptPrivateChat"});
     _queueForSending(contents, recipientPhoneNumber);
-  }
 
+  }//START OF NEW METHODS
   Future<void> sendChildOTP(String recipientPhoneNumber) async {
     //TODO create OTP and check against it
     final contents = jsonEncode({"type": "childOTP", "otp": "OTP"});
@@ -833,17 +833,14 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendEditableSettingsUpdate(
-      String recipientPhoneNumber, bool editableSettings) async {
-    final contents = jsonEncode({
-      "type": "editableSettingsUpdate",
-      "value": "${editableSettings ? 1 : 0}"
-    });
+  Future<void> sendRemoveChild(String recipientPhoneNumber) async{
+    final contents = jsonEncode({"type": "removeChild"});
     _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendAllSettings(
       String recipientPhoneNumber,
+      bool editableSettings,
       bool blurImages,
       bool safeMode,
       bool shareProfilePicture,
@@ -879,6 +876,8 @@ class CommunicationService {
   Future<void> sendBlockedContact(String recipientPhoneNumber) async {
     //TODO send new/deleted blocked contact both ways?
   }
+
+  //END OF NEW METHODS
 
   void _queueForSending(String unencryptedContents, String recipientPhoneNumber,
       {String? id}) async {

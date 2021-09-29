@@ -12,13 +12,13 @@ mixin _$ParentalSettingsPageModel on _ParentalSettingsPageModel, Store {
   final _$childrenAtom = Atom(name: '_ParentalSettingsPageModel.children');
 
   @override
-  ObservableList<Child> get children {
+  ObservableList<Tuple<Child, bool>> get children {
     _$childrenAtom.reportRead();
     return super.children;
   }
 
   @override
-  set children(ObservableList<Child> value) {
+  set children(ObservableList<Tuple<Child, bool>> value) {
     _$childrenAtom.reportWrite(value, super.children, () {
       super.children = value;
     });

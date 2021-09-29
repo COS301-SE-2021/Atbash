@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
-import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
@@ -316,23 +315,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         ),
                       ),
                       ListTile(
-                        onTap: () {
-                          showConfirmDialog(
-                                  context,
-                                  "Are you sure you want to lock 'child name's account? You will have to enter their "
-                                  "unique pin to unlock the application.")
-                              .then((value) {
-                            if (value != null) {
-                              controller.setChildChanged(true);
-                              controller.setLockedAccount(value);
-                            }
-                          });
-                        },
-                        title: Text(
-                            "${controller.model.lockedAccount ? 'Unlock' : 'Lock'} Account",
+                        onTap: () {},
+                        title: Text("Lock Account",
                             style: TextStyle(fontSize: 16)),
                         subtitle: Text(
-                            "Lock or unlock the child's account so the application cannot be used without entering the pin"),
+                            "Lock or unlock the child's account and their ability to use the application."),
                         leading: Icon(
                           Icons.lock,
                           color: Colors.orange,

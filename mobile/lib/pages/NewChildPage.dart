@@ -4,7 +4,6 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/NewChildPageController.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/Contact.dart';
-import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class NewChildPage extends StatefulWidget {
@@ -20,7 +19,6 @@ class _NewChildPageState extends State<NewChildPage> {
   _NewChildPageState() : controller = NewChildPageController();
 
   final filterTextController = TextEditingController();
-  final pinTextController = TextEditingController();
   Contact? chosenContact;
 
   @override
@@ -42,32 +40,6 @@ class _NewChildPageState extends State<NewChildPage> {
             Observer(builder: (context) {
               return Expanded(child: _buildContacts());
             }),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.black)),
-              child: Text(
-                "Please provide a 4 digit pin that will be used to control the child's account.",
-                style: TextStyle(fontSize: 16),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 10),
-              constraints: BoxConstraints(
-                  maxWidth: MediaQuery.of(context).size.width * 0.2),
-              child: TextField(
-                keyboardType: TextInputType.number,
-                maxLength: 4,
-                controller: pinTextController,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: "1234",
-                ),
-              ),
-            ),
             if (chosenContact != null)
               Container(
                 margin: EdgeInsets.symmetric(vertical: 10),
@@ -77,21 +49,14 @@ class _NewChildPageState extends State<NewChildPage> {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    if (RegExp(r"^[0-9]{4}$")
-                            .firstMatch(pinTextController.text) !=
-                        null) {
-                      final newContact = chosenContact;
-                      if (newContact != null) {
-                        final child = Child(
-                            phoneNumber: newContact.phoneNumber,
-                            name: newContact.displayName,
-                            pin: pinTextController.text);
-                        controller.addChild(child);
-                        Navigator.pop(context);
-                      }
-                      return;
-                    } else
-                      showSnackBar(context, "The pin must be exactly 4 digits");
+                    final newContact = chosenContact;
+                    if (newContact != null) {
+                      final child = Child(
+                          phoneNumber: newContact.phoneNumber,
+                          name: newContact.displayName);
+                      Navigator.pop(context);
+                    }
+                    return;
                   },
                   child: Text(
                     "Add ${chosenContact?.displayName}",

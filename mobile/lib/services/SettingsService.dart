@@ -3,10 +3,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SettingsService {
   final _storage = FlutterSecureStorage();
 
-  Future<void> setSafeModePin(String pin) async {
-    await _storage.write(key: "settings_safe_search_pin", value: pin);
-  }
-
   Future<bool> getBlurImages() async {
     final bool blurImage =
         await _storage.read(key: "settings_blur_images") == "true";

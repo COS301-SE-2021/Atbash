@@ -56,7 +56,6 @@ class ChildService {
 
   Future<void> update(String phoneNumber,
       {String? name,
-      String? pin,
       bool? editableSettings,
       bool? blurImages,
       bool? safeMode,
@@ -81,7 +80,6 @@ class ChildService {
 
       if (child != null) {
         if (name != null) child.name = name;
-        if (pin != null) child.pin = pin;
         if (editableSettings != null) child.editableSettings = editableSettings;
         if (blurImages != null) child.blurImages = blurImages;
         if (safeMode != null) child.safeMode = safeMode;

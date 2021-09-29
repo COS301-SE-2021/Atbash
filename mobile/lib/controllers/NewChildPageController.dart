@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:mobile/domain/Child.dart';
 import 'package:mobile/models/NewChildPageModel.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -23,11 +22,5 @@ class NewChildPageController {
 
   void updateQuery(String query) {
     model.filter = query;
-  }
-
-  void addChild(Child child) {
-    //TODO send pin to see if matches on both phones
-    model.children.add(child);
-    childService.insert(child);
   }
 }

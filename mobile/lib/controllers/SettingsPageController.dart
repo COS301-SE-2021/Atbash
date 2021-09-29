@@ -43,7 +43,6 @@ class SettingsPageController {
     settingsService
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
-    //TODO Set model pin
   }
 
   void reload() {
@@ -54,15 +53,12 @@ class SettingsPageController {
         .then((value) => model.userProfilePicture = value);
   }
 
-  //TODO create function to change pin
-
   void setBlurImages(bool value) {
     model.blurImages = value;
     settingsService.setBlurImages(value);
   }
 
-  void setSafeMode(bool value, String pin) {
-    //TODO Check if pin is correct
+  void setSafeMode(bool value) {
     model.safeMode = value;
     settingsService.setSafeMode(value);
   }

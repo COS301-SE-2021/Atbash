@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
-import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ParentalSettingsPage.dart';
@@ -126,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 key: Key("safeMode"),
                 value: controller.model.safeMode,
                 onChanged: (bool newValue) {
-                  controller.setSafeMode(newValue, "Pin");
+                  controller.setSafeMode(newValue);
                 },
                 title: Text(
                   "Profanity Filter",
@@ -268,9 +267,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 trailing: Icon(Icons.arrow_forward_rounded),
                 onTap: () {
-                  //TODO: Check if isChild
-                  //if(isChild)
-                  //showPinDialog(context, "Enter parent pin to access controls", null);
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => ParentalSettingsPage()),
                   );

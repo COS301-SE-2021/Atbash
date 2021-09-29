@@ -31,6 +31,36 @@ class PCConnectionService {
       "chats": jsonEncode(chats),
       "messages": jsonEncode(messages),
     });
+
+    _collection(relayId).snapshots().listen((snapshot) {
+      snapshot.docs.forEach((doc) {
+        final handled = handleEvent(doc.data());
+        if (handled) {
+          doc.reference.delete();
+        }
+      });
+    });
+  }
+
+  bool handleEvent(Map<String, dynamic> event) {
+    final origin = event["origin"] as String?;
+    final type = event["type"] as String?;
+
+    if (origin != null && type != null && origin == "web") {
+      switch (type) {
+        case "message":
+          handleMessage(event);
+          return true;
+        default:
+          return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  void handleMessage(Map<String, dynamic> event) {
+    print(event["message"]);
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {

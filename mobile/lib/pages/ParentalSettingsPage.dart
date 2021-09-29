@@ -132,7 +132,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       onChanged: controller.model.editableSettings
                           ? null
                           : (bool newValue) {
-                              controller.setEditableSettings(newValue);
+                              controller.setBlurImages(newValue);
                             },
                       title: Text(
                         "Hide images",

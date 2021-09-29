@@ -1,4 +1,3 @@
-import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildMessage.dart';
 import 'package:mobx/mobx.dart';
 
@@ -16,14 +15,6 @@ abstract class _MonitoredChatPageModel with Store {
 
   @observable
   String otherMemberNumber = "";
-
-  @observable
-  List<ChildBlockedNumber> blockedNumbers =
-      <ChildBlockedNumber>[].asObservable();
-
-  @computed
-  bool get blocked =>
-      blockedNumbers.any((number) => number.blockedNumber == otherMemberNumber);
 
   @observable
   List<ChildMessage> messages = <ChildMessage>[].asObservable();

@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/MonitoredChatPageModel.dart';
-import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildService.dart';
@@ -10,7 +9,6 @@ class MonitoredChatPageController {
   final ChildService childService = GetIt.I.get();
   final ChildChatService childChatService = GetIt.I.get();
   final ChildMessageService childMessageService = GetIt.I.get();
-  final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
 
   final MonitoredChatPageModel model = MonitoredChatPageModel();
@@ -22,11 +20,6 @@ class MonitoredChatPageController {
   void reload(String phoneNumber, String otherNumber) {
     childService.fetchByPhoneNumber(phoneNumber).then((child) {
       model.childName = child.name;
-    });
-
-    childBlockedNumberService.fetchAllByNumber(phoneNumber).then((numbers) {
-      model.blockedNumbers.clear();
-      model.blockedNumbers.addAll(numbers);
     });
 
     childChatService.fetchByNumbers(phoneNumber, otherNumber).then((chat) {

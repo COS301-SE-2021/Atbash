@@ -9,13 +9,6 @@ part of 'MonitoredChatPageModel.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
-  Computed<bool>? _$blockedComputed;
-
-  @override
-  bool get blocked => (_$blockedComputed ??= Computed<bool>(() => super.blocked,
-          name: '_MonitoredChatPageModel.blocked'))
-      .value;
-
   final _$childNameAtom = Atom(name: '_MonitoredChatPageModel.childName');
 
   @override
@@ -63,22 +56,6 @@ mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
     });
   }
 
-  final _$blockedNumbersAtom =
-      Atom(name: '_MonitoredChatPageModel.blockedNumbers');
-
-  @override
-  List<ChildBlockedNumber> get blockedNumbers {
-    _$blockedNumbersAtom.reportRead();
-    return super.blockedNumbers;
-  }
-
-  @override
-  set blockedNumbers(List<ChildBlockedNumber> value) {
-    _$blockedNumbersAtom.reportWrite(value, super.blockedNumbers, () {
-      super.blockedNumbers = value;
-    });
-  }
-
   final _$messagesAtom = Atom(name: '_MonitoredChatPageModel.messages');
 
   @override
@@ -100,9 +77,7 @@ mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
 childName: ${childName},
 otherMemberName: ${otherMemberName},
 otherMemberNumber: ${otherMemberNumber},
-blockedNumbers: ${blockedNumbers},
-messages: ${messages},
-blocked: ${blocked}
+messages: ${messages}
     ''';
   }
 }

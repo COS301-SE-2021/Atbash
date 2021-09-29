@@ -5,7 +5,6 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
-import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 import 'package:mobile/pages/ProfanityFilterListPage.dart';
@@ -53,7 +52,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       MaterialPageRoute(
                         builder: (context) => NewChildPage(),
                       ),
-                    );
+                    ).then((value) => controller.reload(0));
                   },
                   title: Text(
                     "Add child's number",
@@ -67,39 +66,26 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                   trailing: Icon(Icons.arrow_forward_rounded),
                   dense: true,
                 ),
-                if (controller.model.children.isNotEmpty)
-                  ListTile(
-                    onTap: () {
-                      showPinDialog(
-                              context,
-                              "Please enter a new pin.",
-                              controller
-                                  .model
-                                  .children[controller.model.currentlySelected].first
-                                  .pin)
-                          .then((newPin) {
-                        if (newPin != null)
-                          controller.setPin(
-                              newPin,
-                              controller
-                                  .model
-                                  .children[controller.model.currentlySelected].first
-                                  .phoneNumber);
-                      });
-                    },
-                    title: Text(
-                      "Change pin for ${controller.model.children[controller.model.currentlySelected].first.name}",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    leading: Icon(
-                      Icons.password,
-                      color: Constants.orange,
-                    ),
-                    trailing: Icon(Icons.arrow_forward_rounded),
-                    dense: true,
+                ListTile(
+                  onTap: () {
+                    showInputDialog(context,
+                            "Please enter the code shown on the parent's phone")
+                        .then((value) {
+                      // if(value != null)
+                      //   //TODO: Send all data to parent if correct code and enable parent in database.
+                    });
+                  },
+                  title: Text(
+                    "Add parent account",
+                    style: TextStyle(fontSize: 16),
                   ),
-                SizedBox(
-                  height: 15,
+                  subtitle: Text("Add a parent to control this account"),
+                  leading: Icon(
+                    Icons.phonelink,
+                    color: Constants.orange,
+                  ),
+                  trailing: Icon(Icons.arrow_forward_rounded),
+                  dense: true,
                 ),
                 if (controller.model.children.isNotEmpty)
                   Container(
@@ -111,7 +97,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       itemBuilder: (_, index) {
                         return Container(
                           child: _buildChildBubble(
-                              controller.model.children[index].first.name, index),
+                              controller.model.children[index].first.name,
+                              index),
                         );
                       },
                     ),
@@ -154,7 +141,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setBlurImages(newValue);
                               },
                         title: Text(
@@ -174,7 +161,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setSafeMode(newValue);
                               },
                         title: Text(
@@ -194,7 +181,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setShareProfilePicture(newValue);
                               },
                         title: Text(
@@ -214,7 +201,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setShareStatus(newValue);
                               },
                         title: Text(
@@ -234,7 +221,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setShareBirthday(newValue);
                               },
                         title: Text(
@@ -254,7 +241,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         onChanged: controller.model.editableSettings
                             ? null
                             : (bool newValue) {
-                          controller.setChildChanged(true);
+                                controller.setChildChanged(true);
                                 controller.setShareReadReceipts(newValue);
                               },
                         title: Text(
@@ -307,9 +294,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                               MaterialPageRoute(
                                   builder: (context) =>
                                       ChildBlockedContactsPage(
-                                          child: controller.model.children[
-                                              controller
-                                                  .model.currentlySelected].first)));
+                                          child: controller
+                                              .model
+                                              .children[controller
+                                                  .model.currentlySelected]
+                                              .first)));
                         },
                         dense: true,
                       ),
@@ -333,7 +322,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                   "Are you sure you want to lock 'child name's account? You will have to enter their "
                                   "unique pin to unlock the application.")
                               .then((value) {
-                            if (value != null){
+                            if (value != null) {
                               controller.setChildChanged(true);
                               controller.setLockedAccount(value);
                             }
@@ -364,8 +353,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ChatLogPage(
-                                child: controller.model.children[
-                                    controller.model.currentlySelected].first,
+                                child: controller
+                                    .model
+                                    .children[
+                                        controller.model.currentlySelected]
+                                    .first,
                               ),
                             ),
                           );

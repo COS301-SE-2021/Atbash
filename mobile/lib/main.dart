@@ -135,6 +135,10 @@ void _registerServices() async {
   final communicationService = CommunicationService(
     blockedNumbersService,
     profanityWordService,
+    childService,
+    childChatService,
+    childMessageService,
+    childBlockedNumberService,
     encryptionService,
     userService,
     chatService,

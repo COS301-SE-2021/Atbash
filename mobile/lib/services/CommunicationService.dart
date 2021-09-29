@@ -11,6 +11,10 @@ import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ChildBlockedNumberService.dart';
+import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
@@ -27,8 +31,12 @@ import 'package:web_socket_channel/io.dart';
 import 'package:synchronized/synchronized.dart';
 
 class CommunicationService {
-  final ProfanityWordService profanityWordService;
   final BlockedNumbersService blockedNumbersService;
+  final ProfanityWordService profanityWordService;
+  final ChildService childService;
+  final ChildChatService childChatService;
+  final ChildMessageService childMessageService;
+  final ChildBlockedNumberService childBlockedNumberService;
   final EncryptionService encryptionService;
   final UserService userService;
   final ChatService chatService;
@@ -54,10 +62,10 @@ class CommunicationService {
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
-      [];
+  [];
   List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   List<void Function(String messageID, String messageContents)>
-      _onMessageEditListeners = [];
+  _onMessageEditListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
   void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
@@ -93,31 +101,33 @@ class CommunicationService {
       _onMessageLikedListeners.remove(cb);
 
   void onMessageEdited(
-          void Function(String messageID, String messageContents) cb) =>
+      void Function(String messageID, String messageContents) cb) =>
       _onMessageEditListeners.add(cb);
 
   void disposeOnMessageEdited(
-          void Function(String messageID, String messageContents) cb) =>
+      void Function(String messageID, String messageContents) cb) =>
       _onMessageEditListeners.remove(cb);
 
-  CommunicationService(
-    this.blockedNumbersService,
-    this.profanityWordService,
-    this.encryptionService,
-    this.userService,
-    this.chatService,
-    this.contactService,
-    this.messageService,
-    this.settingsService,
-    this.mediaService,
-    this.memoryStoreService,
-    this.notificationService,
-    this.messageboxService,
-  ) {
+  CommunicationService(this.blockedNumbersService,
+      this.profanityWordService,
+      this.childService,
+      this.childChatService,
+      this.childMessageService,
+      this.childBlockedNumberService,
+      this.encryptionService,
+      this.userService,
+      this.chatService,
+      this.contactService,
+      this.messageService,
+      this.settingsService,
+      this.mediaService,
+      this.memoryStoreService,
+      this.notificationService,
+      this.messageboxService,) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
-      (payload) async {
+          (payload) async {
         await communicationLock.synchronized(() async {
           print("Acquired communication lock for message to " +
               payload.recipientPhoneNumber +
@@ -143,15 +153,15 @@ class CommunicationService {
               senderMid = messagebox.id;
             }
             final encryptedContents =
-                await encryptionService.encryptMessageContent(
-                    jsonEncode({
-                      "senderMid": senderMid,
-                      "rsaKey": (await userService.fetchRSAKeyPair())
-                          .publicKey
-                          .toString(),
-                      "messageContents": payload.contents
-                    }),
-                    payload.recipientPhoneNumber);
+            await encryptionService.encryptMessageContent(
+                jsonEncode({
+                  "senderMid": senderMid,
+                  "rsaKey": (await userService.fetchRSAKeyPair())
+                      .publicKey
+                      .toString(),
+                  "messageContents": payload.contents
+                }),
+                payload.recipientPhoneNumber);
             final senderNumberEncrypted = await encryptionService
                 .encryptNumberFor(payload.recipientPhoneNumber);
 
@@ -173,12 +183,12 @@ class CommunicationService {
                 messagebox.recipientId!);
             final senderMid = messagebox.id;
             final encryptedContents =
-                await encryptionService.encryptMessageContent(
-                    jsonEncode({
-                      "senderMid": senderMid,
-                      "messageContents": payload.contents
-                    }),
-                    payload.recipientPhoneNumber);
+            await encryptionService.encryptMessageContent(
+                jsonEncode({
+                  "senderMid": senderMid,
+                  "messageContents": payload.contents
+                }),
+                payload.recipientPhoneNumber);
             final recipientMid = messagebox.recipientId!;
 
             messagePayload = {
@@ -255,7 +265,7 @@ class CommunicationService {
     await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
         final encodedContactPhoneNumber =
-            Uri.encodeQueryComponent(contact.phoneNumber);
+        Uri.encodeQueryComponent(contact.phoneNumber);
         final uri = Uri.parse(
             Constants.httpUrl + "user/$encodedContactPhoneNumber/online");
         get(uri).then((response) {
@@ -274,7 +284,7 @@ class CommunicationService {
 
   Future<void> _getAnonymousConnectionId(String anonymousId) async {
     final uri =
-        Uri.parse(Constants.httpUrl + "connection?anonymousId=$anonymousId");
+    Uri.parse(Constants.httpUrl + "connection?anonymousId=$anonymousId");
     final response = await get(uri);
 
     if (response.statusCode == 200) {
@@ -332,7 +342,7 @@ class CommunicationService {
     await communicationLock.synchronized(() async {
       print("Acquired communication lock for handling event.");
       final Map<String, Object?> parsedEvent =
-          event is Map ? event : jsonDecode(event);
+      event is Map ? event : jsonDecode(event);
 
       print("Parsing event payload");
       final eventPayload = await getParsedEventPayload(parsedEvent);
@@ -353,18 +363,18 @@ class CommunicationService {
         print("Decrypted message: " +
             jsonDecode(eventPayload.contents).toString());
         final Map<String, Object?> decryptedContents =
-            jsonDecode(eventPayload.contents);
+        jsonDecode(eventPayload.contents);
         final type = decryptedContents["type"] as String?;
 
         switch (type) {
           case "message":
             final chatTypeStr = decryptedContents["chatType"] as String;
             final chatType =
-                ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+            ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
             final forwarded = decryptedContents["forwarded"] as bool? ?? false;
             final text = decryptedContents["text"] as String;
             final repliedMessageId =
-                decryptedContents["repliedMessageId"] as String?;
+            decryptedContents["repliedMessageId"] as String?;
 
             await _handleMessage(
               senderPhoneNumber: senderPhoneNumber,
@@ -380,14 +390,14 @@ class CommunicationService {
           case "imageMessage":
             final chatTypeStr = decryptedContents["chatType"] as String;
             final chatType =
-                ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
+            ChatType.values.firstWhere((e) => e.toString() == chatTypeStr);
             final forwarded = decryptedContents["forwarded"] as bool? ?? false;
 
             final imageId = decryptedContents["imageId"] as String;
             final secretKeyBase64 = decryptedContents["key"] as String;
 
             final image =
-                await mediaService.fetchMedia(imageId, secretKeyBase64);
+            await mediaService.fetchMedia(imageId, secretKeyBase64);
 
             if (image != null) {
               _handleMessage(
@@ -449,7 +459,7 @@ class CommunicationService {
             final secretKeyBase64 = decryptedContents["key"] as String;
 
             final image =
-                await mediaService.fetchMedia(imageId, secretKeyBase64);
+            await mediaService.fetchMedia(imageId, secretKeyBase64);
 
             if (image != null) {
               contactService.setContactProfileImage(senderPhoneNumber, image);
@@ -524,7 +534,7 @@ class CommunicationService {
             String body = "";
             try {
               final contact =
-                  await contactService.fetchByPhoneNumber(senderPhoneNumber);
+              await contactService.fetchByPhoneNumber(senderPhoneNumber);
               body = "${contact.displayName} wants to chat privately.";
             } on ContactWithPhoneNumberDoesNotExistException {
               body = "$senderPhoneNumber wants to chat privately.";
@@ -550,23 +560,23 @@ class CommunicationService {
             onAcceptPrivateChat?.call();
             break;
 
-          //Parental cases below this
+        //Parental cases below this
 
           case "addChild":
-            //TODO create parent object (This is on child Phone)
+          //TODO create parent object (This is on child Phone)
             break;
 
           case "removeChild":
-            //TODO set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
+          //TODO set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
             break;
 
           case "allSettingsToChild":
-            //TODO update all settings in flutter_secure_storage (This is on child phone)
+          //TODO update all settings in flutter_secure_storage (This is on child phone)
             break;
 
           case "newProfanityWordToChild":
-            //This adds/deletes word from profanity table
-            //TODO ask if this decrypting contents works & if need a listener for this
+          //This adds/deletes word from profanity table
+          //TODO ask if this decrypting contents works & if need a listener for this
             final profanityWord = decryptedContents["word"] as ProfanityWord;
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
@@ -580,7 +590,7 @@ class CommunicationService {
           case "blockedNumberToChild":
           //add given blocked number to my blockedNumbers table (This is on child phone)
             final blockedNumber =
-                decryptedContents["blockedNumber"] as BlockedNumber;
+            decryptedContents["blockedNumber"] as BlockedNumber;
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               blockedNumbersService.insert(blockedNumber);
@@ -590,31 +600,32 @@ class CommunicationService {
             break;
 
           case "setupChild":
-            //TODO create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
+          //TODO create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
             break;
 
           case "allSettingsToParent":
+
             //TODO update all parents settings for relative child (This is on parent phone)
             break;
 
           case "newProfanityWordToParent":
-            //TODO update associated child ProfanityTable with new word (This is on parent phone)
+          //TODO update associated child ProfanityTable with new word (This is on parent phone)
             break;
 
           case "blockedNumberToParent":
-            //TODO update associated child BlockedNumber table with new number (This is on parent phone)
+          //TODO update associated child BlockedNumber table with new number (This is on parent phone)
             break;
 
           case "chatToParent":
-            //TODO update associated child Chat table with new chat (This is on parent phone)
+          //TODO update associated child Chat table with new chat (This is on parent phone)
             break;
 
           case "messageToParent":
-            //TODO update associated child Message table with new message (This is on parent phone)
+          //TODO update associated child Message table with new message (This is on parent phone)
             break;
 
           case "contactToParent":
-            //TODO update associated child Contact table with new contact (This is on parent phone)
+          //TODO update associated child Contact table with new contact (This is on parent phone)
             break;
         }
 
@@ -698,7 +709,7 @@ class CommunicationService {
 
     try {
       final contact =
-          await contactService.fetchByPhoneNumber(senderPhoneNumber);
+      await contactService.fetchByPhoneNumber(senderPhoneNumber);
       title = contact.displayName;
     } on ContactWithPhoneNumberDoesNotExistException {}
 
@@ -741,8 +752,8 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber, id: message.id);
   }
 
-  Future<void> sendImage(
-      Message message, ChatType chatType, String recipientPhoneNumber) async {
+  Future<void> sendImage(Message message, ChatType chatType,
+      String recipientPhoneNumber) async {
     final mediaUpload = await mediaService.uploadMedia(message.contents);
 
     if (mediaUpload != null) {
@@ -767,8 +778,8 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendLiked(
-      String messageId, bool liked, String recipientPhoneNumber) async {
+  Future<void> sendLiked(String messageId, bool liked,
+      String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "like",
       "messageId": messageId,
@@ -778,8 +789,8 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendEditedMessage(
-      String messageID, String newMessage, String recipientPhoneNumber) async {
+  Future<void> sendEditedMessage(String messageID, String newMessage,
+      String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "edit",
       "messageId": messageID,
@@ -789,8 +800,8 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendOnlineStatus(
-      bool online, String recipientPhoneNumber) async {
+  Future<void> sendOnlineStatus(bool online,
+      String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "online",
       "online": online,
@@ -814,8 +825,8 @@ class CommunicationService {
     if (!shareBirthday) _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendProfileImage(
-      String profileImageBase64, String recipientPhoneNumber) async {
+  Future<void> sendProfileImage(String profileImageBase64,
+      String recipientPhoneNumber) async {
     bool shareImage = await settingsService.getShareProfilePicture();
     if (shareImage) return;
 
@@ -841,8 +852,8 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendAckSeen(
-      List<String> messageIds, String recipientPhoneNumber) async {
+  Future<void> sendAckSeen(List<String> messageIds,
+      String recipientPhoneNumber) async {
     final contents = jsonEncode({
       "type": "ackSeen",
       "messageIds": messageIds,
@@ -893,8 +904,7 @@ class CommunicationService {
     final contents = jsonEncode({"type": "removeChild"});
   }
 
-  Future<void> sendAllSettingsToChild(
-      String childNumber,
+  Future<void> sendAllSettingsToChild(String childNumber,
       bool editableSettings,
       bool blurImages,
       bool safeMode,
@@ -924,8 +934,8 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendNewProfanityWordToChild(
-      String childNumber, ProfanityWord word, String operation) async {
+  Future<void> sendNewProfanityWordToChild(String childNumber,
+      ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToChild",
       "word": "${jsonEncode(word)}",
@@ -942,8 +952,7 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendSetupChild(
-      String parentNumber,
+  Future<void> sendSetupChild(String parentNumber,
       List<Contact> contacts,
       List<ProfanityWord> words,
       List<BlockedNumber> blockedNumbers,
@@ -971,8 +980,7 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendAllSettingsToParent(
-      String parentNumber,
+  Future<void> sendAllSettingsToParent(String parentNumber,
       bool blurImages,
       bool safeMode,
       bool shareProfilePicture,
@@ -990,8 +998,8 @@ class CommunicationService {
     };
   }
 
-  Future<void> sendNewProfanityWordToParent(
-      String parentNumber, ProfanityWord word, String operation) async {
+  Future<void> sendNewProfanityWordToParent(String parentNumber,
+      ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToParent",
       "word": "${jsonEncode(word)}",
@@ -999,8 +1007,8 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendBlockedNumberToParent(
-      String parentNumber, BlockedNumber number, String operation) async {
+  Future<void> sendBlockedNumberToParent(String parentNumber,
+      BlockedNumber number, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToParent",
       "blockedNumber": "${jsonEncode(number)}",
@@ -1008,8 +1016,8 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendChatToParent(
-      String parentNumber, Chat chat, String operation) async {
+  Future<void> sendChatToParent(String parentNumber, Chat chat,
+      String operation) async {
     final contents = jsonEncode({
       "type": "chatToParent",
       "chat": "${jsonEncode(chat)}",
@@ -1017,8 +1025,8 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendChildMessageToParent(
-      String parentNumber, Message message, String operation) async {
+  Future<void> sendChildMessageToParent(String parentNumber, Message message,
+      String operation) async {
     final contents = jsonEncode({
       "type": "messageToParent",
       "message": "${jsonEncode(message)}",
@@ -1026,8 +1034,8 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendContactToParent(
-      String parentNumber, Contact contact, String operation) async {
+  Future<void> sendContactToParent(String parentNumber, Contact contact,
+      String operation) async {
     //TODO check if jsonEncode works this way
     final contents = jsonEncode({
       "type": "contactToParent",
@@ -1071,7 +1079,7 @@ class CommunicationService {
         return null;
       }
       final senderPhoneNumber =
-          await encryptionService.decryptSenderNumber(senderNumberEncrypted);
+      await encryptionService.decryptSenderNumber(senderNumberEncrypted);
       var decryptedContentsEncoded;
 
       try {
@@ -1084,7 +1092,7 @@ class CommunicationService {
       }
 
       final decryptedContents =
-          jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
       final senderMid = decryptedContents["senderMid"] as String?;
       final rsaKey = decryptedContents["rsaKey"] as String?;
       final messageContents = decryptedContents["messageContents"] as String?;
@@ -1096,10 +1104,10 @@ class CommunicationService {
 
       if (senderMid != null) {
         final messagebox =
-            await messageboxService.fetchMessageboxForNumber(senderPhoneNumber);
+        await messageboxService.fetchMessageboxForNumber(senderPhoneNumber);
         if (messagebox == null) {
           final newMid =
-              await messageboxService.createMessageBox(senderPhoneNumber);
+          await messageboxService.createMessageBox(senderPhoneNumber);
           if (newMid == null) {
             print("Failed to create message box on reception of message");
           } else {
@@ -1132,7 +1140,7 @@ class CommunicationService {
           contents: messageContents);
     } else {
       final messagebox =
-          await messageboxService.fetchMessageboxWithID(recipientMid);
+      await messageboxService.fetchMessageboxWithID(recipientMid);
       if (messagebox == null || messagebox.number == null) {
         //This shouldn't be possible
         return null;
@@ -1151,7 +1159,7 @@ class CommunicationService {
       }
 
       final decryptedContents =
-          jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
+      jsonDecode(decryptedContentsEncoded) as Map<String, Object?>;
       final senderMid = decryptedContents["senderMid"] as String?;
       final messageContents = decryptedContents["messageContents"] as String?;
 
@@ -1211,7 +1219,8 @@ class MessagePayload {
     required this.contents,
   });
 
-  Map<String, Object> get asMap => {
+  Map<String, Object> get asMap =>
+      {
         "id": id,
         "senderPhoneNumber": senderPhoneNumber,
         "recipientPhoneNumber": recipientPhoneNumber,
@@ -1232,7 +1241,8 @@ class EventPayload {
     required this.contents,
   });
 
-  Map<String, Object> get asMap => {
+  Map<String, Object> get asMap =>
+      {
         "id": id,
         "senderPhoneNumber": senderPhoneNumber,
         "timestamp": timestamp,

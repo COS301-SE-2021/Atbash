@@ -61,7 +61,13 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
               if (controller.model.children.isNotEmpty)
                 ListTile(
                   onTap: () {
-                    showPinDialog(context, "Please enter a new pin.", null)
+                    showPinDialog(
+                            context,
+                            "Please enter a new pin.",
+                            controller
+                                .model
+                                .children[controller.model.currentlySelected]
+                                .pin)
                         .then((newPin) {
                       if (newPin != null) controller.setPin(newPin);
                     });

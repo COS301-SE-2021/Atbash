@@ -31,6 +31,12 @@ export class CommunicationService {
         })
     }
 
+    userDisplayName$ = new ReplaySubject<string>()
+    userProfileImage$ = new ReplaySubject<string>()
+    chats$ = new ReplaySubject<ChatEvent>()
+    contacts$ = new ReplaySubject<ContactEvent>()
+    messages$ = new ReplaySubject<MessageEvent>()
+
     private handleEvent(event: any) {
         if (event.origin == "phone") {
             switch (event.type) {
@@ -40,13 +46,17 @@ export class CommunicationService {
                 case "setup":
                     this.handleSetup(event)
                     break
+                case "putContact":
+                    this.handlePutContact(event)
+                    break
+                case "deleteContact":
+                    this.handleDeleteContact(event)
+                    break
             }
         }
     }
 
     private handleSetup(event: any) {
-        console.log(event)
-
         const userDisplayName = event.userDisplayName as string || null
         const userProfilePhoto = event.userProfilePhoto as string || null
         const chats = JSON.parse(event.chats) as any[] || null
@@ -58,7 +68,7 @@ export class CommunicationService {
         }
 
         chats?.forEach(c => {
-            const chat = c as Chat | null
+            const chat = c as Chat || null
             if (chat != null) {
                 this.chats$.next({
                     type: EventType.PUT,
@@ -69,7 +79,7 @@ export class CommunicationService {
         })
 
         contacts?.forEach(c => {
-            const contact = c as Contact | null
+            const contact = c as Contact || null
             if (contact != null) {
                 this.contacts$.next({
                     type: EventType.PUT,
@@ -80,7 +90,7 @@ export class CommunicationService {
         })
 
         messages?.forEach(m => {
-            const message = m as Message | null
+            const message = m as Message || null
             if (message != null) {
                 this.messages$.next({
                     type: EventType.PUT,
@@ -91,12 +101,29 @@ export class CommunicationService {
         })
     }
 
-    userDisplayName$ = new ReplaySubject<string>()
-    userProfileImage$ = new ReplaySubject<string>()
-    chats$ = new ReplaySubject<ChatEvent>()
-    contacts$ = new ReplaySubject<ContactEvent>()
-    messages$ = new ReplaySubject<MessageEvent>()
+    private handlePutContact(event: any) {
+        const contact = JSON.parse(event.contact) as Contact || null
 
+        if (contact != null) {
+            this.contacts$.next({
+                type: EventType.PUT,
+                contact: contact,
+                contactPhoneNumber: contact.phoneNumber
+            })
+        }
+    }
+
+    private handleDeleteContact(event: any) {
+        const contactPhoneNumber = event.contactPhoneNumber as string || null
+
+        if (contactPhoneNumber != null) {
+            this.contacts$.next({
+                type: EventType.DELETE,
+                contact: null,
+                contactPhoneNumber: contactPhoneNumber
+            })
+        }
+    }
 }
 
 interface ChatEvent {

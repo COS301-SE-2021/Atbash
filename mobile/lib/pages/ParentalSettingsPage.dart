@@ -5,10 +5,11 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/PinDialog.dart';
-import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 import 'package:mobile/pages/ProfanityFilterListPage.dart';
+
+import 'ChildBlockedContactsPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
   @override
@@ -138,7 +139,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       onChanged: controller.model.editableSettings
                           ? null
                           : (bool newValue) {
-                              controller.setEditableSettings(newValue);
+                              controller.setBlurImages(newValue);
                             },
                       title: Text(
                         "Hide images",
@@ -283,7 +284,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => BlockedContactsPage()));
+                                builder: (context) => ChildBlockedContactsPage(
+                                    child: controller.model.children[
+                                        controller.model.currentlySelected])));
                       },
                       dense: true,
                     ),

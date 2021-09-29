@@ -37,13 +37,13 @@ class ChildBlockedNumberService {
     });
   }
 
-  Future<void> delete(ChildBlockedNumber number) async {
+  Future<void> delete(String childNumber, String numberToDelete) async {
     final db = await databaseService.database;
 
     db.delete(ChildBlockedNumber.TABLE_NAME,
         where:
             "${ChildBlockedNumber.COLUMN_CHILD_NUMBER} = ? AND ${ChildBlockedNumber.COLUMN_BLOCKED_NUMBER} = ?",
-        whereArgs: [number.childNumber, number.blockedNumber]);
+        whereArgs: [childNumber, numberToDelete]);
   }
 }
 

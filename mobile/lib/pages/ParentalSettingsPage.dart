@@ -338,10 +338,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatLogPage(
-                              phoneNumber: controller
-                                  .model
-                                  .children[controller.model.currentlySelected]
-                                  .phoneNumber,
+                              child: controller.model
+                                  .children[controller.model.currentlySelected],
                             ),
                           ),
                         );

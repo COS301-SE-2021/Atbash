@@ -1,38 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobile/controllers/ChatLogPageController.dart';
+import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/pages/MonitoredChatPage.dart';
 
 class ChatLogPage extends StatefulWidget {
-  final String phoneNumber;
+  final Child child;
 
-  const ChatLogPage({Key? key, required this.phoneNumber}) : super(key: key);
+  const ChatLogPage({Key? key, required this.child}) : super(key: key);
 
   @override
-  _ChatLogPageState createState() =>
-      _ChatLogPageState(phoneNumber: phoneNumber);
+  _ChatLogPageState createState() => _ChatLogPageState(child: child);
 }
 
 class _ChatLogPageState extends State<ChatLogPage> {
   final ChatLogPageController controller;
 
-  _ChatLogPageState({required String phoneNumber})
-      : controller = ChatLogPageController(phoneNumber);
+  _ChatLogPageState({required Child child})
+      : controller = ChatLogPageController(child.phoneNumber);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("${controller.model.childName}'s chat log"),
-      ),
-      body: SafeArea(
-        child: ListView.builder(
-            itemCount: controller.model.chats.length,
-            itemBuilder: (_, index) {
-              return _buildChatItem(controller.model.chats[index]);
-            }),
-      ),
+    return Observer(
+      builder: (context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("${controller.model.childName}'s chat log"),
+          ),
+          body: SafeArea(
+            child: ListView.builder(
+              itemCount: controller.model.chats.length,
+              itemBuilder: (_, index) {
+                return _buildChatItem(controller.model.chats[index]);
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -44,7 +50,7 @@ class _ChatLogPageState extends State<ChatLogPage> {
       child: ListTile(
         title: Text(displayName == null
             ? chat.otherPartyNumber
-            : chat.otherPartyNumber),
+            : displayName),
         onTap: () {
           Navigator.push(
             context,

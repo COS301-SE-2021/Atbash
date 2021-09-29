@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { Chat } from "../domain/chat";
 import { Message } from "../domain/message";
 import { Contact } from "../domain/contact";
-import { collection, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
+import { collection, deleteDoc, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
 import * as uuid from "uuid";
 import { SHA256 } from "crypto-js";
 import { ReplaySubject } from "rxjs";
@@ -19,6 +19,7 @@ export class CommunicationService {
     constructor(firestore: Firestore) {
         const relayDoc = doc(collection(firestore, "relays"))
         this.relayId = relayDoc.id
+        console.log(`Relay ID is ${this.relayId}`)
 
         const communicationCollection = collection(relayDoc, "communication")
         setDoc(doc(communicationCollection), { type: "connected", origin: "web" })
@@ -27,6 +28,7 @@ export class CommunicationService {
         onSnapshot(q, snapshot => {
             snapshot.forEach(document => {
                 this.handleEvent(document.data())
+                deleteDoc(document.ref)
             })
         })
     }
@@ -51,6 +53,18 @@ export class CommunicationService {
                     break
                 case "deleteContact":
                     this.handleDeleteContact(event)
+                    break
+                case "putChat":
+                    this.handlePutChat(event)
+                    break
+                case "deleteChat":
+                    this.handleDeleteChat(event)
+                    break
+                case "putMessage":
+                    this.handlePutMessage(event)
+                    break
+                case "deleteMessage":
+                    this.handleDeleteMessage(event)
                     break
             }
         }
@@ -121,6 +135,54 @@ export class CommunicationService {
                 type: EventType.DELETE,
                 contact: null,
                 contactPhoneNumber: contactPhoneNumber
+            })
+        }
+    }
+
+    private handlePutChat(event: any) {
+        const chat = JSON.parse(event.chat) as Chat || null
+
+        if (chat != null) {
+            this.chats$.next({
+                type: EventType.PUT,
+                chat: chat,
+                chatId: chat.id
+            })
+        }
+    }
+
+    private handleDeleteChat(event: any) {
+        const chatId = event.chatId as string || null
+
+        if (chatId != null) {
+            this.chats$.next({
+                type: EventType.DELETE,
+                chat: null,
+                chatId: chatId,
+            })
+        }
+    }
+
+    private handlePutMessage(event: any) {
+        const message = JSON.parse(event.message) as Message || null
+
+        if (message != null) {
+            this.messages$.next({
+                type: EventType.PUT,
+                message: message,
+                messageId: message.id
+            })
+        }
+    }
+
+    private handleDeleteMessage(event: any) {
+        const messageId = event.messageId as string || null
+
+        if (messageId != null) {
+            this.messages$.next({
+                type: EventType.DELETE,
+                message: null,
+                messageId: messageId
             })
         }
     }

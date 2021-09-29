@@ -67,6 +67,7 @@ export class MessageService {
             )
 
             this.chatMessages.push(message)
+            this.com.sendMessage(message)
         }
     }
 }

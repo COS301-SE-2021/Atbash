@@ -16,7 +16,7 @@ export class CommunicationService {
     readonly relaySymmetricKey = SHA256(uuid.v4())
     loadingState = false
 
-    constructor(firestore: Firestore) {
+    constructor(private firestore: Firestore) {
         const relayDoc = doc(collection(firestore, "relays"))
         this.relayId = relayDoc.id
         console.log(`Relay ID is ${this.relayId}`)
@@ -27,8 +27,10 @@ export class CommunicationService {
         const q = query(communicationCollection)
         onSnapshot(q, snapshot => {
             snapshot.forEach(document => {
-                this.handleEvent(document.data())
-                deleteDoc(document.ref)
+                const handled = this.handleEvent(document.data())
+                if (handled) {
+                    deleteDoc(document.ref)
+                }
             })
         })
     }
@@ -39,35 +41,51 @@ export class CommunicationService {
     contacts$ = new ReplaySubject<ContactEvent>()
     messages$ = new ReplaySubject<MessageEvent>()
 
-    private handleEvent(event: any) {
+    private handleEvent(event: any): boolean {
         if (event.origin == "phone") {
             switch (event.type) {
                 case "connected":
                     this.loadingState = true
-                    break
+                    return true
                 case "setup":
                     this.handleSetup(event)
-                    break
+                    return true
                 case "putContact":
                     this.handlePutContact(event)
-                    break
+                    return true
                 case "deleteContact":
                     this.handleDeleteContact(event)
-                    break
+                    return true
                 case "putChat":
                     this.handlePutChat(event)
-                    break
+                    return true
                 case "deleteChat":
                     this.handleDeleteChat(event)
-                    break
+                    return true
                 case "putMessage":
                     this.handlePutMessage(event)
-                    break
+                    return true
                 case "deleteMessage":
                     this.handleDeleteMessage(event)
-                    break
+                    return true
+                default:
+                    return false
             }
+        } else {
+            return false
         }
+    }
+
+    sendMessage(message: Message) {
+        setDoc(doc(this.communicationCollection), {
+            origin: "web",
+            type: "message",
+            message: JSON.stringify(message),
+        })
+    }
+
+    private get communicationCollection() {
+        return collection(this.firestore, `relays/${this.relayId}/communication`)
     }
 
     private handleSetup(event: any) {

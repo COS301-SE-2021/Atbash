@@ -1,12 +1,10 @@
 import 'package:get_it/get_it.dart';
-import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/models/MonitoredChatPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
-import 'package:uuid/uuid.dart';
 
 class MonitoredChatPageController {
   final ChildService childService = GetIt.I.get();
@@ -45,15 +43,5 @@ class MonitoredChatPageController {
         model.messages = messages;
       });
     });
-  }
-
-  void blockContact(String childNumber, String blockedNumber) {
-    final number = ChildBlockedNumber(
-        id: Uuid().v4(),
-        childNumber: childNumber,
-        blockedNumber: blockedNumber);
-    model.blockedNumbers.add(number);
-    childBlockedNumberService.insert(number);
-    communicationService.sendBlockedContact(blockedNumber);
   }
 }

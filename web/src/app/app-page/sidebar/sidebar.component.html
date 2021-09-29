@@ -1,4 +1,4 @@
-<div class="mh-100 d-flex flex-column justify-content-start">
+<div class="h-100 d-flex flex-column justify-content-start border-end">
   <app-title-bar></app-title-bar>
   <app-chat-list *ngIf="!shouldShowContactList else contactList" class="flex-grow-1 overflow-auto"></app-chat-list>
   <ng-template #contactList>

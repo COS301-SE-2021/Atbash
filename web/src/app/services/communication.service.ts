@@ -14,13 +14,15 @@ export class CommunicationService {
     readonly relayId = uuid.v4()
     readonly relaySymmetricKey = SHA256(uuid.v4())
     loadingState = false
-    readonly relayCollection: any | null
 
     constructor(firestore: Firestore) {
-        this.relayCollection = collection(firestore, this.relayId)
-        setDoc(doc(this.relayCollection), { type: "connected", origin: "web" })
+        const relayDoc = doc(collection(firestore, "relays"))
+        this.relayId = relayDoc.id
 
-        const q = query(this.relayCollection)
+        const communicationCollection = collection(relayDoc, "communication")
+        setDoc(doc(communicationCollection), { type: "connected", origin: "web" })
+
+        const q = query(communicationCollection)
         onSnapshot(q, snapshot => {
             snapshot.forEach(document => {
                 this.handleEvent(document.data())

@@ -193,15 +193,25 @@ class CommunicationService {
 
   Future<void> connectToPc(String relayId) async {
     this.pcRelayId = relayId;
-    FirebaseFirestore.instance.collection(relayId).add({
-      "origin": "phone",
-      "type": "connected",
-    });
+    FirebaseFirestore.instance
+        .collection("relays")
+        .doc(relayId)
+        .collection("communication")
+        .add(
+      {
+        "origin": "phone",
+        "type": "connected",
+      },
+    );
 
-    FirebaseFirestore.instance.collection(relayId).add({
+    FirebaseFirestore.instance
+        .collection("relays")
+        .doc(relayId)
+        .collection("communication")
+        .add({
       "origin": "phone",
       "type": "setup",
-      "userDisplayName": "",
+      "userDisplayName": await userService.getDisplayName(),
       "userProfilePhoto": "",
       "contacts": jsonEncode(await contactService.fetchAll()),
       "chats": jsonEncode(await chatService.fetchAll()),

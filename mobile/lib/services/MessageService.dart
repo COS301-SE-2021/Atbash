@@ -140,7 +140,7 @@ class MessageService {
       await Future.wait([messageInsert, ...tagRelationInserts]);
     });
 
-    pcConnectionService.notifyPcPutMessage(message);
+    await pcConnectionService.notifyPcPutMessage(message);
 
     return message;
   }
@@ -174,6 +174,8 @@ class MessageService {
       }));
     });
 
+    await pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -187,6 +189,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> setMessageDeleted(String messageId) async {
@@ -198,6 +203,8 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    await pcConnectionService.notifyPcDeleteMessage(messageId);
   }
 
   Future<void> setMessageReadReceipt(
@@ -210,6 +217,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> deleteById(String id) async {
@@ -253,6 +263,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 }
 

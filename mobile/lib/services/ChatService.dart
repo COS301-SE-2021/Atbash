@@ -99,7 +99,7 @@ class ChatService {
 
     await db.insert(Chat.TABLE_NAME, chat.toMap());
 
-    pcConnectionService.notifyPcPutChat(chat);
+    await pcConnectionService.notifyPcPutChat(chat);
     _notifyListeners();
 
     return chat;
@@ -115,6 +115,7 @@ class ChatService {
       whereArgs: [chat.id],
     );
 
+    await pcConnectionService.notifyPcPutChat(chat);
     _notifyListeners();
 
     return chat;
@@ -129,7 +130,7 @@ class ChatService {
       whereArgs: [id],
     );
 
-    pcConnectionService.notifyPcDeleteChat(id);
+    await pcConnectionService.notifyPcDeleteChat(id);
     _notifyListeners();
   }
 

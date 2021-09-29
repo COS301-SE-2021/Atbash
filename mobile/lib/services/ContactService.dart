@@ -61,7 +61,7 @@ class ContactService {
       await txn.insert(Contact.TABLE_NAME, contact.toMap());
     });
 
-    pcConnectionService.notifyPcPutContact(contact);
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
 
     return contact;
@@ -83,6 +83,7 @@ class ContactService {
           whereArgs: [contact.phoneNumber]);
     });
 
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
 
     return contact;
@@ -96,6 +97,10 @@ class ContactService {
       "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_STATUS} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
       [status, contactPhoneNumber],
     );
+
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
+    _notifyListeners();
   }
 
   Future<void> setContactProfileImage(
@@ -107,6 +112,8 @@ class ContactService {
       [profileImage, contactPhoneNumber],
     );
 
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
   }
 
@@ -117,6 +124,10 @@ class ContactService {
     await db.rawUpdate(
         "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_BIRTHDAY} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
         [birthday.millisecondsSinceEpoch, contactPhoneNumber]);
+
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
+    _notifyListeners();
   }
 
   Future<void> deleteByPhoneNumber(String phoneNumber) async {
@@ -134,7 +145,7 @@ class ContactService {
           where: "${Contact.COLUMN_PHONE_NUMBER} =?", whereArgs: [phoneNumber]);
     });
 
-    pcConnectionService.notifyPcDeleteContact(phoneNumber);
+    await pcConnectionService.notifyPcDeleteContact(phoneNumber);
     _notifyListeners();
   }
 

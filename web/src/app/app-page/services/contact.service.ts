@@ -8,6 +8,6 @@ export class ContactService {
     contactList: Contact[] = []
 
     constructor(private com: CommunicationService) {
-        com.fetchContactList().then(contacts => this.contactList = contacts)
+        com.contacts$.subscribe(next => this.contactList.push(next))
     }
 }

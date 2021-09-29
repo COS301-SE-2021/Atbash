@@ -7,17 +7,17 @@ import { CommunicationService } from "../../services/communication.service";
 export class MessageService {
 
     selectedChat: Chat | null = null
+    messageList: Message[] = []
     chatMessages: Message[] = []
 
     constructor(private com: CommunicationService) {
+        com.messages$.subscribe(next => this.messageList.push(next))
     }
 
     async enterChat(chat: Chat | null) {
         this.selectedChat = chat
         this.chatMessages = []
-        if (chat != null) {
-            this.chatMessages = await this.com.fetchMessagesForChat(chat.id)
-        }
+        this.chatMessages = this.messageList.filter(message => message.chatId == chat?.id)
     }
 
     sendMessage(contents: string) {

@@ -8,8 +8,8 @@ export class UserService {
     displayName: string = ""
 
     constructor(private com: CommunicationService) {
-        com.fetchUserDisplayName().then(displayName => this.displayName = displayName)
-        com.fetchUserProfileImage().then(profileImage => this.profileImage = profileImage)
+        com.userDisplayName$.subscribe(next => this.displayName = next)
+        com.userProfileImage$.subscribe(next => this.profileImage = next)
     }
 
 }

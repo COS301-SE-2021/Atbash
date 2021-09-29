@@ -1,10 +1,11 @@
 import { Injectable } from "@angular/core";
-import { Chat, ChatType } from "../domain/chat";
-import { Message, ReadReceipt } from "../domain/message";
+import { Chat } from "../domain/chat";
+import { Message } from "../domain/message";
 import { Contact } from "../domain/contact";
 import { collection, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
 import * as uuid from "uuid";
 import { SHA256 } from "crypto-js";
+import { ReplaySubject } from "rxjs";
 
 @Injectable({
     providedIn: "root"
@@ -31,105 +32,57 @@ export class CommunicationService {
     }
 
     private handleEvent(event: any) {
-        if (event.origin == "phone" && event.type == "connected") {
-            this.loadingState = true
+        if (event.origin == "phone") {
+            switch (event.type) {
+                case "connected":
+                    this.loadingState = true
+                    break
+                case "setup":
+                    this.handleSetup(event)
+                    break
+            }
         }
     }
 
-    async fetchUserDisplayName(): Promise<string> {
-        return "Dylan Pfab"
-    }
+    private handleSetup(event: any) {
+        console.log(event)
 
-    async fetchUserProfileImage(): Promise<string> {
-        return "https://static01.nyt.com/images/2021/09/14/science/07CAT-STRIPES/07CAT-STRIPES-mediumSquareAt3X-v2.jpg"
-    }
+        const userDisplayName = event.userDisplayName as string || null
+        const userProfilePhoto = event.userProfilePhoto as string || null
+        const chats = JSON.parse(event.chats) as any[] || null
+        const contacts = JSON.parse(event.contacts) as any[] || null
+        const messages = JSON.parse(event.messages) as any[] || null
 
-    async fetchChatList(): Promise<Chat[]> {
-        const array: Chat[] = []
-        for (let i = 0; i < 20; i++) {
-            array.push(CommunicationService.randomChat())
+        if (userDisplayName != null) {
+            this.userDisplayName$.next(userDisplayName)
         }
-        return array
+
+        chats?.forEach(chat => {
+            chat = chat as Chat | null
+            if (chat != null) {
+                this.chats$.next(chat)
+            }
+        })
+
+        contacts?.forEach(contact => {
+            contact = contact as Contact | null
+            if (contact != null) {
+                this.contacts$.next(contact)
+            }
+        })
+
+        messages?.forEach(message => {
+            message = message as Message | null
+            if (message != null) {
+                this.messages$.next(message)
+            }
+        })
     }
 
-    async fetchContactList(): Promise<Contact[]> {
-        const array: Contact[] = []
-        for (let i = 0; i < 20; i++) {
-            array.push(CommunicationService.randomContact())
-        }
-        return array
-    }
+    userDisplayName$ = new ReplaySubject<string>()
+    userProfileImage$ = new ReplaySubject<string>()
+    chats$ = new ReplaySubject<Chat>()
+    contacts$ = new ReplaySubject<Contact>()
+    messages$ = new ReplaySubject<Message>()
 
-    async fetchMessagesForChat(chatId: string): Promise<Message[]> {
-        const array: Message[] = []
-        for (let i = 0; i < 20; i++) {
-            array.push(CommunicationService.randomMessage())
-        }
-        return array
-    }
-
-    private static randomMessage(): Message {
-        const incoming = Math.random() > 0.5
-        const contents = [
-            "Hello",
-            "Hey there",
-            "How are you?",
-            "Why are you ignoring me?",
-            "How is it going?",
-            "Whats up",
-            "Hey I know you don't like long messages and all, but I am going to send you one anyway"
-        ][Math.floor(Math.random() * 7)];
-        const forwarded = Math.random() > 0.5
-        const readReceipt = [ReadReceipt.undelivered, ReadReceipt.delivered, ReadReceipt.seen][Math.floor(Math.random() * 3)]
-        const liked = Math.random() > 0.5
-
-        return new Message(
-            "",
-            "",
-            incoming,
-            "",
-            contents,
-            new Date(),
-            false,
-            forwarded,
-            readReceipt,
-            null,
-            false,
-            liked,
-            false
-        )
-    }
-
-    private static randomContact(): Contact {
-        const phoneNumber = this.randomString("0123456789", 10)
-        const displayName = this.randomString("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 12)
-
-        return new Contact(
-            phoneNumber,
-            displayName,
-            "",
-            "",
-            null
-        )
-    }
-
-    private static randomChat(): Chat {
-        const contact = this.randomContact()
-
-        return new Chat(
-            "",
-            contact.phoneNumber,
-            contact,
-            ChatType.general,
-            this.randomMessage()
-        )
-    }
-
-    private static randomString(characterPool: string, length: number): string {
-        let result = ""
-        for (let i = 0; i < length; i++) {
-            result += characterPool.charAt(Math.floor(Math.random() * characterPool.length))
-        }
-        return result
-    }
 }

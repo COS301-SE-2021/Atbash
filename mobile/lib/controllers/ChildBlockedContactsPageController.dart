@@ -38,6 +38,7 @@ class ChildBlockedContactsPageController {
     await childBlockedNumberService.delete(childNumber, numberToDelete);
     model.blockedNumbers
         .removeWhere((element) => element.blockedNumber == numberToDelete);
+    //TODO unblock on childs phone
   }
 
   void updateQuery(String query) {

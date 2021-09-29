@@ -15,6 +15,10 @@ class NewChildPageController {
       model.contacts.clear();
       model.contacts.addAll(contacts);
     });
+    childService.fetchAll().then((children) async {
+      model.children.clear();
+      model.children.addAll(children);
+    });
   }
 
   void updateQuery(String query) {
@@ -23,6 +27,7 @@ class NewChildPageController {
 
   void addChild(Child child) {
     //TODO send pin to see if matches on both phones
+    model.children.add(child);
     childService.insert(child);
   }
 }

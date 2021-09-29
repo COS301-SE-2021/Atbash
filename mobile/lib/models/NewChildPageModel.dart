@@ -1,3 +1,4 @@
+import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobx/mobx.dart';
 
@@ -10,12 +11,16 @@ abstract class _NewChildPageModel with Store {
   List<Contact> contacts = <Contact>[].asObservable();
 
   @observable
+  List<Child> children = <Child>[].asObservable();
+
+  @observable
   String filter = "";
 
   @computed
   ObservableList<Contact> get filteredContacts => contacts
-      .where((element) =>
-          element.displayName.toLowerCase().contains(filter.toLowerCase()))
+      .where((contact) =>
+          contact.displayName.toLowerCase().contains(filter.toLowerCase()) &&
+          children.any((child) => child.phoneNumber != contact.phoneNumber))
       .toList()
       .asObservable();
 }

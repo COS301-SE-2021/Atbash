@@ -45,6 +45,13 @@ class ProfanityWordService {
     return profanityWord;
   }
 
+  Future<void> deleteByWord(String word) async{
+    final db = await databaseService.database;
+
+    db.delete(ProfanityWord.TABLE_NAME,
+        where: "${ProfanityWord.COLUMN_PROFANITY_ORIGINAL_WORD} =?", whereArgs: [word]);
+  }
+
   Future<void> deleteByID(String id) async {
     final db = await databaseService.database;
 

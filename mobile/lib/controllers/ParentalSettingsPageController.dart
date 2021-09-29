@@ -15,7 +15,6 @@ class ParentalSettingsPageController {
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
   ParentalSettingsPageController() {
-    //TODO remove already added contacts as children from list (Cross reference lists)
     childService.fetchAll().then((elements) {
       model.children.clear();
       model.children.addAll(elements);
@@ -44,6 +43,7 @@ class ParentalSettingsPageController {
   }
 
   void removeChild(Child child) async {
+    communicationService.sendEditableSettingsUpdate(child.phoneNumber, false);
     //TODO free up settings of child associated
     model.children.remove(child);
     final chats =

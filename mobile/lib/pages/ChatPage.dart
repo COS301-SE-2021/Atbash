@@ -205,7 +205,7 @@ class _ChatPageState extends State<ChatPage> {
         }),
         Observer(builder: (_) {
           if (controller.model.chatType != ChatType.private &&
-              controller.model.privateChatAccess)
+              !controller.model.privateChatAccess)
             return IconButton(
               onPressed: () {
                 controller.startPrivateChat(context);

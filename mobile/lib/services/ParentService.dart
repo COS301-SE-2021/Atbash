@@ -42,7 +42,7 @@ class ParentService {
     final db = await databaseService.database;
 
     final result = await db.query(Parent.TABLE_NAME,
-        where: "${Parent.COLUMN_ENABLED} = ?", whereArgs: [true]);
+        where: "${Parent.COLUMN_ENABLED} = ?", whereArgs: [1]);
 
     if (result.isNotEmpty) {
       final parent = Parent.fromMap(result.first);

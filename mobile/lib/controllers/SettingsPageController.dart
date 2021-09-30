@@ -4,6 +4,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/SettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
@@ -17,6 +18,7 @@ class SettingsPageController {
   final UserService userService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final SettingsPageModel model = SettingsPageModel();
 
@@ -104,6 +106,13 @@ class SettingsPageController {
     await contactService.insert(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
+  }
+
+  void sentUpdatedSettingsToParent() async{
+    final parent = await parentService.fetchByEnabled(true).catchError((_) {
+
+    });
+    communicationService.sendAllSettingsToParent(parent.phoneNumber, model.blurImages, model.safeMode, model.sharedProfilePicture, model.shareStatus, model.shareReadReceipts, model.shareBirthday);
   }
 
   Future<void> importContacts() async {

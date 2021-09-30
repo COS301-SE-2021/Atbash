@@ -694,60 +694,60 @@ class CommunicationService {
                     decryptedContents["shareReadReceipts"] as bool,
                 shareBirthday: decryptedContents["shareBirthday"] as bool));
 
-            final contactList = decryptedContents["contacts"] as List;
-            contactList.forEach((contact) {
-              final map = contact as Map<String, dynamic>;
-              childContactService.insert(ChildContact(
-                  phoneNumber: map["phoneNumber"],
-                  name: map["displayName"],
-                  status: map["status"],
-                  profileImage: map["profileImage"]));
-            });
-
-            final wordList = decryptedContents["words"] as List;
-            wordList.forEach((word) {
-              final map = word as Map<String, dynamic>;
-              childProfanityWordService.insert(ChildProfanityWord(
-                  phoneNumber: senderPhoneNumber,
-                  profanityWordRegex: map["profanityWordRegex"],
-                  profanityID: map["profanityID"],
-                  profanityOriginalWord: map["profanityOriginalWord"]));
-            });
-
-            final blockedNumbersList =
-                decryptedContents["blockedNumbers"] as List;
-            blockedNumbersList.forEach((number) {
-              final map = number as Map<String, dynamic>;
-              childBlockedNumberService.insert(ChildBlockedNumber(
-                  id: Uuid().v4(),
-                  childNumber: senderPhoneNumber,
-                  blockedNumber: map["phoneNumber"]));
-            });
-
-            final chatList = decryptedContents["chats"] as List;
-            chatList.forEach((chat) {
-              final map = chat as Map<String, dynamic>;
-              childChatService.insert(ChildChat(
-                  id: map["id"],
-                  childPhoneNumber: senderPhoneNumber,
-                  otherPartyNumber: map["contactPhoneNumber"]));
-            });
-
-            final messageList = decryptedContents["messages"] as List;
-            messageList.forEach((message) async {
-              final map = message as Map<String, dynamic>;
-              final chat = await childChatService.fetchByNumbers(
-                  senderPhoneNumber, map["otherPartyPhoneNumber"]);
-              final id = chat.id;
-              childMessageService.insert(ChildMessage(
-                  id: map["id"],
-                  chatId: id,
-                  isIncoming: map["isIncoming"],
-                  otherPartyNumber: map["otherPartyPhoneNumber"],
-                  contents: map["contents"],
-                  timestamp:
-                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
-            });
+            // final contactList = decryptedContents["contacts"] as List;
+            // contactList.forEach((contact) {
+            //   final map = contact as Map<String, dynamic>;
+            //   childContactService.insert(ChildContact(
+            //       phoneNumber: map["phoneNumber"],
+            //       name: map["displayName"],
+            //       status: map["status"],
+            //       profileImage: map["profileImage"]));
+            // });
+            //
+            // final wordList = decryptedContents["words"] as List;
+            // wordList.forEach((word) {
+            //   final map = word as Map<String, dynamic>;
+            //   childProfanityWordService.insert(ChildProfanityWord(
+            //       phoneNumber: senderPhoneNumber,
+            //       profanityWordRegex: map["profanityWordRegex"],
+            //       profanityID: map["profanityID"],
+            //       profanityOriginalWord: map["profanityOriginalWord"]));
+            // });
+            //
+            // final blockedNumbersList =
+            //     decryptedContents["blockedNumbers"] as List;
+            // blockedNumbersList.forEach((number) {
+            //   final map = number as Map<String, dynamic>;
+            //   childBlockedNumberService.insert(ChildBlockedNumber(
+            //       id: Uuid().v4(),
+            //       childNumber: senderPhoneNumber,
+            //       blockedNumber: map["phoneNumber"]));
+            // });
+            //
+            // final chatList = decryptedContents["chats"] as List;
+            // chatList.forEach((chat) {
+            //   final map = chat as Map<String, dynamic>;
+            //   childChatService.insert(ChildChat(
+            //       id: map["id"],
+            //       childPhoneNumber: senderPhoneNumber,
+            //       otherPartyNumber: map["contactPhoneNumber"]));
+            // });
+            //
+            // final messageList = decryptedContents["messages"] as List;
+            // messageList.forEach((message) async {
+            //   final map = message as Map<String, dynamic>;
+            //   final chat = await childChatService.fetchByNumbers(
+            //       senderPhoneNumber, map["otherPartyPhoneNumber"]);
+            //   final id = chat.id;
+            //   childMessageService.insert(ChildMessage(
+            //       id: map["id"],
+            //       chatId: id,
+            //       isIncoming: map["isIncoming"],
+            //       otherPartyNumber: map["otherPartyPhoneNumber"],
+            //       contents: map["contents"],
+            //       timestamp:
+            //           DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+            // });
             //TODO dont allow child to block parent lmao
             break;
 
@@ -1185,33 +1185,14 @@ class CommunicationService {
   }
 
   Future<void> sendSetupChild(String parentNumber) async {
-    print("BITCH");
-    final List<Contact> contacts = await contactService.fetchAll();
-    contacts.forEach((element) {
-      element.profileImage = "";
-    });
-    final List<ProfanityWord> words = await profanityWordService.fetchAll();
-    final List<BlockedNumber> blockedNumbers =
-        await blockedNumbersService.fetchAll();
-    final List<Chat> chats = await chatService.fetchAll();
-    chats.forEach((element) {
-      element.contact?.profileImage = "";
-    });
-    final List<Message> messages = await messageService.fetchAll();
     final blurImages = await settingsService.getBlurImages();
     final safeMode = await settingsService.getSafeMode();
     final shareProfilePicture = await settingsService.getShareProfilePicture();
     final shareStatus = await settingsService.getShareStatus();
     final shareReadReceipts = await settingsService.getShareReadReceipts();
     final shareBirthday = await settingsService.getShareBirthday();
-    print(jsonEncode(contacts));
     final contents = jsonEncode({
       "type": "setupChild",
-      "contacts": contacts,
-      "words": words,
-      "blockedNumbers": blockedNumbers,
-      "chats": chats,
-      "messages": messages,
       "blurImages": blurImages,
       "safeMode": safeMode,
       "shareProfilePicture": shareProfilePicture,
@@ -1220,6 +1201,28 @@ class CommunicationService {
       "shareBirthday": shareBirthday
     });
     _queueForSending(contents, parentNumber);
+
+    final List<Contact> contacts = await contactService.fetchAll();
+    contacts.forEach((contact) {
+      sendContactToParent(parentNumber, contact, "insert");
+    });
+    final List<ProfanityWord> words = await profanityWordService.fetchAll();
+    words.forEach((word) {
+      sendNewProfanityWordToParent(parentNumber, word, "insert");
+    });
+    final List<BlockedNumber> blockedNumbers =
+        await blockedNumbersService.fetchAll();
+    blockedNumbers.forEach((number) {
+      sendBlockedNumberToParent(parentNumber, number, "insert");
+    });
+    final List<Chat> chats = await chatService.fetchAll();
+    chats.forEach((chat) {
+      sendChatToParent(parentNumber, chat, "insert");
+    });
+    final List<Message> messages = await messageService.fetchAll();
+    messages.forEach((message) {
+      sendChildMessageToParent(parentNumber, message);
+    });
   }
 
   Future<void> sendAllSettingsToParent(

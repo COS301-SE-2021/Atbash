@@ -21,7 +21,7 @@ class ProfanityWordService {
     return profanityWords;
   }
 
-  Future<ProfanityWord> addWord(String baseWord) async {
+  Future<ProfanityWord> addWord(String baseWord, {bool addedByParent = false}) async {
     final db = await databaseService.database;
 
     //logic for profanity variations
@@ -38,7 +38,8 @@ class ProfanityWordService {
     final profanityWord = ProfanityWord(
         profanityWordRegex: newWord,
         profanityID: Uuid().v4(),
-        profanityOriginalWord: baseWord);
+        profanityOriginalWord: baseWord,
+        addedByParent: addedByParent);
 
     await db.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
 

@@ -661,6 +661,10 @@ class CommunicationService {
             break;
 
           case "setupChild":
+            final contactList = decryptedContents["contacts"] as List;
+            contactList.forEach((contact) {
+              final map = contact as Map<String, dynamic>;
+            });
             //TODO create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
             break;
 

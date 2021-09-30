@@ -63,11 +63,24 @@ class ParentService {
           whereArgs: [parent.phoneNumber]);
 
       if (parentAlreadyExists.isNotEmpty) {
-        updateEnabledByCode(parent.code, false);
-      }else{
+        updateCode(parent.code, parent.phoneNumber);
+      } else {
         txn.insert(Parent.TABLE_NAME, parent.toMap());
       }
     });
+  }
+
+  Future<void> updateCode(String code, String phoneNumber) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(Parent.TABLE_NAME,
+        where: "${Parent.COLUMN_PHONE_NUMBER} = ?", whereArgs: [phoneNumber]);
+
+    if (response.isNotEmpty) {
+      db.rawQuery(
+          "UPDATE ${Parent.TABLE_NAME} where ${Parent.COLUMN_PHONE_NUMBER} = ? SET ${Parent.COLUMN_CODE} = ?",
+          [phoneNumber, code]);
+    }
   }
 
   Future<void> updateEnabledByCode(String code, bool enabled) async {

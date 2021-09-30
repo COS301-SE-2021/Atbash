@@ -1125,6 +1125,7 @@ class CommunicationService {
       String childNumber, String name, String code) async {
     final contents =
         jsonEncode({"type": "addChild", "name": name, "code": code});
+    print(childNumber);
     _queueForSending(contents, childNumber);
   }
 

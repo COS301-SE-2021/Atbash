@@ -58,11 +58,11 @@ class _NewChildPageState extends State<NewChildPage> {
                         code += "${Random().nextInt(10)}";
                       }
                       print("$code");
+                      controller.addChild(newContact.phoneNumber,
+                          newContact.displayName, "$code");
                       showConfirmDialog(context,
                               "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code")
                           .then((_) {
-                        controller.addChild(newContact.phoneNumber,
-                            newContact.displayName, "$code");
                         Navigator.pop(context);
                       });
                     }

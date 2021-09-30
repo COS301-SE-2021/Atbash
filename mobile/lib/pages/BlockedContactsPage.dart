@@ -111,30 +111,32 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 15),
             padding: EdgeInsets.all(5),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    contactName,
-                    textAlign: TextAlign.left,
-                  ),
-                ),
-                if (!blockedNumber.addedByParent)
-                  IconButton(
-                    onPressed: () => showConfirmDialog(context,
-                            "Are you sure you want to remove $contactName from your blocked contacts?")
-                        .then((value) {
-                      if (value != null && value)
-                        _removeBlockedContact(blockedNumber.phoneNumber);
-                    }),
-                    icon: Icon(
-                      Icons.cancel,
-                      key: Key('BlockedContactsPage_remove_$blockedNumber'),
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Text(
+                      contactName,
+                      textAlign: TextAlign.left,
                     ),
-                    splashRadius: 24,
-                  )
-              ],
+                  ),
+                  if (!blockedNumber.addedByParent)
+                    IconButton(
+                      onPressed: () => showConfirmDialog(context,
+                              "Are you sure you want to remove $contactName from your blocked contacts?")
+                          .then((value) {
+                        if (value != null && value)
+                          _removeBlockedContact(blockedNumber.phoneNumber);
+                      }),
+                      icon: Icon(
+                        Icons.cancel,
+                        key: Key('BlockedContactsPage_remove_$blockedNumber'),
+                      ),
+                      splashRadius: 24,
+                    )
+                ],
+              ),
             ),
           ),
           Divider(

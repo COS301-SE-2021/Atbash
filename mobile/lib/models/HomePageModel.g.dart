@@ -77,6 +77,21 @@ mixin _$HomePageModel on _HomePageModel, Store {
     });
   }
 
+  final _$blockSaveMediaAtom = Atom(name: '_HomePageModel.blockSaveMedia');
+
+  @override
+  bool get blockSaveMedia {
+    _$blockSaveMediaAtom.reportRead();
+    return super.blockSaveMedia;
+  }
+
+  @override
+  set blockSaveMedia(bool value) {
+    _$blockSaveMediaAtom.reportWrite(value, super.blockSaveMedia, () {
+      super.blockSaveMedia = value;
+    });
+  }
+
   final _$chatsAtom = Atom(name: '_HomePageModel.chats');
 
   @override
@@ -150,6 +165,7 @@ userDisplayName: ${userDisplayName},
 userStatus: ${userStatus},
 userProfileImage: ${userProfileImage},
 profanityFilter: ${profanityFilter},
+blockSaveMedia: ${blockSaveMedia},
 chats: ${chats},
 profanityWords: ${profanityWords},
 orderedChats: ${orderedChats}

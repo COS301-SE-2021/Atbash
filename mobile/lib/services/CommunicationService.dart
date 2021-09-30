@@ -605,8 +605,8 @@ class CommunicationService {
                 .toList()
                 .forEach((element) =>
                     profanityWordService.deleteByID(element.profanityID));
-            parentService.deleteByNumber(senderPhoneNumber);
 
+            parentService.deleteByNumber(senderPhoneNumber);
             settingsService.setEditableSettings(true);
             settingsService.setLockedAccount(false);
             settingsService.setPrivateChatAccess(true);

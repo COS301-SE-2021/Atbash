@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
-import 'package:uuid/uuid.dart';
 
 class PCConnectionService {
   void Function(Message message)? onMessageEvent;
@@ -55,6 +54,9 @@ class PCConnectionService {
         case "message":
           handleMessage(event);
           return true;
+        case "newChat":
+          handleNewChat(event);
+          return true;
         default:
           return false;
       }
@@ -64,15 +66,16 @@ class PCConnectionService {
   }
 
   void handleMessage(Map<String, dynamic> event) {
-    final messageEvent = event["message"] as Map<String, dynamic>;
+    final messageEvent = jsonDecode(event["message"]) as Map<String, dynamic>;
 
+    final id = messageEvent["id"] as String;
     final chatId = messageEvent["chatId"] as String;
     final recipientPhoneNumber = messageEvent["recipientPhoneNumber"] as String;
     final contents = messageEvent["contents"] as String;
     final timestamp = messageEvent["timestamp"] as int;
 
     final message = Message(
-      id: Uuid().v4(),
+      id: id,
       chatId: chatId,
       isIncoming: false,
       otherPartyPhoneNumber: recipientPhoneNumber,
@@ -84,9 +87,7 @@ class PCConnectionService {
   }
 
   void handleNewChat(Map<String, dynamic> event) {
-    final newChatEvent = event["newChat"] as Map<String, dynamic>;
-
-    final contactPhoneNumber = newChatEvent["contactPhoneNumber"] as String;
+    final contactPhoneNumber = event["contactPhoneNumber"] as String;
 
     onNewChatEvent?.call(contactPhoneNumber);
   }

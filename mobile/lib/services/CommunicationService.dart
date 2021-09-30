@@ -1209,6 +1209,7 @@ class CommunicationService {
       "shareReadReceipts": shareReadReceipts,
       "shareBirthday": shareBirthday
     });
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendAllSettingsToParent(

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Message, ReadReceipt } from "../../domain/message";
 import { Chat } from "../../domain/chat";
 import { CommunicationService, IncomingEventType } from "../../services/communication.service";
+import * as uuid from "uuid";
 
 @Injectable()
 export class MessageService {
@@ -51,7 +52,7 @@ export class MessageService {
 
         if (chatId != null && recipientPhoneNumber != null) {
             const message = new Message(
-                "123",
+                uuid.v4(),
                 chatId,
                 false,
                 recipientPhoneNumber,

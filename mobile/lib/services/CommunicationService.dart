@@ -575,7 +575,19 @@ class CommunicationService {
             break;
 
           case "allSettingsToChild":
-            //TODO update all settings in flutter_secure_storage (This is on child phone)
+          //update all settings in flutter_secure_storage (This is on child phone)
+            settingsService.setEditableSettings(decryptedContents["editableSettings"] as bool);
+            settingsService.setBlurImages(decryptedContents["blurImages"] as bool);
+            settingsService.setSafeMode(decryptedContents["safeMode"] as bool);
+            settingsService.setShareProfilePicture(decryptedContents["shareProfilePicture"] as bool);
+            settingsService.setShareStatus(decryptedContents["shareStatus"] as bool);
+            settingsService.setShareReadReceipts(decryptedContents["shareReadReceipts"] as bool);
+            settingsService.setShareBirthday(decryptedContents["shareBirthday"] as bool);
+            settingsService.setLockedAccount(decryptedContents["lockedAccount"] as bool);
+            settingsService.setPrivateChatAccess(decryptedContents["privateChatAccess"] as bool);
+            settingsService.setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
+            settingsService.setBlockEditingMessages(decryptedContents["blockEditingMessages"] as bool);
+            settingsService.setBlockDeletingMessages(decryptedContents["blockDeletingMessages"] as bool);
             break;
 
           case "newProfanityWordToChild":

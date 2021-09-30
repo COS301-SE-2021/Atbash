@@ -47,6 +47,7 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
   Widget _buildMessages() {
     return ListView.builder(
         itemCount: controller.model.messages.length,
+        reverse: true,
         itemBuilder: (_, index) {
           return Column(
             children: [
@@ -71,7 +72,9 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Constants.orange.withOpacity(0.88),
+              color: message.isIncoming
+                  ? Constants.darkGrey.withOpacity(0.88)
+                  : Constants.orange.withOpacity(0.88),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

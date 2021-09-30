@@ -29,15 +29,23 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(controller.model.otherMemberName),
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Flexible(child: _buildMessages()),
-            ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(controller.model.otherMemberName),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Flexible(child: _buildMessages()),
+              ],
+            ),
           ),
         ),
       );

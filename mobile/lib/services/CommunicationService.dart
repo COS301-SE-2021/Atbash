@@ -806,7 +806,7 @@ class CommunicationService {
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               final childChat = ChildChat(
-                  id: Uuid().v4(),
+                  id: chat.id,
                   childPhoneNumber: senderPhoneNumber,
                   otherPartyNumber: chat.contactPhoneNumber,
                   otherPartyName: chat.contact?.displayName ?? null);
@@ -832,7 +832,7 @@ class CommunicationService {
                 senderPhoneNumber, message.otherPartyPhoneNumber);
             final id = chat.id;
             final childMessage = ChildMessage(
-                id: Uuid().v4(),
+                id: message.id,
                 chatId: id,
                 isIncoming: message.isIncoming,
                 otherPartyNumber: message.otherPartyPhoneNumber,

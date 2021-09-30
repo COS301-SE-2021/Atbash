@@ -75,6 +75,7 @@ class _ChatLogPageState extends State<ChatLogPage> {
           color: Colors.red,
           icon: Icons.block,
           onTap: () {
+            controller.blockNumber(chat.otherPartyNumber);
             //TODO: block contact on child's phone.
           },
         ),

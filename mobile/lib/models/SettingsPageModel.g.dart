@@ -39,6 +39,21 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
+  final _$parentNameAtom = Atom(name: '_SettingsPageModel.parentName');
+
+  @override
+  String get parentName {
+    _$parentNameAtom.reportRead();
+    return super.parentName;
+  }
+
+  @override
+  set parentName(String value) {
+    _$parentNameAtom.reportWrite(value, super.parentName, () {
+      super.parentName = value;
+    });
+  }
+
   final _$settingsChangedAtom =
       Atom(name: '_SettingsPageModel.settingsChanged');
 
@@ -214,11 +229,28 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
+  final _$editableSettingsAtom =
+      Atom(name: '_SettingsPageModel.editableSettings');
+
+  @override
+  bool get editableSettings {
+    _$editableSettingsAtom.reportRead();
+    return super.editableSettings;
+  }
+
+  @override
+  set editableSettings(bool value) {
+    _$editableSettingsAtom.reportWrite(value, super.editableSettings, () {
+      super.editableSettings = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
 userName: ${userName},
 userStatus: ${userStatus},
+parentName: ${parentName},
 settingsChanged: ${settingsChanged},
 userProfilePicture: ${userProfilePicture},
 blurImages: ${blurImages},
@@ -229,7 +261,8 @@ shareBirthday: ${shareBirthday},
 shareReadReceipts: ${shareReadReceipts},
 disableNotifications: ${disableNotifications},
 disableMessagePreview: ${disableMessagePreview},
-autoDownloadMedia: ${autoDownloadMedia}
+autoDownloadMedia: ${autoDownloadMedia},
+editableSettings: ${editableSettings}
     ''';
   }
 }

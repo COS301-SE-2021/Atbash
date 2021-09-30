@@ -28,8 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async{
-
+      onWillPop: () async {
         return true;
       },
       child: Scaffold(
@@ -90,17 +89,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.black)),
-                  child: Text(
-                    "Privacy settings have been disabled. Please contact \n'phone number'\nto allow access.",
-                    textAlign: TextAlign.center,
+                if (!controller.model.editableSettings)
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.black)),
+                    child: Text(
+                      "Privacy settings have been disabled. Please contact \n'phone number'\nto allow access.",
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
                 Container(
                   padding: EdgeInsets.all(15),
                   child: Text(
@@ -111,10 +111,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("blurImages"),
                   value: controller.model.blurImages,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setBlurImages(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setBlurImages(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Hide images",
                     style: TextStyle(fontSize: 16),
@@ -130,10 +132,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("safeMode"),
                   value: controller.model.safeMode,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setSafeMode(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setSafeMode(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Profanity Filter",
                     style: TextStyle(fontSize: 16),
@@ -148,10 +152,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("sharedProfilePicture"),
                   value: controller.model.sharedProfilePicture,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setSharedProfilePicture(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setSharedProfilePicture(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Don't share profile photo",
                     style: TextStyle(fontSize: 16),
@@ -167,10 +173,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("shareStatus"),
                   value: controller.model.shareStatus,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setShareStatus(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setShareStatus(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Don't share status",
                     style: TextStyle(fontSize: 16),
@@ -186,10 +194,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("shareBirthday"),
                   value: controller.model.shareBirthday,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setShareBirthday(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setShareBirthday(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Don't share birthday",
                     style: TextStyle(fontSize: 16),
@@ -205,10 +215,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 SwitchListTile(
                   key: Key("shareReadReceipts"),
                   value: controller.model.shareReadReceipts,
-                  onChanged: (bool newValue) {
-                    controller.model.settingsChanged = true;
-                    controller.setShareReadReceipts(newValue);
-                  },
+                  onChanged: controller.model.editableSettings
+                      ? (bool newValue) {
+                          controller.model.settingsChanged = true;
+                          controller.setShareReadReceipts(newValue);
+                        }
+                      : null,
                   title: Text(
                     "Don't share read receipts",
                     style: TextStyle(fontSize: 16),
@@ -230,7 +242,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Profanity Filtering List",
                     style: TextStyle(fontSize: 16),
                   ),
-                  subtitle: Text("Add or remove words from the profanity filter"),
+                  subtitle:
+                      Text("Add or remove words from the profanity filter"),
                   trailing: Icon(Icons.arrow_forward_rounded),
                   onTap: () {
                     Navigator.push(

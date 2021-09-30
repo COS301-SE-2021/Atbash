@@ -45,6 +45,9 @@ class SettingsPageController {
     settingsService
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
+    settingsService
+        .getEditableSettings()
+        .then((value) => model.editableSettings = false);
   }
 
   void reload() {
@@ -53,6 +56,9 @@ class SettingsPageController {
     userService
         .getProfileImage()
         .then((value) => model.userProfilePicture = value);
+    parentService
+        .fetchByEnabled()
+        .then((value) => model.parentName = value.name);
   }
 
   void setBlurImages(bool value) {
@@ -108,11 +114,16 @@ class SettingsPageController {
     communicationService.sendRequestProfileImage(number);
   }
 
-  void sentUpdatedSettingsToParent() async{
-    final parent = await parentService.fetchByEnabled().catchError((_) {
-
-    });
-    communicationService.sendAllSettingsToParent(parent.phoneNumber, model.blurImages, model.safeMode, model.sharedProfilePicture, model.shareStatus, model.shareReadReceipts, model.shareBirthday);
+  void sentUpdatedSettingsToParent() async {
+    final parent = await parentService.fetchByEnabled().catchError((_) {});
+    communicationService.sendAllSettingsToParent(
+        parent.phoneNumber,
+        model.blurImages,
+        model.safeMode,
+        model.sharedProfilePicture,
+        model.shareStatus,
+        model.shareReadReceipts,
+        model.shareBirthday);
   }
 
   Future<void> importContacts() async {

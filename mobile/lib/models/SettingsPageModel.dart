@@ -14,6 +14,9 @@ abstract class _SettingsPageModel with Store {
   String userStatus = "";
 
   @observable
+  String parentName = "";
+
+  @observable
   bool settingsChanged = false;
 
   @observable
@@ -45,4 +48,7 @@ abstract class _SettingsPageModel with Store {
 
   @observable
   bool autoDownloadMedia = false;
+
+  @observable
+  bool editableSettings = true;
 }

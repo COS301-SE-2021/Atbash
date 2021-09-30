@@ -3,6 +3,7 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
+import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
@@ -39,6 +40,7 @@ class DatabaseService {
       db.execute("drop table if exists ${ChildBlockedNumber.TABLE_NAME};"),
       db.execute("drop table if exists ${ChildChat.TABLE_NAME};"),
       db.execute("drop table if exists ${ChildMessage.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildContact.TABLE_NAME};"),
       db.execute("drop table if exists ${Chat.TABLE_NAME};"),
       db.execute("drop table if exists ${Message.TABLE_NAME};"),
       db.execute("drop table if exists ${Contact.TABLE_NAME};"),
@@ -62,6 +64,7 @@ class DatabaseService {
       db.execute(ChildBlockedNumber.CREATE_TABLE),
       db.execute(ChildChat.CREATE_TABLE),
       db.execute(ChildMessage.CREATE_TABLE),
+      db.execute(ChildContact.CREATE_TABLE),
       db.execute(Chat.CREATE_TABLE),
       db.execute(Message.CREATE_TABLE),
       db.execute(Contact.CREATE_TABLE),

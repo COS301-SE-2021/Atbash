@@ -17,6 +17,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
@@ -36,6 +37,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final NotificationService notificationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
 
   bool _searching = false;
   String _filterQuery = "";
@@ -362,10 +364,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
+    // String _filterContents(String unfilteredContents) {
+    //   Constants.profanityRegex.forEach((regex) {
+    //     unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
+    //         (match) => List.filled(match.end - match.start, "*").join());
+    //   });
+    //   return unfilteredContents;
+    // }
     String _filterContents(String unfilteredContents) {
-      Constants.profanityRegex.forEach((regex) {
+      controller.model.profanityWords.forEach((profanityWord) {
         unfilteredContents = unfilteredContents.replaceAllMapped(
-            RegExp(regex, caseSensitive: false),
+            RegExp(profanityWord.profanityWordRegex, caseSensitive: false),
             (match) => List.filled(match.end - match.start, "*").join());
       });
       return unfilteredContents;

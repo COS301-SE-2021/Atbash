@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
+import 'package:mobile/dialogs/PinDialog.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
+import 'package:mobile/pages/ParentalSettingsPage.dart';
+import 'package:mobile/pages/ProfanityFilterListPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
 import 'package:mobile/util/Utils.dart';
@@ -84,6 +87,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
               Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black)),
+                child: Text(
+                  "Privacy settings have been disabled. Please contact \n'phone number'\nto allow access.",
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              Container(
                 padding: EdgeInsets.all(15),
                 child: Text(
                   "Privacy",
@@ -112,7 +126,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 key: Key("safeMode"),
                 value: controller.model.safeMode,
                 onChanged: (bool newValue) {
-                  //TODO Create Pin logic
                   controller.setSafeMode(newValue, "Pin");
                 },
                 title: Text(
@@ -199,6 +212,25 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Choose whether others can see if you've read their messages"),
               ),
               ListTile(
+                leading: Icon(
+                  Icons.admin_panel_settings_sharp,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Profanity Filtering List",
+                  style: TextStyle(fontSize: 16),
+                ),
+                subtitle: Text("Add or remove words from the profanity filter"),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProfanityFilterListPage()));
+                },
+                dense: true,
+              ),
+              ListTile(
                 key: Key("blockedContacts"),
                 leading: Icon(
                   Icons.block,
@@ -224,6 +256,26 @@ class _SettingsPageState extends State<SettingsPage> {
                   "Account",
                   style: TextStyle(fontSize: 20),
                 ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.perm_contact_calendar_rounded,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Parental Controls",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  //TODO: Check if isChild
+                  //if(isChild)
+                  //showPinDialog(context, "Enter parent pin to access controls", null);
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => ParentalSettingsPage()),
+                  );
+                },
+                dense: true,
               ),
               ListTile(
                 key: Key("changeWallpaper"),

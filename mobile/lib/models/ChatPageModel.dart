@@ -1,5 +1,6 @@
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ChatPageModel.g.dart';
@@ -9,6 +10,9 @@ class ChatPageModel = _ChatPageModel with _$ChatPageModel;
 abstract class _ChatPageModel with Store {
   @observable
   String contactTitle = "";
+
+  @observable
+  List<ProfanityWord> profanityWords = <ProfanityWord>[].asObservable();
 
   @observable
   bool online = false;

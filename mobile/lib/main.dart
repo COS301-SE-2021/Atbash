@@ -15,6 +15,10 @@ import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ChildBlockedNumberService.dart';
+import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
@@ -24,6 +28,7 @@ import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/PCConnectionService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -121,10 +126,15 @@ void _registerServices() async {
   final pcConnectionService = PCConnectionService();
   GetIt.I.registerSingleton(pcConnectionService);
 
+  final profanityWordService = ProfanityWordService(databaseService);
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
   final blockedNumbersService = BlockedNumbersService(databaseService);
+  final childService = ChildService(databaseService);
+  final childChatService = ChildChatService(databaseService);
+  final childMessageService = ChildMessageService(databaseService);
+  final childBlockedNumberService = ChildBlockedNumberService(databaseService);
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
@@ -145,10 +155,15 @@ void _registerServices() async {
     pcConnectionService,
   );
 
+  GetIt.I.registerSingleton(profanityWordService);
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
   GetIt.I.registerSingleton(blockedNumbersService);
+  GetIt.I.registerSingleton(childService);
+  GetIt.I.registerSingleton(childChatService);
+  GetIt.I.registerSingleton(childMessageService);
+  GetIt.I.registerSingleton(childBlockedNumberService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(chatCacheService);

@@ -92,6 +92,21 @@ mixin _$HomePageModel on _HomePageModel, Store {
     });
   }
 
+  final _$profanityWordsAtom = Atom(name: '_HomePageModel.profanityWords');
+
+  @override
+  List<ProfanityWord> get profanityWords {
+    _$profanityWordsAtom.reportRead();
+    return super.profanityWords;
+  }
+
+  @override
+  set profanityWords(List<ProfanityWord> value) {
+    _$profanityWordsAtom.reportWrite(value, super.profanityWords, () {
+      super.profanityWords = value;
+    });
+  }
+
   final _$_HomePageModelActionController =
       ActionController(name: '_HomePageModel');
 
@@ -136,6 +151,7 @@ userStatus: ${userStatus},
 userProfileImage: ${userProfileImage},
 profanityFilter: ${profanityFilter},
 chats: ${chats},
+profanityWords: ${profanityWords},
 orderedChats: ${orderedChats}
     ''';
   }

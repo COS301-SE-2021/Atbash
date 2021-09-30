@@ -16,6 +16,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,6 +28,7 @@ class ChatPageController {
   final ChatCacheService chatCacheService = GetIt.I.get();
   final MemoryStoreService memoryStoreService = GetIt.I.get();
   final SettingsService settingsService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -111,6 +113,11 @@ class ChatPageController {
             unseenMessagesIds.toList(), contactPhoneNumber);
 
       model.replaceMessages(messages);
+    });
+
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
     });
 
     settingsService
@@ -318,7 +325,7 @@ class ChatPageController {
   }
 
   void forwardMessage(
-      BuildContext context, String message, String currentContactName) {
+      BuildContext context, Message message, String currentContactName) {
     contactService.fetchAll().then((contacts) {
       showForwardDialog(context, contacts, currentContactName)
           .then((forwardContacts) async {
@@ -342,14 +349,14 @@ class ChatPageController {
 
         allNumberChats.forEach((element) {
           final newMessage = Message(
-            id: Uuid().v4(),
-            chatId: element.second,
-            isIncoming: false,
-            otherPartyPhoneNumber: element.first,
-            contents: message,
-            timestamp: DateTime.now(),
-            forwarded: true,
-          );
+              id: Uuid().v4(),
+              chatId: element.second,
+              isIncoming: false,
+              otherPartyPhoneNumber: element.first,
+              contents: message.contents,
+              timestamp: DateTime.now(),
+              forwarded: true,
+              isMedia: message.isMedia);
 
           communicationService.sendMessage(
               newMessage, ChatType.general, element.first, null);

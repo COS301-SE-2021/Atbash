@@ -26,6 +26,14 @@ class Contact extends _Contact with _$Contact {
     };
   }
 
+  Map toJson() => {
+        'phoneNumber': phoneNumber,
+        'displayName': displayName,
+        'status': status,
+        'profileImage': profileImage,
+        'birthday': birthday?.millisecondsSinceEpoch ?? 0
+      };
+
   static Contact? fromMap(Map<String, Object?> map) {
     final phoneNumber = map[COLUMN_PHONE_NUMBER] as String?;
     final displayName = map[COLUMN_DISPLAY_NAME] as String?;

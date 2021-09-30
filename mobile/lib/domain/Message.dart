@@ -55,6 +55,22 @@ class Message extends _Message with _$Message {
     };
   }
 
+  Map toJson() => {
+        'id': id,
+        'chatId': chatId,
+        'isIncoming': isIncoming,
+        'otherPartyPhoneNumber': otherPartyPhoneNumber,
+        'contents': contents,
+        'timestamp': timestamp.millisecondsSinceEpoch,
+        'isMedia': isMedia,
+        'forwarded': forwarded,
+        'readReceipt': readReceipt.index,
+        'repliedMessageId': repliedMessageId,
+        'deleted': deleted,
+        'liked': liked,
+        'edited': edited
+      };
+
   static Message? fromMap(Map<String, Object?> map) {
     final id = map[COLUMN_ID] as String?;
     final chatId = map[COLUMN_CHAT_ID] as String?;

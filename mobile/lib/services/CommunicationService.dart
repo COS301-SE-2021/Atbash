@@ -745,7 +745,8 @@ class CommunicationService {
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
                   contents: map["contents"],
-                  timestamp: DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+                  timestamp:
+                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
             });
             //TODO dont allow child to block parent lmao
             break;
@@ -827,7 +828,8 @@ class CommunicationService {
                 isIncoming: map["isIncoming"],
                 otherPartyPhoneNumber: map["otherPartyPhoneNumber"],
                 contents: map["contents"],
-                timestamp: DateTime.fromMillisecondsSinceEpoch(map["timestamp"]));
+                timestamp:
+                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"]));
 
             final chat = await childChatService.fetchByNumbers(
                 senderPhoneNumber, message.otherPartyPhoneNumber);
@@ -1183,11 +1185,18 @@ class CommunicationService {
   }
 
   Future<void> sendSetupChild(String parentNumber) async {
+    print("BITCH");
     final List<Contact> contacts = await contactService.fetchAll();
+    contacts.forEach((element) {
+      element.profileImage = "";
+    });
     final List<ProfanityWord> words = await profanityWordService.fetchAll();
     final List<BlockedNumber> blockedNumbers =
         await blockedNumbersService.fetchAll();
     final List<Chat> chats = await chatService.fetchAll();
+    chats.forEach((element) {
+      element.contact?.profileImage = "";
+    });
     final List<Message> messages = await messageService.fetchAll();
     final blurImages = await settingsService.getBlurImages();
     final safeMode = await settingsService.getSafeMode();
@@ -1195,6 +1204,7 @@ class CommunicationService {
     final shareStatus = await settingsService.getShareStatus();
     final shareReadReceipts = await settingsService.getShareReadReceipts();
     final shareBirthday = await settingsService.getShareBirthday();
+    print(jsonEncode(contacts));
     final contents = jsonEncode({
       "type": "setupChild",
       "contacts": contacts,
@@ -1293,6 +1303,8 @@ class CommunicationService {
     final recipientMid = event["recipientMid"] as String?;
     final encryptedContents = event["encryptedContents"] as String?;
     final timestamp = event["timestamp"] as int?;
+
+    print(event);
 
     if (id == null || encryptedContents == null || timestamp == null) {
       print("Error: Invalid event");

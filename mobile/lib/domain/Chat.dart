@@ -29,6 +29,15 @@ class Chat extends _Chat with _$Chat {
     };
   }
 
+  Map toJson() => {
+        'id': id,
+        'contactPhoneNumber': contactPhoneNumber,
+        'contact': this.contact != null ? this.contact?.toJson() : null,
+        'chatType': chatType.toString(),
+        'mostRecentMessage':
+            mostRecentMessage != null ? mostRecentMessage?.toJson() : null
+      };
+
   static Chat? fromMap(Map<String, Object?> map) {
     final id = map[COLUMN_ID] as String?;
     final contactPhoneNumber = map[COLUMN_CONTACT_PHONE_NUMBER] as String?;

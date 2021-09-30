@@ -1,13 +1,16 @@
 import 'package:get_it/get_it.dart';
+import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/models/ChildBlockedContactsPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:uuid/uuid.dart';
 
 class ChildBlockedContactsPageController {
   final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
   final ChildChatService childChatService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final ChildBlockedContactsPageModel model = ChildBlockedContactsPageModel();
 
@@ -31,14 +34,16 @@ class ChildBlockedContactsPageController {
         id: Uuid().v4(), childNumber: childNumber, blockedNumber: numberToAdd);
     await childBlockedNumberService.insert(blockedNumber);
     model.blockedNumbers.add(blockedNumber);
-    //TODO send blocked number to child
+    communicationService.sendBlockedNumberToChild(
+        childNumber, BlockedNumber(phoneNumber: numberToAdd), "insert");
   }
 
   Future<void> deleteNumber(String childNumber, String numberToDelete) async {
     await childBlockedNumberService.delete(childNumber, numberToDelete);
     model.blockedNumbers
         .removeWhere((element) => element.blockedNumber == numberToDelete);
-    //TODO unblock on childs phone
+    communicationService.sendBlockedNumberToChild(
+        childNumber, BlockedNumber(phoneNumber: numberToDelete), "delete");
   }
 
   void updateQuery(String query) {

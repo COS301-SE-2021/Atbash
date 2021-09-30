@@ -96,7 +96,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                     ),
                     subtitle:
                         Text("This is the current parent of the account."),
-                    leading: Icon(Icons.phonelink),
+                    leading: Icon(
+                      Icons.phonelink,
+                      color: Constants.orange,
+                    ),
                   ),
                 if (controller.model.children.isNotEmpty)
                   Container(

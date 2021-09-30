@@ -25,6 +25,9 @@ class ParentalSettingsPageController {
       });
       model.children.clear();
       model.children.addAll(tuples);
+      parentService
+          .fetchByEnabled()
+          .then((parent) => model.parentName = parent.name);
       reload(0);
     });
   }
@@ -34,9 +37,6 @@ class ParentalSettingsPageController {
       return;
     }
     model.currentlySelected = index;
-    parentService
-        .fetchByEnabled()
-        .then((parent) => model.parentName = parent.name);
     childService
         .fetchByPhoneNumber(model.children[index].first.phoneNumber)
         .then((child) {

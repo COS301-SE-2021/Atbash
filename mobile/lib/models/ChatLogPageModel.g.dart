@@ -17,6 +17,22 @@ mixin _$ChatLogPageModel on _ChatLogPageModel, Store {
               name: '_ChatLogPageModel.sortedChats'))
       .value;
 
+  final _$childPhoneNumberAtom =
+      Atom(name: '_ChatLogPageModel.childPhoneNumber');
+
+  @override
+  String get childPhoneNumber {
+    _$childPhoneNumberAtom.reportRead();
+    return super.childPhoneNumber;
+  }
+
+  @override
+  set childPhoneNumber(String value) {
+    _$childPhoneNumberAtom.reportWrite(value, super.childPhoneNumber, () {
+      super.childPhoneNumber = value;
+    });
+  }
+
   final _$childNameAtom = Atom(name: '_ChatLogPageModel.childName');
 
   @override
@@ -50,6 +66,7 @@ mixin _$ChatLogPageModel on _ChatLogPageModel, Store {
   @override
   String toString() {
     return '''
+childPhoneNumber: ${childPhoneNumber},
 childName: ${childName},
 chats: ${chats},
 sortedChats: ${sortedChats}

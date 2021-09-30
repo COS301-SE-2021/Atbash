@@ -7,6 +7,9 @@ class ChatLogPageModel = _ChatLogPageModel with _$ChatLogPageModel;
 
 abstract class _ChatLogPageModel with Store {
   @observable
+  String childPhoneNumber = "";
+
+  @observable
   String childName = "";
 
   @observable

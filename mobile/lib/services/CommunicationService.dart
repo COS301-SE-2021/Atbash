@@ -1119,7 +1119,6 @@ class CommunicationService {
   }
 
   //START OF NEW METHODS
-  //TODO:MAKE PROPER
 
   Future<void> sendAddChild(
       String childNumber, String name, String code) async {
@@ -1260,7 +1259,6 @@ class CommunicationService {
 
   Future<void> sendContactToParent(
       String parentNumber, Contact contact, String operation) async {
-    //TODO check if jsonEncode works this way
     final contents = jsonEncode({
       "type": "contactToParent",
       "contact": contact,

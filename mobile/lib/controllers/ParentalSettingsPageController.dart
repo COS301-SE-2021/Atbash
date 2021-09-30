@@ -23,11 +23,14 @@ class ParentalSettingsPageController {
       });
       model.children.clear();
       model.children.addAll(tuples);
-      if (model.children.isNotEmpty) reload(0);
+      reload(0);
     });
   }
 
   void reload(int index) {
+    if(model.children.isEmpty){
+      return;
+    }
     model.currentlySelected = index;
     childService
         .fetchByPhoneNumber(model.children[index].first.phoneNumber)

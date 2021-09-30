@@ -52,11 +52,19 @@ class _NewChildPageState extends State<NewChildPage> {
                   onPressed: () {
                     final newContact = chosenContact;
                     if (newContact != null) {
-                      final code = Random().nextInt(6);
-                      showConfirmDialog(context, "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code");
-                      controller.addChild(
-                          newContact.phoneNumber, newContact.displayName, "$code");
-                      Navigator.pop(context);
+                      print("Im here");
+                      String code = "";
+                      for (int i = 0; i < 8; i++) {
+                        code += "${Random().nextInt(10)}";
+                      }
+                      print("$code");
+                      showConfirmDialog(context,
+                              "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code")
+                          .then((_) {
+                        controller.addChild(newContact.phoneNumber,
+                            newContact.displayName, "$code");
+                        Navigator.pop(context);
+                      });
                     }
                     return;
                   },

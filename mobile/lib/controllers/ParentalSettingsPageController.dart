@@ -30,7 +30,7 @@ class ParentalSettingsPageController {
   }
 
   void reload(int index) {
-    if(model.children.isEmpty){
+    if (model.children.isEmpty) {
       return;
     }
     model.currentlySelected = index;
@@ -159,7 +159,7 @@ class ParentalSettingsPageController {
         blockDeletingMessages: value);
   }
 
-  void addParent(String code) async{
+  void addParent(String code) async {
     final parent = await parentService.fetchByCode(code).catchError((_) {
       //TODO show no parent with that code exists
     });
@@ -168,19 +168,20 @@ class ParentalSettingsPageController {
   }
 
   void sendUpdatedSettingsToChild(Child child) {
-    communicationService.sendAllSettingsToChild(
-        child.phoneNumber,
-        child.editableSettings,
-        child.blurImages,
-        child.safeMode,
-        child.shareProfilePicture,
-        child.shareStatus,
-        child.shareReadReceipts,
-        child.shareBirthday,
-        child.lockedAccount,
-        child.privateChatAccess,
-        child.blockSaveMedia,
-        child.blockEditingMessages,
-        child.blockDeletingMessages);
+    if (child.editableSettings = false)
+      communicationService.sendAllSettingsToChild(
+          child.phoneNumber,
+          child.editableSettings,
+          child.blurImages,
+          child.safeMode,
+          child.shareProfilePicture,
+          child.shareStatus,
+          child.shareReadReceipts,
+          child.shareBirthday,
+          child.lockedAccount,
+          child.privateChatAccess,
+          child.blockSaveMedia,
+          child.blockEditingMessages,
+          child.blockDeletingMessages);
   }
 }

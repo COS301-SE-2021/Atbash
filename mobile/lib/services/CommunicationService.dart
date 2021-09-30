@@ -1182,19 +1182,19 @@ class CommunicationService {
     });
   }
 
-  Future<void> sendSetupChild(
-      String parentNumber,
-      List<Contact> contacts,
-      List<ProfanityWord> words,
-      List<BlockedNumber> blockedNumbers,
-      List<Chat> chats,
-      List<Message> messages,
-      bool blurImages,
-      bool safeMode,
-      bool shareProfilePicture,
-      bool shareStatus,
-      bool shareReadReceipts,
-      bool shareBirthday) async {
+  Future<void> sendSetupChild(String parentNumber) async {
+    final List<Contact> contacts = await contactService.fetchAll();
+    final List<ProfanityWord> words = await profanityWordService.fetchAll();
+    final List<BlockedNumber> blockedNumbers =
+        await blockedNumbersService.fetchAll();
+    final List<Chat> chats = await chatService.fetchAll();
+    final List<Message> messages = await messageService.fetchAll();
+    final blurImages = await settingsService.getBlurImages();
+    final safeMode = await settingsService.getSafeMode();
+    final shareProfilePicture = await settingsService.getShareProfilePicture();
+    final shareStatus = await settingsService.getShareStatus();
+    final shareReadReceipts = await settingsService.getShareReadReceipts();
+    final shareBirthday = await settingsService.getShareBirthday();
     final contents = jsonEncode({
       "type": "setupChild",
       "contacts": contacts,

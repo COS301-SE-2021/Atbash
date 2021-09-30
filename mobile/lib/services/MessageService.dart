@@ -7,6 +7,21 @@ class MessageService {
 
   MessageService(this.databaseService);
 
+  Future<List<Message>> fetchAll() async {
+    final db = await databaseService.database;
+
+    final response = await db.query(Message.TABLE_NAME);
+
+    final messages = <Message>[];
+    response.forEach((map) {
+      final message = Message.fromMap(map);
+
+      if (message != null) messages.add(message);
+    });
+
+    return messages;
+  }
+
   Future<List<Message>> fetchAllByChatId(String chatId) async {
     final db = await databaseService.database;
 

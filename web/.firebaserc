@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "atbash-f0b75": {
+      "hosting": {
+        "web": [
+          "atbash-f0b75"
+        ]
+      }
+    }
+  }
+}

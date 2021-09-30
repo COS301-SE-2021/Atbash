@@ -1,9 +1,12 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/util/Tuple.dart';
 
 class ChatService {
   final DatabaseService databaseService;
+  final PCConnectionService pcConnectionService = GetIt.I.get();
 
   ChatService(this.databaseService);
 
@@ -96,6 +99,7 @@ class ChatService {
 
     await db.insert(Chat.TABLE_NAME, chat.toMap());
 
+    await pcConnectionService.notifyPcPutChat(chat);
     _notifyListeners();
 
     return chat;
@@ -111,6 +115,7 @@ class ChatService {
       whereArgs: [chat.id],
     );
 
+    await pcConnectionService.notifyPcPutChat(chat);
     _notifyListeners();
 
     return chat;
@@ -125,6 +130,7 @@ class ChatService {
       whereArgs: [id],
     );
 
+    await pcConnectionService.notifyPcDeleteChat(id);
     _notifyListeners();
   }
 

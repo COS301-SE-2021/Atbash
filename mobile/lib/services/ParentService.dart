@@ -64,9 +64,9 @@ class ParentService {
 
       if (parentAlreadyExists.isNotEmpty) {
         updateEnabledByCode(parent.code, false);
+      }else{
+        txn.insert(Parent.TABLE_NAME, parent.toMap());
       }
-
-      txn.insert(Parent.TABLE_NAME, parent.toMap());
     });
   }
 

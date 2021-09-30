@@ -803,7 +803,7 @@ class CommunicationService {
             final chat = Chat(
                 id: map["id"],
                 contactPhoneNumber: map["contactPhoneNumber"],
-                chatType: map["chatType"]);
+                chatType: map["chatType"] == "private" ? ChatType.private : ChatType.general);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {

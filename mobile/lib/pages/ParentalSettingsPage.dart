@@ -70,7 +70,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                     showInputDialog(context,
                             "Please enter the code shown on the parent's phone")
                         .then((value) {
-                      // if(value != null)
+                      if (value != null) controller.addParent(value);
                       //   //TODO: Send all data to parent if correct code and enable parent in database.
                     });
                   },

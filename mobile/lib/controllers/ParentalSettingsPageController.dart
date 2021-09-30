@@ -5,6 +5,7 @@ import 'package:mobile/services/ChildChatService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/util/Tuple.dart';
 
 class ParentalSettingsPageController {
@@ -12,6 +13,7 @@ class ParentalSettingsPageController {
   final ChildService childService = GetIt.I.get();
   final ChildChatService childChatService = GetIt.I.get();
   final ChildMessageService childMessageService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
@@ -155,6 +157,13 @@ class ParentalSettingsPageController {
     childService.update(
         model.children[model.currentlySelected].first.phoneNumber,
         blockDeletingMessages: value);
+  }
+
+  void addParent(String code) async{
+    final parent = await parentService.fetchByCode(code).catchError((_) {
+      //TODO show no parent with that code exists
+    });
+    communicationService.sendSetupChild(parent.phoneNumber);
   }
 
   void sendUpdatedSettingsToChild(Child child) {

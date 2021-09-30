@@ -7,7 +7,6 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ProfileSettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
-import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,7 +18,6 @@ class ProfileSettingsPageController {
   final UserService userService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
-  final ParentService parentService = GetIt.I.get();
 
   final ProfileSettingsPageModel model = ProfileSettingsPageModel();
 
@@ -76,12 +74,6 @@ class ProfileSettingsPageController {
     communicationService.sendRequestProfileImage(number);
   }
 
-  void addParent(String code) async{
-    final parent = await parentService.fetchByCode(code).catchError((_) {
-      //TODO show no parent with that code exists
-    });
-    communicationService.sendSetupChild(parent.phoneNumber);
-  }
 
   Future<void> importContacts() async {
     PermissionStatus contactPermission = await Permission.contacts.request();

@@ -135,7 +135,14 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                     splashRadius: 24,
                   ),
                 if (blockedNumber.addedByParent)
-                  Icon(Icons.admin_panel_settings_sharp)
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.admin_panel_settings,
+                      key: Key('BlockedContactsPage_remove_$blockedNumber'),
+                    ),
+                    splashRadius: 1,
+                  ),
               ],
             ),
           ),

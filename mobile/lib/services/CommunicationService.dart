@@ -221,6 +221,32 @@ class CommunicationService {
       chats: chats,
       messages: messages,
     );
+
+    pcConnectionService.onNewChatEvent = (contactPhoneNumber) async {
+      if (await chatService.existsByPhoneNumberAndChatType(
+              contactPhoneNumber, ChatType.general) ==
+          false) {
+        final contact =
+            await contactService.fetchByPhoneNumber(contactPhoneNumber);
+        final chat = Chat(
+          id: Uuid().v4(),
+          contactPhoneNumber: contactPhoneNumber,
+          chatType: ChatType.general,
+          contact: contact,
+        );
+        chatService.insert(chat);
+      } else {}
+    };
+
+    pcConnectionService.onMessageEvent = (message) async {
+      messageService.insert(message);
+      sendMessage(
+        message,
+        ChatType.general,
+        message.otherPartyPhoneNumber,
+        null,
+      );
+    };
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Message, ReadReceipt } from "../../domain/message";
 import { Chat } from "../../domain/chat";
-import { CommunicationService, EventType } from "../../services/communication.service";
+import { CommunicationService, IncomingEventType } from "../../services/communication.service";
 
 @Injectable()
 export class MessageService {
@@ -12,7 +12,7 @@ export class MessageService {
 
     constructor(private com: CommunicationService) {
         com.messages$.subscribe(event => {
-            if (event.type == EventType.PUT) {
+            if (event.type == IncomingEventType.PUT) {
                 const message = event.message
 
                 if (message != null) {
@@ -32,14 +32,14 @@ export class MessageService {
                         }
                     }
                 }
-            } else if (event.type == EventType.DELETE) {
+            } else if (event.type == IncomingEventType.DELETE) {
                 this.messageList = this.messageList.filter(m => m.id != event.messageId)
                 this.chatMessages = this.chatMessages.filter(m => m.id != event.messageId)
             }
         })
     }
 
-    async enterChat(chat: Chat | null) {
+    enterChat(chat: Chat | null) {
         this.selectedChat = chat
         this.chatMessages = []
         this.chatMessages = this.messageList.filter(message => message.chatId == chat?.id)
@@ -67,6 +67,7 @@ export class MessageService {
             )
 
             this.chatMessages.push(message)
+            this.com.sendMessage(message)
         }
     }
 }

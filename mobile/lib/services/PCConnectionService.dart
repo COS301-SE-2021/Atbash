@@ -6,6 +6,9 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 
 class PCConnectionService {
+  void Function(Message message)? onMessageEvent;
+  void Function(String contactPhoneNumber)? onNewChatEvent;
+
   String? pcRelayId;
 
   Future<void> connectToPc(
@@ -31,6 +34,62 @@ class PCConnectionService {
       "chats": jsonEncode(chats),
       "messages": jsonEncode(messages),
     });
+
+    _collection(relayId).snapshots().listen((snapshot) {
+      snapshot.docs.forEach((doc) {
+        final handled = handleEvent(doc.data());
+        if (handled) {
+          doc.reference.delete();
+        }
+      });
+    });
+  }
+
+  bool handleEvent(Map<String, dynamic> event) {
+    final origin = event["origin"] as String?;
+    final type = event["type"] as String?;
+
+    if (origin != null && type != null && origin == "web") {
+      switch (type) {
+        case "message":
+          handleMessage(event);
+          return true;
+        case "newChat":
+          handleNewChat(event);
+          return true;
+        default:
+          return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  void handleMessage(Map<String, dynamic> event) {
+    final messageEvent = jsonDecode(event["message"]) as Map<String, dynamic>;
+
+    final id = messageEvent["id"] as String;
+    final chatId = messageEvent["chatId"] as String;
+    final recipientPhoneNumber = messageEvent["recipientPhoneNumber"] as String;
+    final contents = messageEvent["contents"] as String;
+    final timestamp = messageEvent["timestamp"] as int;
+
+    final message = Message(
+      id: id,
+      chatId: chatId,
+      isIncoming: false,
+      otherPartyPhoneNumber: recipientPhoneNumber,
+      contents: contents,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+    );
+
+    onMessageEvent?.call(message);
+  }
+
+  void handleNewChat(Map<String, dynamic> event) {
+    final contactPhoneNumber = event["contactPhoneNumber"] as String;
+
+    onNewChatEvent?.call(contactPhoneNumber);
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {

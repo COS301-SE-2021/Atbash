@@ -16,7 +16,7 @@ export class CommunicationService {
     readonly relaySymmetricKey = SHA256(uuid.v4())
     loadingState = false
 
-    constructor(firestore: Firestore) {
+    constructor(private firestore: Firestore) {
         const relayDoc = doc(collection(firestore, "relays"))
         this.relayId = relayDoc.id
         console.log(`Relay ID is ${this.relayId}`)
@@ -27,47 +27,81 @@ export class CommunicationService {
         const q = query(communicationCollection)
         onSnapshot(q, snapshot => {
             snapshot.forEach(document => {
-                this.handleEvent(document.data())
-                deleteDoc(document.ref)
+                const handled = this.handleEvent(document.data())
+                if (handled) {
+                    deleteDoc(document.ref)
+                }
             })
         })
     }
 
     userDisplayName$ = new ReplaySubject<string>()
     userProfileImage$ = new ReplaySubject<string>()
-    chats$ = new ReplaySubject<ChatEvent>()
-    contacts$ = new ReplaySubject<ContactEvent>()
-    messages$ = new ReplaySubject<MessageEvent>()
+    chats$ = new ReplaySubject<IncomingChatEvent>()
+    contacts$ = new ReplaySubject<IncomingContactEvent>()
+    messages$ = new ReplaySubject<IncomingMessageEvent>()
 
-    private handleEvent(event: any) {
+    private handleEvent(event: any): boolean {
         if (event.origin == "phone") {
             switch (event.type) {
                 case "connected":
                     this.loadingState = true
-                    break
+                    return true
                 case "setup":
                     this.handleSetup(event)
-                    break
+                    return true
                 case "putContact":
                     this.handlePutContact(event)
-                    break
+                    return true
                 case "deleteContact":
                     this.handleDeleteContact(event)
-                    break
+                    return true
                 case "putChat":
                     this.handlePutChat(event)
-                    break
+                    return true
                 case "deleteChat":
                     this.handleDeleteChat(event)
-                    break
+                    return true
                 case "putMessage":
                     this.handlePutMessage(event)
-                    break
+                    return true
                 case "deleteMessage":
                     this.handleDeleteMessage(event)
-                    break
+                    return true
+                default:
+                    return false
             }
+        } else {
+            return false
         }
+    }
+
+    sendMessage(message: Message) {
+        const event: SendMessageEvent = {
+            id: message.id,
+            chatId: message.chatId,
+            recipientPhoneNumber: message.otherPartyPhoneNumber,
+            contents: message.contents,
+            timestamp: message.timestamp.getTime()
+        }
+
+        setDoc(doc(this.communicationCollection), {
+            origin: "web",
+            type: "message",
+            message: JSON.stringify(event),
+        })
+    }
+
+    createChat(contactPhoneNumber: string) {
+        setDoc(doc(this.communicationCollection), {
+            origin: "web",
+            type: "newChat",
+            contactPhoneNumber: contactPhoneNumber,
+        })
+    }
+
+    private get communicationCollection() {
+        return collection(this.firestore, `relays/${this.relayId}/communication`)
     }
 
     private handleSetup(event: any) {
@@ -85,7 +119,7 @@ export class CommunicationService {
             const chat = c as Chat || null
             if (chat != null) {
                 this.chats$.next({
-                    type: EventType.PUT,
+                    type: IncomingEventType.PUT,
                     chat: chat,
                     chatId: chat.id
                 })
@@ -96,7 +130,7 @@ export class CommunicationService {
             const contact = c as Contact || null
             if (contact != null) {
                 this.contacts$.next({
-                    type: EventType.PUT,
+                    type: IncomingEventType.PUT,
                     contact: contact,
                     contactPhoneNumber: contact.phoneNumber
                 })
@@ -107,7 +141,7 @@ export class CommunicationService {
             const message = m as Message || null
             if (message != null) {
                 this.messages$.next({
-                    type: EventType.PUT,
+                    type: IncomingEventType.PUT,
                     message: message,
                     messageId: message.id
                 })
@@ -120,7 +154,7 @@ export class CommunicationService {
 
         if (contact != null) {
             this.contacts$.next({
-                type: EventType.PUT,
+                type: IncomingEventType.PUT,
                 contact: contact,
                 contactPhoneNumber: contact.phoneNumber
             })
@@ -132,7 +166,7 @@ export class CommunicationService {
 
         if (contactPhoneNumber != null) {
             this.contacts$.next({
-                type: EventType.DELETE,
+                type: IncomingEventType.DELETE,
                 contact: null,
                 contactPhoneNumber: contactPhoneNumber
             })
@@ -144,7 +178,7 @@ export class CommunicationService {
 
         if (chat != null) {
             this.chats$.next({
-                type: EventType.PUT,
+                type: IncomingEventType.PUT,
                 chat: chat,
                 chatId: chat.id
             })
@@ -156,7 +190,7 @@ export class CommunicationService {
 
         if (chatId != null) {
             this.chats$.next({
-                type: EventType.DELETE,
+                type: IncomingEventType.DELETE,
                 chat: null,
                 chatId: chatId,
             })
@@ -168,7 +202,7 @@ export class CommunicationService {
 
         if (message != null) {
             this.messages$.next({
-                type: EventType.PUT,
+                type: IncomingEventType.PUT,
                 message: message,
                 messageId: message.id
             })
@@ -180,7 +214,7 @@ export class CommunicationService {
 
         if (messageId != null) {
             this.messages$.next({
-                type: EventType.DELETE,
+                type: IncomingEventType.DELETE,
                 message: null,
                 messageId: messageId
             })
@@ -188,25 +222,33 @@ export class CommunicationService {
     }
 }
 
-interface ChatEvent {
-    type: EventType,
+interface SendMessageEvent {
+    id: string,
+    chatId: string,
+    recipientPhoneNumber: string,
+    contents: string,
+    timestamp: number
+}
+
+interface IncomingChatEvent {
+    type: IncomingEventType,
     chat: Chat | null,
     chatId: string
 }
 
-interface ContactEvent {
-    type: EventType,
+interface IncomingContactEvent {
+    type: IncomingEventType,
     contact: Contact | null,
     contactPhoneNumber: string
 }
 
-interface MessageEvent {
-    type: EventType,
+interface IncomingMessageEvent {
+    type: IncomingEventType,
     message: Message | null,
     messageId: string
 }
 
-export enum EventType {
+export enum IncomingEventType {
     PUT,
     DELETE
 }

@@ -1179,7 +1179,7 @@ class CommunicationService {
   }
 
   Future<void> sendBlockedNumberToChild(String childNumber,
-      ChildBlockedNumber blockedNumber, String operation) async {
+      BlockedNumber blockedNumber, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToChild",
       "blockedNumber": blockedNumber,

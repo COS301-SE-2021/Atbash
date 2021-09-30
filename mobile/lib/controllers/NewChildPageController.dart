@@ -1,11 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/models/NewChildPageModel.dart';
 import 'package:mobile/services/ChildService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 
 class NewChildPageController {
   final ContactService contactService = GetIt.I.get();
   final ChildService childService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final NewChildPageModel model = NewChildPageModel();
 
@@ -22,5 +24,9 @@ class NewChildPageController {
 
   void updateQuery(String query) {
     model.filter = query;
+  }
+
+  void addChild(String childNumber, String name, String code){
+    communicationService.sendAddChild(childNumber, name, code);
   }
 }

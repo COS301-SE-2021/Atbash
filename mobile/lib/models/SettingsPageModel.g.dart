@@ -39,6 +39,22 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     });
   }
 
+  final _$settingsChangedAtom =
+      Atom(name: '_SettingsPageModel.settingsChanged');
+
+  @override
+  bool get settingsChanged {
+    _$settingsChangedAtom.reportRead();
+    return super.settingsChanged;
+  }
+
+  @override
+  set settingsChanged(bool value) {
+    _$settingsChangedAtom.reportWrite(value, super.settingsChanged, () {
+      super.settingsChanged = value;
+    });
+  }
+
   final _$userProfilePictureAtom =
       Atom(name: '_SettingsPageModel.userProfilePicture');
 
@@ -203,6 +219,7 @@ mixin _$SettingsPageModel on _SettingsPageModel, Store {
     return '''
 userName: ${userName},
 userStatus: ${userStatus},
+settingsChanged: ${settingsChanged},
 userProfilePicture: ${userProfilePicture},
 blurImages: ${blurImages},
 safeMode: ${safeMode},

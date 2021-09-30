@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/NewChildPageController.dart';
-import 'package:mobile/domain/Child.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
+import 'dart:math';
 
 class NewChildPage extends StatefulWidget {
   const NewChildPage({Key? key}) : super(key: key);
@@ -51,9 +52,10 @@ class _NewChildPageState extends State<NewChildPage> {
                   onPressed: () {
                     final newContact = chosenContact;
                     if (newContact != null) {
-                      final child = Child(
-                          phoneNumber: newContact.phoneNumber,
-                          name: newContact.displayName);
+                      final code = Random().nextInt(6);
+                      showConfirmDialog(context, "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code");
+                      controller.addChild(
+                          newContact.phoneNumber, newContact.displayName, "$code");
                       Navigator.pop(context);
                     }
                     return;

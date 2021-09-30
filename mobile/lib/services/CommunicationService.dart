@@ -7,9 +7,12 @@ import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
+import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
+import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
@@ -577,11 +580,23 @@ class CommunicationService {
           //Parental cases below this
 
           case "addChild":
-            //TODO create parent object (This is on child Phone)
+            //create parent object (This is on child Phone)
+            parentService.insert(Parent(
+                phoneNumber: senderPhoneNumber,
+                name: decryptedContents["name"] as String,
+                code: decryptedContents["code"] as String));
             break;
 
           case "removeChild":
-            //TODO set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
+            //set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
+            //TODO remove all blocked contacts and profanity words sent by parent
+            parentService.deleteByNumber(senderPhoneNumber);
+            settingsService.setEditableSettings(true);
+            settingsService.setLockedAccount(false);
+            settingsService.setPrivateChatAccess(true);
+            settingsService.setBlockSaveMedia(false);
+            settingsService.setBlockEditingMessages(false);
+            settingsService.setBlockDeletingMessages(false);
             break;
 
           case "allSettingsToChild":
@@ -613,7 +628,7 @@ class CommunicationService {
 
           case "newProfanityWordToChild":
             //This adds/deletes word from profanity table
-            //TODO ask if this decrypting contents works & if need a listener for this
+            //TODO set word as fromParent
             final map = decryptedContents["word"] as Map<String, dynamic>;
             final profanityWord = ProfanityWord(
                 profanityWordRegex: map["profanityWordRegex"],
@@ -630,7 +645,7 @@ class CommunicationService {
             break;
 
           case "blockedNumberToChild":
-            //TODO call listener?
+            //TODO set number as fromParent
             //add given blocked number to my blockedNumbers table (This is on child phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
@@ -650,7 +665,6 @@ class CommunicationService {
             break;
 
           case "allSettingsToParent":
-            //TODO maybe call listener?
             //update all parents settings for relative child (This is on parent phone)
             childService.update(
               senderPhoneNumber,
@@ -665,11 +679,17 @@ class CommunicationService {
             break;
 
           case "newProfanityWordToParent":
-            //TODO update associated child ProfanityTable with new word (This is on parent phone)
+            //update associated child ProfanityTable with new word (This is on parent phone)
+            final map = decryptedContents["word"] as Map<String, dynamic>;
+            final word = ChildProfanityWord(
+                phoneNumber: senderPhoneNumber,
+                profanityWordRegex: map["profanityWordRegex"],
+                profanityID: map["profanityID"],
+                profanityOriginalWord: map["profanityOriginalWord"]);
+            childProfanityWordService.insert(word);
             break;
 
           case "blockedNumberToParent":
-            //TODO listener?
             // update associated child BlockedNumber table with new number (This is on parent phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
@@ -691,7 +711,6 @@ class CommunicationService {
             break;
 
           case "chatToParent":
-            //TODO listener?
             //update associated child Chat table with new chat (This is on parent phone)
             final map = decryptedContents["chat"] as Map<String, dynamic>;
             final chat = Chat(
@@ -714,7 +733,6 @@ class CommunicationService {
             break;
 
           case "messageToParent":
-            //TODO listener?
             //update associated child Message table with new message (This is on parent phone)
             final map = decryptedContents["message"] as Map<String, dynamic>;
             final message = Message(
@@ -740,7 +758,14 @@ class CommunicationService {
             break;
 
           case "contactToParent":
-            //TODO update associated child Contact table with new contact (This is on parent phone)
+          //update associated child Contact table with new contact (This is on parent phone)
+            final map = decryptedContents["contact"] as Map<String, dynamic>;
+            final contact = ChildContact(
+                phoneNumber: senderPhoneNumber,
+                name: map["displayName"],
+                status: map["status"],
+                profileImage: map["profileImage"]);
+            childContactService.insert(contact);
             break;
         }
 
@@ -1011,8 +1036,10 @@ class CommunicationService {
   //START OF NEW METHODS
   //TODO:MAKE PROPER
 
-  Future<void> sendAddChild(String childNumber) async {
-    final contents = jsonEncode({"type": "addChild"});
+  Future<void> sendAddChild(
+      String childNumber, String name, String code) async {
+    final contents =
+        jsonEncode({"type": "addChild", "name": name, "code": code});
   }
 
   Future<void> sendRemoveChild(String childNumber) async {

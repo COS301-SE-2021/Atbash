@@ -1133,6 +1133,7 @@ class CommunicationService {
 
   Future<void> sendRemoveChild(String childNumber) async {
     final contents = jsonEncode({"type": "removeChild"});
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendAllSettingsToChild(
@@ -1164,6 +1165,7 @@ class CommunicationService {
       "blockEditingMessages": blockEditingMessages,
       "blockDeletingMessages": blockDeletingMessages
     });
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendNewProfanityWordToChild(
@@ -1173,6 +1175,7 @@ class CommunicationService {
       "word": word,
       "operation": operation
     });
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendBlockedNumberToChild(String childNumber,
@@ -1182,6 +1185,7 @@ class CommunicationService {
       "blockedNumber": blockedNumber,
       "operation": operation
     });
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendSetupChild(String parentNumber) async {
@@ -1233,7 +1237,7 @@ class CommunicationService {
       bool shareStatus,
       bool shareReadReceipts,
       bool shareBirthday) async {
-    final contents = {
+    final contents = jsonEncode({
       "type": "allSettingsToParent",
       "blurImages": blurImages,
       "safeMode": safeMode,
@@ -1241,7 +1245,8 @@ class CommunicationService {
       "shareStatus": shareStatus,
       "shareReadReceipts": shareReadReceipts,
       "shareBirthday": shareBirthday
-    };
+    });
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendNewProfanityWordToParent(
@@ -1251,6 +1256,7 @@ class CommunicationService {
       "word": word,
       "operation": operation
     });
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendBlockedNumberToParent(
@@ -1260,6 +1266,7 @@ class CommunicationService {
       "blockedNumber": number,
       "operation": operation
     });
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendChatToParent(
@@ -1267,12 +1274,14 @@ class CommunicationService {
     chat.contact?.profileImage = "";
     final contents = jsonEncode(
         {"type": "chatToParent", "chat": chat, "operation": operation});
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendChildMessageToParent(
       String parentNumber, Message message) async {
     final contents =
         jsonEncode({"type": "messageToParent", "message": message});
+    _queueForSending(contents, parentNumber);
   }
 
   Future<void> sendContactToParent(
@@ -1283,6 +1292,7 @@ class CommunicationService {
       "contact": contact,
       "operation": operation
     });
+    _queueForSending(contents, parentNumber);
   }
 
   //END OF NEW METHODS

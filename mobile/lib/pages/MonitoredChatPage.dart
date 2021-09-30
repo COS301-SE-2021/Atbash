@@ -64,7 +64,8 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment:
+            message.isIncoming ? Alignment.centerLeft : Alignment.centerRight,
         child: IntrinsicWidth(
           child: Container(
             padding: EdgeInsets.all(5),

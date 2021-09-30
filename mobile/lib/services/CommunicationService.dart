@@ -589,8 +589,24 @@ class CommunicationService {
 
           case "removeChild":
             //set parent enabled value to false and all parent only settings to default in flutter_secure_storage (This is on child Phone)
-            //TODO remove all blocked contacts and profanity words sent by parent
+            final blockedNumbersFromParent =
+                await blockedNumbersService.fetchAll();
+            final profanityWordsFromParent =
+                await profanityWordService.fetchAll();
+            //TODO ask if logic good
+            blockedNumbersFromParent
+                .where((number) => number.addedByParent == true)
+                .toList()
+                .forEach((element) =>
+                    blockedNumbersService.delete(element.phoneNumber));
+
+            profanityWordsFromParent
+                .where((word) => word.addedByParent == true)
+                .toList()
+                .forEach((element) =>
+                    profanityWordService.deleteByID(element.profanityID));
             parentService.deleteByNumber(senderPhoneNumber);
+
             settingsService.setEditableSettings(true);
             settingsService.setLockedAccount(false);
             settingsService.setPrivateChatAccess(true);
@@ -628,12 +644,12 @@ class CommunicationService {
 
           case "newProfanityWordToChild":
             //This adds/deletes word from profanity table
-            //TODO set word as fromParent
             final map = decryptedContents["word"] as Map<String, dynamic>;
             final profanityWord = ProfanityWord(
                 profanityWordRegex: map["profanityWordRegex"],
                 profanityID: map["profanityID"],
-                profanityOriginalWord: map["profanityOriginalWord"]);
+                profanityOriginalWord: map["profanityOriginalWord"],
+                addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
@@ -645,12 +661,11 @@ class CommunicationService {
             break;
 
           case "blockedNumberToChild":
-            //TODO set number as fromParent
             //add given blocked number to my blockedNumbers table (This is on child phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
-            final blockedNumber =
-                BlockedNumber(phoneNumber: map["phoneNumber"]);
+            final blockedNumber = BlockedNumber(
+                phoneNumber: map["phoneNumber"], addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
@@ -762,7 +777,7 @@ class CommunicationService {
             break;
 
           case "contactToParent":
-          //update associated child Contact table with new contact (This is on parent phone)
+            //update associated child Contact table with new contact (This is on parent phone)
             final map = decryptedContents["contact"] as Map<String, dynamic>;
             final contact = ChildContact(
                 phoneNumber: senderPhoneNumber,

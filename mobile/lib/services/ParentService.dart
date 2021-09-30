@@ -78,8 +78,8 @@ class ParentService {
 
     if (response.isNotEmpty) {
       db.rawQuery(
-          "UPDATE ${Parent.TABLE_NAME} where ${Parent.COLUMN_PHONE_NUMBER} = ? SET ${Parent.COLUMN_CODE} = ?",
-          [phoneNumber, code]);
+          "UPDATE ${Parent.TABLE_NAME} SET ${Parent.COLUMN_CODE} = ? where ${Parent.COLUMN_PHONE_NUMBER} = ?",
+          [code, phoneNumber]);
     }
   }
 

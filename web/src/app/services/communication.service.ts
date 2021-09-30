@@ -78,6 +78,7 @@ export class CommunicationService {
 
     sendMessage(message: Message) {
         const event: SendMessageEvent = {
+            id: message.id,
             chatId: message.chatId,
             recipientPhoneNumber: message.otherPartyPhoneNumber,
             contents: message.contents,
@@ -222,6 +223,7 @@ export class CommunicationService {
 }
 
 interface SendMessageEvent {
+    id: string,
     chatId: string,
     recipientPhoneNumber: string,
     contents: string,

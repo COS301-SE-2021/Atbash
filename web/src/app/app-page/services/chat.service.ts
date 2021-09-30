@@ -15,7 +15,7 @@ export class ChatService {
                 const chat = event.chat
 
                 if (chat != null) {
-                    const index = this.chatList.findIndex(c => c.id == chat.id)
+                    const index = this.chatList.findIndex(c => c.contactPhoneNumber == chat.contactPhoneNumber)
                     if (index == -1) {
                         this.chatList.push(chat)
                     } else {

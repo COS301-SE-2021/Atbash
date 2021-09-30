@@ -232,6 +232,21 @@ mixin _$ParentalSettingsPageModel on _ParentalSettingsPageModel, Store {
     });
   }
 
+  final _$parentNameAtom = Atom(name: '_ParentalSettingsPageModel.parentName');
+
+  @override
+  String get parentName {
+    _$parentNameAtom.reportRead();
+    return super.parentName;
+  }
+
+  @override
+  set parentName(String value) {
+    _$parentNameAtom.reportWrite(value, super.parentName, () {
+      super.parentName = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -248,7 +263,8 @@ lockedAccount: ${lockedAccount},
 privateChatAccess: ${privateChatAccess},
 blockSaveMedia: ${blockSaveMedia},
 blockEditingMessages: ${blockEditingMessages},
-blockDeletingMessages: ${blockDeletingMessages}
+blockDeletingMessages: ${blockDeletingMessages},
+parentName: ${parentName}
     ''';
   }
 }

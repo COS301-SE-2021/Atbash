@@ -66,27 +66,38 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                   trailing: Icon(Icons.arrow_forward_rounded),
                   dense: true,
                 ),
-                ListTile(
-                  onTap: () {
-                    showInputDialog(context,
-                            "Please enter the code shown on the parent's phone")
-                        .then((value) {
-                      if (value != null) controller.addParent(value);
-                      //   //TODO: Send all data to parent if correct code and enable parent in database.
-                    });
-                  },
-                  title: Text(
-                    "Add parent account",
-                    style: TextStyle(fontSize: 16),
+                if (controller.model.parentName == "")
+                  ListTile(
+                    onTap: () {
+                      showInputDialog(context,
+                              "Please enter the code shown on the parent's phone")
+                          .then((value) {
+                        if (value != null) controller.addParent(value);
+                        //   //TODO: Send all data to parent if correct code and enable parent in database.
+                      });
+                    },
+                    title: Text(
+                      "Add parent account",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    subtitle: Text("Add a parent to control this account"),
+                    leading: Icon(
+                      Icons.phonelink,
+                      color: Constants.orange,
+                    ),
+                    trailing: Icon(Icons.arrow_forward_rounded),
+                    dense: true,
                   ),
-                  subtitle: Text("Add a parent to control this account"),
-                  leading: Icon(
-                    Icons.phonelink,
-                    color: Constants.orange,
+                if (controller.model.parentName != "")
+                  ListTile(
+                    title: Text(
+                      controller.model.parentName,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    subtitle:
+                        Text("This is the current parent of the account."),
+                    leading: Icon(Icons.phonelink),
                   ),
-                  trailing: Icon(Icons.arrow_forward_rounded),
-                  dense: true,
-                ),
                 if (controller.model.children.isNotEmpty)
                   Container(
                     height: 50,

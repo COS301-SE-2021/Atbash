@@ -9,7 +9,8 @@ class ParentalSettingsPageModel = _ParentalSettingsPageModel
 
 abstract class _ParentalSettingsPageModel with Store {
   @observable
-  ObservableList<Tuple<Child, bool>> children = <Tuple<Child, bool>>[].asObservable();
+  ObservableList<Tuple<Child, bool>> children =
+      <Tuple<Child, bool>>[].asObservable();
 
   @observable
   int currentlySelected = 0;
@@ -49,4 +50,7 @@ abstract class _ParentalSettingsPageModel with Store {
 
   @observable
   bool blockDeletingMessages = false;
+
+  @observable
+  String parentName = "";
 }

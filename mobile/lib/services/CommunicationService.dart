@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/domain/Chat.dart';
+import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/domain/ChildContact.dart';
@@ -676,11 +677,76 @@ class CommunicationService {
             break;
 
           case "setupChild":
+          //create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
+            final contact =
+                await contactService.fetchByPhoneNumber(senderPhoneNumber);
+
+            childService.insert(Child(
+                phoneNumber: senderPhoneNumber,
+                name: contact.displayName,
+                blurImages: decryptedContents["blurImages"] as bool,
+                safeMode: decryptedContents["safeMode"] as bool,
+                shareProfilePicture:
+                    decryptedContents["shareProfilePicture"] as bool,
+                shareStatus: decryptedContents["shareStatus"] as bool,
+                shareReadReceipts:
+                    decryptedContents["shareReadReceipts"] as bool,
+                shareBirthday: decryptedContents["shareBirthday"] as bool));
+
             final contactList = decryptedContents["contacts"] as List;
             contactList.forEach((contact) {
               final map = contact as Map<String, dynamic>;
+              childContactService.insert(ChildContact(
+                  phoneNumber: map["phoneNumber"],
+                  name: map["displayName"],
+                  status: map["status"],
+                  profileImage: map["profileImage"]));
             });
-            //TODO create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
+
+            final wordList = decryptedContents["words"] as List;
+            wordList.forEach((word) {
+              final map = word as Map<String, dynamic>;
+              childProfanityWordService.insert(ChildProfanityWord(
+                  phoneNumber: senderPhoneNumber,
+                  profanityWordRegex: map["profanityWordRegex"],
+                  profanityID: map["profanityID"],
+                  profanityOriginalWord: map["profanityOriginalWord"]));
+            });
+
+            final blockedNumbersList =
+                decryptedContents["blockedNumbers"] as List;
+            blockedNumbersList.forEach((number) {
+              final map = number as Map<String, dynamic>;
+              childBlockedNumberService.insert(ChildBlockedNumber(
+                  id: Uuid().v4(),
+                  childNumber: senderPhoneNumber,
+                  blockedNumber: map["phoneNumber"]));
+            });
+
+            final chatList = decryptedContents["chats"] as List;
+            chatList.forEach((chat) {
+              final map = chat as Map<String, dynamic>;
+              childChatService.insert(ChildChat(
+                  id: map["id"],
+                  childPhoneNumber: senderPhoneNumber,
+                  otherPartyNumber: map["contactPhoneNumber"]));
+            });
+
+            final messageList = decryptedContents["messages"] as List;
+            messageList.forEach((message) async {
+              final map = message as Map<String, dynamic>;
+              final chat = await childChatService.fetchByNumbers(
+                  senderPhoneNumber, map["otherPartyPhoneNumber"]);
+              final id = chat.id;
+              childMessageService.insert(ChildMessage(
+                  id: map["id"],
+                  chatId: id,
+                  isIncoming: map["isIncoming"],
+                  otherPartyNumber: map["otherPartyPhoneNumber"],
+                  contents: map["contents"],
+                  timestamp: map["timestamp"]));
+            });
+            //TODO dont allow child to block parent lmao
             break;
 
           case "allSettingsToParent":

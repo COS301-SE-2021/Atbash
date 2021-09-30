@@ -15,7 +15,9 @@ import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/EncryptionService.dart';
@@ -31,6 +33,8 @@ import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 import 'package:synchronized/synchronized.dart';
+
+import 'ParentService.dart';
 
 class CommunicationService {
   final BlockedNumbersService blockedNumbersService;
@@ -49,6 +53,9 @@ class CommunicationService {
   final MemoryStoreService memoryStoreService;
   final NotificationService notificationService;
   final MessageboxService messageboxService;
+  final ChildProfanityWordService childProfanityWordService;
+  final ChildContactService childContactService;
+  final ParentService parentService;
 
   var communicationLock = new Lock();
 
@@ -127,6 +134,9 @@ class CommunicationService {
     this.memoryStoreService,
     this.notificationService,
     this.messageboxService,
+    this.childProfanityWordService,
+    this.childContactService,
+    this.parentService,
   ) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
@@ -575,19 +585,30 @@ class CommunicationService {
             break;
 
           case "allSettingsToChild":
-          //update all settings in flutter_secure_storage (This is on child phone)
-            settingsService.setEditableSettings(decryptedContents["editableSettings"] as bool);
-            settingsService.setBlurImages(decryptedContents["blurImages"] as bool);
+            //update all settings in flutter_secure_storage (This is on child phone)
+            settingsService.setEditableSettings(
+                decryptedContents["editableSettings"] as bool);
+            settingsService
+                .setBlurImages(decryptedContents["blurImages"] as bool);
             settingsService.setSafeMode(decryptedContents["safeMode"] as bool);
-            settingsService.setShareProfilePicture(decryptedContents["shareProfilePicture"] as bool);
-            settingsService.setShareStatus(decryptedContents["shareStatus"] as bool);
-            settingsService.setShareReadReceipts(decryptedContents["shareReadReceipts"] as bool);
-            settingsService.setShareBirthday(decryptedContents["shareBirthday"] as bool);
-            settingsService.setLockedAccount(decryptedContents["lockedAccount"] as bool);
-            settingsService.setPrivateChatAccess(decryptedContents["privateChatAccess"] as bool);
-            settingsService.setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
-            settingsService.setBlockEditingMessages(decryptedContents["blockEditingMessages"] as bool);
-            settingsService.setBlockDeletingMessages(decryptedContents["blockDeletingMessages"] as bool);
+            settingsService.setShareProfilePicture(
+                decryptedContents["shareProfilePicture"] as bool);
+            settingsService
+                .setShareStatus(decryptedContents["shareStatus"] as bool);
+            settingsService.setShareReadReceipts(
+                decryptedContents["shareReadReceipts"] as bool);
+            settingsService
+                .setShareBirthday(decryptedContents["shareBirthday"] as bool);
+            settingsService
+                .setLockedAccount(decryptedContents["lockedAccount"] as bool);
+            settingsService.setPrivateChatAccess(
+                decryptedContents["privateChatAccess"] as bool);
+            settingsService
+                .setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
+            settingsService.setBlockEditingMessages(
+                decryptedContents["blockEditingMessages"] as bool);
+            settingsService.setBlockDeletingMessages(
+                decryptedContents["blockDeletingMessages"] as bool);
             break;
 
           case "newProfanityWordToChild":

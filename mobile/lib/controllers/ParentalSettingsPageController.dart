@@ -163,6 +163,7 @@ class ParentalSettingsPageController {
     final parent = await parentService.fetchByCode(code).catchError((_) {
       //TODO show no parent with that code exists
     });
+    parentService.updateEnabledByCode(code, true);
     communicationService.sendSetupChild(parent.phoneNumber);
   }
 

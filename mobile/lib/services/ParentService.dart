@@ -62,7 +62,9 @@ class ParentService {
           where: "${Parent.COLUMN_PHONE_NUMBER} = ?",
           whereArgs: [parent.phoneNumber]);
 
-      if (parentAlreadyExists.isNotEmpty) throw ParentAlreadyExistsException();
+      if (parentAlreadyExists.isNotEmpty){
+        updateEnabledByCode(parent.code, false);
+      }
 
       txn.insert(Parent.TABLE_NAME, parent.toMap());
     });

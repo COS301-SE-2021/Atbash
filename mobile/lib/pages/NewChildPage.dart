@@ -59,7 +59,7 @@ class _NewChildPageState extends State<NewChildPage> {
                       }
                       print("$code");
                       controller.addChild(newContact.phoneNumber,
-                          newContact.displayName, "$code");
+                          controller.model.displayName, "$code");
                       showConfirmDialog(context,
                               "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code")
                           .then((_) {

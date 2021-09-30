@@ -168,21 +168,19 @@ class ParentalSettingsPageController {
   }
 
   void sendUpdatedSettingsToChild(Child child) {
-    print(model.editableSettings);
-    if (model.editableSettings == false)
-      communicationService.sendAllSettingsToChild(
-          child.phoneNumber,
-          model.editableSettings,
-          model.blurImages,
-          model.safeMode,
-          model.shareProfilePicture,
-          model.shareStatus,
-          model.shareReadReceipts,
-          model.shareBirthday,
-          model.lockedAccount,
-          model.privateChatAccess,
-          model.blockSaveMedia,
-          model.blockEditingMessages,
-          model.blockDeletingMessages);
+    communicationService.sendAllSettingsToChild(
+        child.phoneNumber,
+        model.editableSettings,
+        model.blurImages,
+        model.safeMode,
+        model.shareProfilePicture,
+        model.shareStatus,
+        model.shareReadReceipts,
+        model.shareBirthday,
+        model.lockedAccount,
+        model.privateChatAccess,
+        model.blockSaveMedia,
+        model.blockEditingMessages,
+        model.blockDeletingMessages);
   }
 }

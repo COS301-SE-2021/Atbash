@@ -168,7 +168,8 @@ class ParentalSettingsPageController {
   }
 
   void sendUpdatedSettingsToChild(Child child) {
-    if (child.editableSettings = false)
+    print(model.editableSettings);
+    if (model.editableSettings == false)
       communicationService.sendAllSettingsToChild(
           child.phoneNumber,
           model.editableSettings,

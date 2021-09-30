@@ -25,6 +25,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
     return WillPopScope(
       onWillPop: () async {
         controller.model.children.forEach((child) {
+          print(child.second);
           if (child.second) controller.sendUpdatedSettingsToChild(child.first);
         });
         return true;

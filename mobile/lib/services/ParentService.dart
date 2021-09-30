@@ -62,7 +62,7 @@ class ParentService {
           where: "${Parent.COLUMN_PHONE_NUMBER} = ?",
           whereArgs: [parent.phoneNumber]);
 
-      if (parentAlreadyExists.isNotEmpty){
+      if (parentAlreadyExists.isNotEmpty) {
         updateEnabledByCode(parent.code, false);
       }
 
@@ -82,7 +82,9 @@ class ParentService {
 
       if (parent != null) {
         parent.enabled = enabled;
-        db.update(Parent.TABLE_NAME, parent.toMap());
+        db.update(Parent.TABLE_NAME, parent.toMap(),
+            where: "${Parent.COLUMN_PHONE_NUMBER} = ?",
+            whereArgs: [parent.phoneNumber]);
       }
     }
   }

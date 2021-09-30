@@ -745,7 +745,7 @@ class CommunicationService {
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
                   contents: map["contents"],
-                  timestamp: map["timestamp"]));
+                  timestamp: DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
             });
             //TODO dont allow child to block parent lmao
             break;
@@ -827,7 +827,7 @@ class CommunicationService {
                 isIncoming: map["isIncoming"],
                 otherPartyPhoneNumber: map["otherPartyPhoneNumber"],
                 contents: map["contents"],
-                timestamp: map["timestamp"]);
+                timestamp: DateTime.fromMillisecondsSinceEpoch(map["timestamp"]));
 
             final chat = await childChatService.fetchByNumbers(
                 senderPhoneNumber, message.otherPartyPhoneNumber);

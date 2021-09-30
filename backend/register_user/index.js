@@ -97,6 +97,7 @@ exports.handler = async event => {
             }
         }).promise()
 
+        console.log(`Verification code is ${verificationCode} for phone number ${phoneNumber}`)
         console.log("SNS Response " + response)
     } catch (error) {
         console.log("SNS Error " + error)

@@ -16,6 +16,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:uuid/uuid.dart';
@@ -29,6 +30,7 @@ class ChatPageController {
   final MemoryStoreService memoryStoreService = GetIt.I.get();
   final SettingsService settingsService = GetIt.I.get();
   final ProfanityWordService profanityWordService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -210,6 +212,8 @@ class ChatPageController {
 
     communicationService.sendMessage(
         message, chatType, contactPhoneNumber, null);
+    final parent = await parentService.fetchByEnabled(true);
+    communicationService.sendChildMessageToParent(parent.phoneNumber, message);
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);

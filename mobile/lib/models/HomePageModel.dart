@@ -23,6 +23,9 @@ abstract class _HomePageModel with Store {
   bool profanityFilter = true;
 
   @observable
+  bool blockSaveMedia = false;
+
+  @observable
   ObservableList<Chat> chats = <Chat>[].asObservable();
 
   @observable

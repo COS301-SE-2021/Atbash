@@ -459,7 +459,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       final profileImage = contact?.profileImage;
                       if (profileImage != null) {
                         final profileImageBytes = base64Decode(profileImage);
-                        showImageViewDialog(context, profileImageBytes);
+                        showImageViewDialog(context, profileImageBytes,
+                            controller.model.blockSaveMedia);
                       }
                     },
                   ),

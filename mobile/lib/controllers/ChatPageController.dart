@@ -133,6 +133,22 @@ class ChatPageController {
     settingsService
         .getSafeMode()
         .then((value) => model.profanityFilter = value);
+
+    settingsService
+        .getPrivateChatAccess()
+        .then((value) => model.privateChatAccess = value);
+
+    settingsService
+        .getBlockSaveMedia()
+        .then((value) => model.blockSaveMedia = value);
+
+    settingsService
+        .getBlockEditingMessages()
+        .then((value) => model.blockEditingMessages = value);
+
+    settingsService
+        .getBlockDeletingMessages()
+        .then((value) => model.blockDeletingMessages = value);
   }
 
   void _onOnline(bool online) {

@@ -100,6 +100,10 @@ class HomePageController {
         .getSafeMode()
         .then((value) => model.profanityFilter = value);
 
+    settingsService
+        .getBlockSaveMedia()
+        .then((value) => model.blockSaveMedia = value);
+
     profanityWordService.fetchAll().then((words) {
       model.profanityWords.clear();
       model.profanityWords.addAll(words);

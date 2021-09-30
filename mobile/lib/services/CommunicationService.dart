@@ -575,13 +575,30 @@ class CommunicationService {
             break;
 
           case "allSettingsToChild":
-            //TODO update all settings in flutter_secure_storage (This is on child phone)
+          //update all settings in flutter_secure_storage (This is on child phone)
+            settingsService.setEditableSettings(decryptedContents["editableSettings"] as bool);
+            settingsService.setBlurImages(decryptedContents["blurImages"] as bool);
+            settingsService.setSafeMode(decryptedContents["safeMode"] as bool);
+            settingsService.setShareProfilePicture(decryptedContents["shareProfilePicture"] as bool);
+            settingsService.setShareStatus(decryptedContents["shareStatus"] as bool);
+            settingsService.setShareReadReceipts(decryptedContents["shareReadReceipts"] as bool);
+            settingsService.setShareBirthday(decryptedContents["shareBirthday"] as bool);
+            settingsService.setLockedAccount(decryptedContents["lockedAccount"] as bool);
+            settingsService.setPrivateChatAccess(decryptedContents["privateChatAccess"] as bool);
+            settingsService.setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
+            settingsService.setBlockEditingMessages(decryptedContents["blockEditingMessages"] as bool);
+            settingsService.setBlockDeletingMessages(decryptedContents["blockDeletingMessages"] as bool);
             break;
 
           case "newProfanityWordToChild":
             //This adds/deletes word from profanity table
             //TODO ask if this decrypting contents works & if need a listener for this
-            final profanityWord = decryptedContents["word"] as ProfanityWord;
+            final map = decryptedContents["word"] as Map<String, dynamic>;
+            final profanityWord = ProfanityWord(
+                profanityWordRegex: map["profanityWordRegex"],
+                profanityID: map["profanityID"],
+                profanityOriginalWord: map["profanityOriginalWord"]);
+
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               profanityWordService.addWord(profanityWord.profanityOriginalWord);
@@ -594,8 +611,11 @@ class CommunicationService {
           case "blockedNumberToChild":
             //TODO call listener?
             //add given blocked number to my blockedNumbers table (This is on child phone)
+            final map =
+                decryptedContents["blockedNumber"] as Map<String, dynamic>;
             final blockedNumber =
-                decryptedContents["blockedNumber"] as BlockedNumber;
+                BlockedNumber(phoneNumber: map["phoneNumber"]);
+
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               blockedNumbersService.insert(blockedNumber);
@@ -630,8 +650,11 @@ class CommunicationService {
           case "blockedNumberToParent":
             //TODO listener?
             // update associated child BlockedNumber table with new number (This is on parent phone)
+            final map =
+                decryptedContents["blockedNumber"] as Map<String, dynamic>;
             final blockedNumber =
-                decryptedContents["blockedNumber"] as BlockedNumber;
+                BlockedNumber(phoneNumber: map["phoneNumber"]);
+
             final operation = decryptedContents["operation"] as String;
 
             if (operation == "insert") {
@@ -649,15 +672,19 @@ class CommunicationService {
           case "chatToParent":
             //TODO listener?
             //update associated child Chat table with new chat (This is on parent phone)
-            final chat = decryptedContents["chat"] as Chat;
-            final operation = decryptedContents["operation"] as String;
+            final map = decryptedContents["chat"] as Map<String, dynamic>;
+            final chat = Chat(
+                id: map["id"],
+                contactPhoneNumber: map["contactPhoneNumber"],
+                chatType: map["chatType"]);
 
+            final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               final childChat = ChildChat(
                   id: Uuid().v4(),
                   childPhoneNumber: senderPhoneNumber,
                   otherPartyNumber: chat.contactPhoneNumber,
-                  otherPartyName: chat.contact?.displayName ?? "");
+                  otherPartyName: chat.contact?.displayName ?? null);
               childChatService.insert(childChat);
             } else {
               childChatService.deleteByNumbers(
@@ -668,7 +695,14 @@ class CommunicationService {
           case "messageToParent":
             //TODO listener?
             //update associated child Message table with new message (This is on parent phone)
-            final message = decryptedContents["message"] as Message;
+            final map = decryptedContents["message"] as Map<String, dynamic>;
+            final message = Message(
+                id: map["id"],
+                chatId: map["chatId"],
+                isIncoming: map["isIncoming"],
+                otherPartyPhoneNumber: map["otherPartyPhoneNumber"],
+                contents: map["contents"],
+                timestamp: map["timestamp"]);
 
             final chat = await childChatService.fetchByNumbers(
                 senderPhoneNumber, message.otherPartyPhoneNumber);
@@ -980,18 +1014,18 @@ class CommunicationService {
       bool blockDeletingMessages) async {
     final contents = jsonEncode({
       "type": "allSettingsToChild",
-      "editableSettings": "${editableSettings ? 1 : 0}",
-      "blurImages": "${blurImages ? 1 : 0}",
-      "safeMode": "${safeMode ? 1 : 0}",
-      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
-      "shareStatus": "${shareStatus ? 1 : 0}",
-      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
-      "shareBirthday": "${shareBirthday ? 1 : 0}",
-      "lockedAccount": "${lockedAccount ? 1 : 0}",
-      "privateChatAccess": "${privateChatAccess ? 1 : 0}",
-      "blockSaveMedia": "${blockSaveMedia ? 1 : 0}",
-      "blockEditingMessages": "${blockEditingMessages ? 1 : 0}",
-      "blockDeletingMessages": "${blockDeletingMessages ? 1 : 0}"
+      "editableSettings": editableSettings,
+      "blurImages": blurImages,
+      "safeMode": safeMode,
+      "shareProfilePicture": shareProfilePicture,
+      "shareStatus": shareStatus,
+      "shareReadReceipts": shareReadReceipts,
+      "shareBirthday": shareBirthday,
+      "lockedAccount": lockedAccount,
+      "privateChatAccess": privateChatAccess,
+      "blockSaveMedia": blockSaveMedia,
+      "blockEditingMessages": blockEditingMessages,
+      "blockDeletingMessages": blockDeletingMessages
     });
   }
 
@@ -999,8 +1033,8 @@ class CommunicationService {
       String childNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToChild",
-      "word": "${jsonEncode(word)}",
-      "operation": "$operation"
+      "word": word,
+      "operation": operation
     });
   }
 
@@ -1008,8 +1042,8 @@ class CommunicationService {
       ChildBlockedNumber blockedNumber, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToChild",
-      "blockedNumber": "${jsonEncode(blockedNumber)}",
-      "operation": "$operation"
+      "blockedNumber": blockedNumber,
+      "operation": operation
     });
   }
 
@@ -1028,17 +1062,17 @@ class CommunicationService {
       bool shareBirthday) async {
     final contents = jsonEncode({
       "type": "setupChild",
-      "contacts": "${jsonEncode(contacts)}",
-      "words": "${jsonEncode(words)}",
-      "blockedNumbers": "${jsonEncode(blockedNumbers)}",
-      "chats": "${jsonEncode(chats)}",
-      "messages": "${jsonEncode(messages)}",
-      "blurImages": "${blurImages ? 1 : 0}",
-      "safeMode": "${safeMode ? 1 : 0}",
-      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
-      "shareStatus": "${shareStatus ? 1 : 0}",
-      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
-      "shareBirthday": "${shareBirthday ? 1 : 0}",
+      "contacts": contacts,
+      "words": words,
+      "blockedNumbers": blockedNumbers,
+      "chats": chats,
+      "messages": messages,
+      "blurImages": blurImages,
+      "safeMode": safeMode,
+      "shareProfilePicture": shareProfilePicture,
+      "shareStatus": shareStatus,
+      "shareReadReceipts": shareReadReceipts,
+      "shareBirthday": shareBirthday
     });
   }
 
@@ -1052,12 +1086,12 @@ class CommunicationService {
       bool shareBirthday) async {
     final contents = {
       "type": "allSettingsToParent",
-      "blurImages": "${blurImages ? 1 : 0}",
-      "safeMode": "${safeMode ? 1 : 0}",
-      "shareProfilePicture": "${shareProfilePicture ? 1 : 0}",
-      "shareStatus": "${shareStatus ? 1 : 0}",
-      "shareReadReceipts": "${shareReadReceipts ? 1 : 0}",
-      "shareBirthday": "${shareBirthday ? 1 : 0}"
+      "blurImages": blurImages,
+      "safeMode": safeMode,
+      "shareProfilePicture": shareProfilePicture,
+      "shareStatus": shareStatus,
+      "shareReadReceipts": shareReadReceipts,
+      "shareBirthday": shareBirthday
     };
   }
 
@@ -1065,8 +1099,8 @@ class CommunicationService {
       String parentNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({
       "type": "newProfanityWordToParent",
-      "word": "${jsonEncode(word)}",
-      "operation": "$operation"
+      "word": word,
+      "operation": operation
     });
   }
 
@@ -1074,24 +1108,21 @@ class CommunicationService {
       String parentNumber, BlockedNumber number, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToParent",
-      "blockedNumber": "${jsonEncode(number)}",
-      "operation": "$operation"
+      "blockedNumber": number,
+      "operation": operation
     });
   }
 
   Future<void> sendChatToParent(
       String parentNumber, Chat chat, String operation) async {
-    final contents = jsonEncode({
-      "type": "chatToParent",
-      "chat": "${jsonEncode(chat)}",
-      "operation": "$operation"
-    });
+    final contents = jsonEncode(
+        {"type": "chatToParent", "chat": chat, "operation": operation});
   }
 
   Future<void> sendChildMessageToParent(
       String parentNumber, Message message) async {
-    final contents = jsonEncode(
-        {"type": "messageToParent", "message": "${jsonEncode(message)}"});
+    final contents =
+        jsonEncode({"type": "messageToParent", "message": message});
   }
 
   Future<void> sendContactToParent(
@@ -1099,8 +1130,8 @@ class CommunicationService {
     //TODO check if jsonEncode works this way
     final contents = jsonEncode({
       "type": "contactToParent",
-      "contact": "${jsonEncode(contact)}",
-      "operation": "$operation"
+      "contact": contact,
+      "operation": operation
     });
   }
 

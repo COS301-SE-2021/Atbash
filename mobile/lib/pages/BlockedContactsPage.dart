@@ -113,6 +113,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
             padding: EdgeInsets.all(5),
             child: IntrinsicHeight(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
                     flex: 1,

@@ -97,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.black)),
                     child: Text(
-                      "Privacy settings have been disabled. Please contact \n'phone number'\nto allow access.",
+                      "Privacy settings have been disabled. Please contact \n${controller.model.parentName}\nto allow access.",
                       textAlign: TextAlign.center,
                     ),
                   ),

@@ -47,7 +47,7 @@ class SettingsPageController {
         .then((value) => model.autoDownloadMedia = value);
     settingsService
         .getEditableSettings()
-        .then((value) => model.editableSettings = false);
+        .then((value) => model.editableSettings = value);
   }
 
   void reload() {

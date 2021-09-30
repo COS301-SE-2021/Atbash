@@ -384,6 +384,7 @@ class CommunicationService {
             jsonDecode(eventPayload.contents);
         final type = decryptedContents["type"] as String?;
 
+        print(type);
         switch (type) {
           case "message":
             final chatTypeStr = decryptedContents["chatType"] as String;
@@ -677,7 +678,7 @@ class CommunicationService {
             break;
 
           case "setupChild":
-          //create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
+            //create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
             final contact =
                 await contactService.fetchByPhoneNumber(senderPhoneNumber);
 
@@ -1124,6 +1125,7 @@ class CommunicationService {
       String childNumber, String name, String code) async {
     final contents =
         jsonEncode({"type": "addChild", "name": name, "code": code});
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendRemoveChild(String childNumber) async {

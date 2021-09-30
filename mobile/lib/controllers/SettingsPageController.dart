@@ -109,7 +109,7 @@ class SettingsPageController {
   }
 
   void sentUpdatedSettingsToParent() async{
-    final parent = await parentService.fetchByEnabled(true).catchError((_) {
+    final parent = await parentService.fetchByEnabled().catchError((_) {
 
     });
     communicationService.sendAllSettingsToParent(parent.phoneNumber, model.blurImages, model.safeMode, model.sharedProfilePicture, model.shareStatus, model.shareReadReceipts, model.shareBirthday);

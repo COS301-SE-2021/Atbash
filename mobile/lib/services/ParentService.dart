@@ -38,11 +38,11 @@ class ParentService {
     throw ParentDoesNotExistException();
   }
 
-  Future<Parent> fetchByEnabled(bool enabled) async {
+  Future<Parent> fetchByEnabled() async {
     final db = await databaseService.database;
 
     final result = await db.query(Parent.TABLE_NAME,
-        where: "${Parent.COLUMN_ENABLED} = ?", whereArgs: [enabled]);
+        where: "${Parent.COLUMN_ENABLED} = ?", whereArgs: [true]);
 
     if (result.isNotEmpty) {
       final parent = Parent.fromMap(result.first);

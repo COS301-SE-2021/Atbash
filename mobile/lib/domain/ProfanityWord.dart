@@ -19,6 +19,13 @@ class ProfanityWord {
     };
   }
 
+  Map toJson() => {
+        'profanityWordRegex': profanityWordRegex,
+        'profanityID': profanityID,
+        'profanityOriginalWord': profanityOriginalWord,
+        'addedByParent': addedByParent
+      };
+
   static ProfanityWord? fromMap(Map<String, Object?> map) {
     final profanityWordRegex = map[COLUMN_PROFANITY_WORD_REGEX] as String?;
     final profanityID = map[COLUMN_PROFANITY_ID] as String?;

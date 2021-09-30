@@ -21,6 +21,8 @@ class BlockedNumber {
     }
   }
 
+  Map toJson() => {'phoneNumber': phoneNumber, 'addedByParent': addedByParent};
+
   static const TABLE_NAME = "blocked_number";
   static const COLUMN_PHONE_NUMBER = "blocked_number_phone_number";
   static const COLUMN_ADDED_BY_PARENT = "added_by_parent";

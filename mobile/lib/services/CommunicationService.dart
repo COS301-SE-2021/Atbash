@@ -1261,6 +1261,7 @@ class CommunicationService {
 
   Future<void> sendChatToParent(
       String parentNumber, Chat chat, String operation) async {
+    chat.contact?.profileImage = "";
     final contents = jsonEncode(
         {"type": "chatToParent", "chat": chat, "operation": operation});
   }
@@ -1273,6 +1274,7 @@ class CommunicationService {
 
   Future<void> sendContactToParent(
       String parentNumber, Contact contact, String operation) async {
+    contact.profileImage = "";
     final contents = jsonEncode({
       "type": "contactToParent",
       "contact": contact,

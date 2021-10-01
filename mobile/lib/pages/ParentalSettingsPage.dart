@@ -74,7 +74,6 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                               "Please enter the code shown on the parent's phone")
                           .then((value) {
                         if (value != null) controller.addParent(value);
-                        //   //TODO: Send all data to parent if correct code and enable parent in database.
                       });
                     },
                     title: Text(

@@ -33,7 +33,6 @@ class ParentalSettingsPageController {
           .fetchByEnabled()
           .then((parent) => model.parentName = parent.name)
           .catchError((_) {
-        model.parentName = "";
       });
       reload(0);
     });

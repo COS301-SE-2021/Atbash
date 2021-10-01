@@ -21,7 +21,8 @@ class ProfanityWordService {
     return profanityWords;
   }
 
-  Future<ProfanityWord> addWord(String baseWord, {bool addedByParent = false}) async {
+  Future<ProfanityWord> addWord(String baseWord,
+      {bool addedByParent = false}) async {
     final db = await databaseService.database;
 
     //logic for profanity variations
@@ -46,11 +47,12 @@ class ProfanityWordService {
     return profanityWord;
   }
 
-  Future<void> deleteByWord(String word) async{
+  Future<void> deleteByWord(String word) async {
     final db = await databaseService.database;
 
     db.delete(ProfanityWord.TABLE_NAME,
-        where: "${ProfanityWord.COLUMN_PROFANITY_ORIGINAL_WORD} =?", whereArgs: [word]);
+        where: "${ProfanityWord.COLUMN_PROFANITY_ORIGINAL_WORD} =?",
+        whereArgs: [word]);
   }
 
   Future<void> deleteByID(String id) async {

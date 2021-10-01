@@ -74,7 +74,6 @@ class ProfileSettingsPageController {
     communicationService.sendRequestProfileImage(number);
   }
 
-
   Future<void> importContacts() async {
     PermissionStatus contactPermission = await Permission.contacts.request();
     if (contactPermission.isGranted) {

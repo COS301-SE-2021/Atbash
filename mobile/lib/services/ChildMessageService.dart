@@ -10,7 +10,9 @@ class ChildMessageService {
     final db = await databaseService.database;
 
     final response = await db.query(ChildMessage.TABLE_NAME,
-        where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id], orderBy: "${ChildMessage.COLUMN_TIMESTAMP} desc");
+        where: "${ChildMessage.COLUMN_CHAT_ID} = ?",
+        whereArgs: [id],
+        orderBy: "${ChildMessage.COLUMN_TIMESTAMP} desc");
 
     final messages = <ChildMessage>[];
     response.forEach((element) {
@@ -22,15 +24,16 @@ class ChildMessageService {
     return messages;
   }
 
-  Future<void> insert(ChildMessage message) async{
+  Future<void> insert(ChildMessage message) async {
     final db = await databaseService.database;
 
     await db.insert(ChildMessage.TABLE_NAME, message.toMap());
   }
-  
-  Future<void> deleteAllByChatId(String id) async{
+
+  Future<void> deleteAllByChatId(String id) async {
     final db = await databaseService.database;
-    
-    await db.delete(ChildMessage.TABLE_NAME, where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id]);
+
+    await db.delete(ChildMessage.TABLE_NAME,
+        where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id]);
   }
 }

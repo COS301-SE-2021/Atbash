@@ -72,8 +72,8 @@ class ParentalSettingsPageController {
     await childService.deleteByNumber(child.phoneNumber);
     await childBlockedNumberService.deleteAllForChild(child.phoneNumber);
     await childProfanityWordService.deleteAllByNumber(child.phoneNumber);
-    model.children
-        .remove(model.children.where((element) => element.first == child));
+    model.children.removeWhere(
+        (element) => element.first.phoneNumber == child.phoneNumber);
   }
 
   void setName(String name) {

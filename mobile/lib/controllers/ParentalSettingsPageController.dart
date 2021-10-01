@@ -32,8 +32,7 @@ class ParentalSettingsPageController {
       parentService
           .fetchByEnabled()
           .then((parent) => model.parentName = parent.name)
-          .catchError((_) {
-      });
+          .catchError((_) {});
       reload(0);
     });
   }
@@ -71,6 +70,7 @@ class ParentalSettingsPageController {
       childMessageService.deleteAllByChatId(chat.id);
     });
     childChatService.deleteAllByNumber(child.phoneNumber);
+    print(child.phoneNumber);
     childService.deleteByNumber(child.phoneNumber);
     childBlockedNumberService.deleteAllForChild(child.phoneNumber);
     childProfanityWordService.deleteAllByNumber(child.phoneNumber);

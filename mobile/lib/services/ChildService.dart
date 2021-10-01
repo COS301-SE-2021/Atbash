@@ -116,6 +116,7 @@ class ChildService {
 
       final child = Child.fromMap(existingChild.first);
 
+      print(child);
       if (child != null)
         txn.delete(Child.TABLE_NAME,
             where: "${Child.COLUMN_PHONE_NUMBER} = ?",

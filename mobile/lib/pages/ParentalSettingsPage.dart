@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
+import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/domain/Child.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/ChildProfanityFilterListPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
@@ -111,8 +113,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       itemBuilder: (_, index) {
                         return Container(
                           child: _buildChildBubble(
-                              controller.model.children[index].first.name,
-                              index),
+                              controller.model.children[index].first, index),
                         );
                       },
                     ),
@@ -457,14 +458,21 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
     );
   }
 
-  Widget _buildChildBubble(String displayName, int index) {
+  Widget _buildChildBubble(Child child, int index) {
     return InkWell(
       onTap: () => controller.reload(index),
+      onLongPress: () => showConfirmDialog(context,
+              "Are you sure you want to remove ${child.name} from your children?")
+          .then((value) {
+        if (value != null && value) {
+          controller.removeChild(child);
+        }
+      }),
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
         padding: EdgeInsets.all(5),
         child: Text(
-          displayName,
+          child.name,
           style: TextStyle(color: Colors.black),
         ),
         decoration: BoxDecoration(

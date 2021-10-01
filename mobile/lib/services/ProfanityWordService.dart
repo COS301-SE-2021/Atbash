@@ -57,8 +57,6 @@ class ProfanityWordService {
       txn.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
     });
 
-    await db.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
-
     return profanityWord;
   }
 

@@ -662,7 +662,7 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              profanityWordService.addWord(profanityWord.profanityOriginalWord);
+              profanityWordService.addWord(profanityWord.profanityOriginalWord, addedByParent: true);
             } else {
               profanityWordService
                   .deleteByWord(profanityWord.profanityOriginalWord);

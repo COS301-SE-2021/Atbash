@@ -5,6 +5,7 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ParentalSettingsPageController.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
+import 'package:mobile/pages/ChildProfanityFilterListPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 import 'package:mobile/pages/ProfanityFilterListPage.dart';
 
@@ -287,7 +288,13 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
-                                      ProfanityFilterListPage()));
+                                      ChildProfanityFilterListPage(
+                                          childNumber: controller
+                                              .model
+                                              .children[controller
+                                                  .model.currentlySelected]
+                                              .first
+                                              .phoneNumber)));
                         },
                         dense: true,
                       ),

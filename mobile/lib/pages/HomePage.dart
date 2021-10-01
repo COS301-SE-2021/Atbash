@@ -52,7 +52,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
     settingsService.getLockedAccount().then((value) {
       if (value) {
-        Navigator.popUntil(context, ModalRoute.withName("/"));
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => LockedAccountPage()));
       }

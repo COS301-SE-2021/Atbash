@@ -330,19 +330,6 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         ),
                       ),
                       ListTile(
-                        onTap: () {},
-                        title: Text("Lock Account",
-                            style: TextStyle(fontSize: 16)),
-                        subtitle: Text(
-                            "Lock or unlock the child's account and their ability to use the application."),
-                        leading: Icon(
-                          Icons.lock,
-                          color: Colors.orange,
-                        ),
-                        trailing: Icon(Icons.arrow_forward_rounded),
-                        dense: true,
-                      ),
-                      ListTile(
                         title: Text("Chat Log", style: TextStyle(fontSize: 16)),
                         subtitle: Text("Access your child's chat log"),
                         leading: Icon(
@@ -364,6 +351,22 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             ),
                           );
                         },
+                        dense: true,
+                      ),
+                      SwitchListTile(
+                        value: controller.model.lockedAccount,
+                        onChanged: (value) {
+                          controller.setLockedAccount(value);
+                          controller.setChildChanged(true);
+                        },
+                        title: Text("Lock Account",
+                            style: TextStyle(fontSize: 16)),
+                        subtitle: Text(
+                            "Lock or unlock the child's account and their ability to use the application."),
+                        secondary: Icon(
+                          Icons.lock,
+                          color: Constants.orange,
+                        ),
                         dense: true,
                       ),
                       SwitchListTile(

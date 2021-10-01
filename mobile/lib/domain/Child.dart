@@ -17,7 +17,7 @@ class Child {
   Child({
     required this.phoneNumber,
     required this.name,
-    this.editableSettings = false,
+    this.editableSettings = true,
     this.blurImages = false,
     this.safeMode = false,
     this.shareProfilePicture = false,

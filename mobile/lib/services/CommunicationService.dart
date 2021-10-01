@@ -72,20 +72,29 @@ class CommunicationService {
   String? anonymousConnectionId = null;
   String anonymousId = "";
 
+  //Messaging Listeners
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
-  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   List<void Function(String messageID, String messageContents)>
       _onMessageEditListeners = [];
+
+  //Private Chat Listeners
+  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
   void Function()? onAcceptPrivateChat;
+
+  //Notification Listeners
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
+
+  //Settings Listeners
   List<void Function(bool lockedAccount)> _onLockedAccountSetListeners = [];
+
+  //Message Listeners On and Dispose
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -123,6 +132,8 @@ class CommunicationService {
   void disposeOnMessageEdited(
           void Function(String messageID, String messageContents) cb) =>
       _onMessageEditListeners.remove(cb);
+
+  //Settings Listeners On and Dispose
 
   void onLockedAccountSet(void Function(bool lockedAccount) cb) =>
       _onLockedAccountSetListeners.add(cb);
@@ -988,11 +999,10 @@ class CommunicationService {
 
     if (chatType == ChatType.general) {
       await messageService.insert(message);
-      parentService.fetchByEnabled().then((parent) async{
+      parentService.fetchByEnabled().then((parent) async {
         message.otherPartyPhoneNumber = senderPhoneNumber;
         await sendChildMessageToParent(parent.phoneNumber, message);
       }).catchError((_) {});
-
     }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));

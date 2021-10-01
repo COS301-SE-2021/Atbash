@@ -162,7 +162,7 @@ abstract class _Message with Store {
 
   final DateTime timestamp;
 
-  final bool isMedia;
+  bool isMedia;
 
   final bool forwarded;
 

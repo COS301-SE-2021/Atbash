@@ -803,7 +803,9 @@ class CommunicationService {
             final chat = Chat(
                 id: map["id"],
                 contactPhoneNumber: map["contactPhoneNumber"],
-                chatType: map["chatType"] == "private" ? ChatType.private : ChatType.general);
+                chatType: map["chatType"] == "private"
+                    ? ChatType.private
+                    : ChatType.general);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
@@ -1178,8 +1180,8 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
-  Future<void> sendBlockedNumberToChild(String childNumber,
-      BlockedNumber blockedNumber, String operation) async {
+  Future<void> sendBlockedNumberToChild(
+      String childNumber, BlockedNumber blockedNumber, String operation) async {
     final contents = jsonEncode({
       "type": "blockedNumberToChild",
       "blockedNumber": blockedNumber,
@@ -1189,6 +1191,64 @@ class CommunicationService {
   }
 
   Future<void> sendSetupChild(String parentNumber) async {
+    // final blurImages = await settingsService.getBlurImages();
+    // final safeMode = await settingsService.getSafeMode();
+    // final shareProfilePicture = await settingsService.getShareProfilePicture();
+    // final shareStatus = await settingsService.getShareStatus();
+    // final shareReadReceipts = await settingsService.getShareReadReceipts();
+    // final shareBirthday = await settingsService.getShareBirthday();
+    // final contents = jsonEncode({
+    //   "type": "setupChild",
+    //   "blurImages": blurImages,
+    //   "safeMode": safeMode,
+    //   "shareProfilePicture": shareProfilePicture,
+    //   "shareStatus": shareStatus,
+    //   "shareReadReceipts": shareReadReceipts,
+    //   "shareBirthday": shareBirthday
+    // });
+    // _queueForSending(contents, parentNumber);
+
+    // final List<Contact> contacts = await contactService.fetchAll();
+    // contacts.forEach((contact) {
+    //   sendContactToParent(parentNumber, contact, "insert");
+    // });
+    // final List<ProfanityWord> words = await profanityWordService.fetchAll();
+    // words.forEach((word) {
+    //   sendNewProfanityWordToParent(parentNumber, word, "insert");
+    // });
+    // final List<BlockedNumber> blockedNumbers =
+    //     await blockedNumbersService.fetchAll();
+    // blockedNumbers.forEach((number) {
+    //   sendBlockedNumberToParent(parentNumber, number, "insert");
+    // });
+    // final List<Chat> chats = await chatService.fetchAll();
+    // chats.forEach((chat) {
+    //   sendChatToParent(parentNumber, chat, "insert");
+    // });
+    // final List<Message> messages = await messageService.fetchAll();
+    // messages.forEach((message) {
+    //   sendChildMessageToParent(parentNumber, message);
+    // });
+
+    final List<Contact> contacts = await contactService.fetchAll();
+    contacts.forEach((contact) {
+      contact.profileImage = "";
+    });
+    final List<ProfanityWord> words = await profanityWordService.fetchAll();
+    final List<BlockedNumber> blockedNumbers =
+        await blockedNumbersService.fetchAll();
+    final List<Chat> chats = await chatService.fetchAll();
+    chats.forEach((chat) {
+      chat.contact?.profileImage = "";
+    });
+    final List<Message> messages = await messageService.fetchAll();
+    messages.forEach((message) {
+      if (message.isMedia) {
+        message.isMedia = false;
+        message.contents = "This was an Image before";
+      }
+    });
+
     final blurImages = await settingsService.getBlurImages();
     final safeMode = await settingsService.getSafeMode();
     final shareProfilePicture = await settingsService.getShareProfilePicture();
@@ -1202,31 +1262,14 @@ class CommunicationService {
       "shareProfilePicture": shareProfilePicture,
       "shareStatus": shareStatus,
       "shareReadReceipts": shareReadReceipts,
-      "shareBirthday": shareBirthday
+      "shareBirthday": shareBirthday,
+      "contacts": contacts,
+      "words": words,
+      "blockedNumbers": blockedNumbers,
+      "chats": chats,
+      "messages": messages
     });
     _queueForSending(contents, parentNumber);
-
-    final List<Contact> contacts = await contactService.fetchAll();
-    contacts.forEach((contact) {
-      sendContactToParent(parentNumber, contact, "insert");
-    });
-    final List<ProfanityWord> words = await profanityWordService.fetchAll();
-    words.forEach((word) {
-      sendNewProfanityWordToParent(parentNumber, word, "insert");
-    });
-    final List<BlockedNumber> blockedNumbers =
-        await blockedNumbersService.fetchAll();
-    blockedNumbers.forEach((number) {
-      sendBlockedNumberToParent(parentNumber, number, "insert");
-    });
-    final List<Chat> chats = await chatService.fetchAll();
-    chats.forEach((chat) {
-      sendChatToParent(parentNumber, chat, "insert");
-    });
-    final List<Message> messages = await messageService.fetchAll();
-    messages.forEach((message) {
-      sendChildMessageToParent(parentNumber, message);
-    });
   }
 
   Future<void> sendAllSettingsToParent(

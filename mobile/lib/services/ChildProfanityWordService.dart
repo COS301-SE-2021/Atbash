@@ -1,5 +1,6 @@
 import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:uuid/uuid.dart';
 
 class ChildProfanityWordService {
   final DatabaseService databaseService;
@@ -43,20 +44,42 @@ class ChildProfanityWordService {
     throw ChildProfanityWordDoesNotExistException();
   }
 
-  Future<void> insert(ChildProfanityWord word) async {
+  Future<ChildProfanityWord> insert(String word, String childNumber) async {
     final db = await databaseService.database;
+
+    //logic for profanity variations
+    String newWord = word.replaceAll(RegExp(r'e'), '[e3]');
+    newWord = newWord.replaceAll(RegExp(r's'), '[s\$]');
+    newWord = newWord.replaceAll(RegExp(r'a'), '[a@]');
+    newWord = newWord.replaceAll(RegExp(r'l'), '[l1]');
+    newWord = newWord.replaceAll(RegExp(r'i'), '[i!]');
+    newWord = newWord.replaceAll(RegExp(r'o'), '[o0]');
+    newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
+    newWord = newWord.replaceAll(RegExp(r'f'), '(ph|f)');
+    newWord = newWord.replaceAll(RegExp(r'ph'), '(ph|f)');
+
+    final childProfanityWord = ChildProfanityWord(
+        phoneNumber: childNumber,
+        profanityWordRegex: newWord,
+        profanityID: Uuid().v4(),
+        profanityOriginalWord: word);
 
     await db.transaction((txn) async {
       final wordAlreadyExists = await txn.query(ChildProfanityWord.TABLE_NAME,
           where:
               "${ChildProfanityWord.COLUMN_PROFANITY_ID} = ? AND ${ChildProfanityWord.COLUMN_PHONE_NUMBER} = ?",
-          whereArgs: [word.profanityID, word.phoneNumber]);
+          whereArgs: [
+            childProfanityWord.profanityID,
+            childProfanityWord.phoneNumber
+          ]);
 
       if (wordAlreadyExists.isNotEmpty)
         throw ChildProfanityWordAlreadyExistsException();
 
-      txn.insert(ChildProfanityWord.TABLE_NAME, word.toMap());
+      txn.insert(ChildProfanityWord.TABLE_NAME, childProfanityWord.toMap());
     });
+
+    return childProfanityWord;
   }
 
   Future<void> deleteByNumberAndID(String childNumber, String profID) async {

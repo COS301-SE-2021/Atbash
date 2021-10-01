@@ -988,6 +988,11 @@ class CommunicationService {
 
     if (chatType == ChatType.general) {
       await messageService.insert(message);
+      parentService.fetchByEnabled().then((parent) async{
+        message.otherPartyPhoneNumber = senderPhoneNumber;
+        await sendChildMessageToParent(parent.phoneNumber, message);
+      }).catchError((_) {});
+
     }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));

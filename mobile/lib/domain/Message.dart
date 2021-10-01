@@ -208,7 +208,7 @@ abstract class _Message with Store {
 
   final bool isIncoming;
 
-  final String otherPartyPhoneNumber;
+  String otherPartyPhoneNumber;
 
   @observable
   String contents;

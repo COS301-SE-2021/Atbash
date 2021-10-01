@@ -4,9 +4,14 @@ class SettingsService {
   final _storage = FlutterSecureStorage();
 
   Future<bool> getEditableSettings() async {
-    final bool editableSettings =
-        await _storage.read(key: "settings_editable_settings") == "true";
-    return editableSettings;
+    final editableSettings =
+        await _storage.read(key: "settings_editable_settings");
+    if (editableSettings == null)
+      return false;
+    else if (editableSettings == "true")
+      return true;
+    else
+      return false;
   }
 
   Future<void> setEditableSettings(bool value) async {

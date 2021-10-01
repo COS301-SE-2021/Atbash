@@ -31,7 +31,10 @@ class ParentalSettingsPageController {
       model.children.addAll(tuples);
       parentService
           .fetchByEnabled()
-          .then((parent) => model.parentName = parent.name);
+          .then((parent) => model.parentName = parent.name)
+          .catchError((_) {
+        model.parentName = "";
+      });
       reload(0);
     });
   }

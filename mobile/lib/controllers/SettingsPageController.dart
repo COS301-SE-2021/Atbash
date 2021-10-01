@@ -45,9 +45,10 @@ class SettingsPageController {
     settingsService
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
-    settingsService
-        .getEditableSettings()
-        .then((value) => model.editableSettings = value);
+    settingsService.getEditableSettings().then((value) {
+      model.editableSettings = value;
+      print(value);
+    });
   }
 
   void reload() {
@@ -58,7 +59,8 @@ class SettingsPageController {
         .then((value) => model.userProfilePicture = value);
     parentService
         .fetchByEnabled()
-        .then((value) => model.parentName = value.name);
+        .then((value) => model.parentName = value.name)
+        .catchError((_) => model.parentName = "");
   }
 
   void setBlurImages(bool value) {

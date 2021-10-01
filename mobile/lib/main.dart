@@ -9,6 +9,7 @@ import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/LoadingPage.dart';
+import 'package:mobile/pages/LockedAccountPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';

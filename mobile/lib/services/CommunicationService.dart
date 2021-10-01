@@ -83,6 +83,7 @@ class CommunicationService {
   void Function()? onAcceptPrivateChat;
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
+  List<void Function(bool lockedAccount)> _onLockedAccountSetListeners = [];
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -120,6 +121,12 @@ class CommunicationService {
   void disposeOnMessageEdited(
           void Function(String messageID, String messageContents) cb) =>
       _onMessageEditListeners.remove(cb);
+
+  void onLockedAccountSet(void Function(bool lockedAccount) cb) =>
+      _onLockedAccountSetListeners.add(cb);
+
+  void disposeOnLockedAccountSet(void Function(bool lockedAccount) cb) =>
+      _onLockedAccountSetListeners.remove(cb);
 
   CommunicationService(
     this.blockedNumbersService,

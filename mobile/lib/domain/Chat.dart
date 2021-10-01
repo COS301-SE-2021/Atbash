@@ -60,15 +60,19 @@ class Chat extends _Chat with _$Chat {
   }
 
   static Chat? fromJson(Map<String, dynamic> json) {
-
     final id = json['id'] as String?;
     final contactPhoneNumber = json['contactPhoneNumber'] as String?;
     var contactStr = json['contact'] as String?;
-    Contact? contact = (contactStr != null) ? Contact.fromJson(jsonDecode(contactStr)) : null;
+    Contact? contact =
+        (contactStr != null) ? Contact.fromJson(jsonDecode(contactStr)) : null;
     var chatTypeStr = json['chatType'] as String?;
-    final chatType = (chatTypeStr != null) ? ChatType.values.firstWhere((e) => describeEnum(e) == chatTypeStr) : null;
+    final chatType = (chatTypeStr != null)
+        ? ChatType.values.firstWhere((e) => describeEnum(e) == chatTypeStr)
+        : null;
     var mostRecentMessageStr = json['mostRecentMessage'] as String?;
-    Message? mostRecentMessage = (mostRecentMessageStr != null) ? Message.fromJson(jsonDecode(mostRecentMessageStr)) : null;
+    Message? mostRecentMessage = (mostRecentMessageStr != null)
+        ? Message.fromJson(jsonDecode(mostRecentMessageStr))
+        : null;
 
     if (id != null && contactPhoneNumber != null && chatType != null) {
       return Chat(
@@ -80,14 +84,6 @@ class Chat extends _Chat with _$Chat {
       );
     }
   }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'contactPhoneNumber': contactPhoneNumber,
-    'contact': contact?.toJson(),
-    'chatType': chatType.toString(),
-    'mostRecentMessage': mostRecentMessage?.toJson(),
-  };
 
   static const String TABLE_NAME = "chat";
   static const String COLUMN_ID = "chat_id";

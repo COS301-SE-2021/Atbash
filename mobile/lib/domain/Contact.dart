@@ -84,14 +84,6 @@ class Contact extends _Contact with _$Contact {
     }
   }
 
-  Map<String, dynamic> toJson() => {
-    'phoneNumber': phoneNumber,
-    'displayName': displayName,
-    'status': status,
-    'profileImage': profileImage,
-    'birthday': birthday?.millisecondsSinceEpoch,
-  };
-
   static const String TABLE_NAME = "contact";
   static const String COLUMN_PHONE_NUMBER = "contact_phone_number";
   static const String COLUMN_DISPLAY_NAME = "contact_display_name";

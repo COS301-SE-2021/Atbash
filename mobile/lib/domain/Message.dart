@@ -118,23 +118,6 @@ class Message extends _Message with _$Message {
     }
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'chatId': chatId,
-    'isIncoming': isIncoming,
-    'otherPartyPhoneNumber': otherPartyPhoneNumber,
-    'contents': contents,
-    'timestamp': timestamp.millisecondsSinceEpoch,
-    'isMedia': isMedia,
-    'forwarded': forwarded,
-    'readReceipt': readReceipt.toString(),
-    'repliedMessageId': repliedMessageId,
-    'deleted': deleted,
-    'liked': liked,
-    'tags': tags,
-    'edited': edited,
-  };
-
   static Message? fromJson(Map<String, Object?> json) {
     final id = json["id"] as String?;
     final chatId = json["chatId"] as String?;
@@ -145,14 +128,16 @@ class Message extends _Message with _$Message {
     final isMedia = json["isMedia"] as bool?;
     final forwarded = json["forwarded"] as bool?;
     var readReceiptStr = json['chatType'] as String?;
-    final readReceipt = (readReceiptStr != null) ? ReadReceipt.values.firstWhere((e) => describeEnum(e) == readReceiptStr) : null;
+    final readReceipt = (readReceiptStr != null)
+        ? ReadReceipt.values
+            .firstWhere((e) => describeEnum(e) == readReceiptStr)
+        : null;
     final deleted = json["deleted"] as bool?;
     final liked = json["liked"] as bool?;
     final edited = json["edited"] as bool?;
     final repliedMessageId = json["repliedMessageId"] as String?;
     var tags = json["tags"] as List<Tag>?;
     tags = (tags != null) ? tags : [];
-
 
     if (id != null &&
         chatId != null &&

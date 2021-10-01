@@ -74,6 +74,7 @@ class ParentalSettingsPageController {
     await childProfanityWordService.deleteAllByNumber(child.phoneNumber);
     model.children.removeWhere(
         (element) => element.first.phoneNumber == child.phoneNumber);
+    if (model.children.isNotEmpty) model.currentlySelected = 0;
   }
 
   void setName(String name) {

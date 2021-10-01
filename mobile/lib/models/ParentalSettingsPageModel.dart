@@ -16,7 +16,7 @@ abstract class _ParentalSettingsPageModel with Store {
   int currentlySelected = 0;
 
   @observable
-  bool editableSettings = false;
+  bool editableSettings = true;
 
   @observable
   bool blurImages = false;

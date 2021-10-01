@@ -70,17 +70,32 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
               child: ListView.builder(
                 itemCount: filteredProfanityWordList.length,
                 itemBuilder: (_, index) {
-                  return ListTile(
-                    title: Text(
-                        filteredProfanityWordList[index].profanityOriginalWord),
-                    trailing: IconButton(
-                      onPressed: () => _removeProfanityWord(
-                          filteredProfanityWordList[index]),
-                      icon: Icon(Icons.cancel_outlined),
-                      splashRadius: 18,
-                    ),
-                    dense: true,
-                  );
+                  if (!filteredProfanityWordList[index].addedByParent) {
+                    return ListTile(
+                      title: Text(filteredProfanityWordList[index]
+                          .profanityOriginalWord),
+                      trailing: IconButton(
+                        onPressed: () {
+                          _removeProfanityWord(
+                              filteredProfanityWordList[index]);
+                        },
+                        icon: Icon(Icons.cancel_outlined),
+                        splashRadius: 18,
+                      ),
+                      dense: true,
+                    );
+                  } else {
+                    return ListTile(
+                      title: Text(filteredProfanityWordList[index]
+                          .profanityOriginalWord),
+                      trailing: IconButton(
+                        onPressed: () {},
+                        icon: Icon(Icons.admin_panel_settings),
+                        splashRadius: 18,
+                      ),
+                      dense: true,
+                    );
+                  }
                 },
               ),
             ),

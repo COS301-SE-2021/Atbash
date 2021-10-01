@@ -59,6 +59,7 @@ class ParentalSettingsPageController {
     });
   }
 
+  //TODO call in page
   void removeChild(Child child) async {
     communicationService.sendRemoveChild(child.phoneNumber);
     model.children.remove(child);

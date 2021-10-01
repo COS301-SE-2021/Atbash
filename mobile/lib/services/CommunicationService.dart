@@ -768,12 +768,22 @@ class CommunicationService {
           case "newProfanityWordToParent":
             //update associated child ProfanityTable with new word (This is on parent phone)
             final map = decryptedContents["word"] as Map<String, dynamic>;
+
+            final operation = decryptedContents["operation"];
+
             final word = ChildProfanityWord(
                 phoneNumber: senderPhoneNumber,
                 profanityWordRegex: map["profanityWordRegex"],
                 profanityID: map["profanityID"],
                 profanityOriginalWord: map["profanityOriginalWord"]);
-            childProfanityWordService.insert(word);
+
+            if (operation == "insert") {
+              childProfanityWordService.insert(word);
+            } else {
+              childProfanityWordService.deleteByNumberAndID(
+                  senderPhoneNumber, word.profanityID);
+            }
+
             break;
 
           case "blockedNumberToParent":

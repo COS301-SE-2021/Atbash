@@ -714,11 +714,7 @@ class CommunicationService {
             final wordList = decryptedContents["words"] as List;
             wordList.forEach((word) {
               final map = word as Map<String, dynamic>;
-              childProfanityWordService.insert(ChildProfanityWord(
-                  phoneNumber: senderPhoneNumber,
-                  profanityWordRegex: map["profanityWordRegex"],
-                  profanityID: map["profanityID"],
-                  profanityOriginalWord: map["profanityOriginalWord"]));
+              childProfanityWordService.insert(map["profanityOriginalWord"], senderPhoneNumber, id: map["profanityID"]);
             });
 
             final blockedNumbersList =
@@ -785,7 +781,7 @@ class CommunicationService {
                 profanityOriginalWord: map["profanityOriginalWord"]);
 
             if (operation == "insert") {
-              childProfanityWordService.insert(word);
+              childProfanityWordService.insert(map["profanityOriginalWord"], senderPhoneNumber, id: map["profanityID"]);
             } else {
               childProfanityWordService.deleteByNumberAndID(
                   senderPhoneNumber, word.profanityID);

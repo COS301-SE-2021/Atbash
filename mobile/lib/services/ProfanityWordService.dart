@@ -35,12 +35,27 @@ class ProfanityWordService {
     newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
     newWord = newWord.replaceAll(RegExp(r'f'), '(ph|f)');
     newWord = newWord.replaceAll(RegExp(r'ph'), '(ph|f)');
+    newWord = newWord.replaceAll(RegExp(r'a'), '(a|er)');
+    newWord = newWord.replaceAll(RegExp(r'er'), '(a|er)');
 
     final profanityWord = ProfanityWord(
         profanityWordRegex: newWord,
         profanityID: Uuid().v4(),
         profanityOriginalWord: baseWord,
         addedByParent: addedByParent);
+
+    await db.transaction((txn) async {
+      final wordAlreadyExists = await txn.query(ProfanityWord.TABLE_NAME,
+          where: "${ProfanityWord.COLUMN_PROFANITY_ID} = ?",
+          whereArgs: [
+            profanityWord.profanityID,
+          ]);
+
+      if (wordAlreadyExists.isNotEmpty)
+        throw ProfanityWordAlreadyExistsException();
+
+      txn.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
+    });
 
     await db.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
 
@@ -69,3 +84,5 @@ class ProfanityWordService {
         oldString.substring(index + 1);
   }
 }
+
+class ProfanityWordAlreadyExistsException implements Exception {}

@@ -44,7 +44,7 @@ class ChildProfanityWordService {
     throw ChildProfanityWordDoesNotExistException();
   }
 
-  Future<ChildProfanityWord> insert(String word, String childNumber) async {
+  Future<ChildProfanityWord> insert(String word,String childNumber, {String? id}) async {
     final db = await databaseService.database;
 
     //logic for profanity variations
@@ -57,11 +57,13 @@ class ChildProfanityWordService {
     newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
     newWord = newWord.replaceAll(RegExp(r'f'), '(ph|f)');
     newWord = newWord.replaceAll(RegExp(r'ph'), '(ph|f)');
+    newWord = newWord.replaceAll(RegExp(r'a'), '(a|er)');
+    newWord = newWord.replaceAll(RegExp(r'er'), '(a|er)');
 
     final childProfanityWord = ChildProfanityWord(
         phoneNumber: childNumber,
         profanityWordRegex: newWord,
-        profanityID: Uuid().v4(),
+        profanityID: id != null ? id : Uuid().v4(),
         profanityOriginalWord: word);
 
     await db.transaction((txn) async {

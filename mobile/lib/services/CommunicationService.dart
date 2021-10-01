@@ -1170,6 +1170,7 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
+  //TODO implement function, dont think weve actually setup profanity page to work propperly
   Future<void> sendNewProfanityWordToChild(
       String childNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({

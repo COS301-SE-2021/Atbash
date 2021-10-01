@@ -334,6 +334,11 @@ class ChatPageController {
 
     chat.then((chat) {
       if (chat.chatType == ChatType.general) contactService.insert(contact);
+      parentService
+          .fetchByEnabled()
+          .then((parent) => communicationService.sendContactToParent(
+              parent.phoneNumber, contact, "insert"))
+          .catchError((_) {});
     });
   }
 
@@ -366,6 +371,11 @@ class ChatPageController {
               contactPhoneNumber: contact.phoneNumber,
               chatType: ChatType.general);
           await chatService.insert(newChat);
+          parentService
+              .fetchByEnabled()
+              .then((parent) => communicationService.sendChatToParent(
+                  parent.phoneNumber, newChat, "insert"))
+              .catchError((_) {});
         }));
 
         final allNumberChats = await chatService.fetchIdsByContactPhoneNumbers(

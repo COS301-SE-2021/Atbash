@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
+import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
+import 'package:mobile/services/CommunicationService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/util/Utils.dart';
 
@@ -16,8 +19,11 @@ class ProfanityFilterListPage extends StatefulWidget {
 
 class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   final ProfanityWordService profanityWordService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
   List<ProfanityWord> profanityWordList = [];
   List<ProfanityWord> filteredProfanityWordList = [];
+  Parent? hasParent;
 
   @override
   void initState() {
@@ -28,6 +34,11 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         filteredProfanityWordList = List.of(wordList);
       });
     });
+    parentService.fetchByEnabled().then((parent) {
+      setState(() {
+        hasParent = parent;
+      });
+    }).catchError((_) {});
   }
 
   @override
@@ -138,8 +149,12 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   void _addProfanityWord() async {
     final input = await showInputDialog(
         context, "Please insert the profanity you want to filter.");
-    if (input != null)
+    if (input != null) {
       profanityWordService.addWord(input).then((profanityWord) {
+        final parent = hasParent;
+        if (parent != null)
+          communicationService.sendNewProfanityWordToParent(
+              parent.phoneNumber, profanityWord, "insert");
         setState(() {
           profanityWordList.add(profanityWord);
           filteredProfanityWordList.add(profanityWord);
@@ -147,10 +162,15 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
       }).catchError((_) {
         showSnackBar(context, "This word has already been added.");
       });
+    }
   }
 
   void _removeProfanityWord(ProfanityWord profanityWord) {
     profanityWordService.deleteByID(profanityWord.profanityID).then((_) {
+      final parent = hasParent;
+      if (parent != null)
+        communicationService.sendNewProfanityWordToParent(
+            parent.phoneNumber, profanityWord, "delete");
       setState(() {
         profanityWordList.remove(profanityWord);
         filteredProfanityWordList.remove(profanityWord);

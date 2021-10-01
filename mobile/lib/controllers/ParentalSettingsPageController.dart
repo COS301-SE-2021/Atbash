@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/models/ParentalSettingsPageModel.dart';
+import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ParentService.dart';
@@ -14,6 +16,8 @@ class ParentalSettingsPageController {
   final ChildChatService childChatService = GetIt.I.get();
   final ChildMessageService childMessageService = GetIt.I.get();
   final ParentService parentService = GetIt.I.get();
+  final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
+  final ChildProfanityWordService childProfanityWordService = GetIt.I.get();
 
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
@@ -65,6 +69,8 @@ class ParentalSettingsPageController {
     });
     childChatService.deleteAllByNumber(child.phoneNumber);
     childService.deleteByNumber(child.phoneNumber);
+    childBlockedNumberService.deleteAllForChild(child.phoneNumber);
+    childProfanityWordService.deleteAllByNumber(child.phoneNumber);
   }
 
   void setName(String name) {

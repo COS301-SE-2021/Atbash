@@ -1,3 +1,3 @@
-class ProfanityFilterListPageController{
+class ProfanityFilterListPageController {
   //TODO add functionality
 }

@@ -7,7 +7,7 @@ class SettingsService {
     final editableSettings =
         await _storage.read(key: "settings_editable_settings");
     if (editableSettings == null)
-      return false;
+      return true;
     else if (editableSettings == "true")
       return true;
     else

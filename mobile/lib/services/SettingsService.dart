@@ -127,9 +127,14 @@ class SettingsService {
   }
 
   Future<bool> getLockedAccount() async {
-    final bool lockedAccount =
-        await _storage.read(key: "settings_locked_account") == "true";
-    return lockedAccount;
+    final lockedAccount = await _storage.read(key: "settings_locked_account");
+
+    if (lockedAccount == null)
+      return false;
+    else if (lockedAccount == "true")
+      return true;
+    else
+      return false;
   }
 
   Future<void> setLockedAccount(bool value) async {

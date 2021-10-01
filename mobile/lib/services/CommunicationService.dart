@@ -29,6 +29,7 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
@@ -57,6 +58,7 @@ class CommunicationService {
   final MemoryStoreService memoryStoreService;
   final NotificationService notificationService;
   final MessageboxService messageboxService;
+  final PCConnectionService pcConnectionService;
   final ChildProfanityWordService childProfanityWordService;
   final ChildContactService childContactService;
   final ParentService parentService;
@@ -146,7 +148,8 @@ class CommunicationService {
       this.messageboxService,
       this.childProfanityWordService,
       this.childContactService,
-      this.parentService,) {
+      this.parentService,
+      this.pcConnectionService) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -227,6 +230,63 @@ class CommunicationService {
       },
       onDone: () => _messageQueue.close(),
     );
+  }
+
+  Future<void> connectToPc(String relayId) async {
+    final userDisplayNameFuture = userService.getDisplayName();
+    final userProfilePhotoFuture = userService.getProfileImage();
+    final contactsFuture = contactService.fetchAll();
+    final chatsFuture = chatService.fetchAll();
+    final messagesFuture = messageService.fetchAll();
+
+    await Future.wait([
+      userDisplayNameFuture,
+      userProfilePhotoFuture,
+      contactsFuture,
+      chatsFuture,
+      messagesFuture
+    ]);
+
+    final userDisplayName = await userDisplayNameFuture;
+    final userProfilePhoto = await userProfilePhotoFuture;
+    final contacts = await contactsFuture;
+    final chats = await chatsFuture;
+    final messages = await messagesFuture;
+
+    pcConnectionService.connectToPc(
+      relayId,
+      userDisplayName: userDisplayName,
+      userProfilePhoto: "",
+      contacts: contacts,
+      chats: chats,
+      messages: messages,
+    );
+
+    pcConnectionService.onNewChatEvent = (contactPhoneNumber) async {
+      if (await chatService.existsByPhoneNumberAndChatType(
+              contactPhoneNumber, ChatType.general) ==
+          false) {
+        final contact =
+            await contactService.fetchByPhoneNumber(contactPhoneNumber);
+        final chat = Chat(
+          id: Uuid().v4(),
+          contactPhoneNumber: contactPhoneNumber,
+          chatType: ChatType.general,
+          contact: contact,
+        );
+        chatService.insert(chat);
+      } else {}
+    };
+
+    pcConnectionService.onMessageEvent = (message) async {
+      messageService.insert(message);
+      sendMessage(
+        message,
+        ChatType.general,
+        message.otherPartyPhoneNumber,
+        null,
+      );
+    };
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {
@@ -389,7 +449,6 @@ class CommunicationService {
         jsonDecode(eventPayload.contents);
         final type = decryptedContents["type"] as String?;
 
-        print(type);
         switch (type) {
           case "message":
             final chatTypeStr = decryptedContents["chatType"] as String;
@@ -1383,8 +1442,6 @@ class CommunicationService {
     final recipientMid = event["recipientMid"] as String?;
     final encryptedContents = event["encryptedContents"] as String?;
     final timestamp = event["timestamp"] as int?;
-
-    print(event);
 
     if (id == null || encryptedContents == null || timestamp == null) {
       print("Error: Invalid event");

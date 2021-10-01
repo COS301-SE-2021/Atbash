@@ -1,9 +1,12 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Tag.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 
 class MessageService {
   final DatabaseService databaseService;
+  final PCConnectionService pcConnectionService = GetIt.I.get();
 
   MessageService(this.databaseService);
 
@@ -28,6 +31,41 @@ class MessageService {
     final response = await db.rawQuery(
       "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message where ${Message.COLUMN_CHAT_ID} = ? order by message_timestamp desc;",
       [chatId],
+    );
+
+    final messages = <Message>[];
+    response.forEach((map) {
+      final message = Message.fromMap(map);
+
+      if (message != null) {
+        final tagIdsStr = map["tag_ids"] as String?;
+        final tagNamesStr = map["tag_names"] as String?;
+
+        if (tagIdsStr != null && tagNamesStr != null) {
+          final tagIds = tagIdsStr.split(",");
+          final tagNames = tagNamesStr.split(",");
+
+          final tags = <Tag>[];
+
+          for (int i = 0; i < tagIdsStr.length; i++) {
+            tags.add(Tag(id: tagIds[i], name: tagNames[i]));
+          }
+          message.tags = tags;
+        }
+
+        messages.add(message);
+      }
+    });
+
+    return messages;
+  }
+
+  Future<List<Message>> fetchAll() async {
+    final db = await databaseService.database;
+
+    final response = await db.rawQuery(
+      "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message order by message_timestamp desc;",
+      [],
     );
 
     final messages = <Message>[];
@@ -117,6 +155,8 @@ class MessageService {
       await Future.wait([messageInsert, ...tagRelationInserts]);
     });
 
+    await pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -149,6 +189,8 @@ class MessageService {
       }));
     });
 
+    await pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -162,6 +204,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> setMessageDeleted(String messageId) async {
@@ -173,6 +218,8 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    await pcConnectionService.notifyPcDeleteMessage(messageId);
   }
 
   Future<void> setMessageReadReceipt(
@@ -185,6 +232,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> deleteById(String id) async {
@@ -207,6 +257,8 @@ class MessageService {
         whereArgs: [id],
       );
     });
+
+    pcConnectionService.notifyPcDeleteMessage(id);
   }
 
   Future<void> deleteAllByChatId(String chatId) async {
@@ -226,6 +278,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 }
 

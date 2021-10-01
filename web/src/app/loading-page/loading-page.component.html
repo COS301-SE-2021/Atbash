@@ -1,0 +1,13 @@
+<div class="container-fluid vh-100 px-0">
+  <div class="row g-0 h-100">
+    <div class="col h-100">
+      <div class="d-flex flex-column justify-content-center align-items-center h-100">
+        <img src="assets/atbash.svg" alt="Atbash" class="mb-3">
+        <ngx-qrcode [elementType]="elementType" [errorCorrectionLevel]="correctionLevel"
+                    [value]="qrCodeValue">
+        </ngx-qrcode>
+        <div>Scan this code from the Atbash App to use Atbash Web</div>
+      </div>
+    </div>
+  </div>
+</div>

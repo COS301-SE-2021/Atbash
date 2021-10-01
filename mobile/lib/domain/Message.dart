@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 import 'Tag.dart';
@@ -117,6 +118,73 @@ class Message extends _Message with _$Message {
     }
   }
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'chatId': chatId,
+    'isIncoming': isIncoming,
+    'otherPartyPhoneNumber': otherPartyPhoneNumber,
+    'contents': contents,
+    'timestamp': timestamp.millisecondsSinceEpoch,
+    'isMedia': isMedia,
+    'forwarded': forwarded,
+    'readReceipt': readReceipt.toString(),
+    'repliedMessageId': repliedMessageId,
+    'deleted': deleted,
+    'liked': liked,
+    'tags': tags,
+    'edited': edited,
+  };
+
+  static Message? fromJson(Map<String, Object?> json) {
+    final id = json["id"] as String?;
+    final chatId = json["chatId"] as String?;
+    final isIncoming = json["isIncoming"] as bool?;
+    final otherPartyPhoneNumber = json["otherPartyPhoneNumber"] as String?;
+    final contents = json["contents"] as String?;
+    final timestamp = json["timestamp"] as int?;
+    final isMedia = json["isMedia"] as bool?;
+    final forwarded = json["forwarded"] as bool?;
+    var readReceiptStr = json['chatType'] as String?;
+    final readReceipt = (readReceiptStr != null) ? ReadReceipt.values.firstWhere((e) => describeEnum(e) == readReceiptStr) : null;
+    final deleted = json["deleted"] as bool?;
+    final liked = json["liked"] as bool?;
+    final edited = json["edited"] as bool?;
+    final repliedMessageId = json["repliedMessageId"] as String?;
+    var tags = json["tags"] as List<Tag>?;
+    tags = (tags != null) ? tags : [];
+
+
+    if (id != null &&
+        chatId != null &&
+        isIncoming != null &&
+        otherPartyPhoneNumber != null &&
+        contents != null &&
+        timestamp != null &&
+        isMedia != null &&
+        forwarded != null &&
+        readReceipt != null &&
+        deleted != null &&
+        liked != null &&
+        edited != null) {
+      return Message(
+        id: id,
+        chatId: chatId,
+        isIncoming: isIncoming,
+        otherPartyPhoneNumber: otherPartyPhoneNumber,
+        contents: contents,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+        isMedia: isMedia,
+        forwarded: forwarded,
+        readReceipt: readReceipt,
+        deleted: deleted,
+        liked: liked,
+        tags: tags,
+        edited: edited,
+        repliedMessageId: repliedMessageId,
+      );
+    }
+  }
+
   static const String TABLE_NAME = "message";
   static const String COLUMN_ID = "message_id";
   static const String COLUMN_CHAT_ID = "message_chat_id";
@@ -203,3 +271,9 @@ abstract class _Message with Store {
 }
 
 enum ReadReceipt { undelivered, delivered, seen }
+
+//package:flutter/foundation.dart
+//https://stackoverflow.com/questions/27673781/enum-from-string
+
+// String str = Fruit.banana.toString();
+// Fruit f = Fruit.values.firstWhere((e) => describeEnum(e) == str);

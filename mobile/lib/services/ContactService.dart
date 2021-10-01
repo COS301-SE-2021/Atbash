@@ -1,8 +1,11 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 
 class ContactService {
   final DatabaseService databaseService;
+  final PCConnectionService pcConnectionService = GetIt.I.get();
 
   ContactService(this.databaseService);
 
@@ -58,6 +61,7 @@ class ContactService {
       await txn.insert(Contact.TABLE_NAME, contact.toMap());
     });
 
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
 
     return contact;
@@ -79,6 +83,7 @@ class ContactService {
           whereArgs: [contact.phoneNumber]);
     });
 
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
 
     return contact;
@@ -92,6 +97,10 @@ class ContactService {
       "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_STATUS} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
       [status, contactPhoneNumber],
     );
+
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
+    _notifyListeners();
   }
 
   Future<void> setContactProfileImage(
@@ -103,6 +112,8 @@ class ContactService {
       [profileImage, contactPhoneNumber],
     );
 
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
     _notifyListeners();
   }
 
@@ -113,6 +124,10 @@ class ContactService {
     await db.rawUpdate(
         "update ${Contact.TABLE_NAME} set ${Contact.COLUMN_BIRTHDAY} = ? where ${Contact.COLUMN_PHONE_NUMBER} = ?",
         [birthday.millisecondsSinceEpoch, contactPhoneNumber]);
+
+    Contact contact = await fetchByPhoneNumber(contactPhoneNumber);
+    await pcConnectionService.notifyPcPutContact(contact);
+    _notifyListeners();
   }
 
   Future<void> deleteByPhoneNumber(String phoneNumber) async {
@@ -130,6 +145,7 @@ class ContactService {
           where: "${Contact.COLUMN_PHONE_NUMBER} =?", whereArgs: [phoneNumber]);
     });
 
+    await pcConnectionService.notifyPcDeleteContact(phoneNumber);
     _notifyListeners();
   }
 

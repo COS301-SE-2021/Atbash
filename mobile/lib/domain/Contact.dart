@@ -59,6 +59,39 @@ class Contact extends _Contact with _$Contact {
     }
   }
 
+  static Contact? fromJson(Map<String, dynamic> json) {
+    final phoneNumber = json["phoneNumber"] as String?;
+    final displayName = json["displayName"] as String?;
+    final status = json["status"] as String?;
+    final profileImage = json["profileImage"] as String?;
+    final birthday = json["birthday"] as int?;
+
+    if (phoneNumber != null &&
+        displayName != null &&
+        status != null &&
+        profileImage != null) {
+      return Contact(
+        phoneNumber: phoneNumber,
+        displayName: displayName,
+        status: status,
+        profileImage: profileImage,
+        birthday: birthday != null
+            ? DateTime.fromMillisecondsSinceEpoch(birthday)
+            : null,
+      );
+    } else {
+      return null;
+    }
+  }
+
+  Map<String, dynamic> toJson() => {
+    'phoneNumber': phoneNumber,
+    'displayName': displayName,
+    'status': status,
+    'profileImage': profileImage,
+    'birthday': birthday?.millisecondsSinceEpoch,
+  };
+
   static const String TABLE_NAME = "contact";
   static const String COLUMN_PHONE_NUMBER = "contact_phone_number";
   static const String COLUMN_DISPLAY_NAME = "contact_display_name";

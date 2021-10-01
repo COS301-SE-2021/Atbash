@@ -1,0 +1,6 @@
+<ng-container *ngIf="loaded else notLoaded">
+  <app-app-page></app-app-page>
+</ng-container>
+<ng-template #notLoaded>
+  <app-loading-page></app-loading-page>
+</ng-template>

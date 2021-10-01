@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -30,6 +31,7 @@ import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
@@ -59,16 +61,19 @@ class AtbashApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registrationState = _registrationState();
+    final firebaseInit = Firebase.initializeApp();
 
     return FutureBuilder(
-      future: registrationState,
+      future: Future.wait([registrationState, firebaseInit]),
       builder: (context, snapshot) {
         Widget page = LoadingPage();
 
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.data == RegistrationState.registered) {
+          final snapshotData = snapshot.data as List;
+
+          if (snapshotData[0] == RegistrationState.registered) {
             page = HomePage();
-          } else if (snapshot.data == RegistrationState.unverified) {
+          } else if (snapshotData[0] == RegistrationState.unverified) {
             page = VerificationPage();
           } else {
             page = RegistrationPage();
@@ -122,6 +127,9 @@ void _registerServices() async {
 
   GetIt.I.registerSingleton(registrationService);
 
+  final pcConnectionService = PCConnectionService();
+  GetIt.I.registerSingleton(pcConnectionService);
+
   final profanityWordService = ProfanityWordService(databaseService);
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
@@ -159,6 +167,7 @@ void _registerServices() async {
     childProfanityWordService,
     childContactService,
     parentService,
+    pcConnectionService,
   );
 
   GetIt.I.registerSingleton(profanityWordService);

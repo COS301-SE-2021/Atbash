@@ -66,14 +66,13 @@ class ParentalSettingsPageController {
     model.children.remove(child);
     final chats =
         await childChatService.fetchAllChatsByChildNumber(child.phoneNumber);
-    chats.forEach((chat) {
-      childMessageService.deleteAllByChatId(chat.id);
+    chats.forEach((chat) async {
+      await childMessageService.deleteAllByChatId(chat.id);
     });
-    childChatService.deleteAllByNumber(child.phoneNumber);
-    print(child.phoneNumber);
-    childService.deleteByNumber(child.phoneNumber);
-    childBlockedNumberService.deleteAllForChild(child.phoneNumber);
-    childProfanityWordService.deleteAllByNumber(child.phoneNumber);
+    await childChatService.deleteAllByNumber(child.phoneNumber);
+    await childService.deleteByNumber(child.phoneNumber);
+    await childBlockedNumberService.deleteAllForChild(child.phoneNumber);
+    await childProfanityWordService.deleteAllByNumber(child.phoneNumber);
   }
 
   void setName(String name) {

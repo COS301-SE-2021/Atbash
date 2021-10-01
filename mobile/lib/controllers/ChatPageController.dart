@@ -16,6 +16,7 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:uuid/uuid.dart';
@@ -29,6 +30,7 @@ class ChatPageController {
   final MemoryStoreService memoryStoreService = GetIt.I.get();
   final SettingsService settingsService = GetIt.I.get();
   final ProfanityWordService profanityWordService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -131,6 +133,22 @@ class ChatPageController {
     settingsService
         .getSafeMode()
         .then((value) => model.profanityFilter = value);
+
+    settingsService
+        .getPrivateChatAccess()
+        .then((value) => model.privateChatAccess = value);
+
+    settingsService
+        .getBlockSaveMedia()
+        .then((value) => model.blockSaveMedia = value);
+
+    settingsService
+        .getBlockEditingMessages()
+        .then((value) => model.blockEditingMessages = value);
+
+    settingsService
+        .getBlockDeletingMessages()
+        .then((value) => model.blockDeletingMessages = value);
   }
 
   void _onOnline(bool online) {
@@ -210,6 +228,12 @@ class ChatPageController {
 
     communicationService.sendMessage(
         message, chatType, contactPhoneNumber, null);
+    parentService.fetchByEnabled().then((parent) {
+      communicationService
+          .sendChildMessageToParent(parent.phoneNumber, message)
+          .catchError((_) {});
+    }).catchError((_) {});
+
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
@@ -310,6 +334,11 @@ class ChatPageController {
 
     chat.then((chat) {
       if (chat.chatType == ChatType.general) contactService.insert(contact);
+      parentService
+          .fetchByEnabled()
+          .then((parent) => communicationService.sendContactToParent(
+              parent.phoneNumber, contact, "insert"))
+          .catchError((_) {});
     });
   }
 
@@ -342,6 +371,11 @@ class ChatPageController {
               contactPhoneNumber: contact.phoneNumber,
               chatType: ChatType.general);
           await chatService.insert(newChat);
+          parentService
+              .fetchByEnabled()
+              .then((parent) => communicationService.sendChatToParent(
+                  parent.phoneNumber, newChat, "insert"))
+              .catchError((_) {});
         }));
 
         final allNumberChats = await chatService.fetchIdsByContactPhoneNumbers(

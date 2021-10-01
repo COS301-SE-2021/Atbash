@@ -56,7 +56,6 @@ class ChildService {
 
   Future<void> update(String phoneNumber,
       {String? name,
-      String? pin,
       bool? editableSettings,
       bool? blurImages,
       bool? safeMode,
@@ -81,7 +80,6 @@ class ChildService {
 
       if (child != null) {
         if (name != null) child.name = name;
-        if (pin != null) child.pin = pin;
         if (editableSettings != null) child.editableSettings = editableSettings;
         if (blurImages != null) child.blurImages = blurImages;
         if (safeMode != null) child.safeMode = safeMode;
@@ -118,6 +116,7 @@ class ChildService {
 
       final child = Child.fromMap(existingChild.first);
 
+      print(child);
       if (child != null)
         txn.delete(Child.TABLE_NAME,
             where: "${Child.COLUMN_PHONE_NUMBER} = ?",

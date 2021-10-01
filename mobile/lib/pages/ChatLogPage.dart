@@ -48,9 +48,7 @@ class _ChatLogPageState extends State<ChatLogPage> {
     return Slidable(
       actionPane: SlidableScrollActionPane(),
       child: ListTile(
-        title: Text(displayName == null
-            ? chat.otherPartyNumber
-            : displayName),
+        title: Text(displayName == null ? chat.otherPartyNumber : displayName),
         onTap: () {
           Navigator.push(
             context,
@@ -71,12 +69,13 @@ class _ChatLogPageState extends State<ChatLogPage> {
         dense: true,
       ),
       secondaryActions: [
-        //TODO: Only make possible if child cant edit own contacts. Or make it a special block that requires pin.
+        //TODO: make it a special block that only parent can remove.
         IconSlideAction(
           caption: "Block for child",
           color: Colors.red,
           icon: Icons.block,
           onTap: () {
+            controller.blockNumber(chat.otherPartyNumber);
             //TODO: block contact on child's phone.
           },
         ),

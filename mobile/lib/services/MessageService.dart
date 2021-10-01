@@ -10,47 +10,27 @@ class MessageService {
 
   MessageService(this.databaseService);
 
+  Future<List<Message>> fetchAll() async {
+    final db = await databaseService.database;
+
+    final response = await db.query(Message.TABLE_NAME);
+
+    final messages = <Message>[];
+    response.forEach((map) {
+      final message = Message.fromMap(map);
+
+      if (message != null) messages.add(message);
+    });
+
+    return messages;
+  }
+
   Future<List<Message>> fetchAllByChatId(String chatId) async {
     final db = await databaseService.database;
 
     final response = await db.rawQuery(
       "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message where ${Message.COLUMN_CHAT_ID} = ? order by message_timestamp desc;",
       [chatId],
-    );
-
-    final messages = <Message>[];
-    response.forEach((map) {
-      final message = Message.fromMap(map);
-
-      if (message != null) {
-        final tagIdsStr = map["tag_ids"] as String?;
-        final tagNamesStr = map["tag_names"] as String?;
-
-        if (tagIdsStr != null && tagNamesStr != null) {
-          final tagIds = tagIdsStr.split(",");
-          final tagNames = tagNamesStr.split(",");
-
-          final tags = <Tag>[];
-
-          for (int i = 0; i < tagIdsStr.length; i++) {
-            tags.add(Tag(id: tagIds[i], name: tagNames[i]));
-          }
-          message.tags = tags;
-        }
-
-        messages.add(message);
-      }
-    });
-
-    return messages;
-  }
-
-  Future<List<Message>> fetchAll() async {
-    final db = await databaseService.database;
-
-    final response = await db.rawQuery(
-      "select *, (select group_concat(tag_id, ',') from message_tag where message_id = message.message_id order by message_tag.tag_id) as tag_ids, (select group_concat(tag_name, ',') from tag join message_tag on tag.tag_id = message_tag.tag_id where message_id = message.message_id order by message_tag.tag_id) as tag_names from message order by message_timestamp desc;",
-      [],
     );
 
     final messages = <Message>[];

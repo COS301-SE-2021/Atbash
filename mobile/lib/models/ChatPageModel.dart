@@ -39,6 +39,18 @@ abstract class _ChatPageModel with Store {
   bool profanityFilter = true;
 
   @observable
+  bool privateChatAccess = true;
+
+  @observable
+  bool blockSaveMedia = false;
+
+  @observable
+  bool blockEditingMessages = false;
+
+  @observable
+  bool blockDeletingMessages = false;
+
+  @observable
   ObservableList<Message> messages = <Message>[].asObservable();
 
   @action

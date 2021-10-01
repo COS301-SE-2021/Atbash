@@ -125,7 +125,7 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
                 ),
                 IconButton(
                   onPressed: () => showConfirmDialog(context,
-                          "Are you sure you want to remove $contactName from your blocked contacts?")
+                          "Are you sure you want to remove $contactName from your child's blocked contacts?")
                       .then((value) {
                     if (value != null && value)
                       _removeBlockedContact(blockedNumber);

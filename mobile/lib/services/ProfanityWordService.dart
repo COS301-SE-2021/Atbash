@@ -21,7 +21,8 @@ class ProfanityWordService {
     return profanityWords;
   }
 
-  Future<ProfanityWord> addWord(String baseWord) async {
+  Future<ProfanityWord> addWord(String baseWord,
+      {bool addedByParent = false}) async {
     final db = await databaseService.database;
 
     //logic for profanity variations
@@ -34,15 +35,37 @@ class ProfanityWordService {
     newWord = newWord.replaceAll(RegExp(r't'), '[t+]');
     newWord = newWord.replaceAll(RegExp(r'f'), '(ph|f)');
     newWord = newWord.replaceAll(RegExp(r'ph'), '(ph|f)');
+    newWord = newWord.replaceAll(RegExp(r'a'), '(a|er)');
+    newWord = newWord.replaceAll(RegExp(r'er'), '(a|er)');
 
     final profanityWord = ProfanityWord(
         profanityWordRegex: newWord,
         profanityID: Uuid().v4(),
-        profanityOriginalWord: baseWord);
+        profanityOriginalWord: baseWord,
+        addedByParent: addedByParent);
 
-    await db.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
+    await db.transaction((txn) async {
+      final wordAlreadyExists = await txn.query(ProfanityWord.TABLE_NAME,
+          where: "${ProfanityWord.COLUMN_PROFANITY_ID} = ?",
+          whereArgs: [
+            profanityWord.profanityID,
+          ]);
+
+      if (wordAlreadyExists.isNotEmpty)
+        throw ProfanityWordAlreadyExistsException();
+
+      txn.insert(ProfanityWord.TABLE_NAME, profanityWord.toMap());
+    });
 
     return profanityWord;
+  }
+
+  Future<void> deleteByWord(String word) async {
+    final db = await databaseService.database;
+
+    db.delete(ProfanityWord.TABLE_NAME,
+        where: "${ProfanityWord.COLUMN_PROFANITY_ORIGINAL_WORD} =?",
+        whereArgs: [word]);
   }
 
   Future<void> deleteByID(String id) async {
@@ -59,3 +82,5 @@ class ProfanityWordService {
         oldString.substring(index + 1);
   }
 }
+
+class ProfanityWordAlreadyExistsException implements Exception {}

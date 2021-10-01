@@ -19,29 +19,33 @@ class MonitoredChatPage extends StatefulWidget {
 
 class _MonitoredChatPageState extends State<MonitoredChatPage> {
   final MonitoredChatPageController controller;
+  final ChildChat chat;
 
   _MonitoredChatPageState({required ChildChat chat})
       : controller = MonitoredChatPageController(
-            //TODO maybe change this to accept a chat entity
-            chat.childPhoneNumber,
-            chat.otherPartyNumber);
+            chat.childPhoneNumber, chat.otherPartyNumber),
+        chat = chat;
 
   @override
   Widget build(BuildContext context) {
-    final otherName = controller.model.otherMemberName;
-
     return Observer(builder: (context) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(otherName == null
-              ? controller.model.otherMemberNumber
-              : otherName),
+      return Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/wallpaper.jpg"),
+            fit: BoxFit.cover,
+          ),
         ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Flexible(child: _buildMessages()),
-            ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(controller.model.otherMemberName),
+          ),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Flexible(child: _buildMessages()),
+              ],
+            ),
           ),
         ),
       );
@@ -51,6 +55,7 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
   Widget _buildMessages() {
     return ListView.builder(
         itemCount: controller.model.messages.length,
+        reverse: true,
         itemBuilder: (_, index) {
           return Column(
             children: [
@@ -68,13 +73,16 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment:
+            message.isIncoming ? Alignment.centerLeft : Alignment.centerRight,
         child: IntrinsicWidth(
           child: Container(
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(4),
-              color: Constants.orange.withOpacity(0.88),
+              color: message.isIncoming
+                  ? Constants.darkGrey.withOpacity(0.88)
+                  : Constants.orange.withOpacity(0.88),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

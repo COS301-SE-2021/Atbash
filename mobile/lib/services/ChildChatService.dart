@@ -96,6 +96,7 @@ class ChildChatService {
   }
 
   Future<void> deleteAllByNumber(String childNumber) async {
+    print(childNumber);
     final db = await databaseService.database;
 
     await db.delete(ChildChat.TABLE_NAME,

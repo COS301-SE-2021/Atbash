@@ -3,9 +3,12 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
+import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
+import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/domain/Tag.dart';
 import 'package:mobile/encryption/Messagebox.dart';
@@ -25,7 +28,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 28, onCreate: (db, version) async {
+    return openDatabase(path, version: 35, onCreate: (db, version) async {
       await _createTables(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
       await _dropTables(db);
@@ -39,6 +42,9 @@ class DatabaseService {
       db.execute("drop table if exists ${ChildBlockedNumber.TABLE_NAME};"),
       db.execute("drop table if exists ${ChildChat.TABLE_NAME};"),
       db.execute("drop table if exists ${ChildMessage.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildContact.TABLE_NAME};"),
+      db.execute("drop table if exists ${ChildProfanityWord.TABLE_NAME};"),
+      db.execute("drop table if exists ${Parent.TABLE_NAME};"),
       db.execute("drop table if exists ${Chat.TABLE_NAME};"),
       db.execute("drop table if exists ${Message.TABLE_NAME};"),
       db.execute("drop table if exists ${Contact.TABLE_NAME};"),
@@ -62,6 +68,9 @@ class DatabaseService {
       db.execute(ChildBlockedNumber.CREATE_TABLE),
       db.execute(ChildChat.CREATE_TABLE),
       db.execute(ChildMessage.CREATE_TABLE),
+      db.execute(ChildContact.CREATE_TABLE),
+      db.execute(ChildProfanityWord.CREATE_TABLE),
+      db.execute(Parent.CREATE_TABLE),
       db.execute(Chat.CREATE_TABLE),
       db.execute(Message.CREATE_TABLE),
       db.execute(Contact.CREATE_TABLE),

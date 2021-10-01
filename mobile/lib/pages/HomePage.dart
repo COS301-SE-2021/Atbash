@@ -12,12 +12,14 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/pages/LockedAccountPage.dart';
 import 'package:mobile/pages/QRScanPage.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
+import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
@@ -38,6 +40,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final ProfanityWordService profanityWordService = GetIt.I.get();
+  final SettingsService settingsService = GetIt.I.get();
 
   bool _searching = false;
   String _filterQuery = "";
@@ -48,6 +51,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    settingsService.getLockedAccount().then((value) {
+      if (value) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => LockedAccountPage()));
+      }
+    });
 
     notificationService.onNotificationPressed = (String? payload) async {
       if (payload != null) {
@@ -465,7 +474,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       final profileImage = contact?.profileImage;
                       if (profileImage != null) {
                         final profileImageBytes = base64Decode(profileImage);
-                        showImageViewDialog(context, profileImageBytes);
+                        showImageViewDialog(context, profileImageBytes,
+                            controller.model.blockSaveMedia);
                       }
                     },
                   ),

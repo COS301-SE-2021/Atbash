@@ -204,7 +204,8 @@ class _ChatPageState extends State<ChatPage> {
           }
         }),
         Observer(builder: (_) {
-          if (controller.model.chatType != ChatType.private)
+          if (controller.model.chatType != ChatType.private &&
+              !controller.model.privateChatAccess)
             return IconButton(
               onPressed: () {
                 controller.startPrivateChat(context);
@@ -405,7 +406,8 @@ class _ChatPageState extends State<ChatPage> {
       message,
       onTap: () {
         if (message.isMedia) {
-          showImageViewDialog(context, base64Decode(message.contents));
+          showImageViewDialog(context, base64Decode(message.contents),
+              controller.model.blockSaveMedia);
         }
       },
       onDelete: () => _deleteSingleMessage(message),
@@ -425,6 +427,9 @@ class _ChatPageState extends State<ChatPage> {
       contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
       profanityFilter: controller.model.profanityFilter,
+      blockDeletingMessages: controller.model.blockDeletingMessages,
+      blockEditingMessages: controller.model.blockEditingMessages,
+      blockSaveMedia: controller.model.blockSaveMedia,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
       words: controller.model.profanityWords,
@@ -550,6 +555,9 @@ class ChatCard extends StatelessWidget {
   final void Function() onMediaDownload;
   final bool blurImages;
   final bool profanityFilter;
+  final bool blockEditingMessages;
+  final bool blockDeletingMessages;
+  final bool blockSaveMedia;
   final ChatType chatType;
   final Message? repliedMessage;
   final String contactTitle;
@@ -569,6 +577,9 @@ class ChatCard extends StatelessWidget {
     this.profanityFilter = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
+    this.blockDeletingMessages = false,
+    this.blockEditingMessages = false,
+    this.blockSaveMedia = false,
     required this.contactTitle,
     required this.words,
   });
@@ -614,7 +625,9 @@ class ChatCard extends StatelessWidget {
                             onPressed: onReplyPressed,
                             trailingIcon: Icon(Icons.reply),
                           ),
-                        if (!_message.deleted && _message.isMedia)
+                        if (!_message.deleted &&
+                            _message.isMedia &&
+                            !blockSaveMedia)
                           FocusedMenuItem(
                             title: Text("Download"),
                             onPressed: onMediaDownload,
@@ -627,7 +640,8 @@ class ChatCard extends StatelessWidget {
                         //       trailingIcon: Icon(Icons.tag)),
                         if (!_message.deleted &&
                             !_message.isMedia &&
-                            !_message.isIncoming)
+                            !_message.isIncoming &&
+                            !blockEditingMessages)
                           FocusedMenuItem(
                               title: Text("Edit"),
                               onPressed: onEditPressed,
@@ -645,7 +659,8 @@ class ChatCard extends StatelessWidget {
                               onPressed: () => Clipboard.setData(
                                   ClipboardData(text: _message.contents)),
                               trailingIcon: Icon(Icons.copy)),
-                        if (chatType == ChatType.general)
+                        if (chatType == ChatType.general &&
+                            !blockDeletingMessages)
                           FocusedMenuItem(
                               title: Text(
                                 "Delete",

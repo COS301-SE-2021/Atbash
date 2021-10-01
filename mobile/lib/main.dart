@@ -10,6 +10,7 @@ import 'package:mobile/encryption/services/SignalProtocolStoreService.dart';
 import 'package:mobile/encryption/services/SignedPreKeyStoreService.dart';
 import 'package:mobile/pages/HomePage.dart';
 import 'package:mobile/pages/LoadingPage.dart';
+import 'package:mobile/pages/LockedAccountPage.dart';
 import 'package:mobile/pages/RegistrationPage.dart';
 import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
@@ -17,7 +18,9 @@ import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
@@ -27,6 +30,7 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
@@ -135,6 +139,9 @@ void _registerServices() async {
   final childChatService = ChildChatService(databaseService);
   final childMessageService = ChildMessageService(databaseService);
   final childBlockedNumberService = ChildBlockedNumberService(databaseService);
+  final childProfanityWordService = ChildProfanityWordService(databaseService);
+  final childContactService = ChildContactService(databaseService);
+  final parentService = ParentService(databaseService);
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
@@ -142,6 +149,11 @@ void _registerServices() async {
   final notificationService = NotificationService();
   final communicationService = CommunicationService(
     blockedNumbersService,
+    profanityWordService,
+    childService,
+    childChatService,
+    childMessageService,
+    childBlockedNumberService,
     encryptionService,
     userService,
     chatService,
@@ -152,6 +164,9 @@ void _registerServices() async {
     memoryStoreService,
     notificationService,
     messageboxService,
+    childProfanityWordService,
+    childContactService,
+    parentService,
     pcConnectionService,
   );
 
@@ -164,6 +179,9 @@ void _registerServices() async {
   GetIt.I.registerSingleton(childChatService);
   GetIt.I.registerSingleton(childMessageService);
   GetIt.I.registerSingleton(childBlockedNumberService);
+  GetIt.I.registerSingleton(childProfanityWordService);
+  GetIt.I.registerSingleton(childContactService);
+  GetIt.I.registerSingleton(parentService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(chatCacheService);

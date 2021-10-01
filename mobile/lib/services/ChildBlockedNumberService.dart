@@ -45,6 +45,15 @@ class ChildBlockedNumberService {
             "${ChildBlockedNumber.COLUMN_CHILD_NUMBER} = ? AND ${ChildBlockedNumber.COLUMN_BLOCKED_NUMBER} = ?",
         whereArgs: [childNumber, numberToDelete]);
   }
+
+  Future<void> deleteAllForChild(String childNumber) async{
+    final db = await databaseService.database;
+
+    db.delete(ChildBlockedNumber.TABLE_NAME,
+        where:
+        "${ChildBlockedNumber.COLUMN_CHILD_NUMBER} = ?",
+        whereArgs: [childNumber]);
+  }
 }
 
 class BlockedNumberAlreadyExistsException implements Exception {}

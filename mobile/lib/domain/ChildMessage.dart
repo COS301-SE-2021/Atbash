@@ -26,6 +26,15 @@ class ChildMessage {
     };
   }
 
+  Map toJson() => {
+        'id': id,
+        'chatId': chatId,
+        'isIncoming': isIncoming,
+        'otherPartyNumber': otherPartyNumber,
+        'contents': contents,
+        'timestamp': timestamp.millisecondsSinceEpoch
+      };
+
   static ChildMessage? fromMap(Map<String, Object?> map) {
     final id = map[COLUMN_ID] as String?;
     final chatId = map[COLUMN_CHAT_ID] as String?;

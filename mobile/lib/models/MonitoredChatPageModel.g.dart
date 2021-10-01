@@ -28,13 +28,13 @@ mixin _$MonitoredChatPageModel on _MonitoredChatPageModel, Store {
       Atom(name: '_MonitoredChatPageModel.otherMemberName');
 
   @override
-  String? get otherMemberName {
+  String get otherMemberName {
     _$otherMemberNameAtom.reportRead();
     return super.otherMemberName;
   }
 
   @override
-  set otherMemberName(String? value) {
+  set otherMemberName(String value) {
     _$otherMemberNameAtom.reportWrite(value, super.otherMemberName, () {
       super.otherMemberName = value;
     });

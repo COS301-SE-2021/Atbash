@@ -1,16 +1,23 @@
 import 'package:get_it/get_it.dart';
-import 'package:mobile/domain/Child.dart';
 import 'package:mobile/models/NewChildPageModel.dart';
 import 'package:mobile/services/ChildService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/UserService.dart';
 
 class NewChildPageController {
   final ContactService contactService = GetIt.I.get();
   final ChildService childService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
+  final UserService userService = GetIt.I.get();
 
   final NewChildPageModel model = NewChildPageModel();
 
   NewChildPageController() {
+    userService.getDisplayName().then((name) {
+      model.displayName = name;
+    });
+
     contactService.fetchAll().then((contacts) async {
       model.contacts.clear();
       model.contacts.addAll(contacts);
@@ -25,9 +32,7 @@ class NewChildPageController {
     model.filter = query;
   }
 
-  void addChild(Child child) {
-    //TODO send pin to see if matches on both phones
-    model.children.add(child);
-    childService.insert(child);
+  void addChild(String childNumber, String name, String code) {
+    communicationService.sendAddChild(childNumber, name, code);
   }
 }

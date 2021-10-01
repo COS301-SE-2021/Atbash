@@ -4,6 +4,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/SettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
@@ -17,6 +18,7 @@ class SettingsPageController {
   final UserService userService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final SettingsPageModel model = SettingsPageModel();
 
@@ -43,7 +45,10 @@ class SettingsPageController {
     settingsService
         .getAutoDownloadMedia()
         .then((value) => model.autoDownloadMedia = value);
-    //TODO Set model pin
+    settingsService.getEditableSettings().then((value) {
+      model.editableSettings = value;
+      print(value);
+    });
   }
 
   void reload() {
@@ -52,17 +57,18 @@ class SettingsPageController {
     userService
         .getProfileImage()
         .then((value) => model.userProfilePicture = value);
+    parentService
+        .fetchByEnabled()
+        .then((value) => model.parentName = value.name)
+        .catchError((_) => model.parentName = "");
   }
-
-  //TODO create function to change pin
 
   void setBlurImages(bool value) {
     model.blurImages = value;
     settingsService.setBlurImages(value);
   }
 
-  void setSafeMode(bool value, String pin) {
-    //TODO Check if pin is correct
+  void setSafeMode(bool value) {
     model.safeMode = value;
     settingsService.setSafeMode(value);
   }
@@ -108,6 +114,23 @@ class SettingsPageController {
     await contactService.insert(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
+    parentService
+        .fetchByEnabled()
+        .then((parent) => communicationService.sendContactToParent(
+            parent.phoneNumber, contact, "insert"))
+        .catchError((_) {});
+  }
+
+  void sentUpdatedSettingsToParent() async {
+    final parent = await parentService.fetchByEnabled().catchError((_) {});
+    communicationService.sendAllSettingsToParent(
+        parent.phoneNumber,
+        model.blurImages,
+        model.safeMode,
+        model.sharedProfilePicture,
+        model.shareStatus,
+        model.shareReadReceipts,
+        model.shareBirthday);
   }
 
   Future<void> importContacts() async {

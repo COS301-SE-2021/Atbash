@@ -3,8 +3,20 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class SettingsService {
   final _storage = FlutterSecureStorage();
 
-  Future<void> setSafeModePin(String pin) async {
-    await _storage.write(key: "settings_safe_search_pin", value: pin);
+  Future<bool> getEditableSettings() async {
+    final editableSettings =
+        await _storage.read(key: "settings_editable_settings");
+    if (editableSettings == null)
+      return true;
+    else if (editableSettings == "true")
+      return true;
+    else
+      return false;
+  }
+
+  Future<void> setEditableSettings(bool value) async {
+    await _storage.write(
+        key: "settings_editable_settings", value: value ? "true" : "false");
   }
 
   Future<bool> getBlurImages() async {
@@ -112,5 +124,67 @@ class SettingsService {
 
   Future<void> setWallpaperImage(String imageBase64) async {
     await _storage.write(key: "settings_wallpaper", value: imageBase64);
+  }
+
+  Future<bool> getLockedAccount() async {
+    final lockedAccount = await _storage.read(key: "settings_locked_account");
+
+    if (lockedAccount == null)
+      return false;
+    else if (lockedAccount == "true")
+      return true;
+    else
+      return false;
+  }
+
+  Future<void> setLockedAccount(bool value) async {
+    await _storage.write(
+        key: "settings_locked_account", value: value ? "true" : "false");
+  }
+
+  Future<bool> getPrivateChatAccess() async {
+    final bool privateChatAccess =
+        await _storage.read(key: "settings_private_chat_access") == "true";
+    return privateChatAccess;
+  }
+
+  Future<void> setPrivateChatAccess(bool value) async {
+    await _storage.write(
+        key: "settings_private_chat_access", value: value ? "true" : "false");
+  }
+
+  Future<bool> getBlockSaveMedia() async {
+    final bool blockSaveMedia =
+        await _storage.read(key: "settings_block_save_media") == "true";
+    return blockSaveMedia;
+  }
+
+  Future<void> setBlockSaveMedia(bool value) async {
+    await _storage.write(
+        key: "settings_block_save_media", value: value ? "true" : "false");
+  }
+
+  Future<bool> getBlockEditingMessages() async {
+    final bool blockEditingMessages =
+        await _storage.read(key: "settings_block_editing_messages") == "true";
+    return blockEditingMessages;
+  }
+
+  Future<void> setBlockEditingMessages(bool value) async {
+    await _storage.write(
+        key: "settings_block_editing_messages",
+        value: value ? "true" : "false");
+  }
+
+  Future<bool> getBlockDeletingMessages() async {
+    final bool blockDeletingMessages =
+        await _storage.read(key: "settings_block_deleting_messages") == "true";
+    return blockDeletingMessages;
+  }
+
+  Future<void> setBlockDeletingMessages(bool value) async {
+    await _storage.write(
+        key: "settings_block_deleting_messages",
+        value: value ? "true" : "false");
   }
 }

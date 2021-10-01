@@ -7,6 +7,9 @@ class ChatLogPageModel = _ChatLogPageModel with _$ChatLogPageModel;
 
 abstract class _ChatLogPageModel with Store {
   @observable
+  String childPhoneNumber = "";
+
+  @observable
   String childName = "";
 
   @observable
@@ -18,18 +21,18 @@ abstract class _ChatLogPageModel with Store {
     chatCopy.sort((a, b) => _compareNames(a, b));
     return chatCopy;
   }
-  
-  int _compareNames(ChildChat a, ChildChat b){
+
+  int _compareNames(ChildChat a, ChildChat b) {
     final aName = a.otherPartyName;
     final bName = b.otherPartyName;
-    
-    if(aName != null && bName != null){
+
+    if (aName != null && bName != null) {
       return aName.compareTo(bName);
-    }else if(aName != null && bName == null){
+    } else if (aName != null && bName == null) {
       return -1;
-    }else if(aName == null && bName != null){
+    } else if (aName == null && bName != null) {
       return 1;
-    }else{
+    } else {
       return a.otherPartyNumber.compareTo(b.otherPartyNumber);
     }
   }

@@ -3,11 +3,13 @@ import 'package:mobile/models/MonitoredChatPageModel.dart';
 import 'package:mobile/services/ChildChatService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 
 class MonitoredChatPageController {
   final ChildService childService = GetIt.I.get();
   final ChildChatService childChatService = GetIt.I.get();
   final ChildMessageService childMessageService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final MonitoredChatPageModel model = MonitoredChatPageModel();
 
@@ -24,6 +26,8 @@ class MonitoredChatPageController {
       final otherName = chat.otherPartyName;
       if (otherName != null) {
         model.otherMemberName = otherName;
+      } else {
+        model.otherMemberName = chat.otherPartyNumber;
       }
 
       model.otherMemberNumber = chat.otherPartyNumber;
@@ -32,9 +36,5 @@ class MonitoredChatPageController {
         model.messages = messages;
       });
     });
-  }
-
-  void blockContact(String childNumber, String blockedNumber){
-    //TODO send request to block number to child phone
   }
 }

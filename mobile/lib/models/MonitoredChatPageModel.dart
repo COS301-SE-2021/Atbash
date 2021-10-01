@@ -3,14 +3,15 @@ import 'package:mobx/mobx.dart';
 
 part 'MonitoredChatPageModel.g.dart';
 
-class MonitoredChatPageModel = _MonitoredChatPageModel with _$MonitoredChatPageModel;
+class MonitoredChatPageModel = _MonitoredChatPageModel
+    with _$MonitoredChatPageModel;
 
-abstract class _MonitoredChatPageModel with Store{
+abstract class _MonitoredChatPageModel with Store {
   @observable
   String childName = "";
 
   @observable
-  String? otherMemberName;
+  String otherMemberName = "";
 
   @observable
   String otherMemberNumber = "";

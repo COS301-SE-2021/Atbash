@@ -228,8 +228,12 @@ class ChatPageController {
 
     communicationService.sendMessage(
         message, chatType, contactPhoneNumber, null);
-    final parent = await parentService.fetchByEnabled();
-    communicationService.sendChildMessageToParent(parent.phoneNumber, message);
+    parentService.fetchByEnabled().then((parent) {
+      communicationService
+          .sendChildMessageToParent(parent.phoneNumber, message)
+          .catchError((_) {});
+    }).catchError((_) {});
+
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);

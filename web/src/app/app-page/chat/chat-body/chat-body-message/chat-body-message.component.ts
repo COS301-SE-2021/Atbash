@@ -19,6 +19,14 @@ export class ChatBodyMessageComponent implements OnInit {
     ngOnInit(): void {
     }
 
+    get messageContents() {
+        if (this.message != null) {
+            return this.message.deleted ? "This message was deleted" : this.message.contents
+        } else {
+            return ""
+        }
+    }
+
     get isMediaMessage() {
         return this.message?.isMedia == true
     }

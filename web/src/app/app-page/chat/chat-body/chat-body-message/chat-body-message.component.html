@@ -3,7 +3,9 @@
        [class.message-outgoing]="!message?.isIncoming">
     <img *ngIf="isMediaMessage else notMedia" [src]="mediaContents" alt="Image media" height="400" class="message-media" (click)="enlargeImage()">
     <ng-template #notMedia>
-      {{message?.contents}}
+      <span [class.fst-italic]="message?.deleted == true">
+        {{messageContents}}
+      </span>
     </ng-template>
   </div>
 </div>

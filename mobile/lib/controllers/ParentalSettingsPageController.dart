@@ -29,6 +29,9 @@ class ParentalSettingsPageController {
     communicationService.onSetUpChild = () {
       reload();
     };
+    communicationService.onAllSettingsToParent = () {
+      reload();
+    };
   }
 
   void reload() {

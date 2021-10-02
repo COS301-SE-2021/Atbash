@@ -110,6 +110,8 @@ class CommunicationService {
 
   void Function()? onSetUpChild;
 
+  void Function()? onAllSettingsToParent;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -686,22 +688,22 @@ class CommunicationService {
             blockedNumbersFromParent
                 .where((number) => number.addedByParent == true)
                 .toList()
-                .forEach((element) =>
-                    blockedNumbersService.delete(element.phoneNumber));
+                .forEach((element) async =>
+                    await blockedNumbersService.delete(element.phoneNumber));
 
             profanityWordsFromParent
                 .where((word) => word.addedByParent == true)
                 .toList()
-                .forEach((element) =>
-                    profanityWordService.deleteByID(element.profanityID));
+                .forEach((element) async =>
+                    await profanityWordService.deleteByID(element.profanityID));
 
-            parentService.deleteByNumber(senderPhoneNumber);
-            settingsService.setEditableSettings(true);
-            settingsService.setLockedAccount(false);
-            settingsService.setPrivateChatAccess(true);
-            settingsService.setBlockSaveMedia(false);
-            settingsService.setBlockEditingMessages(false);
-            settingsService.setBlockDeletingMessages(false);
+            await parentService.deleteByNumber(senderPhoneNumber);
+            await settingsService.setEditableSettings(true);
+            await settingsService.setLockedAccount(false);
+            await settingsService.setPrivateChatAccess(true);
+            await settingsService.setBlockSaveMedia(false);
+            await settingsService.setBlockEditingMessages(false);
+            await settingsService.setBlockDeletingMessages(false);
             onRemoveChild?.call();
             break;
 
@@ -726,18 +728,19 @@ class CommunicationService {
             final blockDeletingMessages =
                 decryptedContents["blockDeletingMessages"] as bool;
 
-            settingsService.setEditableSettings(editableSettings);
-            settingsService.setBlurImages(blurImages);
-            settingsService.setSafeMode(safeMode);
-            settingsService.setShareProfilePicture(shareProfilePicture);
-            settingsService.setShareStatus(shareStatus);
-            settingsService.setShareReadReceipts(shareReadReceipts);
-            settingsService.setShareBirthday(shareBirthday);
-            settingsService.setLockedAccount(lockedAccount);
-            settingsService.setPrivateChatAccess(privateChatAccess);
-            settingsService.setBlockSaveMedia(blockSaveMedia);
-            settingsService.setBlockEditingMessages(blockEditingMessages);
-            settingsService.setBlockDeletingMessages(blockDeletingMessages);
+            await settingsService.setEditableSettings(editableSettings);
+            await settingsService.setBlurImages(blurImages);
+            await settingsService.setSafeMode(safeMode);
+            await settingsService.setShareProfilePicture(shareProfilePicture);
+            await settingsService.setShareStatus(shareStatus);
+            await settingsService.setShareReadReceipts(shareReadReceipts);
+            await settingsService.setShareBirthday(shareBirthday);
+            await settingsService.setLockedAccount(lockedAccount);
+            await settingsService.setPrivateChatAccess(privateChatAccess);
+            await settingsService.setBlockSaveMedia(blockSaveMedia);
+            await settingsService.setBlockEditingMessages(blockEditingMessages);
+            await settingsService
+                .setBlockDeletingMessages(blockDeletingMessages);
             onAllSettingsToChild?.call(
                 editableSettings,
                 blurImages,
@@ -764,10 +767,11 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              profanityWordService.addWord(profanityWord.profanityOriginalWord,
+              await profanityWordService.addWord(
+                  profanityWord.profanityOriginalWord,
                   addedByParent: true);
             } else {
-              profanityWordService
+              await profanityWordService
                   .deleteByWord(profanityWord.profanityOriginalWord);
             }
             onNewProfanityWordToChild?.call();
@@ -782,9 +786,9 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              blockedNumbersService.insert(blockedNumber);
+              await blockedNumbersService.insert(blockedNumber);
             } else {
-              blockedNumbersService.delete(blockedNumber.phoneNumber);
+              await blockedNumbersService.delete(blockedNumber.phoneNumber);
             }
             onBlockedNumberToChild?.call();
             break;
@@ -794,7 +798,7 @@ class CommunicationService {
             final child =
                 await contactService.fetchByPhoneNumber(senderPhoneNumber);
 
-            childService.insert(Child(
+            await childService.insert(Child(
                 phoneNumber: senderPhoneNumber,
                 name: child.displayName,
                 blurImages: decryptedContents["blurImages"] as bool,
@@ -862,16 +866,25 @@ class CommunicationService {
 
           case "allSettingsToParent":
             //update all parents settings for relative child (This is on parent phone)
-            childService.update(
+            final blurImages = decryptedContents["blurImages"] as bool;
+            final safeMode = decryptedContents["safeMode"] as bool;
+            final shareProfilePicture =
+                decryptedContents["shareProfilePicture"] as bool;
+            final shareStatus = decryptedContents["shareStatus"] as bool;
+            final shareReadReceipts =
+                decryptedContents["shareReadReceipts"] as bool;
+            final shareBirthday = decryptedContents["shareBirthday"] as bool;
+
+            await childService.update(
               senderPhoneNumber,
-              blurImages: decryptedContents["blurImages"] as bool,
-              safeMode: decryptedContents["safeMode"] as bool,
-              shareProfilePicture:
-                  decryptedContents["shareProfilePicture"] as bool,
-              shareStatus: decryptedContents["shareStatus"] as bool,
-              shareReadReceipts: decryptedContents["shareReadReceipts"] as bool,
-              shareBirthday: decryptedContents["shareBirthday"] as bool,
+              blurImages: blurImages,
+              safeMode: safeMode,
+              shareProfilePicture: shareProfilePicture,
+              shareStatus: shareStatus,
+              shareReadReceipts: shareReadReceipts,
+              shareBirthday: shareBirthday,
             );
+            onAllSettingsToParent?.call();
             break;
 
           case "newProfanityWordToParent":

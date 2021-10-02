@@ -89,22 +89,25 @@ class CommunicationService {
   //Start of parental listeners
   void Function()? onRemoveChild;
 
-  void Function(
-      bool editableSettings,
-      bool blurImages,
-      bool safeMode,
-      bool shareProfilePicture,
-      bool shareStatus,
-      bool shareReadReceipts,
-      bool shareBirthday,
-      bool lockedAccount,
-      bool privateChatAccess,
-      bool blockSaveMedia,
-      bool blockEditingMessages,
-      bool blockDeletingMessages)? onAllSettingsToChild;
+  List<
+      void Function(
+          bool editableSettings,
+          bool blurImages,
+          bool safeMode,
+          bool shareProfilePicture,
+          bool shareStatus,
+          bool shareReadReceipts,
+          bool shareBirthday,
+          bool lockedAccount,
+          bool privateChatAccess,
+          bool blockSaveMedia,
+          bool blockEditingMessages,
+          bool blockDeletingMessages)> _onAllSettingsToChildListeners = [];
 
+  //TODO *
   void Function()? onNewProfanityWordToChild;
 
+  //TODO *
   void Function()? onBlockedNumberToChild;
 
   void Function()? onSetUpChild;
@@ -113,13 +116,49 @@ class CommunicationService {
 
   void Function()? onNewProfanityWordToParent;
 
+  //TODO *
   void Function()? onBlockedNumberToParent;
 
   void Function()? onChatToParent;
 
   void Function()? onChildMessageToParent;
 
+  //TODO *
   void Function()? onContactToParent;
+
+  void onAllSettingsToChild(
+          void Function(
+                  bool editableSettings,
+                  bool blurImages,
+                  bool safeMode,
+                  bool shareProfilePicture,
+                  bool shareStatus,
+                  bool shareReadReceipts,
+                  bool shareBirthday,
+                  bool lockedAccount,
+                  bool privateChatAccess,
+                  bool blockSaveMedia,
+                  bool blockEditingMessages,
+                  bool blockDeletingMessages)
+              cb) =>
+      _onAllSettingsToChildListeners.add(cb);
+
+  void disposeOnAllSettingsToChild(
+          void Function(
+                  bool editableSettings,
+                  bool blurImages,
+                  bool safeMode,
+                  bool shareProfilePicture,
+                  bool shareStatus,
+                  bool shareReadReceipts,
+                  bool shareBirthday,
+                  bool lockedAccount,
+                  bool privateChatAccess,
+                  bool blockSaveMedia,
+                  bool blockEditingMessages,
+                  bool blockDeletingMessages)
+              cb) =>
+      _onAllSettingsToChildListeners.remove(cb);
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -750,7 +789,8 @@ class CommunicationService {
             await settingsService.setBlockEditingMessages(blockEditingMessages);
             await settingsService
                 .setBlockDeletingMessages(blockDeletingMessages);
-            onAllSettingsToChild?.call(
+
+            _onAllSettingsToChildListeners.forEach((listener) => listener(
                 editableSettings,
                 blurImages,
                 safeMode,
@@ -762,7 +802,7 @@ class CommunicationService {
                 privateChatAccess,
                 blockSaveMedia,
                 blockEditingMessages,
-                blockDeletingMessages);
+                blockDeletingMessages));
             break;
 
           case "newProfanityWordToChild":
@@ -771,8 +811,7 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              await profanityWordService.addWord(
-                  map["profanityOriginalWord"],
+              await profanityWordService.addWord(map["profanityOriginalWord"],
                   addedByParent: true);
             } else {
               await profanityWordService

@@ -39,23 +39,7 @@ class HomePageController {
     communicationService.onMessageEdited(_onMessageEdited);
     navigationObserver.onRoutePop(reload);
 
-    communicationService.onAllSettingsToChild = (
-        editableSettings,
-        blurImages,
-        safeMode,
-        shareProfilePicture,
-        shareStatus,
-        shareReadReceipts,
-        shareBirthday,
-        lockedAccount,
-        privateChatAccess,
-        blockSaveMedia,
-        blockEditingMessages,
-        blockDeletingMessages,
-        ) {
-      model.profanityFilter = safeMode;
-      model.blockSaveMedia = blockSaveMedia;
-    };
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
 
     communicationService.onNewProfanityWordToChild = () {
       profanityWordService.fetchAll().then((words) {
@@ -67,11 +51,30 @@ class HomePageController {
     reload();
   }
 
+  void _onAllSettingsToChild(
+    editableSettings,
+    blurImages,
+    safeMode,
+    shareProfilePicture,
+    shareStatus,
+    shareReadReceipts,
+    shareBirthday,
+    lockedAccount,
+    privateChatAccess,
+    blockSaveMedia,
+    blockEditingMessages,
+    blockDeletingMessages,
+  ) {
+    model.profanityFilter = safeMode;
+    model.blockSaveMedia = blockSaveMedia;
+  }
+
   void dispose() {
     navigationObserver.disposeOnRoutePop(reload);
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
     communicationService.disposeOnMessage(_onMessage);
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
     communicationService.disposeOnMessageEdited(_onMessageEdited);

@@ -56,27 +56,7 @@ class ChatPageController {
 
     communicationService.onMessageEdited(_onMessageEdited);
 
-    communicationService.onAllSettingsToChild = (
-      editableSettings,
-      blurImages,
-      safeMode,
-      shareProfilePicture,
-      shareStatus,
-      shareReadReceipts,
-      shareBirthday,
-      lockedAccount,
-      privateChatAccess,
-      blockSaveMedia,
-      blockEditingMessages,
-      blockDeletingMessages,
-    ) {
-      model.blockDeletingMessages = blockDeletingMessages;
-      model.blockEditingMessages = blockEditingMessages;
-      model.blockSaveMedia = blockSaveMedia;
-      model.privateChatAccess = privateChatAccess;
-      model.blurImages = blurImages;
-      model.profanityFilter = safeMode;
-    };
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
 
     communicationService.onNewProfanityWordToChild = () {
       profanityWordService.fetchAll().then((words) {
@@ -230,7 +210,30 @@ class ChatPageController {
     model.setEditedById(messageID, message);
   }
 
+  void _onAllSettingsToChild(
+    editableSettings,
+    blurImages,
+    safeMode,
+    shareProfilePicture,
+    shareStatus,
+    shareReadReceipts,
+    shareBirthday,
+    lockedAccount,
+    privateChatAccess,
+    blockSaveMedia,
+    blockEditingMessages,
+    blockDeletingMessages,
+  ) {
+    model.blockDeletingMessages = blockDeletingMessages;
+    model.blockEditingMessages = blockEditingMessages;
+    model.blockSaveMedia = blockSaveMedia;
+    model.privateChatAccess = privateChatAccess;
+    model.blurImages = blurImages;
+    model.profanityFilter = safeMode;
+  }
+
   void dispose() {
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);

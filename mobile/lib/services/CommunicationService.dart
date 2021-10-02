@@ -108,6 +108,8 @@ class CommunicationService {
 
   void Function()? onBlockedNumberToChild;
 
+  void Function()? onSetUpChild;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -853,6 +855,8 @@ class CommunicationService {
                   timestamp:
                       DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
             });
+
+            onSetUpChild?.call();
             //TODO dont allow child to block parent lmao
             break;
 

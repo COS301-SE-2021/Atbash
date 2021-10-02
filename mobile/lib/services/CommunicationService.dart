@@ -104,8 +104,7 @@ class CommunicationService {
           bool blockEditingMessages,
           bool blockDeletingMessages)> _onAllSettingsToChildListeners = [];
 
-  //TODO *
-  void Function()? onNewProfanityWordToChild;
+  List<void Function()> _onNewProfanityWordToChildListeners = [];
 
   //TODO *
   void Function()? onBlockedNumberToChild;
@@ -125,6 +124,12 @@ class CommunicationService {
 
   //TODO *
   void Function()? onContactToParent;
+
+  void onNewProfanityWordToChild(void Function() cb) =>
+      _onNewProfanityWordToChildListeners.add(cb);
+
+  void disposeOnNewProfanityWordToChild(void Function() cb) =>
+      _onNewProfanityWordToChildListeners.remove(cb);
 
   void onAllSettingsToChild(
           void Function(
@@ -817,7 +822,8 @@ class CommunicationService {
               await profanityWordService
                   .deleteByWord(map["profanityOriginalWord"]);
             }
-            onNewProfanityWordToChild?.call();
+            _onNewProfanityWordToChildListeners
+                .forEach((listener) => listener());
             break;
 
           case "blockedNumberToChild":

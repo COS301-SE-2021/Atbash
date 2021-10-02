@@ -41,14 +41,16 @@ class HomePageController {
 
     communicationService.onAllSettingsToChild(_onAllSettingsToChild);
 
-    communicationService.onNewProfanityWordToChild = () {
-      profanityWordService.fetchAll().then((words) {
-        model.profanityWords.clear();
-        model.profanityWords.addAll(words);
-      });
-    };
+    communicationService.onNewProfanityWordToChild(_onNewProfanityWordToChild);
 
     reload();
+  }
+
+  void _onNewProfanityWordToChild() {
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
   }
 
   void _onAllSettingsToChild(
@@ -74,7 +76,9 @@ class HomePageController {
     chatService.disposeOnChanged(reload);
     contactService.disposeOnChanged(reload);
     communicationService.disposeOnMessage(_onMessage);
-    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+    communicationService
+        .disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnAck(_onAck);
     communicationService.disposeOnAckSeen(_onAckSeen);
     communicationService.disposeOnMessageEdited(_onMessageEdited);

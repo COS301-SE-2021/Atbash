@@ -157,7 +157,7 @@ class SettingsPageController {
   }
 
   void dispose() {
-    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
   }
 
   Future<void> importContacts() async {

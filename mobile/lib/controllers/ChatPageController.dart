@@ -58,12 +58,7 @@ class ChatPageController {
 
     communicationService.onAllSettingsToChild(_onAllSettingsToChild);
 
-    communicationService.onNewProfanityWordToChild = () {
-      profanityWordService.fetchAll().then((words) {
-        model.profanityWords.clear();
-        model.profanityWords.addAll(words);
-      });
-    };
+    communicationService.onNewProfanityWordToChild(_onNewProfanityWordToChild);
 
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
@@ -232,8 +227,16 @@ class ChatPageController {
     model.profanityFilter = safeMode;
   }
 
+  void _onNewProfanityWordToChild() {
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
+  }
+
   void dispose() {
-    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+    communicationService.disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);

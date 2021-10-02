@@ -35,6 +35,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        if (controller.model.parentName != "")
+          controller.sentUpdatedSettingsToParent();
         return true;
       },
       child: Scaffold(

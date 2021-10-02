@@ -115,6 +115,10 @@ export class CommunicationService {
             this.userDisplayName$.next(userDisplayName)
         }
 
+        if (userProfilePhoto != null) {
+            this.userProfileImage$.next(userProfilePhoto)
+        }
+
         chats?.forEach(c => {
             const chat = c as Chat || null
             if (chat != null) {

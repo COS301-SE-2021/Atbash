@@ -107,7 +107,7 @@ class CommunicationService {
   List<void Function()> _onNewProfanityWordToChildListeners = [];
 
   //TODO *
-  void Function()? onBlockedNumberToChild;
+  List<void Function()> _onBlockedNumberToChildListeners = [];
 
   void Function()? onSetUpChild;
 
@@ -124,6 +124,12 @@ class CommunicationService {
 
   //TODO *
   void Function()? onContactToParent;
+
+  void onBlockedNumberToChild(void Function() cb) =>
+      _onBlockedNumberToChildListeners.add(cb);
+
+  void disposeOnBlockedNumberToChild(void Function() cb) =>
+      _onBlockedNumberToChildListeners.remove(cb);
 
   void onNewProfanityWordToChild(void Function() cb) =>
       _onNewProfanityWordToChildListeners.add(cb);
@@ -838,7 +844,7 @@ class CommunicationService {
             } else {
               await blockedNumbersService.delete(map["phoneNumber"]);
             }
-            onBlockedNumberToChild?.call();
+            _onBlockedNumberToChildListeners.forEach((listener) => listener());
             break;
 
           case "setupChild":

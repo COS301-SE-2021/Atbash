@@ -16,11 +16,7 @@ class ContactInfoPageController {
 
   ContactInfoPageController({required this.phoneNumber}) {
     reload();
-    communicationService.onBlockedNumberToChild = () {
-      blockedNumbersService.checkIfBlocked(phoneNumber).then((value) {
-        model.isBlocked = value;
-      });
-    };
+    communicationService.onBlockedNumberToChild(_onBlockedNumberToChild);
   }
 
   void reload() {
@@ -31,6 +27,16 @@ class ContactInfoPageController {
       model.profilePicture = contact.profileImage;
       model.birthday = contact.birthday;
     });
+    blockedNumbersService.checkIfBlocked(phoneNumber).then((value) {
+      model.isBlocked = value;
+    });
+  }
+
+  void dispose() {
+    communicationService.disposeOnBlockedNumberToChild(_onBlockedNumberToChild);
+  }
+
+  void _onBlockedNumberToChild() {
     blockedNumbersService.checkIfBlocked(phoneNumber).then((value) {
       model.isBlocked = value;
     });

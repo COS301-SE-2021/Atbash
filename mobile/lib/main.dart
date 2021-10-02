@@ -53,6 +53,7 @@ class AtbashApp extends StatelessWidget {
   final NavigationObserver navigationObserver = GetIt.I.get();
   final NotificationService notificationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -72,6 +73,7 @@ class AtbashApp extends StatelessWidget {
           final snapshotData = snapshot.data as List;
 
           if (snapshotData[0] == RegistrationState.registered) {
+            communicationService.goOnline();
             page = HomePage();
           } else if (snapshotData[0] == RegistrationState.unverified) {
             page = VerificationPage();

@@ -124,7 +124,13 @@ class CommunicationService {
 
   void Function(bool value)? onEditableSettingsChangeToChild;
 
-  void Function(bool value)? onLockedAccountChangeToChild;
+  List<void Function(bool value)> _onLockedAccountChangeToChildListeners = [];
+
+  void onLockedAccountChangeToChild(void Function(bool value) cb) =>
+      _onLockedAccountChangeToChildListeners.add(cb);
+
+  void disposeOnLockedAccountChangeToChild(void Function(bool value) cb) =>
+      _onLockedAccountChangeToChildListeners.remove(cb);
 
   void onContactToParent(void Function() cb) =>
       _onContactToParentListeners.add(cb);
@@ -772,7 +778,7 @@ class CommunicationService {
             await parentService.deleteByNumber(senderPhoneNumber);
             await settingsService.setEditableSettings(true);
             await settingsService.setLockedAccount(false);
-            await settingsService.setPrivateChatAccess(true);
+            await settingsService.setPrivateChatAccess(false);
             await settingsService.setBlockSaveMedia(false);
             await settingsService.setBlockEditingMessages(false);
             await settingsService.setBlockDeletingMessages(false);
@@ -957,8 +963,7 @@ class CommunicationService {
           case "editableSettingsChangeToChild":
             final editableSettings = decryptedContents["value"] as bool;
 
-            await childService.update(senderPhoneNumber,
-                editableSettings: editableSettings);
+            await settingsService.setEditableSettings(editableSettings);
 
             onEditableSettingsChangeToChild?.call(editableSettings);
             break;
@@ -966,10 +971,10 @@ class CommunicationService {
           case "lockedAccountChangeToChild":
             final lockedAccount = decryptedContents["value"] as bool;
 
-            await childService.update(senderPhoneNumber,
-                lockedAccount: lockedAccount);
+            await settingsService.setLockedAccount(lockedAccount);
 
-            onLockedAccountChangeToChild?.call(lockedAccount);
+            _onLockedAccountChangeToChildListeners
+                .forEach((listener) => listener(lockedAccount));
             break;
 
           case "newProfanityWordToParent":

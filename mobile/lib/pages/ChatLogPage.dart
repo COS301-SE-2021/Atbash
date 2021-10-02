@@ -74,7 +74,7 @@ class _ChatLogPageState extends State<ChatLogPage> {
         dense: true,
       ),
       secondaryActions: [
-        if (isBlocked(chat.otherPartyNumber))
+        if (!isBlocked(chat.otherPartyNumber))
           IconSlideAction(
             caption: "Block for child",
             color: Colors.red,

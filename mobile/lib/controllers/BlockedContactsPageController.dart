@@ -15,6 +15,12 @@ class BlockedContactsPageController {
   final BlockedContactsPageModel model = BlockedContactsPageModel();
 
   BlockedContactsPageController() {
+    communicationService.onBlockedNumberToChild = () {
+      blockedNumbersService.fetchAll().then((numbers) {
+        model.blockedNumbers.clear();
+        model.blockedNumbers.addAll(numbers);
+      });
+    };
     reload();
   }
 

@@ -7,5 +7,12 @@
         {{messageContents}}
       </span>
     </ng-template>
+    <br/>
+    <div class="message-status">
+      <span>
+      {{messageTime}}
+      </span>
+      <img *ngIf="!message?.isIncoming" [src]="readStatusSVG" alt="x" height="15" style="padding-left: 4px;">
+    </div>
   </div>
 </div>

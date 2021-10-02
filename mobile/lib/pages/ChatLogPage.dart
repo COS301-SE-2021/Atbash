@@ -22,6 +22,12 @@ class _ChatLogPageState extends State<ChatLogPage> {
       : controller = ChatLogPageController(child.phoneNumber);
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

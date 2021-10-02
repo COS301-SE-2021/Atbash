@@ -21,6 +21,12 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   _BlockedContactsPageState() : controller = BlockedContactsPageController();
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),

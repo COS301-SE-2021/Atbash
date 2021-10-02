@@ -27,6 +27,12 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
         childNumber = child.phoneNumber;
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

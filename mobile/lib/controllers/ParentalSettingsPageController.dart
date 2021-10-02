@@ -49,6 +49,10 @@ class ParentalSettingsPageController {
     });
   }
 
+  void dispose(){
+
+  }
+
   void setIndex(int index) {
     model.index = index;
   }

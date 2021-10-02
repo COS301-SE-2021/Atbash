@@ -5,7 +5,7 @@ import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
 import 'package:mobile/pages/ParentalSettingsPage.dart';
-import 'package:mobile/pages/ProfanityFilterListPage.dart';
+import 'package:mobile/pages/ProfanityManagerPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
 import 'package:mobile/util/Utils.dart';
@@ -249,7 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ProfanityFilterListPage()));
+                            builder: (context) => ProfanityManagerPage()));
                   },
                   dense: true,
                 ),

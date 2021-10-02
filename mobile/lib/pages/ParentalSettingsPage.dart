@@ -7,7 +7,6 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
-import 'package:mobile/pages/ChildProfanityFilterListPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 
 import 'ChildBlockedContactsPage.dart';
@@ -154,7 +153,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.blurImages,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -175,7 +178,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.safeMode,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -196,7 +203,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.shareProfilePicture,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -217,7 +228,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.shareStatus,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -238,7 +253,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.shareBirthday,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -259,7 +278,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       SwitchListTile(
                         value: controller.model.children[controller.model.index]
                             .first.shareReadReceipts,
-                        onChanged: controller.model.children[controller.model.index].first.editableSettings
+                        onChanged: controller
+                                .model
+                                .children[controller.model.index]
+                                .first
+                                .editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -289,19 +312,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         subtitle: Text(
                             "Add or remove words from the profanity filter"),
                         trailing: Icon(Icons.arrow_forward_rounded),
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChildProfanityFilterListPage(
-                                          childNumber: controller
-                                              .model
-                                              .children[controller
-                                                  .model.index]
-                                              .first
-                                              .phoneNumber)));
-                        },
+                        onTap: () {},
                         dense: true,
                       ),
                       ListTile(
@@ -323,8 +334,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                       ChildBlockedContactsPage(
                                           child: controller
                                               .model
-                                              .children[controller
-                                                  .model.index]
+                                              .children[controller.model.index]
                                               .first)));
                         },
                         dense: true,

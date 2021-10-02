@@ -383,7 +383,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     String _filterContents(String unfilteredContents) {
       controller.model.profanityWords.forEach((profanityWord) {
         unfilteredContents = unfilteredContents.replaceAllMapped(
-            RegExp(profanityWord.profanityWordRegex, caseSensitive: false),
+            RegExp(profanityWord.regex, caseSensitive: false),
             (match) => List.filled(match.end - match.start, "*").join());
       });
       return unfilteredContents;

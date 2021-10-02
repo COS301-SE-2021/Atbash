@@ -90,7 +90,19 @@ class CommunicationService {
   //Start of parental listeners
   void Function()? onRemoveChild;
 
-
+  void Function(
+      bool editableSettings,
+      bool blurImages,
+      bool safeMode,
+      bool shareProfilePicture,
+      bool shareStatus,
+      bool shareReadReceipts,
+      bool shareBirthday,
+      bool lockedAccount,
+      bool privateChatAccess,
+      bool blockSaveMedia,
+      bool blockEditingMessages,
+      bool blockDeletingMessages)? onAllSettingsToChild;
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -689,29 +701,50 @@ class CommunicationService {
 
           case "allSettingsToChild":
             //update all settings in flutter_secure_storage (This is on child phone)
-            settingsService.setEditableSettings(
-                decryptedContents["editableSettings"] as bool);
-            settingsService
-                .setBlurImages(decryptedContents["blurImages"] as bool);
-            settingsService.setSafeMode(decryptedContents["safeMode"] as bool);
-            settingsService.setShareProfilePicture(
-                decryptedContents["shareProfilePicture"] as bool);
-            settingsService
-                .setShareStatus(decryptedContents["shareStatus"] as bool);
-            settingsService.setShareReadReceipts(
-                decryptedContents["shareReadReceipts"] as bool);
-            settingsService
-                .setShareBirthday(decryptedContents["shareBirthday"] as bool);
-            settingsService
-                .setLockedAccount(decryptedContents["lockedAccount"] as bool);
-            settingsService.setPrivateChatAccess(
-                decryptedContents["privateChatAccess"] as bool);
-            settingsService
-                .setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
-            settingsService.setBlockEditingMessages(
-                decryptedContents["blockEditingMessages"] as bool);
-            settingsService.setBlockDeletingMessages(
-                decryptedContents["blockDeletingMessages"] as bool);
+            final editableSettings =
+                decryptedContents["editableSettings"] as bool;
+            final blurImages = decryptedContents["blurImages"] as bool;
+            final safeMode = decryptedContents["safeMode"] as bool;
+            final shareProfilePicture =
+                decryptedContents["shareProfilePicture"] as bool;
+            final shareStatus = decryptedContents["shareStatus"] as bool;
+            final shareReadReceipts =
+                decryptedContents["shareReadReceipts"] as bool;
+            final shareBirthday = decryptedContents["shareBirthday"] as bool;
+            final lockedAccount = decryptedContents["lockedAccount"] as bool;
+            final privateChatAccess =
+                decryptedContents["privateChatAccess"] as bool;
+            final blockSaveMedia = decryptedContents["blockSaveMedia"] as bool;
+            final blockEditingMessages =
+                decryptedContents["blockEditingMessages"] as bool;
+            final blockDeletingMessages =
+                decryptedContents["blockDeletingMessages"] as bool;
+
+            settingsService.setEditableSettings(editableSettings);
+            settingsService.setBlurImages(blurImages);
+            settingsService.setSafeMode(safeMode);
+            settingsService.setShareProfilePicture(shareProfilePicture);
+            settingsService.setShareStatus(shareStatus);
+            settingsService.setShareReadReceipts(shareReadReceipts);
+            settingsService.setShareBirthday(shareBirthday);
+            settingsService.setLockedAccount(lockedAccount);
+            settingsService.setPrivateChatAccess(privateChatAccess);
+            settingsService.setBlockSaveMedia(blockSaveMedia);
+            settingsService.setBlockEditingMessages(blockEditingMessages);
+            settingsService.setBlockDeletingMessages(blockDeletingMessages);
+            onAllSettingsToChild?.call(
+                editableSettings,
+                blurImages,
+                safeMode,
+                shareProfilePicture,
+                shareStatus,
+                shareReadReceipts,
+                shareBirthday,
+                lockedAccount,
+                privateChatAccess,
+                blockSaveMedia,
+                blockEditingMessages,
+                blockDeletingMessages);
             break;
 
           case "newProfanityWordToChild":

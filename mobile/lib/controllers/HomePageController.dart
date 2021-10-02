@@ -38,6 +38,25 @@ class HomePageController {
     communicationService.onAckSeen(_onAckSeen);
     communicationService.onMessageEdited(_onMessageEdited);
     navigationObserver.onRoutePop(reload);
+
+    communicationService.onAllSettingsToChild = (
+        editableSettings,
+        blurImages,
+        safeMode,
+        shareProfilePicture,
+        shareStatus,
+        shareReadReceipts,
+        shareBirthday,
+        lockedAccount,
+        privateChatAccess,
+        blockSaveMedia,
+        blockEditingMessages,
+        blockDeletingMessages,
+        ) {
+      model.profanityFilter = safeMode;
+      model.blockSaveMedia = blockSaveMedia;
+    };
+
     reload();
   }
 

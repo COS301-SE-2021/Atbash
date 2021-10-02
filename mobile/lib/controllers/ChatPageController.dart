@@ -56,6 +56,28 @@ class ChatPageController {
 
     communicationService.onMessageEdited(_onMessageEdited);
 
+    communicationService.onAllSettingsToChild = (
+      editableSettings,
+      blurImages,
+      safeMode,
+      shareProfilePicture,
+      shareStatus,
+      shareReadReceipts,
+      shareBirthday,
+      lockedAccount,
+      privateChatAccess,
+      blockSaveMedia,
+      blockEditingMessages,
+      blockDeletingMessages,
+    ) {
+      model.blockDeletingMessages = blockDeletingMessages;
+      model.blockEditingMessages = blockEditingMessages;
+      model.blockSaveMedia = blockSaveMedia;
+      model.privateChatAccess = privateChatAccess;
+      model.blurImages = blurImages;
+      model.profanityFilter = safeMode;
+    };
+
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 

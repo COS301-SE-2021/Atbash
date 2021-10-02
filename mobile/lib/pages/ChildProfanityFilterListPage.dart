@@ -6,7 +6,6 @@ import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/CommunicationService.dart';
-import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/util/Utils.dart';
 
 class ChildProfanityFilterListPage extends StatefulWidget {
@@ -33,14 +32,27 @@ class _ChildProfanityFilterListPageState
   @override
   void initState() {
     super.initState();
-    childProfanityWordService
-        .fetchAllWordsByChildNumber(childNumber)
-        .then((wordList) {
-      setState(() {
-        profanityWordList = List.of(wordList);
-        filteredProfanityWordList = List.of(wordList);
+
+    void reload() {
+      childProfanityWordService
+          .fetchAllWordsByChildNumber(childNumber)
+          .then((wordList) {
+        setState(() {
+          profanityWordList = List.of(wordList);
+          filteredProfanityWordList = List.of(wordList);
+        });
       });
-    });
+    }
+
+    reload();
+
+    communicationService.onNewProfanityWordToParent = () => reload;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    communicationService.onNewProfanityWordToParent = null;
   }
 
   @override

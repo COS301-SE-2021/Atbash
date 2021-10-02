@@ -10,7 +10,6 @@ import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
-import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Parent.dart';
@@ -111,6 +110,8 @@ class CommunicationService {
   void Function()? onSetUpChild;
 
   void Function()? onAllSettingsToParent;
+
+  void Function()? onNewProfanityWordToParent;
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -893,21 +894,16 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"];
 
-            final word = ChildProfanityWord(
-                phoneNumber: senderPhoneNumber,
-                profanityWordRegex: map["profanityWordRegex"],
-                profanityID: map["profanityID"],
-                profanityOriginalWord: map["profanityOriginalWord"]);
-
             if (operation == "insert") {
-              childProfanityWordService.insert(
+              await childProfanityWordService.insert(
                   map["profanityOriginalWord"], senderPhoneNumber,
                   id: map["profanityID"]);
             } else {
-              childProfanityWordService.deleteByNumberAndID(
-                  senderPhoneNumber, word.profanityID);
+              await childProfanityWordService.deleteByNumberAndID(
+                  senderPhoneNumber, map["profanityID"]);
             }
 
+            onNewProfanityWordToParent?.call();
             break;
 
           case "blockedNumberToParent":

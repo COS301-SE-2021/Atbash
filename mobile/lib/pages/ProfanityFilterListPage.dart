@@ -28,17 +28,24 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   @override
   void initState() {
     super.initState();
-    profanityWordService.fetchAll().then((wordList) {
-      setState(() {
-        profanityWordList = List.of(wordList);
-        filteredProfanityWordList = List.of(wordList);
+
+    void reload() {
+      profanityWordService.fetchAll().then((wordList) {
+        setState(() {
+          profanityWordList = List.of(wordList);
+          filteredProfanityWordList = List.of(wordList);
+        });
       });
-    });
-    parentService.fetchByEnabled().then((parent) {
-      setState(() {
-        hasParent = parent;
-      });
-    }).catchError((_) {});
+      parentService.fetchByEnabled().then((parent) {
+        setState(() {
+          hasParent = parent;
+        });
+      }).catchError((_) {});
+    }
+
+    reload();
+
+    communicationService.onNewProfanityWordToChild = () => reload;
   }
 
   @override

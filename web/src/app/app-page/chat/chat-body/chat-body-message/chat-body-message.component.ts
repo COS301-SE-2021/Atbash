@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Message } from "../../../../domain/message";
+import { calculateImageMimeType } from "../../../../utils/utils";
 
 @Component({
     selector: "app-chat-body-message",
@@ -14,6 +15,18 @@ export class ChatBodyMessageComponent implements OnInit {
     }
 
     ngOnInit(): void {
+    }
+
+    get isMediaMessage() {
+        return this.message?.isMedia == true
+    }
+
+    get mediaContents() {
+        if (this.message != null) {
+            return `data:${calculateImageMimeType(this.message.contents)};base64,${this.message.contents}`
+        } else {
+            return "https://i.stack.imgur.com/y9DpT.jpg"
+        }
     }
 
 }

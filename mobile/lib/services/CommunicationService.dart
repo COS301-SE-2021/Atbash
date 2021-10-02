@@ -237,7 +237,7 @@ class CommunicationService {
     final userDisplayNameFuture = userService.getDisplayName();
     final userProfilePhotoFuture = userService.getProfileImage();
     final contactsFuture = contactService.fetchAll();
-    final chatsFuture = chatService.fetchAll();
+    final chatsFuture = chatService.fetchByChatType(ChatType.general);
     final messagesFuture = messageService.fetchAll();
 
     await Future.wait([

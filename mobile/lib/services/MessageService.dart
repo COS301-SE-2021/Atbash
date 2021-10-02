@@ -184,7 +184,8 @@ class MessageService {
 
     if (response == 0) throw MessageNotFoundException();
 
-    await pcConnectionService.notifyPcDeleteMessage(messageId);
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> setMessageReadReceipt(

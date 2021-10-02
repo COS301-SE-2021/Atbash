@@ -2,11 +2,13 @@ import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/BlockedNumber.dart';
 import 'package:mobile/models/ContactInfoPageModel.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
+import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 
 class ContactInfoPageController {
   final ContactService contactService = GetIt.I.get();
   final BlockedNumbersService blockedNumbersService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final ContactInfoPageModel model = ContactInfoPageModel();
 
@@ -14,6 +16,7 @@ class ContactInfoPageController {
 
   ContactInfoPageController({required this.phoneNumber}) {
     reload();
+    communicationService.onBlockedNumberToChild(_onBlockedNumberToChild);
   }
 
   void reload() {
@@ -24,6 +27,16 @@ class ContactInfoPageController {
       model.profilePicture = contact.profileImage;
       model.birthday = contact.birthday;
     });
+    blockedNumbersService.checkIfBlocked(phoneNumber).then((value) {
+      model.isBlocked = value;
+    });
+  }
+
+  void dispose() {
+    communicationService.disposeOnBlockedNumberToChild(_onBlockedNumberToChild);
+  }
+
+  void _onBlockedNumberToChild() {
     blockedNumbersService.checkIfBlocked(phoneNumber).then((value) {
       model.isBlocked = value;
     });

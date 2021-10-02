@@ -27,6 +27,12 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
         chat = chat;
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Observer(builder: (context) {
       return Container(
@@ -38,7 +44,8 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
         ),
         child: Scaffold(
           appBar: AppBar(
-            title: Text("${controller.model.childName}'s chat with ${controller.model.otherMemberName}"),
+            title: Text(
+                "${controller.model.childName}'s chat with ${controller.model.otherMemberName}"),
           ),
           body: SafeArea(
             child: Column(

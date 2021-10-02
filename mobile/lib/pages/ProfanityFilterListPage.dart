@@ -25,9 +25,7 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   List<ProfanityWord> filteredProfanityWordList = [];
   Parent? hasParent;
 
-  @override
-  void initState() {
-    super.initState();
+  void reload() {
     profanityWordService.fetchAll().then((wordList) {
       setState(() {
         profanityWordList = List.of(wordList);
@@ -39,6 +37,26 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
         hasParent = parent;
       });
     }).catchError((_) {});
+  }
+
+  void _onNewProfanityWordToChild() {
+    reload();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    reload();
+
+    communicationService.onNewProfanityWordToChild(_onNewProfanityWordToChild);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    communicationService
+        .disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
   }
 
   @override

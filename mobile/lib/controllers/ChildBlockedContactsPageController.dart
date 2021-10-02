@@ -14,9 +14,16 @@ class ChildBlockedContactsPageController {
   final CommunicationService communicationService = GetIt.I.get();
   final ChildService childService = GetIt.I.get();
 
+  late final childPhoneNumber;
+
   final ChildBlockedContactsPageModel model = ChildBlockedContactsPageModel();
 
   ChildBlockedContactsPageController(String childNumber) {
+    childPhoneNumber = childNumber;
+
+    communicationService.onBlockedNumberToParent(_onBlockedNumberToParent);
+
+    communicationService.onContactToParent(_onContactToParent);
     reload(childNumber);
   }
 
@@ -33,6 +40,30 @@ class ChildBlockedContactsPageController {
     });
     childService.fetchByPhoneNumber(childNumber).then((child) {
       model.childName = child.name;
+    });
+  }
+
+  void dispose() {
+    communicationService.disposeOnContactToParent(_onContactToParent);
+    communicationService
+        .disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+  }
+
+  void _onContactToParent() {
+    childContactService
+        .fetchAllContactsByChildNumber(childPhoneNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
+    });
+  }
+
+  void _onBlockedNumberToParent() {
+    childBlockedNumberService
+        .fetchAllByNumber(childPhoneNumber)
+        .then((numbers) {
+      model.blockedNumbers.clear();
+      model.blockedNumbers.addAll(numbers);
     });
   }
 

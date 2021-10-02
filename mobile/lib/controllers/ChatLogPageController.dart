@@ -4,6 +4,7 @@ import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/models/ChatLogPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:uuid/uuid.dart';
@@ -13,10 +14,27 @@ class ChatLogPageController {
   final ChildChatService childChatService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
+  final ChildContactService childContactService = GetIt.I.get();
 
   final ChatLogPageModel model = ChatLogPageModel();
 
+  late final childNumber;
+
   ChatLogPageController(String childPhoneNumber) {
+    childNumber = childPhoneNumber;
+
+    communicationService.onBlockedNumberToParent(_onBlockedNumberToParent);
+
+    communicationService.onChatToParent = () {
+      childChatService
+          .fetchAllChatsByChildNumber(childPhoneNumber)
+          .then((chats) {
+        model.chats.clear();
+        model.chats.addAll(chats);
+      });
+    };
+
+    communicationService.onContactToParent(_onContactToParent);
     reload(childPhoneNumber);
   }
 
@@ -33,6 +51,35 @@ class ChatLogPageController {
     childBlockedNumberService
         .fetchAllByNumber(childPhoneNumber)
         .then((numbers) {
+      model.blockedNumbrs.clear();
+      model.blockedNumbrs.addAll(numbers);
+    });
+
+    childContactService
+        .fetchAllContactsByChildNumber(childPhoneNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
+    });
+  }
+
+  void dispose() {
+    communicationService
+        .disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+    communicationService.disposeOnContactToParent(_onContactToParent);
+  }
+
+  void _onContactToParent() {
+    childContactService
+        .fetchAllContactsByChildNumber(childNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
+    });
+  }
+
+  void _onBlockedNumberToParent() {
+    childBlockedNumberService.fetchAllByNumber(childNumber).then((numbers) {
       model.blockedNumbrs.clear();
       model.blockedNumbrs.addAll(numbers);
     });

@@ -15,6 +15,7 @@ class BlockedContactsPageController {
   final BlockedContactsPageModel model = BlockedContactsPageModel();
 
   BlockedContactsPageController() {
+    communicationService.onBlockedNumberToChild(_onBlockedNumberToChild);
     reload();
   }
 
@@ -23,6 +24,17 @@ class BlockedContactsPageController {
       model.contacts.clear();
       model.contacts.addAll(contacts);
     });
+    blockedNumbersService.fetchAll().then((numbers) {
+      model.blockedNumbers.clear();
+      model.blockedNumbers.addAll(numbers);
+    });
+  }
+
+  void dispose() {
+    communicationService.disposeOnBlockedNumberToChild(_onBlockedNumberToChild);
+  }
+
+  void _onBlockedNumberToChild() {
     blockedNumbersService.fetchAll().then((numbers) {
       model.blockedNumbers.clear();
       model.blockedNumbers.addAll(numbers);

@@ -56,6 +56,10 @@ class ChatPageController {
 
     communicationService.onMessageEdited(_onMessageEdited);
 
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+
+    communicationService.onNewProfanityWordToChild(_onNewProfanityWordToChild);
+
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 
@@ -201,7 +205,38 @@ class ChatPageController {
     model.setEditedById(messageID, message);
   }
 
+  void _onAllSettingsToChild(
+    editableSettings,
+    blurImages,
+    safeMode,
+    shareProfilePicture,
+    shareStatus,
+    shareReadReceipts,
+    shareBirthday,
+    lockedAccount,
+    privateChatAccess,
+    blockSaveMedia,
+    blockEditingMessages,
+    blockDeletingMessages,
+  ) {
+    model.blockDeletingMessages = blockDeletingMessages;
+    model.blockEditingMessages = blockEditingMessages;
+    model.blockSaveMedia = blockSaveMedia;
+    model.privateChatAccess = privateChatAccess;
+    model.blurImages = blurImages;
+    model.profanityFilter = safeMode;
+  }
+
+  void _onNewProfanityWordToChild() {
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
+  }
+
   void dispose() {
+    communicationService.disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);

@@ -17,6 +17,14 @@ class ChatLogPageController {
   final ChatLogPageModel model = ChatLogPageModel();
 
   ChatLogPageController(String childPhoneNumber) {
+    communicationService.onBlockedNumberToParent = () {
+      childBlockedNumberService
+          .fetchAllByNumber(childPhoneNumber)
+          .then((numbers) {
+        model.blockedNumbrs.clear();
+        model.blockedNumbrs.addAll(numbers);
+      });
+    };
     reload(childPhoneNumber);
   }
 

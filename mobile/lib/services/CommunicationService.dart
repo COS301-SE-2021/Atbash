@@ -113,6 +113,8 @@ class CommunicationService {
 
   void Function()? onNewProfanityWordToParent;
 
+  void Function()? onBlockedNumberToParent;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -760,20 +762,15 @@ class CommunicationService {
           case "newProfanityWordToChild":
             //This adds/deletes word from profanity table
             final map = decryptedContents["word"] as Map<String, dynamic>;
-            final profanityWord = ProfanityWord(
-                profanityWordRegex: map["profanityWordRegex"],
-                profanityID: map["profanityID"],
-                profanityOriginalWord: map["profanityOriginalWord"],
-                addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
               await profanityWordService.addWord(
-                  profanityWord.profanityOriginalWord,
+                  map["profanityOriginalWord"],
                   addedByParent: true);
             } else {
               await profanityWordService
-                  .deleteByWord(profanityWord.profanityOriginalWord);
+                  .deleteByWord(map["profanityOriginalWord"]);
             }
             onNewProfanityWordToChild?.call();
             break;
@@ -782,14 +779,13 @@ class CommunicationService {
             //add given blocked number to my blockedNumbers table (This is on child phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
-            final blockedNumber = BlockedNumber(
-                phoneNumber: map["phoneNumber"], addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              await blockedNumbersService.insert(blockedNumber);
+              await blockedNumbersService.insert(BlockedNumber(
+                  phoneNumber: map["phoneNumber"], addedByParent: true));
             } else {
-              await blockedNumbersService.delete(blockedNumber.phoneNumber);
+              await blockedNumbersService.delete(map["phoneNumber"]);
             }
             onBlockedNumberToChild?.call();
             break;
@@ -910,8 +906,6 @@ class CommunicationService {
             // update associated child BlockedNumber table with new number (This is on parent phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
-            final blockedNumber =
-                BlockedNumber(phoneNumber: map["phoneNumber"]);
 
             final operation = decryptedContents["operation"] as String;
 
@@ -919,12 +913,14 @@ class CommunicationService {
               final childBlockedNumber = ChildBlockedNumber(
                   id: Uuid().v4(),
                   childNumber: senderPhoneNumber,
-                  blockedNumber: blockedNumber.phoneNumber);
-              childBlockedNumberService.insert(childBlockedNumber);
+                  blockedNumber: map["phoneNumber"]);
+              await childBlockedNumberService.insert(childBlockedNumber);
             } else {
-              childBlockedNumberService.delete(
-                  senderPhoneNumber, blockedNumber.phoneNumber);
+              await childBlockedNumberService.delete(
+                  senderPhoneNumber, map["phoneNumber"]);
             }
+
+            onBlockedNumberToParent?.call();
             break;
 
           case "chatToParent":

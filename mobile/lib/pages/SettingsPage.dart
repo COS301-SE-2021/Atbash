@@ -33,11 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return true;
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text("Settings"),
         ),
@@ -446,7 +442,6 @@ class _SettingsPageState extends State<SettingsPage> {
             );
           }),
         ),
-      ),
-    );
+      );
   }
 }

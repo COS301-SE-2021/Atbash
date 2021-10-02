@@ -25,6 +25,15 @@ class ChatLogPageController {
         model.blockedNumbrs.addAll(numbers);
       });
     };
+
+    communicationService.onChatToParent = () {
+      childChatService
+          .fetchAllChatsByChildNumber(childPhoneNumber)
+          .then((chats) {
+        model.chats.clear();
+        model.chats.addAll(chats);
+      });
+    };
     reload(childPhoneNumber);
   }
 

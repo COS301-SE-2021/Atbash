@@ -115,6 +115,8 @@ class CommunicationService {
 
   void Function()? onBlockedNumberToParent;
 
+  void Function()? onChatToParent;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -929,13 +931,15 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              childChatService.insert(ChildChat(
+              await childChatService.insert(ChildChat(
                   childPhoneNumber: senderPhoneNumber,
                   otherPartyNumber: map["contactPhoneNumber"]));
             } else {
-              childChatService.deleteByNumbers(
+              await childChatService.deleteByNumbers(
                   senderPhoneNumber, map["contactPhoneNumber"]);
             }
+
+            onChatToParent?.call();
             break;
 
           case "messageToParent":

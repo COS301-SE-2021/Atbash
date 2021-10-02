@@ -49,6 +49,12 @@ class _ProfanityFilterListPageState extends State<ProfanityFilterListPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    communicationService.onNewProfanityWordToChild = null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

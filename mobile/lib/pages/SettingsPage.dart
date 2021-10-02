@@ -35,8 +35,6 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (controller.model.parentName != "")
-          controller.sentUpdatedSettingsToParent();
         return true;
       },
       child: Scaffold(
@@ -121,8 +119,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.blurImages,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setBlurImages(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -142,8 +140,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.safeMode,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setSafeMode(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -162,8 +160,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.sharedProfilePicture,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setSharedProfilePicture(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -183,8 +181,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.shareStatus,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setShareStatus(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -204,8 +202,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.shareBirthday,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setShareBirthday(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -225,8 +223,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   value: controller.model.shareReadReceipts,
                   onChanged: controller.model.editableSettings
                       ? (bool newValue) {
-                          controller.model.settingsChanged = true;
                           controller.setShareReadReceipts(newValue);
+                          controller.sentUpdatedSettingsToParent();
                         }
                       : null,
                   title: Text(
@@ -355,21 +353,6 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   dense: true,
                 ),
-                // ListTile(
-                //   leading: Icon(
-                //     Icons.delete_forever,
-                //     color: Constants.orange,
-                //   ),
-                //   title: Text(
-                //     "Delete Account",
-                //     style: TextStyle(fontSize: 16),
-                //   ),
-                //   trailing: Icon(Icons.arrow_forward_rounded),
-                //   onTap: () {
-                //     //TODO Delete Account Logic
-                //   },
-                //   dense: true,
-                // ),
                 Container(
                   padding: EdgeInsets.all(15),
                   child: Text(

@@ -164,8 +164,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setBlurImages(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Hide images",
@@ -189,8 +192,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setSafeMode(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Profanity Filter",
@@ -214,8 +220,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setShareProfilePicture(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Don't share profile photo",
@@ -239,8 +248,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setShareStatus(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Don't share status",
@@ -264,8 +276,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setShareBirthday(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Don't share birthday",
@@ -289,8 +304,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                 .editableSettings
                             ? null
                             : (bool newValue) {
-                                controller.setChildChanged(true);
                                 controller.setShareReadReceipts(newValue);
+                                controller.sendUpdatedSettingsToChild(controller
+                                    .model
+                                    .children[controller.model.index]
+                                    .first);
                               },
                         title: Text(
                           "Don't share read receipts",
@@ -412,8 +430,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         value: controller.model.children[controller.model.index]
                             .first.privateChatAccess,
                         onChanged: (bool newValue) {
-                          controller.setChildChanged(true);
                           controller.setPrivateChatAccess(newValue);
+                          controller.sendUpdatedSettingsToChild(controller
+                              .model.children[controller.model.index].first);
                         },
                         title: Text(
                           "Block Private Chats",
@@ -431,8 +450,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         value: controller.model.children[controller.model.index]
                             .first.blockSaveMedia,
                         onChanged: (bool newValue) {
-                          controller.setChildChanged(true);
                           controller.setBlockSaveMedia(newValue);
+                          controller.sendUpdatedSettingsToChild(controller
+                              .model.children[controller.model.index].first);
                         },
                         title: Text(
                           "Block saving of media",
@@ -450,8 +470,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         value: controller.model.children[controller.model.index]
                             .first.blockEditingMessages,
                         onChanged: (bool newValue) {
-                          controller.setChildChanged(true);
                           controller.setBlockEditingMessages(newValue);
+                          controller.sendUpdatedSettingsToChild(controller
+                              .model.children[controller.model.index].first);
                         },
                         title: Text(
                           "Block editing of messages",
@@ -469,8 +490,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         value: controller.model.children[controller.model.index]
                             .first.blockDeletingMessages,
                         onChanged: (bool newValue) {
-                          controller.setChildChanged(true);
                           controller.setBlockDeletingMessages(newValue);
+                          controller.sendUpdatedSettingsToChild(controller
+                              .model.children[controller.model.index].first);
                         },
                         title: Text(
                           "Block deletion of messages",

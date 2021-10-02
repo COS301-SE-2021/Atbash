@@ -288,6 +288,20 @@ class CommunicationService {
         null,
       );
     };
+
+    pcConnectionService.onSeenEvent = (messageIds) async {
+      try{
+        final otherNumber = (await messageService.fetchById(messageIds[0])).otherPartyPhoneNumber;
+
+        messageIds.forEach((element) {
+          messageService.setMessageReadReceiptFromPc(element, ReadReceipt.seen);
+        });
+        this.sendAckSeen(messageIds, otherNumber);
+
+      } catch (e){
+        print(e);
+      }
+    };
   }
 
   Future<void> registerConnectionForMessagebox(String mid) async {

@@ -8,6 +8,7 @@ import 'package:mobile/domain/Message.dart';
 class PCConnectionService {
   void Function(Message message)? onMessageEvent;
   void Function(String contactPhoneNumber)? onNewChatEvent;
+  void Function(List<String> messageIds)? onSeenEvent;
 
   String? pcRelayId;
 
@@ -57,6 +58,9 @@ class PCConnectionService {
         case "newChat":
           handleNewChat(event);
           return true;
+        case "seen":
+          handleSeen(event);
+          return true;
         default:
           return false;
       }
@@ -90,6 +94,16 @@ class PCConnectionService {
     final contactPhoneNumber = event["contactPhoneNumber"] as String;
 
     onNewChatEvent?.call(contactPhoneNumber);
+  }
+
+  void handleSeen(Map<String, dynamic> event){
+    final messageIds = (event["messageIds"] as List)
+        .map((e) => e as String)
+        .toList();
+
+    if(messageIds.isNotEmpty) {
+      onSeenEvent?.call(messageIds);
+    }
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {

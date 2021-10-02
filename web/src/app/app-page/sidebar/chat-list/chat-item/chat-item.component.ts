@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Chat } from "../../../../domain/chat";
 import { MessageService } from "../../../services/message.service";
+import { calculateImageMimeType } from "../../../../utils/utils";
 
 @Component({
     selector: "app-chat-item",
@@ -22,6 +23,8 @@ export class ChatItemComponent implements OnInit {
         let profileImage = this.chat?.contact?.profileImage
         if (profileImage == null || profileImage.trim() == "") {
             profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        } else {
+            profileImage = `data:${calculateImageMimeType(profileImage)};base64,${profileImage}`
         }
         return profileImage
     }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { UserService } from "../../services/user.service";
 import { SidebarService } from "../services/sidebar.service";
+import { calculateImageMimeType } from "../../../utils/utils";
 
 @Component({
     selector: "app-title-bar",
@@ -19,6 +20,8 @@ export class TitleBarComponent implements OnInit {
         let profileImage = this.userService.profileImage
         if (profileImage == null || profileImage.trim() == "") {
             profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        } else {
+            profileImage = `data:${calculateImageMimeType(profileImage)};base64,${profileImage}`
         }
         return profileImage
     }

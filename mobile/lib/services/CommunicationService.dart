@@ -117,6 +117,8 @@ class CommunicationService {
 
   void Function()? onChatToParent;
 
+  void Function()? onChildMessageToParent;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -946,7 +948,7 @@ class CommunicationService {
             //update associated child Message table with new message (This is on parent phone)
             final map = decryptedContents["message"] as Map<String, dynamic>;
 
-            childMessageService.insert(ChildMessage(
+            await childMessageService.insert(ChildMessage(
                 id: map["id"],
                 childPhoneNumber: senderPhoneNumber,
                 isIncoming: map["isIncoming"],
@@ -954,6 +956,8 @@ class CommunicationService {
                 contents: map["contents"],
                 timestamp:
                     DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+
+            onChildMessageToParent?.call();
             break;
 
           case "contactToParent":

@@ -16,6 +16,14 @@ class MonitoredChatPageController {
   final MonitoredChatPageModel model = MonitoredChatPageModel();
 
   MonitoredChatPageController(String childNumber, String otherNumber) {
+    communicationService.onChildMessageToParent = () {
+      childMessageService
+          .fetchAllByPhoneNumbers(childNumber, otherNumber)
+          .then((messages) {
+        model.messages = messages;
+      });
+    };
+
     reload(childNumber, otherNumber);
   }
 

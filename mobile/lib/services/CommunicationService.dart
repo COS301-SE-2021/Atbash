@@ -257,7 +257,7 @@ class CommunicationService {
     pcConnectionService.connectToPc(
       relayId,
       userDisplayName: userDisplayName,
-      userProfilePhoto: "",
+      userProfilePhoto: base64Encode(userProfilePhoto ?? []),
       contacts: contacts,
       chats: chats,
       messages: messages,

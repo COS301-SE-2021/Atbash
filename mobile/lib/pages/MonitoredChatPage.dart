@@ -37,6 +37,7 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
           ),
         ),
         child: Scaffold(
+          backgroundColor: Colors.transparent,
           appBar: AppBar(
             title: Text(controller.model.otherMemberName),
           ),

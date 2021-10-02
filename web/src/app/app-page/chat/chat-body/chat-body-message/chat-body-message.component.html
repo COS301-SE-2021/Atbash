@@ -1,7 +1,7 @@
 <div class="w-100 mw-75" [class.text-end]="!message?.isIncoming">
   <div class="message-card" [class.message-incoming]="message?.isIncoming"
        [class.message-outgoing]="!message?.isIncoming">
-    <img *ngIf="isMediaMessage else notMedia" [src]="mediaContents" alt="Image media" height="400">
+    <img *ngIf="isMediaMessage else notMedia" [src]="mediaContents" alt="Image media" height="400" class="message-media" (click)="enlargeImage()">
     <ng-template #notMedia>
       {{message?.contents}}
     </ng-template>

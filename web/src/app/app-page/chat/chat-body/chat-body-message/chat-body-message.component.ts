@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Message } from "../../../../domain/message";
 import { calculateImageMimeType } from "../../../../utils/utils";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
+import { ImageViewModal } from "../../../image-view/image-view.modal";
 
 @Component({
     selector: "app-chat-body-message",
@@ -11,7 +13,7 @@ export class ChatBodyMessageComponent implements OnInit {
 
     @Input() message: Message | null = null
 
-    constructor() {
+    constructor(private modalService: NgbModal) {
     }
 
     ngOnInit(): void {
@@ -26,6 +28,16 @@ export class ChatBodyMessageComponent implements OnInit {
             return `data:${calculateImageMimeType(this.message.contents)};base64,${this.message.contents}`
         } else {
             return "https://i.stack.imgur.com/y9DpT.jpg"
+        }
+    }
+
+    enlargeImage() {
+        const contents = this.message?.contents ?? null
+
+        if (contents != null) {
+            const modalRef = this.modalService.open(ImageViewModal, { size: "lg" })
+            const instance = modalRef.componentInstance as ImageViewModal
+            instance.base64Image = contents
         }
     }
 

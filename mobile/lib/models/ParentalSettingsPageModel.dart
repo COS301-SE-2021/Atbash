@@ -1,5 +1,4 @@
 import 'package:mobile/domain/Child.dart';
-import 'package:mobile/util/Tuple.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ParentalSettingsPageModel.g.dart';
@@ -9,8 +8,8 @@ class ParentalSettingsPageModel = _ParentalSettingsPageModel
 
 abstract class _ParentalSettingsPageModel with Store {
   @observable
-  ObservableList<Tuple<Child, bool>> children =
-      <Tuple<Child, bool>>[].asObservable();
+  ObservableList<Child> children =
+      <Child>[].asObservable();
 
   @observable
   int index = 0;

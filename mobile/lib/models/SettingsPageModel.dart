@@ -17,9 +17,6 @@ abstract class _SettingsPageModel with Store {
   String parentName = "";
 
   @observable
-  bool settingsChanged = false;
-
-  @observable
   Uint8List? userProfilePicture = Uint8List(0);
 
   @observable

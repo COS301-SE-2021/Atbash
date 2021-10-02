@@ -23,22 +23,22 @@ class _ChatLogPageState extends State<ChatLogPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text("${controller.model.childName}'s chat log"),
-          ),
-          body: SafeArea(
-            child: ListView.builder(
-              itemCount: controller.model.sortedChats.length,
-              itemBuilder: (_, index) {
-                return _buildChatItem(controller.model.sortedChats[index]);
-              },
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: Observer(builder: (_) {
+          return Text("${controller.model.childName}'s chat log");
+        }),
+      ),
+      body: SafeArea(
+        child: Observer(builder: (_) {
+          return ListView.builder(
+            itemCount: controller.model.sortedChats.length,
+            itemBuilder: (_, index) {
+              return _buildChatItem(controller.model.sortedChats[index]);
+            },
+          );
+        }),
+      ),
     );
   }
 

@@ -141,7 +141,7 @@ export class CommunicationService {
             }
         })
 
-        messages?.reverse()?.forEach(m => {
+        messages?.forEach(m => {
             const message = m as Message || null
             if (message != null) {
                 this.messages$.next({

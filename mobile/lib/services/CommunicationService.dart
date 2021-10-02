@@ -104,6 +104,8 @@ class CommunicationService {
       bool blockEditingMessages,
       bool blockDeletingMessages)? onAllSettingsToChild;
 
+  void Function()? onNewProfanityWordToChild;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -764,6 +766,7 @@ class CommunicationService {
               profanityWordService
                   .deleteByWord(profanityWord.profanityOriginalWord);
             }
+            onNewProfanityWordToChild?.call();
             break;
 
           case "blockedNumberToChild":

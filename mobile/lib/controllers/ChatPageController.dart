@@ -78,6 +78,13 @@ class ChatPageController {
       model.profanityFilter = safeMode;
     };
 
+    communicationService.onNewProfanityWordToChild = () {
+      profanityWordService.fetchAll().then((words) {
+        model.profanityWords.clear();
+        model.profanityWords.addAll(words);
+      });
+    };
+
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
 

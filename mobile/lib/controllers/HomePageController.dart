@@ -57,6 +57,13 @@ class HomePageController {
       model.blockSaveMedia = blockSaveMedia;
     };
 
+    communicationService.onNewProfanityWordToChild = () {
+      profanityWordService.fetchAll().then((words) {
+        model.profanityWords.clear();
+        model.profanityWords.addAll(words);
+      });
+    };
+
     reload();
   }
 

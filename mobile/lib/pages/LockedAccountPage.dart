@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/services/CommunicationService.dart';
+
+import 'HomePage.dart';
 
 class LockedAccountPage extends StatefulWidget {
   const LockedAccountPage({Key? key}) : super(key: key);
@@ -8,6 +12,33 @@ class LockedAccountPage extends StatefulWidget {
 }
 
 class _LockedAccountPageState extends State<LockedAccountPage> {
+  final CommunicationService communicationService = GetIt.I.get();
+
+  void _onLockedAccountChangeToChild(value) {
+    if (!value)
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => HomePage(),
+        ),
+        (route) => false,
+      );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    communicationService
+        .onLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    communicationService
+        .disposeOnLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

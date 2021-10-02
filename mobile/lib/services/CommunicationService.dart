@@ -122,6 +122,16 @@ class CommunicationService {
 
   List<void Function()> _onContactToParentListeners = [];
 
+  void Function(bool value)? onEditableSettingsChangeToChild;
+
+  List<void Function(bool value)> _onLockedAccountChangeToChildListeners = [];
+
+  void onLockedAccountChangeToChild(void Function(bool value) cb) =>
+      _onLockedAccountChangeToChildListeners.add(cb);
+
+  void disposeOnLockedAccountChangeToChild(void Function(bool value) cb) =>
+      _onLockedAccountChangeToChildListeners.remove(cb);
+
   void onContactToParent(void Function() cb) =>
       _onContactToParentListeners.add(cb);
 
@@ -768,7 +778,7 @@ class CommunicationService {
             await parentService.deleteByNumber(senderPhoneNumber);
             await settingsService.setEditableSettings(true);
             await settingsService.setLockedAccount(false);
-            await settingsService.setPrivateChatAccess(true);
+            await settingsService.setPrivateChatAccess(false);
             await settingsService.setBlockSaveMedia(false);
             await settingsService.setBlockEditingMessages(false);
             await settingsService.setBlockDeletingMessages(false);
@@ -948,6 +958,23 @@ class CommunicationService {
               shareBirthday: shareBirthday,
             );
             onAllSettingsToParent?.call();
+            break;
+
+          case "editableSettingsChangeToChild":
+            final editableSettings = decryptedContents["value"] as bool;
+
+            await settingsService.setEditableSettings(editableSettings);
+
+            onEditableSettingsChangeToChild?.call(editableSettings);
+            break;
+
+          case "lockedAccountChangeToChild":
+            final lockedAccount = decryptedContents["value"] as bool;
+
+            await settingsService.setLockedAccount(lockedAccount);
+
+            _onLockedAccountChangeToChildListeners
+                .forEach((listener) => listener(lockedAccount));
             break;
 
           case "newProfanityWordToParent":
@@ -1439,6 +1466,20 @@ class CommunicationService {
       "shareBirthday": shareBirthday
     });
     _queueForSending(contents, parentNumber);
+  }
+
+  Future<void> sendEditableSettingsChangeToChild(
+      String childNumber, bool value) async {
+    final contents =
+        jsonEncode({"type": "editableSettingsChangeToChild", "value": value});
+    _queueForSending(contents, childNumber);
+  }
+
+  Future<void> sendLockedAccountChangeToChild(
+      String childNumber, bool value) async {
+    final contents =
+        jsonEncode({"type": "lockedAccountChangeToChild", "value": value});
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendNewProfanityWordToParent(

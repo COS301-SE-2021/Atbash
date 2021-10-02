@@ -48,6 +48,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
 
+  void _onLockedAccountChangeToChild(value) {
+    if (value)
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => LockedAccountPage(),
+        ),
+        (route) => false,
+      );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,6 +109,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     };
 
+    communicationService
+        .onLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+
     communicationService.onStopPrivateChat = (String senderPhoneNumber) async {
       String body = "";
       try {
@@ -123,6 +137,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance?.removeObserver(this);
 
     _searchFocusNode.dispose();
+    communicationService
+        .disposeOnLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+    notificationService.onNotificationPressed = null;
+    communicationService.onStopPrivateChat = null;
     controller.dispose();
   }
 

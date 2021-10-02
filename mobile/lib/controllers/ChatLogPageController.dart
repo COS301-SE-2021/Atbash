@@ -34,14 +34,7 @@ class ChatLogPageController {
       });
     };
 
-    communicationService.onContactToParent = () {
-      childContactService
-          .fetchAllContactsByChildNumber(childPhoneNumber)
-          .then((contacts) {
-        model.contacts.clear();
-        model.contacts.addAll(contacts);
-      });
-    };
+    communicationService.onContactToParent(_onContactToParent);
     reload(childPhoneNumber);
   }
 
@@ -73,6 +66,16 @@ class ChatLogPageController {
   void dispose() {
     communicationService
         .disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+    communicationService.disposeOnContactToParent(_onContactToParent);
+  }
+
+  void _onContactToParent() {
+    childContactService
+        .fetchAllContactsByChildNumber(childNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
+    });
   }
 
   void _onBlockedNumberToParent() {

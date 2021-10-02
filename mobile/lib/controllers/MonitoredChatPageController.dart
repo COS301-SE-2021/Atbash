@@ -15,7 +15,13 @@ class MonitoredChatPageController {
 
   final MonitoredChatPageModel model = MonitoredChatPageModel();
 
+  late final childPhoneNumber;
+  late final otherPhoneNumber;
+
   MonitoredChatPageController(String childNumber, String otherNumber) {
+    childPhoneNumber = childNumber;
+    otherPhoneNumber = otherNumber;
+
     communicationService.onChildMessageToParent = () {
       childMessageService
           .fetchAllByPhoneNumbers(childNumber, otherNumber)
@@ -24,9 +30,7 @@ class MonitoredChatPageController {
       });
     };
 
-    communicationService.onContactToParent = () {
-      reload(childNumber, otherNumber);
-    };
+    communicationService.onContactToParent(_onContactToParent);
 
     reload(childNumber, otherNumber);
   }
@@ -56,5 +60,13 @@ class MonitoredChatPageController {
         model.messages = messages;
       });
     });
+  }
+
+  void dispose() {
+    communicationService.disposeOnContactToParent(_onContactToParent);
+  }
+
+  void _onContactToParent() {
+    reload(childPhoneNumber, otherPhoneNumber);
   }
 }

@@ -120,8 +120,13 @@ class CommunicationService {
 
   void Function()? onChildMessageToParent;
 
-  //TODO *
-  void Function()? onContactToParent;
+  List<void Function()> _onContactToParentListeners = [];
+
+  void onContactToParent(void Function() cb) =>
+      _onContactToParentListeners.add(cb);
+
+  void disposeOnContactToParent(void Function() cb) =>
+      _onContactToParentListeners.remove(cb);
 
   void onBlockedNumberToParent(void Function() cb) =>
       _onBlockedNumberToParentListeners.add(cb);
@@ -1028,7 +1033,7 @@ class CommunicationService {
                 status: map["status"],
                 profileImage: map["profileImage"]));
 
-            onContactToParent?.call();
+            _onContactToParentListeners.forEach((listener) => listener());
             break;
         }
 

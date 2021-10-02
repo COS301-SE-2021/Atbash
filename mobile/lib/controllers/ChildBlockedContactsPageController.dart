@@ -23,14 +23,7 @@ class ChildBlockedContactsPageController {
 
     communicationService.onBlockedNumberToParent(_onBlockedNumberToParent);
 
-    communicationService.onContactToParent = () {
-      childContactService
-          .fetchAllContactsByChildNumber(childNumber)
-          .then((contacts) {
-        model.contacts.clear();
-        model.contacts.addAll(contacts);
-      });
-    };
+    communicationService.onContactToParent(_onContactToParent);
     reload(childNumber);
   }
 
@@ -51,11 +44,24 @@ class ChildBlockedContactsPageController {
   }
 
   void dispose() {
-    communicationService.disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+    communicationService.disposeOnContactToParent(_onContactToParent);
+    communicationService
+        .disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+  }
+
+  void _onContactToParent() {
+    childContactService
+        .fetchAllContactsByChildNumber(childPhoneNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
+    });
   }
 
   void _onBlockedNumberToParent() {
-    childBlockedNumberService.fetchAllByNumber(childPhoneNumber).then((numbers) {
+    childBlockedNumberService
+        .fetchAllByNumber(childPhoneNumber)
+        .then((numbers) {
       model.blockedNumbers.clear();
       model.blockedNumbers.addAll(numbers);
     });

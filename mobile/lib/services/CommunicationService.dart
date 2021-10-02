@@ -87,6 +87,11 @@ class CommunicationService {
       (number) => false;
   List<void Function(bool lockedAccount)> _onLockedAccountSetListeners = [];
 
+  //Start of parental listeners
+  void Function()? onRemoveChild;
+
+
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -679,6 +684,7 @@ class CommunicationService {
             settingsService.setBlockSaveMedia(false);
             settingsService.setBlockEditingMessages(false);
             settingsService.setBlockDeletingMessages(false);
+            onRemoveChild?.call();
             break;
 
           case "allSettingsToChild":

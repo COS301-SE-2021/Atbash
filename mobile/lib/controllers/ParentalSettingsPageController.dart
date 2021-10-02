@@ -23,6 +23,9 @@ class ParentalSettingsPageController {
 
   ParentalSettingsPageController() {
     reload();
+    communicationService.onRemoveChild = () {
+      reload();
+    };
   }
 
   void reload() {

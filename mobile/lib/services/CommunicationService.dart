@@ -122,6 +122,10 @@ class CommunicationService {
 
   List<void Function()> _onContactToParentListeners = [];
 
+  void Function(bool value)? onEditableSettingsChangeToChild;
+
+  void Function(bool value)? onLockedAccountChangeToChild;
+
   void onContactToParent(void Function() cb) =>
       _onContactToParentListeners.add(cb);
 
@@ -950,6 +954,24 @@ class CommunicationService {
             onAllSettingsToParent?.call();
             break;
 
+          case "editableSettingsChangeToChild":
+            final editableSettings = decryptedContents["value"] as bool;
+
+            await childService.update(senderPhoneNumber,
+                editableSettings: editableSettings);
+
+            onEditableSettingsChangeToChild?.call(editableSettings);
+            break;
+
+          case "lockedAccountChangeToChild":
+            final lockedAccount = decryptedContents["value"] as bool;
+
+            await childService.update(senderPhoneNumber,
+                lockedAccount: lockedAccount);
+
+            onLockedAccountChangeToChild?.call(lockedAccount);
+            break;
+
           case "newProfanityWordToParent":
             //update associated child ProfanityTable with new word (This is on parent phone)
             final map = decryptedContents["word"] as Map<String, dynamic>;
@@ -1439,6 +1461,20 @@ class CommunicationService {
       "shareBirthday": shareBirthday
     });
     _queueForSending(contents, parentNumber);
+  }
+
+  Future<void> sendEditableSettingsChangeToChild(
+      String childNumber, bool value) async {
+    final contents =
+        jsonEncode({"type": "editableSettingsChangeToChild", "value": value});
+    _queueForSending(contents, childNumber);
+  }
+
+  Future<void> sendLockedAccountChangeToChild(
+      String childNumber, bool value) async {
+    final contents =
+        jsonEncode({"type": "lockedAccountChangeToChild", "value": value});
+    _queueForSending(contents, childNumber);
   }
 
   Future<void> sendNewProfanityWordToParent(

@@ -98,6 +98,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     };
 
+    communicationService.onLockedAccountChangeToChild = (value) {
+      if (value) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => LockedAccountPage(),
+          ),
+          (route) => false,
+        );
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => HomePage(),
+          ),
+          (route) => false,
+        );
+      }
+    };
+
     communicationService.onStopPrivateChat = (String senderPhoneNumber) async {
       String body = "";
       try {

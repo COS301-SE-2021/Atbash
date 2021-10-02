@@ -24,6 +24,9 @@ class SettingsPageController {
 
   SettingsPageController() {
     communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+    communicationService.onEditableSettingsChangeToChild = (value) {
+      model.editableSettings = value;
+    };
     settingsService.getBlurImages().then((value) => model.blurImages = value);
     settingsService.getSafeMode().then((value) => model.safeMode = value);
     settingsService

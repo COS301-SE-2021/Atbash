@@ -131,8 +131,11 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         value: controller.model.children[controller.model.index]
                             .first.editableSettings,
                         onChanged: (bool newValue) {
-                          controller.setChildChanged(true);
                           controller.setEditableSettings(newValue);
+                          controller.sendEditableSettingsChange(
+                              controller.model.children[controller.model.index]
+                                  .first.phoneNumber,
+                              newValue);
                         },
                         title: Text(
                           "Allow child to access settings",
@@ -378,7 +381,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             .first.lockedAccount,
                         onChanged: (value) {
                           controller.setLockedAccount(value);
-                          controller.setChildChanged(true);
+                          controller.sendLockedAccountChange(
+                              controller.model.children[controller.model.index]
+                                  .first.phoneNumber,
+                              value);
                         },
                         title: Text("Lock Account",
                             style: TextStyle(fontSize: 16)),

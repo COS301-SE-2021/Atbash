@@ -49,9 +49,7 @@ class ParentalSettingsPageController {
     });
   }
 
-  void dispose(){
-
-  }
+  void dispose() {}
 
   void setIndex(int index) {
     model.index = index;
@@ -156,6 +154,16 @@ class ParentalSettingsPageController {
     });
     parentService.updateEnabledByCode(code, true);
     communicationService.sendSetupChild(parent.phoneNumber);
+  }
+
+  void sendLockedAccountChange(String childPhoneNumber, bool value) {
+    communicationService.sendLockedAccountChangeToChild(
+        childPhoneNumber, value);
+  }
+
+  void sendEditableSettingsChange(String childPhoneNumber, bool value) {
+    communicationService.sendEditableSettingsChangeToChild(
+        childPhoneNumber, value);
   }
 
   void sendUpdatedSettingsToChild(Child child) {

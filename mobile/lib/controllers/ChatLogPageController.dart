@@ -18,15 +18,12 @@ class ChatLogPageController {
 
   final ChatLogPageModel model = ChatLogPageModel();
 
+  late final childNumber;
+
   ChatLogPageController(String childPhoneNumber) {
-    communicationService.onBlockedNumberToParent = () {
-      childBlockedNumberService
-          .fetchAllByNumber(childPhoneNumber)
-          .then((numbers) {
-        model.blockedNumbrs.clear();
-        model.blockedNumbrs.addAll(numbers);
-      });
-    };
+    childNumber = childPhoneNumber;
+
+    communicationService.onBlockedNumberToParent(_onBlockedNumberToParent);
 
     communicationService.onChatToParent = () {
       childChatService
@@ -70,6 +67,18 @@ class ChatLogPageController {
         .then((contacts) {
       model.contacts.clear();
       model.contacts.addAll(contacts);
+    });
+  }
+
+  void dispose() {
+    communicationService
+        .disposeOnBlockedNumberToParent(_onBlockedNumberToParent);
+  }
+
+  void _onBlockedNumberToParent() {
+    childBlockedNumberService.fetchAllByNumber(childNumber).then((numbers) {
+      model.blockedNumbrs.clear();
+      model.blockedNumbrs.addAll(numbers);
     });
   }
 

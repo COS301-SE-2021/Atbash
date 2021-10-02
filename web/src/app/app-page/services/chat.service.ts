@@ -3,6 +3,7 @@ import { CommunicationService, IncomingEventType } from "../../services/communic
 import { Chat, ChatType } from "../../domain/chat";
 import * as uuid from "uuid";
 import { ContactService } from "./contact.service";
+import { Message } from "../../domain/message";
 
 @Injectable()
 export class ChatService {
@@ -39,6 +40,13 @@ export class ChatService {
             return chat
         } else {
             return existingChat
+        }
+    }
+
+    updateChatMostRecentMessage(message: Message) {
+        const chat = this.chatList.find(chat => chat.id == message.chatId) ?? null
+        if (chat != null) {
+            chat.mostRecentMessage = message
         }
     }
 }

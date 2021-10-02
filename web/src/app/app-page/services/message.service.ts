@@ -3,6 +3,7 @@ import { Message, ReadReceipt } from "../../domain/message";
 import { Chat } from "../../domain/chat";
 import { CommunicationService, IncomingEventType } from "../../services/communication.service";
 import * as uuid from "uuid";
+import { ChatService } from "./chat.service";
 
 @Injectable()
 export class MessageService {
@@ -11,7 +12,7 @@ export class MessageService {
     messageList: Message[] = []
     chatMessages: Message[] = []
 
-    constructor(private com: CommunicationService) {
+    constructor(private com: CommunicationService, private chatService: ChatService) {
         com.messages$.subscribe(event => {
             if (event.type == IncomingEventType.PUT) {
                 const message = event.message
@@ -20,6 +21,7 @@ export class MessageService {
                     const messageListIndex = this.messageList.findIndex(m => m.id == message.id)
                     if (messageListIndex == -1) {
                         this.messageList.push(message)
+                        chatService.updateChatMostRecentMessage(message)
                     } else {
                         this.messageList[messageListIndex] = message
                     }

@@ -10,7 +10,6 @@ import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
-import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Parent.dart';
@@ -72,29 +71,114 @@ class CommunicationService {
   String? anonymousConnectionId = null;
   String anonymousId = "";
 
-  //Messaging Listeners
   List<void Function(Message message)> _onMessageListeners = [];
   List<void Function(String messageId)> _onDeleteListeners = [];
   List<void Function(String messageId)> _onAckListeners = [];
   List<void Function(List<String> messageIds)> _onAckSeenListeners = [];
   List<void Function(String messageID, bool liked)> _onMessageLikedListeners =
       [];
+  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   List<void Function(String messageID, String messageContents)>
       _onMessageEditListeners = [];
-
-  //Private Chat Listeners
-  List<void Function(String senderPhoneNumber)> _onPrivateChatListeners = [];
   void Function(String senderPhoneNumber)? onStopPrivateChat;
   void Function()? onAcceptPrivateChat;
-
-  //Notification Listeners
   bool Function(String incomingPhoneNumber) shouldBlockNotifications =
       (number) => false;
-
-  //Settings Listeners
   List<void Function(bool lockedAccount)> _onLockedAccountSetListeners = [];
 
-  //Message Listeners On and Dispose
+  //Start of parental listeners
+  void Function()? onRemoveChild;
+
+  List<
+      void Function(
+          bool editableSettings,
+          bool blurImages,
+          bool safeMode,
+          bool shareProfilePicture,
+          bool shareStatus,
+          bool shareReadReceipts,
+          bool shareBirthday,
+          bool lockedAccount,
+          bool privateChatAccess,
+          bool blockSaveMedia,
+          bool blockEditingMessages,
+          bool blockDeletingMessages)> _onAllSettingsToChildListeners = [];
+
+  List<void Function()> _onNewProfanityWordToChildListeners = [];
+
+  List<void Function()> _onBlockedNumberToChildListeners = [];
+
+  void Function()? onSetUpChild;
+
+  void Function()? onAllSettingsToParent;
+
+  void Function()? onNewProfanityWordToParent;
+
+  List<void Function()> _onBlockedNumberToParentListeners = [];
+
+  void Function()? onChatToParent;
+
+  void Function()? onChildMessageToParent;
+
+  List<void Function()> _onContactToParentListeners = [];
+
+  void onContactToParent(void Function() cb) =>
+      _onContactToParentListeners.add(cb);
+
+  void disposeOnContactToParent(void Function() cb) =>
+      _onContactToParentListeners.remove(cb);
+
+  void onBlockedNumberToParent(void Function() cb) =>
+      _onBlockedNumberToParentListeners.add(cb);
+
+  void disposeOnBlockedNumberToParent(void Function() cb) =>
+      _onBlockedNumberToParentListeners.remove(cb);
+
+  void onBlockedNumberToChild(void Function() cb) =>
+      _onBlockedNumberToChildListeners.add(cb);
+
+  void disposeOnBlockedNumberToChild(void Function() cb) =>
+      _onBlockedNumberToChildListeners.remove(cb);
+
+  void onNewProfanityWordToChild(void Function() cb) =>
+      _onNewProfanityWordToChildListeners.add(cb);
+
+  void disposeOnNewProfanityWordToChild(void Function() cb) =>
+      _onNewProfanityWordToChildListeners.remove(cb);
+
+  void onAllSettingsToChild(
+          void Function(
+                  bool editableSettings,
+                  bool blurImages,
+                  bool safeMode,
+                  bool shareProfilePicture,
+                  bool shareStatus,
+                  bool shareReadReceipts,
+                  bool shareBirthday,
+                  bool lockedAccount,
+                  bool privateChatAccess,
+                  bool blockSaveMedia,
+                  bool blockEditingMessages,
+                  bool blockDeletingMessages)
+              cb) =>
+      _onAllSettingsToChildListeners.add(cb);
+
+  void disposeOnAllSettingsToChild(
+          void Function(
+                  bool editableSettings,
+                  bool blurImages,
+                  bool safeMode,
+                  bool shareProfilePicture,
+                  bool shareStatus,
+                  bool shareReadReceipts,
+                  bool shareBirthday,
+                  bool lockedAccount,
+                  bool privateChatAccess,
+                  bool blockSaveMedia,
+                  bool blockEditingMessages,
+                  bool blockDeletingMessages)
+              cb) =>
+      _onAllSettingsToChildListeners.remove(cb);
 
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
@@ -132,8 +216,6 @@ class CommunicationService {
   void disposeOnMessageEdited(
           void Function(String messageID, String messageContents) cb) =>
       _onMessageEditListeners.remove(cb);
-
-  //Settings Listeners On and Dispose
 
   void onLockedAccountSet(void Function(bool lockedAccount) cb) =>
       _onLockedAccountSetListeners.add(cb);
@@ -671,97 +753,117 @@ class CommunicationService {
                 await blockedNumbersService.fetchAll();
             final profanityWordsFromParent =
                 await profanityWordService.fetchAll();
-            //TODO ask if logic good
             blockedNumbersFromParent
                 .where((number) => number.addedByParent == true)
                 .toList()
-                .forEach((element) =>
-                    blockedNumbersService.delete(element.phoneNumber));
+                .forEach((element) async =>
+                    await blockedNumbersService.delete(element.phoneNumber));
 
             profanityWordsFromParent
                 .where((word) => word.addedByParent == true)
                 .toList()
-                .forEach((element) =>
-                    profanityWordService.deleteByID(element.profanityID));
+                .forEach((element) async =>
+                    await profanityWordService.deleteByID(element.profanityID));
 
-            parentService.deleteByNumber(senderPhoneNumber);
-            settingsService.setEditableSettings(true);
-            settingsService.setLockedAccount(false);
-            settingsService.setPrivateChatAccess(true);
-            settingsService.setBlockSaveMedia(false);
-            settingsService.setBlockEditingMessages(false);
-            settingsService.setBlockDeletingMessages(false);
+            await parentService.deleteByNumber(senderPhoneNumber);
+            await settingsService.setEditableSettings(true);
+            await settingsService.setLockedAccount(false);
+            await settingsService.setPrivateChatAccess(true);
+            await settingsService.setBlockSaveMedia(false);
+            await settingsService.setBlockEditingMessages(false);
+            await settingsService.setBlockDeletingMessages(false);
+            onRemoveChild?.call();
             break;
 
           case "allSettingsToChild":
             //update all settings in flutter_secure_storage (This is on child phone)
-            settingsService.setEditableSettings(
-                decryptedContents["editableSettings"] as bool);
-            settingsService
-                .setBlurImages(decryptedContents["blurImages"] as bool);
-            settingsService.setSafeMode(decryptedContents["safeMode"] as bool);
-            settingsService.setShareProfilePicture(
-                decryptedContents["shareProfilePicture"] as bool);
-            settingsService
-                .setShareStatus(decryptedContents["shareStatus"] as bool);
-            settingsService.setShareReadReceipts(
-                decryptedContents["shareReadReceipts"] as bool);
-            settingsService
-                .setShareBirthday(decryptedContents["shareBirthday"] as bool);
-            settingsService
-                .setLockedAccount(decryptedContents["lockedAccount"] as bool);
-            settingsService.setPrivateChatAccess(
-                decryptedContents["privateChatAccess"] as bool);
-            settingsService
-                .setBlockSaveMedia(decryptedContents["blockSaveMedia"] as bool);
-            settingsService.setBlockEditingMessages(
-                decryptedContents["blockEditingMessages"] as bool);
-            settingsService.setBlockDeletingMessages(
-                decryptedContents["blockDeletingMessages"] as bool);
+            final editableSettings =
+                decryptedContents["editableSettings"] as bool;
+            final blurImages = decryptedContents["blurImages"] as bool;
+            final safeMode = decryptedContents["safeMode"] as bool;
+            final shareProfilePicture =
+                decryptedContents["shareProfilePicture"] as bool;
+            final shareStatus = decryptedContents["shareStatus"] as bool;
+            final shareReadReceipts =
+                decryptedContents["shareReadReceipts"] as bool;
+            final shareBirthday = decryptedContents["shareBirthday"] as bool;
+            final lockedAccount = decryptedContents["lockedAccount"] as bool;
+            final privateChatAccess =
+                decryptedContents["privateChatAccess"] as bool;
+            final blockSaveMedia = decryptedContents["blockSaveMedia"] as bool;
+            final blockEditingMessages =
+                decryptedContents["blockEditingMessages"] as bool;
+            final blockDeletingMessages =
+                decryptedContents["blockDeletingMessages"] as bool;
+
+            await settingsService.setEditableSettings(editableSettings);
+            await settingsService.setBlurImages(blurImages);
+            await settingsService.setSafeMode(safeMode);
+            await settingsService.setShareProfilePicture(shareProfilePicture);
+            await settingsService.setShareStatus(shareStatus);
+            await settingsService.setShareReadReceipts(shareReadReceipts);
+            await settingsService.setShareBirthday(shareBirthday);
+            await settingsService.setLockedAccount(lockedAccount);
+            await settingsService.setPrivateChatAccess(privateChatAccess);
+            await settingsService.setBlockSaveMedia(blockSaveMedia);
+            await settingsService.setBlockEditingMessages(blockEditingMessages);
+            await settingsService
+                .setBlockDeletingMessages(blockDeletingMessages);
+
+            _onAllSettingsToChildListeners.forEach((listener) => listener(
+                editableSettings,
+                blurImages,
+                safeMode,
+                shareProfilePicture,
+                shareStatus,
+                shareReadReceipts,
+                shareBirthday,
+                lockedAccount,
+                privateChatAccess,
+                blockSaveMedia,
+                blockEditingMessages,
+                blockDeletingMessages));
             break;
 
           case "newProfanityWordToChild":
             //This adds/deletes word from profanity table
             final map = decryptedContents["word"] as Map<String, dynamic>;
-            final profanityWord = ProfanityWord(
-                profanityWordRegex: map["profanityWordRegex"],
-                profanityID: map["profanityID"],
-                profanityOriginalWord: map["profanityOriginalWord"],
-                addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              profanityWordService.addWord(profanityWord.profanityOriginalWord,
+              await profanityWordService.addWord(map["profanityOriginalWord"],
                   addedByParent: true);
             } else {
-              profanityWordService
-                  .deleteByWord(profanityWord.profanityOriginalWord);
+              await profanityWordService
+                  .deleteByWord(map["profanityOriginalWord"]);
             }
+            _onNewProfanityWordToChildListeners
+                .forEach((listener) => listener());
             break;
 
           case "blockedNumberToChild":
             //add given blocked number to my blockedNumbers table (This is on child phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
-            final blockedNumber = BlockedNumber(
-                phoneNumber: map["phoneNumber"], addedByParent: true);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              blockedNumbersService.insert(blockedNumber);
+              await blockedNumbersService.insert(BlockedNumber(
+                  phoneNumber: map["phoneNumber"], addedByParent: true));
             } else {
-              blockedNumbersService.delete(blockedNumber.phoneNumber);
+              await blockedNumbersService.delete(map["phoneNumber"]);
             }
+            _onBlockedNumberToChildListeners.forEach((listener) => listener());
             break;
 
           case "setupChild":
             //create a child entity and populate ALL associated tables eg childMessages, childChat etc... (This is on parent phone)
-            final contact =
+            final child =
                 await contactService.fetchByPhoneNumber(senderPhoneNumber);
 
-            childService.insert(Child(
+            await childService.insert(Child(
                 phoneNumber: senderPhoneNumber,
-                name: contact.displayName,
+                name: child.displayName,
                 blurImages: decryptedContents["blurImages"] as bool,
                 safeMode: decryptedContents["safeMode"] as bool,
                 shareProfilePicture:
@@ -775,7 +877,8 @@ class CommunicationService {
             contactList.forEach((contact) {
               final map = contact as Map<String, dynamic>;
               childContactService.insert(ChildContact(
-                  phoneNumber: map["phoneNumber"],
+                  childPhoneNumber: senderPhoneNumber,
+                  contactPhoneNumber: map["phoneNumber"],
                   name: map["displayName"],
                   status: map["status"],
                   profileImage: map["profileImage"]));
@@ -803,43 +906,48 @@ class CommunicationService {
             chatList.forEach((chat) {
               final map = chat as Map<String, dynamic>;
               childChatService.insert(ChildChat(
-                  id: map["id"],
                   childPhoneNumber: senderPhoneNumber,
-                  otherPartyNumber: map["contactPhoneNumber"],
-                  otherPartyName:
-                      decryptedContents["otherPartyName"] as String?));
+                  otherPartyNumber: map["contactPhoneNumber"]));
             });
 
             final messageList = decryptedContents["messages"] as List;
             messageList.forEach((message) async {
               final map = message as Map<String, dynamic>;
-              final chat = await childChatService.fetchByNumbers(
-                  senderPhoneNumber, map["otherPartyPhoneNumber"]);
-              final id = chat.id;
               childMessageService.insert(ChildMessage(
                   id: map["id"],
-                  chatId: id,
+                  childPhoneNumber: senderPhoneNumber,
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
                   contents: map["contents"],
                   timestamp:
                       DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
             });
+
+            onSetUpChild?.call();
             //TODO dont allow child to block parent lmao
             break;
 
           case "allSettingsToParent":
             //update all parents settings for relative child (This is on parent phone)
-            childService.update(
+            final blurImages = decryptedContents["blurImages"] as bool;
+            final safeMode = decryptedContents["safeMode"] as bool;
+            final shareProfilePicture =
+                decryptedContents["shareProfilePicture"] as bool;
+            final shareStatus = decryptedContents["shareStatus"] as bool;
+            final shareReadReceipts =
+                decryptedContents["shareReadReceipts"] as bool;
+            final shareBirthday = decryptedContents["shareBirthday"] as bool;
+
+            await childService.update(
               senderPhoneNumber,
-              blurImages: decryptedContents["blurImages"] as bool,
-              safeMode: decryptedContents["safeMode"] as bool,
-              shareProfilePicture:
-                  decryptedContents["shareProfilePicture"] as bool,
-              shareStatus: decryptedContents["shareStatus"] as bool,
-              shareReadReceipts: decryptedContents["shareReadReceipts"] as bool,
-              shareBirthday: decryptedContents["shareBirthday"] as bool,
+              blurImages: blurImages,
+              safeMode: safeMode,
+              shareProfilePicture: shareProfilePicture,
+              shareStatus: shareStatus,
+              shareReadReceipts: shareReadReceipts,
+              shareBirthday: shareBirthday,
             );
+            onAllSettingsToParent?.call();
             break;
 
           case "newProfanityWordToParent":
@@ -848,29 +956,22 @@ class CommunicationService {
 
             final operation = decryptedContents["operation"];
 
-            final word = ChildProfanityWord(
-                phoneNumber: senderPhoneNumber,
-                profanityWordRegex: map["profanityWordRegex"],
-                profanityID: map["profanityID"],
-                profanityOriginalWord: map["profanityOriginalWord"]);
-
             if (operation == "insert") {
-              childProfanityWordService.insert(
+              await childProfanityWordService.insert(
                   map["profanityOriginalWord"], senderPhoneNumber,
                   id: map["profanityID"]);
             } else {
-              childProfanityWordService.deleteByNumberAndID(
-                  senderPhoneNumber, word.profanityID);
+              await childProfanityWordService.deleteByNumberAndID(
+                  senderPhoneNumber, map["profanityID"]);
             }
 
+            onNewProfanityWordToParent?.call();
             break;
 
           case "blockedNumberToParent":
             // update associated child BlockedNumber table with new number (This is on parent phone)
             final map =
                 decryptedContents["blockedNumber"] as Map<String, dynamic>;
-            final blockedNumber =
-                BlockedNumber(phoneNumber: map["phoneNumber"]);
 
             final operation = decryptedContents["operation"] as String;
 
@@ -878,73 +979,61 @@ class CommunicationService {
               final childBlockedNumber = ChildBlockedNumber(
                   id: Uuid().v4(),
                   childNumber: senderPhoneNumber,
-                  blockedNumber: blockedNumber.phoneNumber);
-              childBlockedNumberService.insert(childBlockedNumber);
+                  blockedNumber: map["phoneNumber"]);
+              await childBlockedNumberService.insert(childBlockedNumber);
             } else {
-              childBlockedNumberService.delete(
-                  senderPhoneNumber, blockedNumber.phoneNumber);
+              await childBlockedNumberService.delete(
+                  senderPhoneNumber, map["phoneNumber"]);
             }
+
+            _onBlockedNumberToParentListeners.forEach((listener) => listener());
             break;
 
           case "chatToParent":
             //update associated child Chat table with new chat (This is on parent phone)
             final map = decryptedContents["chat"] as Map<String, dynamic>;
-            final chat = Chat(
-                id: map["id"],
-                contactPhoneNumber: map["contactPhoneNumber"],
-                chatType: map["chatType"] == "private"
-                    ? ChatType.private
-                    : ChatType.general);
 
             final operation = decryptedContents["operation"] as String;
             if (operation == "insert") {
-              final childChat = ChildChat(
-                  id: chat.id,
+              await childChatService.insert(ChildChat(
                   childPhoneNumber: senderPhoneNumber,
-                  otherPartyNumber: chat.contactPhoneNumber,
-                  otherPartyName: decryptedContents["name"] as String?);
-              childChatService.insert(childChat);
+                  otherPartyNumber: map["contactPhoneNumber"]));
             } else {
-              childChatService.deleteByNumbers(
-                  senderPhoneNumber, chat.contactPhoneNumber);
+              await childChatService.deleteByNumbers(
+                  senderPhoneNumber, map["contactPhoneNumber"]);
             }
+
+            onChatToParent?.call();
             break;
 
           case "messageToParent":
             //update associated child Message table with new message (This is on parent phone)
             final map = decryptedContents["message"] as Map<String, dynamic>;
-            final message = Message(
+
+            await childMessageService.insert(ChildMessage(
                 id: map["id"],
-                chatId: map["chatId"],
+                childPhoneNumber: senderPhoneNumber,
                 isIncoming: map["isIncoming"],
-                otherPartyPhoneNumber: map["otherPartyPhoneNumber"],
+                otherPartyNumber: map["otherPartyPhoneNumber"],
                 contents: map["contents"],
                 timestamp:
-                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"]));
+                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
 
-            final chat = await childChatService.fetchByNumbers(
-                senderPhoneNumber, message.otherPartyPhoneNumber);
-            final id = chat.id;
-            final childMessage = ChildMessage(
-                id: message.id,
-                chatId: id,
-                isIncoming: message.isIncoming,
-                otherPartyNumber: message.otherPartyPhoneNumber,
-                contents: message.contents,
-                timestamp: message.timestamp);
-            childMessageService.insert(childMessage);
-
+            onChildMessageToParent?.call();
             break;
 
           case "contactToParent":
             //update associated child Contact table with new contact (This is on parent phone)
             final map = decryptedContents["contact"] as Map<String, dynamic>;
-            final contact = ChildContact(
-                phoneNumber: senderPhoneNumber,
+
+            await childContactService.insert(ChildContact(
+                childPhoneNumber: senderPhoneNumber,
+                contactPhoneNumber: map["phoneNumber"],
                 name: map["displayName"],
                 status: map["status"],
-                profileImage: map["profileImage"]);
-            childContactService.insert(contact);
+                profileImage: map["profileImage"]));
+
+            _onContactToParentListeners.forEach((listener) => listener());
             break;
         }
 
@@ -1222,7 +1311,6 @@ class CommunicationService {
       String childNumber, String name, String code) async {
     final contents =
         jsonEncode({"type": "addChild", "name": name, "code": code});
-    print(childNumber);
     _queueForSending(contents, childNumber);
   }
 
@@ -1263,7 +1351,6 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
-  //TODO implement function, dont think weve actually setup profanity page to work propperly
   Future<void> sendNewProfanityWordToChild(
       String childNumber, ProfanityWord word, String operation) async {
     final contents = jsonEncode({
@@ -1285,57 +1372,25 @@ class CommunicationService {
   }
 
   Future<void> sendSetupChild(String parentNumber) async {
-    // final blurImages = await settingsService.getBlurImages();
-    // final safeMode = await settingsService.getSafeMode();
-    // final shareProfilePicture = await settingsService.getShareProfilePicture();
-    // final shareStatus = await settingsService.getShareStatus();
-    // final shareReadReceipts = await settingsService.getShareReadReceipts();
-    // final shareBirthday = await settingsService.getShareBirthday();
-    // final contents = jsonEncode({
-    //   "type": "setupChild",
-    //   "blurImages": blurImages,
-    //   "safeMode": safeMode,
-    //   "shareProfilePicture": shareProfilePicture,
-    //   "shareStatus": shareStatus,
-    //   "shareReadReceipts": shareReadReceipts,
-    //   "shareBirthday": shareBirthday
-    // });
-    // _queueForSending(contents, parentNumber);
-
-    // final List<Contact> contacts = await contactService.fetchAll();
-    // contacts.forEach((contact) {
-    //   sendContactToParent(parentNumber, contact, "insert");
-    // });
-    // final List<ProfanityWord> words = await profanityWordService.fetchAll();
-    // words.forEach((word) {
-    //   sendNewProfanityWordToParent(parentNumber, word, "insert");
-    // });
-    // final List<BlockedNumber> blockedNumbers =
-    //     await blockedNumbersService.fetchAll();
-    // blockedNumbers.forEach((number) {
-    //   sendBlockedNumberToParent(parentNumber, number, "insert");
-    // });
-    // final List<Chat> chats = await chatService.fetchAll();
-    // chats.forEach((chat) {
-    //   sendChatToParent(parentNumber, chat, "insert");
-    // });
-    // final List<Message> messages = await messageService.fetchAll();
-    // messages.forEach((message) {
-    //   sendChildMessageToParent(parentNumber, message);
-    // });
-
     final List<Contact> contacts = await contactService.fetchAll();
     contacts.forEach((contact) {
+      //TODO implement sending profile images
       contact.profileImage = "";
     });
+
     final List<ProfanityWord> words = await profanityWordService.fetchAll();
+
     final List<BlockedNumber> blockedNumbers =
         await blockedNumbersService.fetchAll();
+
     final List<Chat> chats = await chatService.fetchAll();
+
     chats.forEach((chat) {
       chat.contact?.profileImage = "";
     });
+
     final List<Message> messages = await messageService.fetchAll();
+
     messages.forEach((message) {
       if (message.isMedia) {
         message.isMedia = false;
@@ -1409,12 +1464,8 @@ class CommunicationService {
   Future<void> sendChatToParent(
       String parentNumber, Chat chat, String operation) async {
     chat.contact?.profileImage = "";
-    final contents = jsonEncode({
-      "type": "chatToParent",
-      "chat": chat,
-      "operation": operation,
-      "name": chat.contact?.displayName ?? null
-    });
+    final contents = jsonEncode(
+        {"type": "chatToParent", "chat": chat, "operation": operation});
     _queueForSending(contents, parentNumber);
   }
 

@@ -26,9 +26,17 @@ class _SettingsPageState extends State<SettingsPage> {
   _SettingsPageState() : controller = SettingsPageController();
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
+        if (controller.model.parentName != "")
+          controller.sentUpdatedSettingsToParent();
         return true;
       },
       child: Scaffold(

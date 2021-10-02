@@ -13,43 +13,7 @@ abstract class _ParentalSettingsPageModel with Store {
       <Tuple<Child, bool>>[].asObservable();
 
   @observable
-  int currentlySelected = 0;
-
-  @observable
-  bool editableSettings = true;
-
-  @observable
-  bool blurImages = false;
-
-  @observable
-  bool safeMode = false;
-
-  @observable
-  bool shareProfilePicture = false;
-
-  @observable
-  bool shareStatus = false;
-
-  @observable
-  bool shareReadReceipts = false;
-
-  @observable
-  bool shareBirthday = false;
-
-  @observable
-  bool lockedAccount = false;
-
-  @observable
-  bool privateChatAccess = false;
-
-  @observable
-  bool blockSaveMedia = false;
-
-  @observable
-  bool blockEditingMessages = false;
-
-  @observable
-  bool blockDeletingMessages = false;
+  int index = 0;
 
   @observable
   String parentName = "";

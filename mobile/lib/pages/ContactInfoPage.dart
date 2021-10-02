@@ -30,6 +30,12 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
             controller ?? ContactInfoPageController(phoneNumber: phoneNumber);
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),

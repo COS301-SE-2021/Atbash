@@ -35,18 +35,34 @@ mixin _$ChildBlockedContactsPageModel on _ChildBlockedContactsPageModel, Store {
     });
   }
 
-  final _$chatsAtom = Atom(name: '_ChildBlockedContactsPageModel.chats');
+  final _$contactsAtom = Atom(name: '_ChildBlockedContactsPageModel.contacts');
 
   @override
-  ObservableList<ChildChat> get chats {
-    _$chatsAtom.reportRead();
-    return super.chats;
+  ObservableList<ChildContact> get contacts {
+    _$contactsAtom.reportRead();
+    return super.contacts;
   }
 
   @override
-  set chats(ObservableList<ChildChat> value) {
-    _$chatsAtom.reportWrite(value, super.chats, () {
-      super.chats = value;
+  set contacts(ObservableList<ChildContact> value) {
+    _$contactsAtom.reportWrite(value, super.contacts, () {
+      super.contacts = value;
+    });
+  }
+
+  final _$childNameAtom =
+      Atom(name: '_ChildBlockedContactsPageModel.childName');
+
+  @override
+  String get childName {
+    _$childNameAtom.reportRead();
+    return super.childName;
+  }
+
+  @override
+  set childName(String value) {
+    _$childNameAtom.reportWrite(value, super.childName, () {
+      super.childName = value;
     });
   }
 
@@ -69,7 +85,8 @@ mixin _$ChildBlockedContactsPageModel on _ChildBlockedContactsPageModel, Store {
   String toString() {
     return '''
 blockedNumbers: ${blockedNumbers},
-chats: ${chats},
+contacts: ${contacts},
+childName: ${childName},
 filter: ${filter},
 filteredNumbers: ${filteredNumbers}
     ''';

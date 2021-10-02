@@ -22,64 +22,85 @@ class _ChatLogPageState extends State<ChatLogPage> {
       : controller = ChatLogPageController(child.phoneNumber);
 
   @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text("${controller.model.childName}'s chat log"),
-          ),
-          body: SafeArea(
-            child: ListView.builder(
-              itemCount: controller.model.chats.length,
-              itemBuilder: (_, index) {
-                return _buildChatItem(controller.model.chats[index]);
-              },
-            ),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: AppBar(
+        title: Observer(builder: (_) {
+          return Text("${controller.model.childName}'s chat log");
+        }),
+      ),
+      body: SafeArea(
+        child: Observer(builder: (_) {
+          return ListView.builder(
+            itemCount: controller.model.sortedChats.length,
+            itemBuilder: (_, index) {
+              return _buildChatItem(controller.model.sortedChats[index]);
+            },
+          );
+        }),
+      ),
     );
   }
 
   Widget _buildChatItem(ChildChat chat) {
-    final displayName = chat.otherPartyName;
+    return Observer(builder: (_) {
+      String displayName = chat.otherPartyNumber;
 
-    return Slidable(
-      actionPane: SlidableScrollActionPane(),
-      child: ListTile(
-        title: Text(displayName == null ? chat.otherPartyNumber : displayName),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MonitoredChatPage(
-                chat: chat,
-              ),
-            ),
-          );
-        },
-        subtitle: Text(
-            "View ${controller.model.childName}'s chat with ${displayName == null ? chat.otherPartyNumber : displayName}"),
-        leading: Icon(
-          Icons.account_circle_rounded,
-          size: 36,
-        ),
-        trailing: Icon(Icons.arrow_forward_rounded),
-        dense: true,
-      ),
-      secondaryActions: [
-        //TODO: make it a special block that only parent can remove.
-        IconSlideAction(
-          caption: "Block for child",
-          color: Colors.red,
-          icon: Icons.block,
+      controller.model.contacts.forEach((contact) {
+        if (contact.contactPhoneNumber == chat.otherPartyNumber)
+          displayName = contact.name;
+      });
+
+      return Slidable(
+        actionPane: SlidableScrollActionPane(),
+        child: ListTile(
+          title: Text(displayName),
           onTap: () {
-            controller.blockNumber(chat.otherPartyNumber);
-            //TODO: block contact on child's phone.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MonitoredChatPage(
+                  chat: chat,
+                ),
+              ),
+            );
           },
+          subtitle: Text(
+              "View ${controller.model.childName}'s chat with $displayName"),
+          leading: Icon(
+            Icons.account_circle_rounded,
+            size: 36,
+          ),
+          trailing: Icon(Icons.arrow_forward_rounded),
+          dense: true,
         ),
-      ],
-    );
+        secondaryActions: [
+          if (!isBlocked(chat.otherPartyNumber))
+            IconSlideAction(
+              caption: "Block for child",
+              color: Colors.red,
+              icon: Icons.block,
+              onTap: () {
+                controller.blockNumber(
+                    chat.childPhoneNumber, chat.otherPartyNumber);
+              },
+            ),
+        ],
+      );
+    });
+  }
+
+  bool isBlocked(String number) {
+    bool result = false;
+    controller.model.blockedNumbrs.forEach((blockedNumber) {
+      if (blockedNumber.blockedNumber == number) result = true;
+    });
+    return result;
   }
 }

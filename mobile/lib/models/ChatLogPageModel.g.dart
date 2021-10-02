@@ -17,22 +17,6 @@ mixin _$ChatLogPageModel on _ChatLogPageModel, Store {
               name: '_ChatLogPageModel.sortedChats'))
       .value;
 
-  final _$childPhoneNumberAtom =
-      Atom(name: '_ChatLogPageModel.childPhoneNumber');
-
-  @override
-  String get childPhoneNumber {
-    _$childPhoneNumberAtom.reportRead();
-    return super.childPhoneNumber;
-  }
-
-  @override
-  set childPhoneNumber(String value) {
-    _$childPhoneNumberAtom.reportWrite(value, super.childPhoneNumber, () {
-      super.childPhoneNumber = value;
-    });
-  }
-
   final _$childNameAtom = Atom(name: '_ChatLogPageModel.childName');
 
   @override
@@ -63,12 +47,43 @@ mixin _$ChatLogPageModel on _ChatLogPageModel, Store {
     });
   }
 
+  final _$blockedNumbrsAtom = Atom(name: '_ChatLogPageModel.blockedNumbrs');
+
+  @override
+  List<ChildBlockedNumber> get blockedNumbrs {
+    _$blockedNumbrsAtom.reportRead();
+    return super.blockedNumbrs;
+  }
+
+  @override
+  set blockedNumbrs(List<ChildBlockedNumber> value) {
+    _$blockedNumbrsAtom.reportWrite(value, super.blockedNumbrs, () {
+      super.blockedNumbrs = value;
+    });
+  }
+
+  final _$contactsAtom = Atom(name: '_ChatLogPageModel.contacts');
+
+  @override
+  List<ChildContact> get contacts {
+    _$contactsAtom.reportRead();
+    return super.contacts;
+  }
+
+  @override
+  set contacts(List<ChildContact> value) {
+    _$contactsAtom.reportWrite(value, super.contacts, () {
+      super.contacts = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
-childPhoneNumber: ${childPhoneNumber},
 childName: ${childName},
 chats: ${chats},
+blockedNumbrs: ${blockedNumbrs},
+contacts: ${contacts},
 sortedChats: ${sortedChats}
     ''';
   }

@@ -23,7 +23,7 @@ class SettingsPageController {
   final SettingsPageModel model = SettingsPageModel();
 
   SettingsPageController() {
-    reload();
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
     settingsService.getBlurImages().then((value) => model.blurImages = value);
     settingsService.getSafeMode().then((value) => model.safeMode = value);
     settingsService
@@ -47,8 +47,8 @@ class SettingsPageController {
         .then((value) => model.autoDownloadMedia = value);
     settingsService.getEditableSettings().then((value) {
       model.editableSettings = value;
-      print(value);
     });
+    reload();
   }
 
   void reload() {
@@ -131,6 +131,33 @@ class SettingsPageController {
         model.shareStatus,
         model.shareReadReceipts,
         model.shareBirthday);
+  }
+
+  void _onAllSettingsToChild(
+    editableSettings,
+    blurImages,
+    safeMode,
+    shareProfilePicture,
+    shareStatus,
+    shareReadReceipts,
+    shareBirthday,
+    lockedAccount,
+    privateChatAccess,
+    blockSaveMedia,
+    blockEditingMessages,
+    blockDeletingMessages,
+  ) {
+    model.blurImages = blurImages;
+    model.safeMode = safeMode;
+    model.sharedProfilePicture = shareProfilePicture;
+    model.shareStatus = shareStatus;
+    model.shareBirthday = shareBirthday;
+    model.shareReadReceipts = shareReadReceipts;
+    model.editableSettings = editableSettings;
+  }
+
+  void dispose() {
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
   }
 
   Future<void> importContacts() async {

@@ -1,5 +1,5 @@
 import 'package:mobile/domain/ChildBlockedNumber.dart';
-import 'package:mobile/domain/ChildChat.dart';
+import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ChildBlockedContactsPageModel.g.dart';
@@ -13,7 +13,10 @@ abstract class _ChildBlockedContactsPageModel with Store {
       <ChildBlockedNumber>[].asObservable();
 
   @observable
-  ObservableList<ChildChat> chats = <ChildChat>[].asObservable();
+  ObservableList<ChildContact> contacts = <ChildContact>[].asObservable();
+
+  @observable
+  String childName = "";
 
   @observable
   String filter = "";

@@ -6,12 +6,14 @@ class ChildMessageService {
 
   ChildMessageService(this.databaseService);
 
-  Future<List<ChildMessage>> fetchAllByChatId(String id) async {
+  Future<List<ChildMessage>> fetchAllByPhoneNumbers(
+      String childPhoneNumber, String otherPhoneNumber) async {
     final db = await databaseService.database;
 
     final response = await db.query(ChildMessage.TABLE_NAME,
-        where: "${ChildMessage.COLUMN_CHAT_ID} = ?",
-        whereArgs: [id],
+        where:
+            "${ChildMessage.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildMessage.COLUMN_OTHER_PARTY_NUMBER} = ?",
+        whereArgs: [childPhoneNumber, otherPhoneNumber],
         orderBy: "${ChildMessage.COLUMN_TIMESTAMP} desc");
 
     final messages = <ChildMessage>[];
@@ -30,10 +32,13 @@ class ChildMessageService {
     await db.insert(ChildMessage.TABLE_NAME, message.toMap());
   }
 
-  Future<void> deleteAllByChatId(String id) async {
+  Future<void> deleteAllByPhoneNumbers(
+      String childPhoneNumber, String otherPhoneNumber) async {
     final db = await databaseService.database;
 
     await db.delete(ChildMessage.TABLE_NAME,
-        where: "${ChildMessage.COLUMN_CHAT_ID} = ?", whereArgs: [id]);
+        where:
+            "${ChildMessage.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildMessage.COLUMN_OTHER_PARTY_NUMBER} = ?",
+        whereArgs: [childPhoneNumber, otherPhoneNumber]);
   }
 }

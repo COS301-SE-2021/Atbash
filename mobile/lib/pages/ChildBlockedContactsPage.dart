@@ -30,7 +30,7 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Blocked Contacts"),
+        title: Text("${controller.model.childName}'s Blocked Contacts"),
         actions: [
           IconButton(
             onPressed: () => _addBlockedContact(childNumber),
@@ -83,15 +83,13 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
                   shrinkWrap: true,
                   itemCount: controller.model.filteredNumbers.length,
                   itemBuilder: (BuildContext context, int index) {
+
                     String name =
                         controller.model.filteredNumbers[index].blockedNumber;
-                    controller.model.filteredNumbers.forEach((number) {
-                      controller.model.chats.forEach((chat) {
-                        if (number.blockedNumber == chat.otherPartyNumber) {
-                          final chatName = chat.otherPartyName;
-                          if (chatName != null) name = chatName;
-                        }
-                      });
+
+                    controller.model.contacts.forEach((contact) {
+                      if(controller.model.filteredNumbers[index].blockedNumber == contact.contactPhoneNumber)
+                        name = contact.name;
                     });
 
                     return _buildContactItem(

@@ -14,10 +14,6 @@ class NewChildPageController {
   final NewChildPageModel model = NewChildPageModel();
 
   NewChildPageController() {
-    userService.getDisplayName().then((name) {
-      model.displayName = name;
-    });
-
     contactService.fetchAll().then((contacts) async {
       model.contacts.clear();
       model.contacts.addAll(contacts);
@@ -32,7 +28,8 @@ class NewChildPageController {
     model.filter = query;
   }
 
-  void addChild(String childNumber, String name, String code) {
+  void addChild(String childNumber, String code) async {
+    final name = await userService.getDisplayName();
     communicationService.sendAddChild(childNumber, name, code);
   }
 }

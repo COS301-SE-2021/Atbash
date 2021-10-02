@@ -38,7 +38,7 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
         ),
         child: Scaffold(
           appBar: AppBar(
-            title: Text(controller.model.otherMemberName),
+            title: Text("${controller.model.childName}'s chat with ${controller.model.otherMemberName}"),
           ),
           body: SafeArea(
             child: Column(
@@ -69,6 +69,8 @@ class _MonitoredChatPageState extends State<MonitoredChatPage> {
 
   Container _buildMessage(ChildMessage message) {
     final dateFormatter = intl.DateFormat("Hm");
+
+    //TODO insert date things that organize by timestamp
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),

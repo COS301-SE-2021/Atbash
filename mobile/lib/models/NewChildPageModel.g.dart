@@ -63,28 +63,12 @@ mixin _$NewChildPageModel on _NewChildPageModel, Store {
     });
   }
 
-  final _$displayNameAtom = Atom(name: '_NewChildPageModel.displayName');
-
-  @override
-  String get displayName {
-    _$displayNameAtom.reportRead();
-    return super.displayName;
-  }
-
-  @override
-  set displayName(String value) {
-    _$displayNameAtom.reportWrite(value, super.displayName, () {
-      super.displayName = value;
-    });
-  }
-
   @override
   String toString() {
     return '''
 contacts: ${contacts},
 children: ${children},
 filter: ${filter},
-displayName: ${displayName},
 filteredContacts: ${filteredContacts}
     ''';
   }

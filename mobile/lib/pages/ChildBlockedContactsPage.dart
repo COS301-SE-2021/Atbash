@@ -30,7 +30,9 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Blocked Contacts"),
+        title: Observer(builder: (context) {
+          return Text("${controller.model.childName}'s Blocked Contacts");
+        }),
         actions: [
           IconButton(
             onPressed: () => _addBlockedContact(childNumber),
@@ -44,7 +46,10 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
       body: Column(
         children: [
           Container(
-            width: MediaQuery.of(context).size.width * 4 / 5,
+            width: MediaQuery
+                .of(context)
+                .size
+                .width * 4 / 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               color: Constants.darkGrey.withOpacity(0.5),
@@ -85,13 +90,11 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
                   itemBuilder: (BuildContext context, int index) {
                     String name =
                         controller.model.filteredNumbers[index].blockedNumber;
-                    controller.model.filteredNumbers.forEach((number) {
-                      controller.model.chats.forEach((chat) {
-                        if (number.blockedNumber == chat.otherPartyNumber) {
-                          final chatName = chat.otherPartyName;
-                          if (chatName != null) name = chatName;
-                        }
-                      });
+
+                    controller.model.contacts.forEach((contact) {
+                      if (controller.model.filteredNumbers[index]
+                          .blockedNumber == contact.contactPhoneNumber)
+                        name = contact.name;
                     });
 
                     return _buildContactItem(
@@ -124,12 +127,13 @@ class _ChildBlockedContactsPageState extends State<ChildBlockedContactsPage> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => showConfirmDialog(context,
+                  onPressed: () =>
+                      showConfirmDialog(context,
                           "Are you sure you want to remove $contactName from your child's blocked contacts?")
-                      .then((value) {
-                    if (value != null && value)
-                      _removeBlockedContact(blockedNumber);
-                  }),
+                          .then((value) {
+                        if (value != null && value)
+                          _removeBlockedContact(blockedNumber);
+                      }),
                   icon: Icon(
                     Icons.cancel,
                     key: Key('BlockedContactsPage_remove_$blockedNumber'),

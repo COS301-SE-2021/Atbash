@@ -16,9 +16,6 @@ abstract class _NewChildPageModel with Store {
   @observable
   String filter = "";
 
-  @observable
-  String displayName = "";
-
   @computed
   ObservableList<Contact> get filteredContacts => contacts
       .where((contact) =>

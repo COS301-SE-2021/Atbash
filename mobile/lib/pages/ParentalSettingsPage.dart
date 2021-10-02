@@ -9,7 +9,6 @@ import 'package:mobile/domain/Child.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/ChildProfanityFilterListPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
-import 'package:mobile/pages/ProfanityFilterListPage.dart';
 
 import 'ChildBlockedContactsPage.dart';
 
@@ -28,7 +27,6 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
     return WillPopScope(
       onWillPop: () async {
         controller.model.children.forEach((child) {
-          print(child.second);
           if (child.second) controller.sendUpdatedSettingsToChild(child.first);
         });
         return true;
@@ -55,7 +53,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                       MaterialPageRoute(
                         builder: (context) => NewChildPage(),
                       ),
-                    ).then((value) => controller.reload(0));
+                    ).then(
+                        (value) => controller.setIndex(controller.model.index));
                   },
                   title: Text(
                     "Add child's number",
@@ -130,7 +129,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         ),
                       ),
                       SwitchListTile(
-                        value: controller.model.editableSettings,
+                        value: controller.model.children[controller.model.index]
+                            .first.editableSettings,
                         onChanged: (bool newValue) {
                           controller.setChildChanged(true);
                           controller.setEditableSettings(newValue);
@@ -152,8 +152,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         thickness: 2,
                       ),
                       SwitchListTile(
-                        value: controller.model.blurImages,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.blurImages,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -172,8 +173,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Hide images by default. Images can still be viewed if selected"),
                       ),
                       SwitchListTile(
-                        value: controller.model.safeMode,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.safeMode,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -192,8 +194,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             Text("Enables text profanity filter for all chats"),
                       ),
                       SwitchListTile(
-                        value: controller.model.shareProfilePicture,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.shareProfilePicture,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -212,8 +215,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Enable or disable whether your profile photo is visible to others"),
                       ),
                       SwitchListTile(
-                        value: controller.model.shareStatus,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.shareStatus,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -232,8 +236,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Enable or disable whether your status is visible to others"),
                       ),
                       SwitchListTile(
-                        value: controller.model.shareBirthday,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.shareBirthday,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -252,8 +257,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Choose whether you want to share your birthday to contacts"),
                       ),
                       SwitchListTile(
-                        value: controller.model.shareReadReceipts,
-                        onChanged: controller.model.editableSettings
+                        value: controller.model.children[controller.model.index]
+                            .first.shareReadReceipts,
+                        onChanged: controller.model.children[controller.model.index].first.editableSettings
                             ? null
                             : (bool newValue) {
                                 controller.setChildChanged(true);
@@ -292,7 +298,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                           childNumber: controller
                                               .model
                                               .children[controller
-                                                  .model.currentlySelected]
+                                                  .model.index]
                                               .first
                                               .phoneNumber)));
                         },
@@ -318,7 +324,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                                           child: controller
                                               .model
                                               .children[controller
-                                                  .model.currentlySelected]
+                                                  .model.index]
                                               .first)));
                         },
                         dense: true,
@@ -349,11 +355,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ChatLogPage(
-                                child: controller
-                                    .model
-                                    .children[
-                                        controller.model.currentlySelected]
-                                    .first,
+                                child: controller.model
+                                    .children[controller.model.index].first,
                               ),
                             ),
                           );
@@ -361,7 +364,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         dense: true,
                       ),
                       SwitchListTile(
-                        value: controller.model.lockedAccount,
+                        value: controller.model.children[controller.model.index]
+                            .first.lockedAccount,
                         onChanged: (value) {
                           controller.setLockedAccount(value);
                           controller.setChildChanged(true);
@@ -377,7 +381,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         dense: true,
                       ),
                       SwitchListTile(
-                        value: controller.model.privateChatAccess,
+                        value: controller.model.children[controller.model.index]
+                            .first.privateChatAccess,
                         onChanged: (bool newValue) {
                           controller.setChildChanged(true);
                           controller.setPrivateChatAccess(newValue);
@@ -395,7 +400,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Choose whether your child can access private chats"),
                       ),
                       SwitchListTile(
-                        value: controller.model.blockSaveMedia,
+                        value: controller.model.children[controller.model.index]
+                            .first.blockSaveMedia,
                         onChanged: (bool newValue) {
                           controller.setChildChanged(true);
                           controller.setBlockSaveMedia(newValue);
@@ -413,7 +419,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Choose whether your child can save media to their phone"),
                       ),
                       SwitchListTile(
-                        value: controller.model.blockEditingMessages,
+                        value: controller.model.children[controller.model.index]
+                            .first.blockEditingMessages,
                         onChanged: (bool newValue) {
                           controller.setChildChanged(true);
                           controller.setBlockEditingMessages(newValue);
@@ -431,7 +438,8 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             "Choose whether your child can edit their messages"),
                       ),
                       SwitchListTile(
-                        value: controller.model.blockDeletingMessages,
+                        value: controller.model.children[controller.model.index]
+                            .first.blockDeletingMessages,
                         onChanged: (bool newValue) {
                           controller.setChildChanged(true);
                           controller.setBlockDeletingMessages(newValue);
@@ -460,7 +468,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
 
   Widget _buildChildBubble(Child child, int index) {
     return InkWell(
-      onTap: () => controller.reload(index),
+      onTap: () => controller.setIndex(index),
       onLongPress: () => showConfirmDialog(context,
               "Are you sure you want to remove ${child.name} from your children?")
           .then((value) {
@@ -476,7 +484,7 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
           style: TextStyle(color: Colors.black),
         ),
         decoration: BoxDecoration(
-          color: index == controller.model.currentlySelected
+          color: index == controller.model.index
               ? Constants.orange.withOpacity(0.88)
               : Colors.white,
           borderRadius: BorderRadius.circular(16),

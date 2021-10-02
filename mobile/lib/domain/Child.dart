@@ -1,35 +1,38 @@
-class Child {
-  final String phoneNumber;
-  String name;
-  bool editableSettings;
-  bool blurImages;
-  bool safeMode;
-  bool shareProfilePicture;
-  bool shareStatus;
-  bool shareReadReceipts;
-  bool shareBirthday;
-  bool lockedAccount;
-  bool privateChatAccess;
-  bool blockSaveMedia;
-  bool blockEditingMessages;
-  bool blockDeletingMessages;
+import 'package:mobx/mobx.dart';
 
+part 'Child.g.dart';
+
+class Child extends _Child with _$Child {
   Child({
-    required this.phoneNumber,
-    required this.name,
-    this.editableSettings = true,
-    this.blurImages = false,
-    this.safeMode = false,
-    this.shareProfilePicture = false,
-    this.shareStatus = false,
-    this.shareReadReceipts = false,
-    this.shareBirthday = false,
-    this.lockedAccount = false,
-    this.privateChatAccess = false,
-    this.blockSaveMedia = false,
-    this.blockEditingMessages = false,
-    this.blockDeletingMessages = false,
-  });
+    required String phoneNumber,
+    required String name,
+    bool editableSettings = true,
+    bool blurImages = false,
+    bool safeMode = false,
+    bool shareProfilePicture = false,
+    bool shareStatus = false,
+    bool shareReadReceipts = false,
+    bool shareBirthday = false,
+    bool lockedAccount = false,
+    bool privateChatAccess = false,
+    bool blockSaveMedia = false,
+    bool blockEditingMessages = false,
+    bool blockDeletingMessages = false,
+  }) : super(
+            phoneNumber: phoneNumber,
+            name: name,
+            editableSettings: editableSettings,
+            blurImages: blurImages,
+            safeMode: safeMode,
+            shareProfilePicture: shareProfilePicture,
+            shareStatus: shareStatus,
+            shareReadReceipts: shareReadReceipts,
+            shareBirthday: shareBirthday,
+            lockedAccount: lockedAccount,
+            privateChatAccess: privateChatAccess,
+            blockSaveMedia: blockSaveMedia,
+            blockEditingMessages: blockEditingMessages,
+            blockDeletingMessages: blockDeletingMessages);
 
   Map<String, Object?> toMap() {
     return {
@@ -130,4 +133,62 @@ class Child {
       "$COLUMN_BLOCK_EDITING_MESSAGES tinyint not null,"
       "$COLUMN_BLOCK_DELETING_MESSAGES tinyint not null"
       ");";
+}
+
+abstract class _Child with Store {
+  final String phoneNumber;
+  String name;
+
+  @observable
+  bool editableSettings;
+
+  @observable
+  bool blurImages;
+
+  @observable
+  bool safeMode;
+
+  @observable
+  bool shareProfilePicture;
+
+  @observable
+  bool shareStatus;
+
+  @observable
+  bool shareReadReceipts;
+
+  @observable
+  bool shareBirthday;
+
+  @observable
+  bool lockedAccount;
+
+  @observable
+  bool privateChatAccess;
+
+  @observable
+  bool blockSaveMedia;
+
+  @observable
+  bool blockEditingMessages;
+
+  @observable
+  bool blockDeletingMessages;
+
+  _Child({
+    required this.phoneNumber,
+    required this.name,
+    this.editableSettings = true,
+    this.blurImages = false,
+    this.safeMode = false,
+    this.shareProfilePicture = false,
+    this.shareStatus = false,
+    this.shareReadReceipts = false,
+    this.shareBirthday = false,
+    this.lockedAccount = false,
+    this.privateChatAccess = false,
+    this.blockSaveMedia = false,
+    this.blockEditingMessages = false,
+    this.blockDeletingMessages = false,
+  });
 }

@@ -6,12 +6,12 @@ class ChildChatService {
 
   ChildChatService(this.databaseService);
 
-  Future<List<ChildChat>> fetchAllChatsByChildNumber(String phoneNumber) async {
+  Future<List<ChildChat>> fetchAllChatsByChildNumber(String childNumber) async {
     final db = await databaseService.database;
 
     final result = await db.query(ChildChat.TABLE_NAME,
         where: "${ChildChat.COLUMN_CHILD_PHONE_NUMBER} = ?",
-        whereArgs: [phoneNumber]);
+        whereArgs: [childNumber]);
 
     final chats = <ChildChat>[];
     result.forEach((element) {
@@ -57,26 +57,6 @@ class ChildChatService {
     });
   }
 
-  Future<void> updateOtherPartyNameByNumbers(
-      String childNumber, String otherNumber, String name) async {
-    final db = await databaseService.database;
-
-    //Check if exists?
-    final response = await db.query(ChildChat.TABLE_NAME,
-        where:
-            "${ChildChat.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildChat.COLUMN_OTHER_PARTY_NUMBER} = ?",
-        whereArgs: [childNumber, otherNumber]);
-
-    if (response.isNotEmpty) {
-      final chat = ChildChat.fromMap(response.first);
-
-      if (chat != null) {
-        chat.otherPartyName = name;
-        db.update(ChildChat.TABLE_NAME, chat.toMap());
-      }
-    }
-  }
-
   Future<void> deleteByNumbers(String childNumber, String otherNumber) async {
     final db = await databaseService.database;
 
@@ -95,8 +75,7 @@ class ChildChatService {
     });
   }
 
-  Future<void> deleteAllByNumber(String childNumber) async {
-    print(childNumber);
+  Future<void> deleteAllByChildNumber(String childNumber) async {
     final db = await databaseService.database;
 
     await db.delete(ChildChat.TABLE_NAME,

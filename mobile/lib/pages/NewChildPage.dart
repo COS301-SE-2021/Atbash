@@ -52,14 +52,11 @@ class _NewChildPageState extends State<NewChildPage> {
                   onPressed: () {
                     final newContact = chosenContact;
                     if (newContact != null) {
-                      print("Im here");
                       String code = "";
-                      for (int i = 0; i < 8; i++) {
+                      for (int i = 0; i < 6; i++) {
                         code += "${Random().nextInt(10)}";
                       }
-                      print("$code");
-                      controller.addChild(newContact.phoneNumber,
-                          controller.model.displayName, "$code");
+                      controller.addChild(newContact.phoneNumber, "$code");
                       showConfirmDialog(context,
                               "Please enter the provided pin into the child's \"Add parent\" page\n\nPin: $code")
                           .then((_) {
@@ -118,7 +115,7 @@ class _NewChildPageState extends State<NewChildPage> {
           Expanded(
               child: TextField(
             onChanged: (String newValue) {
-              controller.model.filter = newValue;
+              controller.updateQuery(newValue);
             },
             controller: filterTextController,
             decoration: InputDecoration(isDense: true),

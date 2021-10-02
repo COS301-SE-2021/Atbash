@@ -11,7 +11,7 @@ class ChildContactService {
     final db = await databaseService.database;
 
     final result = await db.query(ChildContact.TABLE_NAME,
-        where: "${ChildContact.COLUMN_PHONE_NUMBER} = ?",
+        where: "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ?",
         whereArgs: [phoneNumber]);
 
     final contacts = <ChildContact>[];
@@ -29,8 +29,9 @@ class ChildContactService {
 
     await db.transaction((txn) async {
       final contactAlreadyExists = await txn.query(ChildContact.TABLE_NAME,
-          where: "${ChildContact.COLUMN_PHONE_NUMBER} = ?",
-          whereArgs: [contact.phoneNumber]);
+          where:
+              "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildContact.COLUMN_CONTACT_PHONE_NUMBER} = ?",
+          whereArgs: [contact.childPhoneNumber, contact.contactPhoneNumber]);
 
       if (contactAlreadyExists.isNotEmpty)
         throw ChildContactAlreadyExistsException();
@@ -39,28 +40,30 @@ class ChildContactService {
     });
   }
 
-  Future<void> deleteByNumbers(String contactNumber) async {
+  Future<void> deleteByNumbers(String childNumber, String contactNumber) async {
     final db = await databaseService.database;
 
     await db.transaction((txn) async {
       final contactAlreadyExists = await txn.query(ChildContact.TABLE_NAME,
-          where: "${ChildContact.COLUMN_PHONE_NUMBER} = ?",
-          whereArgs: [contactNumber]);
+          where:
+              "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildContact.COLUMN_CONTACT_PHONE_NUMBER} = ?",
+          whereArgs: [childNumber, contactNumber]);
 
       if (contactAlreadyExists.isEmpty)
         throw ChildContactDoesNotExistException();
 
       await txn.delete(ChildContact.TABLE_NAME,
-          where: "${ChildContact.COLUMN_PHONE_NUMBER} = ?",
-          whereArgs: [contactNumber]);
+          where:
+              "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildContact.COLUMN_CONTACT_PHONE_NUMBER} = ?",
+          whereArgs: [childNumber, contactNumber]);
     });
   }
 
-  Future<void> deleteAllByNumber(String childNumber) async {
+  Future<void> deleteAllByChildNumber(String childNumber) async {
     final db = await databaseService.database;
 
     await db.delete(ChildContact.TABLE_NAME,
-        where: "${ChildContact.COLUMN_PHONE_NUMBER} = ?",
+        where: "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ?",
         whereArgs: [childNumber]);
   }
 }

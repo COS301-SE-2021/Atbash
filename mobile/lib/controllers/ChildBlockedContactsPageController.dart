@@ -23,6 +23,15 @@ class ChildBlockedContactsPageController {
         model.blockedNumbers.addAll(numbers);
       });
     };
+
+    communicationService.onContactToParent = () {
+      childContactService
+          .fetchAllContactsByChildNumber(childNumber)
+          .then((contacts) {
+        model.contacts.clear();
+        model.contacts.addAll(contacts);
+      });
+    };
     reload(childNumber);
   }
 

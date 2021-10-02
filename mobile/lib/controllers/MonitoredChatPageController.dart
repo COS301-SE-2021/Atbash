@@ -24,6 +24,10 @@ class MonitoredChatPageController {
       });
     };
 
+    communicationService.onContactToParent = () {
+      reload(childNumber, otherNumber);
+    };
+
     reload(childNumber, otherNumber);
   }
 

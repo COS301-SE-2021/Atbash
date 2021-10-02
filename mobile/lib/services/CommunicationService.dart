@@ -119,6 +119,8 @@ class CommunicationService {
 
   void Function()? onChildMessageToParent;
 
+  void Function()? onContactToParent;
+
   void onMessage(void Function(Message message) cb) =>
       _onMessageListeners.add(cb);
 
@@ -964,12 +966,14 @@ class CommunicationService {
             //update associated child Contact table with new contact (This is on parent phone)
             final map = decryptedContents["contact"] as Map<String, dynamic>;
 
-            childContactService.insert(ChildContact(
+            await childContactService.insert(ChildContact(
                 childPhoneNumber: senderPhoneNumber,
                 contactPhoneNumber: map["phoneNumber"],
                 name: map["displayName"],
                 status: map["status"],
                 profileImage: map["profileImage"]));
+
+            onContactToParent?.call();
             break;
         }
 

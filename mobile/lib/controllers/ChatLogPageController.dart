@@ -4,6 +4,7 @@ import 'package:mobile/domain/ChildBlockedNumber.dart';
 import 'package:mobile/models/ChatLogPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:uuid/uuid.dart';
@@ -13,6 +14,7 @@ class ChatLogPageController {
   final ChildChatService childChatService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
+  final ChildContactService childContactService = GetIt.I.get();
 
   final ChatLogPageModel model = ChatLogPageModel();
 
@@ -34,6 +36,15 @@ class ChatLogPageController {
         model.chats.addAll(chats);
       });
     };
+
+    communicationService.onContactToParent = () {
+      childContactService
+          .fetchAllContactsByChildNumber(childPhoneNumber)
+          .then((contacts) {
+        model.contacts.clear();
+        model.contacts.addAll(contacts);
+      });
+    };
     reload(childPhoneNumber);
   }
 
@@ -52,6 +63,13 @@ class ChatLogPageController {
         .then((numbers) {
       model.blockedNumbrs.clear();
       model.blockedNumbrs.addAll(numbers);
+    });
+
+    childContactService
+        .fetchAllContactsByChildNumber(childPhoneNumber)
+        .then((contacts) {
+      model.contacts.clear();
+      model.contacts.addAll(contacts);
     });
   }
 

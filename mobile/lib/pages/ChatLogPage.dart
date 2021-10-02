@@ -43,49 +43,51 @@ class _ChatLogPageState extends State<ChatLogPage> {
   }
 
   Widget _buildChatItem(ChildChat chat) {
-    String displayName = chat.otherPartyNumber;
+    return Observer(builder: (_) {
+      String displayName = chat.otherPartyNumber;
 
-    controller.model.contacts.forEach((contact) {
-      if (contact.contactPhoneNumber == chat.otherPartyNumber)
-        displayName = contact.name;
-    });
+      controller.model.contacts.forEach((contact) {
+        if (contact.contactPhoneNumber == chat.otherPartyNumber)
+          displayName = contact.name;
+      });
 
-    return Slidable(
-      actionPane: SlidableScrollActionPane(),
-      child: ListTile(
-        title: Text(displayName),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MonitoredChatPage(
-                chat: chat,
+      return Slidable(
+        actionPane: SlidableScrollActionPane(),
+        child: ListTile(
+          title: Text(displayName),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MonitoredChatPage(
+                  chat: chat,
+                ),
               ),
-            ),
-          );
-        },
-        subtitle:
-            Text("View ${controller.model.childName}'s chat with $displayName"),
-        leading: Icon(
-          Icons.account_circle_rounded,
-          size: 36,
-        ),
-        trailing: Icon(Icons.arrow_forward_rounded),
-        dense: true,
-      ),
-      secondaryActions: [
-        if (!isBlocked(chat.otherPartyNumber))
-          IconSlideAction(
-            caption: "Block for child",
-            color: Colors.red,
-            icon: Icons.block,
-            onTap: () {
-              controller.blockNumber(
-                  chat.childPhoneNumber, chat.otherPartyNumber);
-            },
+            );
+          },
+          subtitle: Text(
+              "View ${controller.model.childName}'s chat with $displayName"),
+          leading: Icon(
+            Icons.account_circle_rounded,
+            size: 36,
           ),
-      ],
-    );
+          trailing: Icon(Icons.arrow_forward_rounded),
+          dense: true,
+        ),
+        secondaryActions: [
+          if (!isBlocked(chat.otherPartyNumber))
+            IconSlideAction(
+              caption: "Block for child",
+              color: Colors.red,
+              icon: Icons.block,
+              onTap: () {
+                controller.blockNumber(
+                    chat.childPhoneNumber, chat.otherPartyNumber);
+              },
+            ),
+        ],
+      );
+    });
   }
 
   bool isBlocked(String number) {

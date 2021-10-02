@@ -37,6 +37,18 @@ export class ChatItemComponent implements OnInit {
         return this.chat?.mostRecentMessage
     }
 
+    get mostRecentMessageContents() {
+        const message = this.mostRecentMessage
+        if (message == null) {
+            return ""
+        } else if (message.isMedia) {
+            return "\u{1F4F7} Photo"
+        } else {
+            return message.contents
+        }
+    }
+
+
     selectChat() {
         this.messageService.enterChat(this.chat)
     }

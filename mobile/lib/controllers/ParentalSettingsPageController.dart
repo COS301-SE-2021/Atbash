@@ -37,12 +37,8 @@ class ParentalSettingsPageController {
 
   void reload() {
     childService.fetchAll().then((children) {
-      List<Tuple<Child, bool>> tuples = [];
-      children.forEach((child) {
-        tuples.add(Tuple(child, false));
-      });
       model.children.clear();
-      model.children.addAll(tuples);
+      model.children.addAll(children);
       parentService
           .fetchByEnabled()
           .then((parent) => model.parentName = parent.name)
@@ -69,83 +65,79 @@ class ParentalSettingsPageController {
     await childBlockedNumberService.deleteAllForChild(child.phoneNumber);
     await childProfanityWordService.deleteAllByNumber(child.phoneNumber);
     model.children.removeWhere(
-        (element) => element.first.phoneNumber == child.phoneNumber);
+        (element) => element.phoneNumber == child.phoneNumber);
     if (model.children.isNotEmpty) model.index = 0;
   }
 
-  void setChildChanged(bool value) {
-    model.children[model.index].second = value;
-  }
-
   void setEditableSettings(bool value) {
-    model.children[model.index].first.editableSettings = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].editableSettings = value;
+    childService.update(model.children[model.index].phoneNumber,
         editableSettings: value);
   }
 
   void setBlurImages(bool value) {
-    model.children[model.index].first.blurImages = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].blurImages = value;
+    childService.update(model.children[model.index].phoneNumber,
         blurImages: value);
   }
 
   void setSafeMode(bool value) {
-    model.children[model.index].first.safeMode = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].safeMode = value;
+    childService.update(model.children[model.index].phoneNumber,
         safeMode: value);
   }
 
   void setShareProfilePicture(bool value) {
-    model.children[model.index].first.shareProfilePicture = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].shareProfilePicture = value;
+    childService.update(model.children[model.index].phoneNumber,
         shareProfilePicture: value);
   }
 
   void setShareStatus(bool value) {
-    model.children[model.index].first.shareStatus = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].shareStatus = value;
+    childService.update(model.children[model.index].phoneNumber,
         shareStatus: value);
   }
 
   void setShareReadReceipts(bool value) {
-    model.children[model.index].first.shareReadReceipts = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].shareReadReceipts = value;
+    childService.update(model.children[model.index].phoneNumber,
         shareReadReceipts: value);
   }
 
   void setShareBirthday(bool value) {
-    model.children[model.index].first.shareBirthday = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].shareBirthday = value;
+    childService.update(model.children[model.index].phoneNumber,
         shareBirthday: value);
   }
 
   void setLockedAccount(bool value) {
-    model.children[model.index].first.lockedAccount = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].lockedAccount = value;
+    childService.update(model.children[model.index].phoneNumber,
         lockedAccount: value);
   }
 
   void setPrivateChatAccess(bool value) {
-    model.children[model.index].first.privateChatAccess = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].privateChatAccess = value;
+    childService.update(model.children[model.index].phoneNumber,
         privateChatAccess: value);
   }
 
   void setBlockSaveMedia(bool value) {
-    model.children[model.index].first.blockSaveMedia = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].blockSaveMedia = value;
+    childService.update(model.children[model.index].phoneNumber,
         blockSaveMedia: value);
   }
 
   void setBlockEditingMessages(bool value) {
-    model.children[model.index].first.blockEditingMessages = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].blockEditingMessages = value;
+    childService.update(model.children[model.index].phoneNumber,
         blockEditingMessages: value);
   }
 
   void setBlockDeletingMessages(bool value) {
-    model.children[model.index].first.blockDeletingMessages = value;
-    childService.update(model.children[model.index].first.phoneNumber,
+    model.children[model.index].blockDeletingMessages = value;
+    childService.update(model.children[model.index].phoneNumber,
         blockDeletingMessages: value);
   }
 

@@ -102,6 +102,16 @@ class ChildProfanityWordService {
         where: "${ChildProfanityWord.COLUMN_PHONE_NUMBER} = ?",
         whereArgs: [childNumber]);
   }
+
+  Future<void> deleteByChildNumberAndPackageName(
+      String childNumber, String packageName) async {
+    final db = await databaseService.database;
+
+    await db.delete(ChildProfanityWord.TABLE_NAME,
+        where:
+            "${ChildProfanityWord.COLUMN_PHONE_NUMBER} = ? AND ${ChildProfanityWord.COLUMN_PACKAGE_NAME} = ?",
+        whereArgs: [childNumber, packageName]);
+  }
 }
 
 class ChildProfanityWordDoesNotExistException implements Exception {}

@@ -7,7 +7,7 @@
   </div>
 
   <div class="flex-grow-1 mx-2">
-    <input type="text" class="w-100 form-control" [(ngModel)]="inputBarContents">
+    <input type="text" class="w-100 form-control" [(ngModel)]="inputBarContents" (keydown.enter)="sendMessage()">
   </div>
 
   <div>

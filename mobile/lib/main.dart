@@ -35,6 +35,7 @@ import 'package:mobile/services/PCConnectionService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/services/StoredProfanityWordService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
 
@@ -132,6 +133,8 @@ void _registerServices() async {
   final pcConnectionService = PCConnectionService();
   GetIt.I.registerSingleton(pcConnectionService);
 
+  final storedProfanityWordService =
+      StoredProfanityWordService(databaseService);
   final profanityWordService = ProfanityWordService(databaseService);
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
@@ -172,6 +175,7 @@ void _registerServices() async {
     pcConnectionService,
   );
 
+  GetIt.I.registerSingleton(storedProfanityWordService);
   GetIt.I.registerSingleton(profanityWordService);
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);

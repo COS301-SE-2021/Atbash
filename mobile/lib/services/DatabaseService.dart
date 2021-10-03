@@ -10,6 +10,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
+import 'package:mobile/domain/StoredProfanityWord.dart';
 import 'package:mobile/domain/Tag.dart';
 import 'package:mobile/encryption/Messagebox.dart';
 import 'package:mobile/encryption/MessageboxToken.dart';
@@ -59,6 +60,7 @@ class DatabaseService {
       db.execute("drop table if exists ${MessageboxToken.TABLE_NAME};"),
       db.execute("drop table if exists ${Messagebox.TABLE_NAME};"),
       db.execute("drop table if exists ${ProfanityWord.TABLE_NAME};"),
+      db.execute("drop table if exists ${StoredProfanityWord.TABLE_NAME};"),
     ]);
   }
 
@@ -83,6 +85,7 @@ class DatabaseService {
       db.execute(MessageboxToken.CREATE_TABLE),
       db.execute(Messagebox.CREATE_TABLE),
       db.execute(ProfanityWord.CREATE_TABLE),
+      db.execute(StoredProfanityWord.CREATE_TABLE),
       //MessageboxTokenDBRecord
     ]);
 

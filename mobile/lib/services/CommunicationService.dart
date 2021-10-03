@@ -796,7 +796,7 @@ class CommunicationService {
                 .where((word) => word.addedByParent == true)
                 .toList()
                 .forEach((element) async =>
-                    await profanityWordService.deleteByID(element.profanityID));
+                    await profanityWordService.deleteByID(element.id));
 
             await parentService.deleteByNumber(senderPhoneNumber);
             await settingsService.setEditableSettings(true);
@@ -858,21 +858,7 @@ class CommunicationService {
                 blockDeletingMessages));
             break;
 
-          case "newProfanityWordToChild":
-            //This adds/deletes word from profanity table
-            final map = decryptedContents["word"] as Map<String, dynamic>;
-
-            final operation = decryptedContents["operation"] as String;
-            if (operation == "insert") {
-              await profanityWordService.addWord(map["profanityOriginalWord"],
-                  addedByParent: true);
-            } else {
-              await profanityWordService
-                  .deleteByWord(map["profanityOriginalWord"]);
-            }
-            _onNewProfanityWordToChildListeners
-                .forEach((listener) => listener());
-            break;
+          //TODO: case newProfanityWordToChild
 
           case "blockedNumberToChild":
             //add given blocked number to my blockedNumbers table (This is on child phone)
@@ -917,13 +903,14 @@ class CommunicationService {
                   profileImage: map["profileImage"]));
             });
 
-            final wordList = decryptedContents["words"] as List;
-            wordList.forEach((word) {
-              final map = word as Map<String, dynamic>;
-              childProfanityWordService.insert(
-                  map["profanityOriginalWord"], senderPhoneNumber,
-                  id: map["profanityID"]);
-            });
+            //TODO: Send all children's words to parent.
+            // final wordList = decryptedContents["words"] as List;
+            // wordList.forEach((word) {
+            //   final map = word as Map<String, dynamic>;
+            //   childProfanityWordService.insert(
+            //       map["profanityOriginalWord"], senderPhoneNumber,
+            //       id: map["profanityID"]);
+            // });
 
             final blockedNumbersList =
                 decryptedContents["blockedNumbers"] as List;
@@ -1013,23 +1000,7 @@ class CommunicationService {
                 .forEach((listener) => listener(lockedAccount));
             break;
 
-          case "newProfanityWordToParent":
-            //update associated child ProfanityTable with new word (This is on parent phone)
-            final map = decryptedContents["word"] as Map<String, dynamic>;
-
-            final operation = decryptedContents["operation"];
-
-            if (operation == "insert") {
-              await childProfanityWordService.insert(
-                  map["profanityOriginalWord"], senderPhoneNumber,
-                  id: map["profanityID"]);
-            } else {
-              await childProfanityWordService.deleteByNumberAndID(
-                  senderPhoneNumber, map["profanityID"]);
-            }
-
-            onNewProfanityWordToParent?.call();
-            break;
+          //TODO: case newprofanitywordtoparent
 
           case "blockedNumberToParent":
             // update associated child BlockedNumber table with new number (This is on parent phone)
@@ -1470,15 +1441,16 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
-  Future<void> sendNewProfanityWordToChild(
-      String childNumber, ProfanityWord word, String operation) async {
-    final contents = jsonEncode({
-      "type": "newProfanityWordToChild",
-      "word": word,
-      "operation": operation
-    });
-    _queueForSending(contents, childNumber);
-  }
+  //TODO: UPDATE THIS FUNCTION
+  // Future<void> sendNewProfanityWordToChild(
+  //     String childNumber, ProfanityWord word, String operation) async {
+  //   final contents = jsonEncode({
+  //     "type": "newProfanityWordToChild",
+  //     "word": word,
+  //     "operation": operation
+  //   });
+  //   _queueForSending(contents, childNumber);
+  // }
 
   Future<void> sendBlockedNumberToChild(
       String childNumber, BlockedNumber blockedNumber, String operation) async {
@@ -1586,15 +1558,16 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
-  Future<void> sendNewProfanityWordToParent(
-      String parentNumber, ProfanityWord word, String operation) async {
-    final contents = jsonEncode({
-      "type": "newProfanityWordToParent",
-      "word": word,
-      "operation": operation
-    });
-    _queueForSending(contents, parentNumber);
-  }
+  //TODO: REDO THIS FUNCTION
+  // Future<void> sendNewProfanityWordToParent(
+  //     String parentNumber, ProfanityWord word, String operation) async {
+  //   final contents = jsonEncode({
+  //     "type": "newProfanityWordToParent",
+  //     "word": word,
+  //     "operation": operation
+  //   });
+  //   _queueForSending(contents, parentNumber);
+  // }
 
   Future<void> sendBlockedNumberToParent(
       String parentNumber, BlockedNumber number, String operation) async {

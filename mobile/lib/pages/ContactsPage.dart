@@ -323,7 +323,8 @@ class _ContactsPageState extends State<ContactsPage> {
     } else if (controller.model.childNumbers
         .any((number) => number == contact.phoneNumber)) {
       showSnackBar(context, "You cannot delete your children!");
+    } else {
+      controller.deleteContact(contact);
     }
-    controller.deleteContact(contact);
   }
 }

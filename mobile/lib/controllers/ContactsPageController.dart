@@ -100,6 +100,7 @@ class ContactsPageController {
       children.forEach((child) {
         numbers.add(child.phoneNumber);
       });
+      model.childNumbers = numbers;
     });
     parentService
         .fetchByEnabled()

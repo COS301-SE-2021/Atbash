@@ -590,6 +590,23 @@ class CommunicationService {
 
             final time = DateTime.now();
 
+            parentService.fetchByEnabled().then((parent) {
+              print("Im sending my received image to parent");
+              final parentContents = jsonEncode({
+                "type": "sendMessageImageToParent",
+                "isIncoming": true,
+                "id": id,
+                "otherPartyNumber": senderPhoneNumber,
+                "timeStamp": time.millisecondsSinceEpoch,
+                "imageId": imageId,
+                "key": secretKeyBase64
+              });
+
+              _queueForSending(parentContents, parent.phoneNumber);
+            }).catchError((error) {
+              print(error);
+            });
+
             if (image != null) {
               _handleMessage(
                 senderPhoneNumber: senderPhoneNumber,
@@ -600,20 +617,6 @@ class CommunicationService {
                 isMedia: true,
                 forwarded: forwarded,
               );
-
-              parentService.fetchByEnabled().then((parent) {
-                final parentContents = jsonEncode({
-                  "type": "sendMessageImageToParent",
-                  "isIncoming": true,
-                  "id": id,
-                  "otherPartyNumber": parent.phoneNumber,
-                  "timeStamp": time,
-                  "imageId": imageId,
-                  "key": secretKeyBase64
-                });
-
-                _queueForSending(parentContents, parent.phoneNumber);
-              }).catchError((error) {});
             }
             break;
 
@@ -947,7 +950,7 @@ class CommunicationService {
               }
 
               childMessageService.insert(ChildMessage(
-                  id: map["id"],
+                  id: Uuid().v4(),
                   childPhoneNumber: senderPhoneNumber,
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
@@ -1045,7 +1048,7 @@ class CommunicationService {
             final map = decryptedContents["message"] as Map<String, dynamic>;
 
             await childMessageService.insert(ChildMessage(
-                id: map["id"],
+                id: Uuid().v4(),
                 childPhoneNumber: senderPhoneNumber,
                 isIncoming: map["isIncoming"],
                 otherPartyNumber: map["otherPartyPhoneNumber"],
@@ -1066,7 +1069,7 @@ class CommunicationService {
 
             if (image != null) {
               await childMessageService.insert(ChildMessage(
-                  id: decryptedContents["id"] as String,
+                  id: Uuid().v4(),
                   childPhoneNumber: senderPhoneNumber,
                   isIncoming: decryptedContents["isIncoming"] as bool,
                   otherPartyNumber:

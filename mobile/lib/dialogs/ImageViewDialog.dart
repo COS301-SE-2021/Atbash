@@ -34,33 +34,38 @@ class __ImageViewDialogState extends State<_ImageViewDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       contentPadding: const EdgeInsets.all(0),
-      content: Container(
-        padding: const EdgeInsets.all(8),
-        child: Stack(
-          children: [
-            Image.memory(widget.imageBytes),
-            if (!isSaved && !widget.blockSaveMedia)
-              Positioned(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(45),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      _saveImage(widget.imageBytes, context);
-                      setState(() {
-                        isSaved = true;
-                      });
-                    },
-                    icon: Icon(
-                      Icons.download,
+      content: Wrap(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            child: Stack(
+              children: [
+                Image.memory(widget.imageBytes),
+                if (!isSaved && !widget.blockSaveMedia)
+                  Positioned(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(45),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          _saveImage(widget.imageBytes, context);
+                          setState(() {
+                            isSaved = true;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.download,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

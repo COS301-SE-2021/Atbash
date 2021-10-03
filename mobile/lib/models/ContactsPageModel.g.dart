@@ -24,6 +24,36 @@ mixin _$ContactsPageModel on _ContactsPageModel, Store {
     });
   }
 
+  final _$parentNumberAtom = Atom(name: '_ContactsPageModel.parentNumber');
+
+  @override
+  String? get parentNumber {
+    _$parentNumberAtom.reportRead();
+    return super.parentNumber;
+  }
+
+  @override
+  set parentNumber(String? value) {
+    _$parentNumberAtom.reportWrite(value, super.parentNumber, () {
+      super.parentNumber = value;
+    });
+  }
+
+  final _$childNumbersAtom = Atom(name: '_ContactsPageModel.childNumbers');
+
+  @override
+  List<String> get childNumbers {
+    _$childNumbersAtom.reportRead();
+    return super.childNumbers;
+  }
+
+  @override
+  set childNumbers(List<String> value) {
+    _$childNumbersAtom.reportWrite(value, super.childNumbers, () {
+      super.childNumbers = value;
+    });
+  }
+
   final _$_ContactsPageModelActionController =
       ActionController(name: '_ContactsPageModel');
 
@@ -63,7 +93,9 @@ mixin _$ContactsPageModel on _ContactsPageModel, Store {
   @override
   String toString() {
     return '''
-contacts: ${contacts}
+contacts: ${contacts},
+parentNumber: ${parentNumber},
+childNumbers: ${childNumbers}
     ''';
   }
 }

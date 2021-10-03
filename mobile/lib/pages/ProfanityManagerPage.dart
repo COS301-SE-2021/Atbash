@@ -71,7 +71,7 @@ class _ProfanityManagerPageState extends State<ProfanityManagerPage> {
                   itemCount: controller.model.filteredPackageCounts.length,
                   itemBuilder: (_, i) {
                     final packageName =
-                        controller.model.packageCounts[i].second;
+                        controller.model.filteredPackageCounts[i].second;
                     return InkWell(
                       onLongPress: () {
                         showConfirmDialog(context,

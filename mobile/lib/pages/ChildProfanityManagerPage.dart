@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/constants.dart';
+import 'package:mobile/controllers/ChildProfanityManagerPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/ChildProfanityWord.dart';
@@ -9,15 +10,22 @@ import 'ChildProfanityPackageManagerPage.dart';
 
 class ChildProfanityManagerPage extends StatefulWidget {
   final String childNumber;
+
   ChildProfanityManagerPage({required this.childNumber});
 
   @override
   _ChildProfanityManagerPageState createState() =>
-      _ChildProfanityManagerPageState();
+      _ChildProfanityManagerPageState(childNumber: childNumber);
 }
 
 class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
   final searchBarController = TextEditingController();
+  final ChildProfanityManagerPageController controller;
+  final childNumber;
+
+  _ChildProfanityManagerPageState({required this.childNumber})
+      : this.controller =
+            ChildProfanityManagerPageController(childNumber: childNumber);
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +48,7 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
                   Expanded(
                     child: TextField(
                       onChanged: (newValue) {
-                        //TODO: Update filter in model
+                        controller.model.filter = newValue;
                       },
                       controller: searchBarController,
                       decoration: InputDecoration(border: InputBorder.none),
@@ -54,8 +62,9 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            ChildProfanityPackageManagerPage()));
+                        builder: (context) => ChildProfanityPackageManagerPage(
+                              childNumber: widget.childNumber,
+                            )));
               },
               tileColor: Constants.orange,
               title: Text("Add New Packages"),
@@ -63,22 +72,26 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
             ),
             Expanded(
               child: ListView.builder(
-                //TODO: Set item count to filteredPackageCount length
-                itemCount: 8,
+                itemCount: controller.model.filteredPackageCounts.length,
                 itemBuilder: (_, i) {
-                  //TODO: Set packageName to controller.model.packageCount[i].second
-                  final packageName = "";
+                  final packageName =
+                      controller.model.filteredPackageCounts[i].second;
                   return InkWell(
                     onLongPress: () {
                       showConfirmDialog(context,
-                          "Are you sure you want to delete this profanity package?");
-                      //TODO: Add a then and delete by package
+                              "Are you sure you want to delete this profanity package?")
+                          .then((value) {
+                        if (value != null && value)
+                          controller.deletePackage(packageName);
+                      });
                     },
                     child: ExpansionTile(
                       childrenPadding: EdgeInsets.zero,
                       title: Text("Package Name"),
-                      //TODO: Replace with _buildWords
-                      children: getChildren(5),
+                      children: _buildWords(controller
+                          .model.filteredProfanityWords
+                          .where((word) => word.packageName == packageName)
+                          .toList()),
                     ),
                   );
                 },
@@ -90,61 +103,37 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
     );
   }
 
-  List<Widget> getChildren(int count) {
+  List<Widget> _buildWords(List<ChildProfanityWord> profanityWords) {
     List<Widget> children = [];
     children.add(
       ListTile(
-        onTap: () {},
+        onTap: () {
+          showInputDialog(context, "Please enter the new word to add.")
+              .then((value) {
+            if (value != null && value.trim() != "")
+              controller.addWord(value, profanityWords[0].packageName);
+            else if (value != null && value.trim() == "")
+              showSnackBar(context, "Words cannot be empty.");
+          });
+        },
         title: Text("Add new word to this package."),
         trailing: Icon(Icons.add),
       ),
     );
-    for (int i = 0; i < count; i++) {
+    profanityWords.forEach((profanityWord) {
       children.add(
         ListTile(
-          title: Text("Profanity Word"),
+          title: Text(profanityWord.word),
           dense: true,
           trailing: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              controller.deleteWord(profanityWord);
+            },
             icon: Icon(Icons.cancel),
           ),
         ),
       );
-    }
+    });
     return children;
   }
-
-  // List<Widget> _buildWords(List<ChildProfanityWord> profanityWords) {
-  //   List<Widget> children = [];
-  //   children.add(
-  //     ListTile(
-  //       onTap: () {
-  //         showInputDialog(context, "Please enter the new word to add.")
-  //             .then((value) {
-  //           if (value != null && value.trim() != "")
-  //             controller.addWord(value, profanityWords[0].packageName);
-  //           else if (value != null && value.trim() == "")
-  //             showSnackBar(context, "Words cannot be empty.");
-  //         });
-  //       },
-  //       title: Text("Add new word to this package."),
-  //       trailing: Icon(Icons.add),
-  //     ),
-  //   );
-  //   profanityWords.forEach((profanityWord) {
-  //     children.add(
-  //       ListTile(
-  //         title: Text(profanityWord.word),
-  //         dense: true,
-  //         trailing: IconButton(
-  //           onPressed: () {
-  //             controller.deleteWord(profanityWord);
-  //           },
-  //           icon: Icon(Icons.cancel),
-  //         ),
-  //       ),
-  //     );
-  //   });
-  //   return children;
-  // }
 }

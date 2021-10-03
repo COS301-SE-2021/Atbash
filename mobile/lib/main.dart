@@ -74,7 +74,7 @@ class AtbashApp extends StatelessWidget {
           final snapshotData = snapshot.data as List;
 
           if (snapshotData[0] == RegistrationState.registered) {
-            communicationService.goOnline();
+            // communicationService.goOnline();
             page = HomePage();
           } else if (snapshotData[0] == RegistrationState.unverified) {
             page = VerificationPage();

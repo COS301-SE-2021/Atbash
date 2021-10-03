@@ -28,6 +28,10 @@ class BlockedContactsPageController {
       model.blockedNumbers.clear();
       model.blockedNumbers.addAll(numbers);
     });
+    parentService
+        .fetchByEnabled()
+        .then((parent) => model.parentNumber = parent.phoneNumber)
+        .catchError((_) {});
   }
 
   void dispose() {

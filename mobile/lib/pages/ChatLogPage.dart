@@ -5,6 +5,7 @@ import 'package:mobile/controllers/ChatLogPageController.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/domain/ChildChat.dart';
 import 'package:mobile/pages/MonitoredChatPage.dart';
+import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ChatLogPage extends StatefulWidget {
   final Child child;
@@ -51,10 +52,13 @@ class _ChatLogPageState extends State<ChatLogPage> {
   Widget _buildChatItem(ChildChat chat) {
     return Observer(builder: (_) {
       String displayName = chat.otherPartyNumber;
+      String profilePicture = "";
 
       controller.model.contacts.forEach((contact) {
-        if (contact.contactPhoneNumber == chat.otherPartyNumber)
+        if (contact.contactPhoneNumber == chat.otherPartyNumber) {
           displayName = contact.name;
+          profilePicture = contact.profileImage;
+        }
       });
 
       return Slidable(
@@ -73,9 +77,9 @@ class _ChatLogPageState extends State<ChatLogPage> {
           },
           subtitle: Text(
               "View ${controller.model.childName}'s chat with $displayName"),
-          leading: Icon(
-            Icons.account_circle_rounded,
-            size: 36,
+          leading: AvatarIcon.fromString(
+            profilePicture,
+            radius: 36,
           ),
           trailing: Icon(Icons.arrow_forward_rounded),
           dense: true,

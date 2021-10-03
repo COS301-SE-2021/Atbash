@@ -126,6 +126,8 @@ class CommunicationService {
 
   List<void Function(bool value)> _onLockedAccountChangeToChildListeners = [];
 
+  void Function()? onContactImageToParent;
+
   void onLockedAccountChangeToChild(void Function(bool value) cb) =>
       _onLockedAccountChangeToChildListeners.add(cb);
 
@@ -603,13 +605,32 @@ class CommunicationService {
             final image =
                 await mediaService.fetchMedia(imageId, secretKeyBase64);
 
+            final time = DateTime.now();
+
+            parentService.fetchByEnabled().then((parent) {
+              print("Im sending my received image to parent");
+              final parentContents = jsonEncode({
+                "type": "sendMessageImageToParent",
+                "isIncoming": true,
+                "id": id,
+                "otherPartyNumber": senderPhoneNumber,
+                "timeStamp": time.millisecondsSinceEpoch,
+                "imageId": imageId,
+                "key": secretKeyBase64
+              });
+
+              _queueForSending(parentContents, parent.phoneNumber);
+            }).catchError((error) {
+              print(error);
+            });
+
             if (image != null) {
               _handleMessage(
                 senderPhoneNumber: senderPhoneNumber,
                 chatType: chatType,
                 id: id,
                 contents: image,
-                timestamp: DateTime.now(),
+                timestamp: time,
                 isMedia: true,
                 forwarded: forwarded,
               );
@@ -659,6 +680,7 @@ class CommunicationService {
             break;
 
           case "profileImage":
+            print("updatedPhoto");
             final imageId = decryptedContents["imageId"] as String;
             final secretKeyBase64 = decryptedContents["key"] as String;
 
@@ -667,6 +689,10 @@ class CommunicationService {
 
             if (image != null) {
               contactService.setContactProfileImage(senderPhoneNumber, image);
+              parentService.fetchByEnabled().then((parent) {
+                _sendContactImageToParent(parent.phoneNumber, senderPhoneNumber,
+                    imageId, secretKeyBase64);
+              }).catchError((_) {});
             }
             break;
 
@@ -926,19 +952,32 @@ class CommunicationService {
 
             final messageList = decryptedContents["messages"] as List;
             messageList.forEach((message) async {
+              //TODO accomaodte for images
               final map = message as Map<String, dynamic>;
+
+              String contents = map["contents"];
+              if (map["isMedia"]) {
+                final imageId = decryptedContents["mediaId"] as String;
+                final secretKeyBase64 = decryptedContents["key"] as String;
+
+                final image =
+                    await mediaService.fetchMedia(imageId, secretKeyBase64);
+
+                if (image != null) contents = image;
+              }
+
               childMessageService.insert(ChildMessage(
-                  id: map["id"],
+                  id: Uuid().v4(),
                   childPhoneNumber: senderPhoneNumber,
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
-                  contents: map["contents"],
+                  contents: contents,
                   timestamp:
-                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"]),
+                  isMedia: map["isMedia"]));
             });
 
             onSetUpChild?.call();
-            //TODO dont allow child to block parent lmao
             break;
 
           case "allSettingsToParent":
@@ -1026,15 +1065,38 @@ class CommunicationService {
             final map = decryptedContents["message"] as Map<String, dynamic>;
 
             await childMessageService.insert(ChildMessage(
-                id: map["id"],
+                id: Uuid().v4(),
                 childPhoneNumber: senderPhoneNumber,
                 isIncoming: map["isIncoming"],
                 otherPartyNumber: map["otherPartyPhoneNumber"],
                 contents: map["contents"],
                 timestamp:
-                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"]),
+                isMedia: map["isMedia"]));
 
             onChildMessageToParent?.call();
+            break;
+
+          case "sendMessageImageToParent":
+            print("imageFromChildRECIEVED");
+            final imageId = decryptedContents["imageId"] as String;
+            final key = decryptedContents["key"] as String;
+
+            final image = await mediaService.fetchMedia(imageId, key);
+
+            if (image != null) {
+              await childMessageService.insert(ChildMessage(
+                  id: Uuid().v4(),
+                  childPhoneNumber: senderPhoneNumber,
+                  isIncoming: decryptedContents["isIncoming"] as bool,
+                  otherPartyNumber:
+                      decryptedContents["otherPartyNumber"] as String,
+                  contents: image,
+                  timestamp: DateTime.fromMillisecondsSinceEpoch(
+                      decryptedContents["timeStamp"] as int),
+                  isMedia: true));
+              onChildMessageToParent?.call();
+            }
             break;
 
           case "contactToParent":
@@ -1049,6 +1111,21 @@ class CommunicationService {
                 profileImage: map["profileImage"]));
 
             _onContactToParentListeners.forEach((listener) => listener());
+            break;
+
+          case "contactImageToParent":
+            final imageId = decryptedContents["mediaId"] as String;
+            final secretKeyBase64 = decryptedContents["key"] as String;
+
+            final image =
+                await mediaService.fetchMedia(imageId, secretKeyBase64);
+
+            if (image != null) {
+              await childContactService.updateProfileImage(senderPhoneNumber,
+                  decryptedContents["contactPhoneNumber"] as String, image);
+
+              onContactImageToParent?.call();
+            }
             break;
         }
 
@@ -1078,6 +1155,9 @@ class CommunicationService {
       );
 
       await chatService.insert(chat);
+      parentService.fetchByEnabled().then((parent) async {
+        await sendChatToParent(parent.phoneNumber, chat, "insert");
+      }).catchError((_) {});
     }
 
     String chatId = await chatService.findIdByPhoneNumberAndChatType(
@@ -1103,10 +1183,10 @@ class CommunicationService {
 
     if (chatType == ChatType.general) {
       await messageService.insert(message);
-      parentService.fetchByEnabled().then((parent) async {
-        message.otherPartyPhoneNumber = senderPhoneNumber;
-        await sendChildMessageToParent(parent.phoneNumber, message);
-      }).catchError((_) {});
+      if (!message.isMedia)
+        parentService.fetchByEnabled().then((parent) async {
+          await sendChildMessageToParent(parent.phoneNumber, message);
+        }).catchError((_) {});
     }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));
@@ -1192,7 +1272,22 @@ class CommunicationService {
         "key": mediaUpload.secretKeyBase64,
       });
 
+      print("sendImageToContact");
       _queueForSending(contents, recipientPhoneNumber, id: message.id);
+
+      parentService.fetchByEnabled().then((parent) {
+        final parentContents = jsonEncode({
+          "type": "sendMessageImageToParent",
+          "isIncoming": message.isIncoming,
+          "id": message.id,
+          "otherPartyNumber": message.otherPartyPhoneNumber,
+          "timeStamp": message.timestamp.millisecondsSinceEpoch,
+          "imageId": mediaUpload.mediaId,
+          "key": mediaUpload.secretKeyBase64
+        });
+
+        _queueForSending(parentContents, parent.phoneNumber);
+      }).catchError((error) {});
     }
   }
 
@@ -1389,8 +1484,8 @@ class CommunicationService {
 
   Future<void> sendSetupChild(String parentNumber) async {
     final List<Contact> contacts = await contactService.fetchAll();
+    final List<Contact> contactsSendAfter = contacts;
     contacts.forEach((contact) {
-      //TODO implement sending profile images
       contact.profileImage = "";
     });
 
@@ -1410,7 +1505,7 @@ class CommunicationService {
     messages.forEach((message) {
       if (message.isMedia) {
         message.isMedia = false;
-        message.contents = "This was an Image before";
+        message.contents = "This was an image";
       }
     });
 
@@ -1435,6 +1530,18 @@ class CommunicationService {
       "messages": messages
     });
     _queueForSending(contents, parentNumber);
+
+    contactsSendAfter.forEach((contact) async {
+      if (contact.profileImage != "") {
+        final mediaUpload =
+            await mediaService.uploadMedia(contact.profileImage);
+
+        if (mediaUpload != null) {
+          _sendContactImageToParent(parentNumber, contact.phoneNumber,
+              mediaUpload.mediaId, mediaUpload.secretKeyBase64);
+        }
+      }
+    });
   }
 
   Future<void> sendAllSettingsToParent(
@@ -1515,6 +1622,18 @@ class CommunicationService {
       "contact": contact,
       "operation": operation
     });
+    _queueForSending(contents, parentNumber);
+  }
+
+  Future<void> _sendContactImageToParent(String parentNumber,
+      String contactNumber, String mediaId, String secretKeyBase64) async {
+    final contents = jsonEncode({
+      "type": "contactImageToParent",
+      "contactPhoneNumber": contactNumber,
+      "mediaId": mediaId,
+      "key": secretKeyBase64
+    });
+
     _queueForSending(contents, parentNumber);
   }
 

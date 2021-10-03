@@ -5,7 +5,7 @@ class ChildMessage {
   final String otherPartyNumber;
   final String contents;
   final DateTime timestamp;
-  final isMedia = false;
+  final bool isMedia;
 
   ChildMessage(
       {required this.id,
@@ -13,7 +13,8 @@ class ChildMessage {
       required this.isIncoming,
       required this.otherPartyNumber,
       required this.contents,
-      required this.timestamp});
+      required this.timestamp,
+      required this.isMedia});
 
   Map<String, Object?> toMap() {
     return {
@@ -23,6 +24,7 @@ class ChildMessage {
       COLUMN_OTHER_PARTY_NUMBER: otherPartyNumber,
       COLUMN_CONTENTS: contents,
       COLUMN_TIMESTAMP: timestamp.millisecondsSinceEpoch,
+      COLUMN_IS_MEDIA: isMedia ? 1 : 0,
     };
   }
 
@@ -32,7 +34,8 @@ class ChildMessage {
         'isIncoming': isIncoming,
         'otherPartyNumber': otherPartyNumber,
         'contents': contents,
-        'timestamp': timestamp.millisecondsSinceEpoch
+        'timestamp': timestamp.millisecondsSinceEpoch,
+        'isMedia': isMedia,
       };
 
   static ChildMessage? fromMap(Map<String, Object?> map) {
@@ -42,20 +45,22 @@ class ChildMessage {
     final otherPartyNumber = map[COLUMN_OTHER_PARTY_NUMBER] as String?;
     final contents = map[COLUMN_CONTENTS] as String?;
     final timestamp = map[COLUMN_TIMESTAMP] as int?;
+    final isMedia = map[COLUMN_IS_MEDIA] as int?;
 
     if (id != null &&
         childPhoneNumber != null &&
         isIncoming != null &&
         otherPartyNumber != null &&
         contents != null &&
-        timestamp != null) {
+        timestamp != null && isMedia != null) {
       return ChildMessage(
           id: id,
           childPhoneNumber: childPhoneNumber,
           isIncoming: isIncoming != 0,
           otherPartyNumber: otherPartyNumber,
           contents: contents,
-          timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp));
+          timestamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+      isMedia: isMedia != 0);
     }
   }
 
@@ -66,12 +71,14 @@ class ChildMessage {
   static const COLUMN_OTHER_PARTY_NUMBER = "other_party_number";
   static const COLUMN_CONTENTS = "contents";
   static const COLUMN_TIMESTAMP = "timestamp";
+  static const COLUMN_IS_MEDIA = "is_media";
   static const String CREATE_TABLE = "create table $TABLE_NAME ("
       "$COLUMN_ID text primary key,"
       "$COLUMN_CHILD_PHONE_NUMBER text not null,"
       "$COLUMN_IS_INCOMING tinyint not null,"
       "$COLUMN_OTHER_PARTY_NUMBER text not null,"
       "$COLUMN_CONTENTS text not null,"
-      "$COLUMN_TIMESTAMP int not null"
+      "$COLUMN_TIMESTAMP int not null,"
+      "$COLUMN_IS_MEDIA tinyint not null"
       ");";
 }

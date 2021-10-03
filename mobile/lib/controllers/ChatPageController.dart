@@ -235,7 +235,8 @@ class ChatPageController {
   }
 
   void dispose() {
-    communicationService.disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService
+        .disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
     communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);

@@ -27,12 +27,10 @@ class ProfanityPackageManagerPageController {
     storedProfanityWordService.fetchAllGroupByPackage(true).then((value) {
       model.packageCountsGeneral.clear();
       model.packageCountsGeneral.addAll(value);
-      print(model.packageCountsGeneral.length);
     });
     storedProfanityWordService.fetchAllGroupByPackage(false).then((value) {
       model.packageCountsCreated.clear();
       model.packageCountsCreated.addAll(value);
-      print(model.packageCountsCreated.length);
     });
   }
 

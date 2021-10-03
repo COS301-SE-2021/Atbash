@@ -50,10 +50,11 @@ class _ProfanityPackageManagerPageState
                     ListTile(
                       onTap: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    ProfanityPackageCreationPage()));
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) =>
+                                        ProfanityPackageCreationPage()))
+                            .then((value) => controller.reload());
                       },
                       tileColor: Constants.orange,
                       title: Text("Create your own package"),

@@ -924,7 +924,20 @@ class CommunicationService {
 
             final messageList = decryptedContents["messages"] as List;
             messageList.forEach((message) async {
+              //TODO accomaodte for images
               final map = message as Map<String, dynamic>;
+
+              String contents = map["contents"];
+              if (map["isMedia"]) {
+                final imageId = decryptedContents["mediaId"] as String;
+                final secretKeyBase64 = decryptedContents["key"] as String;
+
+                final image =
+                    await mediaService.fetchMedia(imageId, secretKeyBase64);
+
+                if (image != null) contents = image;
+              }
+
               childMessageService.insert(ChildMessage(
                   id: map["id"],
                   childPhoneNumber: senderPhoneNumber,
@@ -932,7 +945,8 @@ class CommunicationService {
                   otherPartyNumber: map["otherPartyPhoneNumber"],
                   contents: map["contents"],
                   timestamp:
-                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+                      DateTime.fromMillisecondsSinceEpoch(map["timestamp"]),
+                  isMedia: map["isMedia"]));
             });
 
             onSetUpChild?.call();
@@ -1040,7 +1054,7 @@ class CommunicationService {
 
             String contents = map["contents"];
             if (map["isMedia"]) {
-              final imageId = decryptedContents["imageId"] as String;
+              final imageId = decryptedContents["mediaId"] as String;
               final secretKeyBase64 = decryptedContents["key"] as String;
 
               final image =
@@ -1056,7 +1070,8 @@ class CommunicationService {
                 otherPartyNumber: map["otherPartyPhoneNumber"],
                 contents: contents,
                 timestamp:
-                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
+                    DateTime.fromMillisecondsSinceEpoch(map["timestamp"]),
+                isMedia: map["isMedia"]));
 
             onChildMessageToParent?.call();
             break;
@@ -1593,7 +1608,7 @@ class CommunicationService {
     final mediaUpload = await mediaService.uploadMedia(message.contents);
 
     if (mediaUpload != null) {
-      message.contents = "";
+      message.contents = "Image";
       final contents = jsonEncode({
         "type": "messageToParent",
         "message": message,

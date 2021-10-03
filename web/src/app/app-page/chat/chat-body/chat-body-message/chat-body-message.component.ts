@@ -27,6 +27,14 @@ export class ChatBodyMessageComponent implements OnInit {
         }
     }
 
+    get messageTimestamp() {
+        if (this.message != null) {
+            return this.message.timestamp
+        } else {
+            return new Date()
+        }
+    }
+
     get isMediaMessage() {
         return this.message?.isMedia == true
     }

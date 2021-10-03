@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Chat } from "../domain/chat";
-import { Message } from "../domain/message";
+import { IMessage, Message } from "../domain/message";
 import { Contact } from "../domain/contact";
 import { AngularFirestore, } from "@angular/fire/firestore";
 import { ReplaySubject } from "rxjs";
@@ -217,9 +217,11 @@ export class CommunicationService {
     }
 
     private handlePutMessage(event: any) {
-        const message = event.message as Message || null
+        const iMessage = event.message as IMessage || null
 
-        if (message != null) {
+        if (iMessage != null) {
+            const message = Message.fromIMessage(iMessage)
+
             this.messages$.next({
                 type: IncomingEventType.PUT,
                 message: message,

@@ -21,18 +21,20 @@ export class MessageService {
                     const messageListIndex = this.messageList.findIndex(m => m.id == message.id)
                     if (messageListIndex == -1) {
                         this.messageList.push(message)
-                        chatService.updateChatMostRecentMessage(message)
+                        this.messageList.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+                        chatService.updateChatMostRecentMessage(this.messageList[this.messageList.length - 1])
                     } else {
                         this.messageList[messageListIndex] = message
                     }
 
                     if (message.chatId == this.selectedChat?.id) {
                         const chatMessagesIndex = this.chatMessages.findIndex(m => m.id == message.id)
-                        if(message.readReceipt != ReadReceipt.seen){
+                        if (message.readReceipt != ReadReceipt.seen) {
                             message.readReceipt = ReadReceipt.seen
                         }
                         if (chatMessagesIndex == -1) {
                             this.chatMessages.push(message)
+                            this.chatMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
                         } else {
                             this.chatMessages[chatMessagesIndex] = message
                         }
@@ -53,8 +55,8 @@ export class MessageService {
         let messageIds: string[] = []
 
         this.messageList.map((message, index) => {
-            if(message.chatId == chat?.id){
-                if(message.isIncoming && message.readReceipt != ReadReceipt.seen){
+            if (message.chatId == chat?.id) {
+                if (message.isIncoming && message.readReceipt != ReadReceipt.seen) {
                     message.readReceipt = ReadReceipt.seen
                     this.messageList[index] = message
                     messageIds.push(message.id)
@@ -81,7 +83,7 @@ export class MessageService {
                 false,
                 false,
                 ReadReceipt.undelivered,
-                null,
+                undefined,
                 false,
                 false,
                 false

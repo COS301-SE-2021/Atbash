@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { Message } from "../../../../domain/message";
+import { Message, ReadReceipt } from "../../../../domain/message";
 import { calculateImageMimeType } from "../../../../utils/utils";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { ImageViewModal } from "../../../image-view/image-view.modal";
@@ -56,11 +56,11 @@ export class ChatBodyMessageComponent implements OnInit {
     get readStatusSVG(){
         if(this.message != null) {
             switch (this.message?.readReceipt) {
-                case 0:
+                case ReadReceipt.undelivered:
                     return "assets/close_black_24dp.svg";
-                case 1:
+                case ReadReceipt.delivered:
                     return "assets/done_black_24dp.svg";
-                case 2:
+                case ReadReceipt.seen:
                     return "assets/done_all_black_24dp.svg";
             }
         }

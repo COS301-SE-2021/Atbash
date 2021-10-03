@@ -1,6 +1,7 @@
 import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/util/RegexGeneration.dart';
+import 'package:mobile/util/Tuple.dart';
 
 class ChildProfanityWordService {
   final DatabaseService databaseService;
@@ -23,6 +24,28 @@ class ChildProfanityWordService {
     });
 
     return words;
+  }
+
+  Future<List<Tuple<int, String>>> fetchAllGroupByPackage(String childNumber) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawQuery(
+        "SELECT COUNT(${ChildProfanityWord.COLUMN_ID}) AS package_count,${ChildProfanityWord.COLUMN_PACKAGE_NAME} "
+            "FROM ${ChildProfanityWord.TABLE_NAME} "
+            "WHERE ${ChildProfanityWord.COLUMN_PHONE_NUMBER} = $childNumber "
+            "GROUP BY ${ChildProfanityWord.COLUMN_PACKAGE_NAME} "
+            "ORDER BY ${ChildProfanityWord.COLUMN_PACKAGE_NAME} COLLATE NOCASE"
+            ";");
+
+    final packageCounts = <Tuple<int, String>>[];
+
+    response.forEach((element) {
+      final packageCount = Tuple(element["package_count"] as int,
+          element[ChildProfanityWord.COLUMN_PACKAGE_NAME] as String);
+      packageCounts.add(packageCount);
+    });
+
+    return packageCounts;
   }
 
   Future<ChildProfanityWord> insert(

@@ -989,6 +989,28 @@ class CommunicationService {
             onSetUpChild?.call();
             break;
 
+          case "newProfanityWordsToChild":
+            final words = decryptedContents["words"] as List;
+            final operation = decryptedContents["operation"] as String;
+
+            if (operation == "insert") {
+              words.forEach((word) async {
+                final map = word as Map<String, dynamic>;
+                await profanityWordService.addWord(
+                    map["word"], map["packageName"],
+                    addedByParent: true);
+              });
+            } else {
+              words.forEach((word) async {
+                final map = word as Map<String, dynamic>;
+                await profanityWordService.deleteByWordAndPackage(
+                    map["word"], map["packageName"]);
+              });
+            }
+
+            _onNewProfanityWordToChildListeners.forEach((listener) => listener);
+            break;
+
           case "allSettingsToParent":
             //update all parents settings for relative child (This is on parent phone)
             final blurImages = decryptedContents["blurImages"] as bool;
@@ -1481,16 +1503,15 @@ class CommunicationService {
     _queueForSending(contents, childNumber);
   }
 
-  //TODO: UPDATE THIS FUNCTION
-  // Future<void> sendNewProfanityWordToChild(
-  //     String childNumber, ProfanityWord word, String operation) async {
-  //   final contents = jsonEncode({
-  //     "type": "newProfanityWordToChild",
-  //     "word": word,
-  //     "operation": operation
-  //   });
-  //   _queueForSending(contents, childNumber);
-  // }
+  Future<void> sendNewProfanityWordToChild(
+      String childNumber, List<ProfanityWord> words, String operation) async {
+    final contents = jsonEncode({
+      "type": "newProfanityWordsToChild",
+      "words": words,
+      "operation": operation
+    });
+    _queueForSending(contents, childNumber);
+  }
 
   Future<void> sendBlockedNumberToChild(
       String childNumber, BlockedNumber blockedNumber, String operation) async {

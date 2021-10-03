@@ -57,4 +57,26 @@ export class ChatBodyMessageComponent implements OnInit {
         }
     }
 
+    get messageTime(){
+        if(this.message != null){
+            var date = new Date(this.message.timestamp)
+            return date.toTimeString().slice(0, 5)
+        } else {
+            return "--:--"
+        }
+    }
+
+    get readStatusSVG(){
+        if(this.message != null) {
+            switch (this.message?.readReceipt) {
+                case 0:
+                    return "assets/close_black_24dp.svg";
+                case 1:
+                    return "assets/done_black_24dp.svg";
+                case 2:
+                    return "assets/done_all_black_24dp.svg";
+            }
+        }
+        return "assets/close_black_24dp.svg";
+    }
 }

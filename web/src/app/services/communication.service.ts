@@ -100,6 +100,16 @@ export class CommunicationService {
         })
     }
 
+    sendSeen(messageIds: string[]) {
+        if(messageIds.length > 0) {
+            setDoc(doc(this.communicationCollection), {
+                origin: "web",
+                type: "seen",
+                messageIds: messageIds,
+            })
+        }
+    }
+
     private get communicationCollection() {
         return collection(this.firestore, `relays/${this.relayId}/communication`)
     }

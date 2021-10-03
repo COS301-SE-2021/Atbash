@@ -27,6 +27,7 @@ export class CommunicationService {
     loadingState = false
 
     constructor(private db: AngularFirestore) {
+        this.createOffer()
     }
 
     async createOffer() {

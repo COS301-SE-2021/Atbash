@@ -943,7 +943,7 @@ class CommunicationService {
                   childPhoneNumber: senderPhoneNumber,
                   isIncoming: map["isIncoming"],
                   otherPartyNumber: map["otherPartyPhoneNumber"],
-                  contents: map["contents"],
+                  contents: contents,
                   timestamp:
                       DateTime.fromMillisecondsSinceEpoch(map["timestamp"]),
                   isMedia: map["isMedia"]));

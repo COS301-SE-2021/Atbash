@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,6 +24,7 @@ class PCConnectionService {
   void Function(List<String> messageIds)? onSeenEvent;
 
   RTCDataChannel? dataChannel;
+  StreamController<Map<String, dynamic>>? _outgoingStream;
 
   Future<void> connectToPc(
     String callId, {
@@ -32,6 +34,8 @@ class PCConnectionService {
     required List<Chat> chats,
     required List<Message> messages,
   }) async {
+    _outgoingStream = StreamController();
+
     final call = db.collection("calls").doc(callId);
     final offer = (await call.get()).data()?["offer"];
 
@@ -43,9 +47,12 @@ class PCConnectionService {
     final remoteConnection = await createPeerConnection(configuration);
 
     remoteConnection.onDataChannel = (channel) {
-      this.dataChannel = channel;
       channel.messageStream.listen((mEvent) {
         handleEvent(jsonDecode(mEvent.text) as Map<String, dynamic>);
+      });
+
+      _outgoingStream?.stream.listen((event) {
+        channel.send(RTCDataChannelMessage(jsonEncode(event)));
       });
 
       channel.send(
@@ -158,75 +165,51 @@ class PCConnectionService {
   }
 
   Future<void> notifyPcPutContact(Contact contact) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "putContact",
-          "contact": jsonEncode(contact),
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putContact",
+      "contact": contact,
+    });
   }
 
   Future<void> notifyPcDeleteContact(String contactPhoneNumber) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "deleteContact",
-          "contactPhoneNumber": contactPhoneNumber,
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteContact",
+      "contactPhoneNumber": contactPhoneNumber,
+    });
   }
 
   Future<void> notifyPcPutChat(Chat chat) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "putChat",
-          "chat": jsonEncode(chat),
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putChat",
+      "chat": chat,
+    });
   }
 
   Future<void> notifyPcDeleteChat(String chatId) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "deleteChat",
-          "chatId": chatId,
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteChat",
+      "chatId": chatId,
+    });
   }
 
   Future<void> notifyPcPutMessage(Message message) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "putMessage",
-          "message": jsonEncode(message),
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putMessage",
+      "message": message,
+    });
   }
 
   Future<void> notifyPcDeleteMessage(String messageId) async {
-    if (dataChannel?.state == RTCDataChannelState.RTCDataChannelOpen) {
-      dataChannel?.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "deleteMessage",
-          "messageId": messageId,
-        })),
-      );
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteMessage",
+      "messageId": messageId,
+    });
   }
 
   FirebaseFirestore get db => FirebaseFirestore.instance;

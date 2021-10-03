@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/controllers/ChildProfanityPackageManagerPageController.dart';
 import 'package:mobile/domain/StoredProfanityWord.dart';
 
 class ChildProfanityPackageManagerPage extends StatefulWidget {
-  const ChildProfanityPackageManagerPage({Key? key}) : super(key: key);
+  final String childNumber;
+  ChildProfanityPackageManagerPage({required this.childNumber});
 
   @override
   _ChildProfanityPackageManagerPageState createState() =>
-      _ChildProfanityPackageManagerPageState();
+      _ChildProfanityPackageManagerPageState(childNumber: childNumber);
 }
 
 class _ChildProfanityPackageManagerPageState
     extends State<ChildProfanityPackageManagerPage> {
+  final ChildProfanityPackageManagerPageController controller;
+  final String childNumber;
+
+  _ChildProfanityPackageManagerPageState({required this.childNumber})
+      : this.controller = ChildProfanityPackageManagerPageController(
+            childNumber: childNumber);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

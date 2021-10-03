@@ -10,6 +10,22 @@ part of 'ChildProfanityPackageManagerPageModel.dart';
 
 mixin _$ChildProfanityPackageManagerPageModel
     on _ChildProfanityPackageManagerPageModel, Store {
+  final _$childProfanityWordsAtom =
+      Atom(name: '_ChildProfanityPackageManagerPageModel.childProfanityWords');
+
+  @override
+  ObservableList<ChildProfanityWord> get childProfanityWords {
+    _$childProfanityWordsAtom.reportRead();
+    return super.childProfanityWords;
+  }
+
+  @override
+  set childProfanityWords(ObservableList<ChildProfanityWord> value) {
+    _$childProfanityWordsAtom.reportWrite(value, super.childProfanityWords, () {
+      super.childProfanityWords = value;
+    });
+  }
+
   final _$storedProfanityWordsAtom =
       Atom(name: '_ChildProfanityPackageManagerPageModel.storedProfanityWords');
 
@@ -46,6 +62,7 @@ mixin _$ChildProfanityPackageManagerPageModel
   @override
   String toString() {
     return '''
+childProfanityWords: ${childProfanityWords},
 storedProfanityWords: ${storedProfanityWords},
 packageCounts: ${packageCounts}
     ''';

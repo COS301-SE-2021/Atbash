@@ -62,8 +62,9 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            ChildProfanityPackageManagerPage()));
+                        builder: (context) => ChildProfanityPackageManagerPage(
+                              childNumber: widget.childNumber,
+                            )));
               },
               tileColor: Constants.orange,
               title: Text("Add New Packages"),

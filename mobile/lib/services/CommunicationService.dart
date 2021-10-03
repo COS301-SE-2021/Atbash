@@ -933,14 +933,11 @@ class CommunicationService {
                   profileImage: map["profileImage"]));
             });
 
-            //TODO: Add all sent words to parent.
-            // final wordList = decryptedContents["words"] as List;
-            // wordList.forEach((word) {
-            //   final map = word as Map<String, dynamic>;
-            //   childProfanityWordService.insert(
-            //       map["profanityOriginalWord"], senderPhoneNumber,
-            //       id: map["profanityID"]);
-            // });
+            final wordList = decryptedContents["words"] as List;
+            wordList.forEach((word) {
+              final map = word as Map<String, dynamic>;
+              childProfanityWordService.insert(senderPhoneNumber, map["word"], map["packageName"], Uuid().v4());
+            });
 
             final blockedNumbersList =
                 decryptedContents["blockedNumbers"] as List;

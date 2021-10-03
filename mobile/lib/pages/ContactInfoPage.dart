@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/controllers/ContactInfoPageController.dart';
 import 'package:mobile/pages/ContactEditPage.dart';
+import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 
 class ContactInfoPage extends StatefulWidget {
@@ -126,7 +127,14 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 120),
                 child: ElevatedButton(
-                  onPressed: () => controller.unblockContact(),
+                  onPressed: () {
+                    if (controller.model.isBlockedByParent) {
+                      showSnackBar(context,
+                          "You cannot unblock a number added by your parent!");
+                    } else {
+                      controller.unblockContact();
+                    }
+                  },
                   child: Text("Unblock Contact"),
                 ),
               ),
@@ -135,7 +143,15 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 120),
                 child: ElevatedButton(
-                  onPressed: () => controller.blockContact(),
+                  onPressed: () {
+                    if (controller.model.parentNumber != null &&
+                        controller.model.parentNumber ==
+                            controller.model.phoneNumber) {
+                      showSnackBar(context, "You cannot block your parent!");
+                    } else {
+                      controller.blockContact();
+                    }
+                  },
                   child: Text("Block Contact"),
                 ),
               ),

@@ -317,6 +317,6 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _deleteContact(Contact contact) {
-    controller.deleteContact(contact.phoneNumber);
+    controller.deleteContact(contact);
   }
 }

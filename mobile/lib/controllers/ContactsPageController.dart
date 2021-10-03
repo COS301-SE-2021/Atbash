@@ -31,14 +31,12 @@ class ContactsPageController {
     contactService.disposeOnChanged(reload);
   }
 
-  void deleteContact(String phoneNumber) {
-    model.removeContact(phoneNumber);
-    contactService.deleteByPhoneNumber(phoneNumber);
+  void deleteContact(Contact contact) {
+    model.removeContact(contact.phoneNumber);
+    contactService.deleteByPhoneNumber(contact.phoneNumber);
     parentService.fetchByEnabled().then((parent) {
-      contactService.fetchByPhoneNumber(phoneNumber).then((contact) {
-        communicationService.sendContactToParent(
-            parent.phoneNumber, contact, "delete");
-      });
+      communicationService.sendContactToParent(
+          parent.phoneNumber, contact, "delete");
     }).catchError((_) {});
   }
 

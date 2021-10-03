@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Chat } from "../domain/chat";
-import { Message } from "../domain/message";
+import { IMessage, Message } from "../domain/message";
 import { Contact } from "../domain/contact";
-import { collection, deleteDoc, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
-import * as uuid from "uuid";
-import { SHA256 } from "crypto-js";
+import { AngularFirestore, } from "@angular/fire/firestore";
 import { ReplaySubject } from "rxjs";
 
 @Injectable({
@@ -12,24 +10,65 @@ import { ReplaySubject } from "rxjs";
 })
 export class CommunicationService {
 
-    readonly relayId = uuid.v4()
-    readonly relaySymmetricKey = SHA256(uuid.v4())
+    readonly configuration = {
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302"
+                ]
+            }
+        ],
+        iceCandidatePoolSize: 10
+    }
+
+    callId: string | undefined
+    dataChannel: RTCDataChannel | undefined
     loadingState = false
 
-    constructor(private firestore: Firestore) {
-        const relayDoc = doc(collection(firestore, "relays"))
-        this.relayId = relayDoc.id
-        console.log(`Relay ID is ${this.relayId}`)
+    constructor(private db: AngularFirestore) {
+        this.createOffer()
+    }
 
-        const communicationCollection = collection(relayDoc, "communication")
-        setDoc(doc(communicationCollection), { type: "connected", origin: "web" })
+    async createOffer() {
+        const call = this.db.collection("calls").doc()
 
-        const q = query(communicationCollection)
-        onSnapshot(q, snapshot => {
-            snapshot.forEach(document => {
-                const handled = this.handleEvent(document.data())
-                if (handled) {
-                    deleteDoc(document.ref)
+        const peerConnection = new RTCPeerConnection(this.configuration)
+
+        this.dataChannel = peerConnection.createDataChannel("dataChannel")
+        this.dataChannel.onmessage = event => {
+            this.handleEvent(JSON.parse(event.data))
+        }
+
+        peerConnection.onicecandidate = async event => {
+            const candidate = event.candidate
+            if (candidate) {
+                await call.collection("callerCandidates").add(candidate.toJSON())
+            }
+        }
+
+        const offer = await peerConnection.createOffer()
+        await peerConnection.setLocalDescription(offer)
+
+        await call.set({offer})
+        this.callId = call.ref.id
+
+        call.snapshotChanges().subscribe(changes => {
+            const data = changes.payload.data() as any
+
+            const answer = data.answer
+            if (answer) {
+                peerConnection.setRemoteDescription({
+                    type: answer.type,
+                    sdp: answer.sdp,
+                })
+            }
+        })
+
+        call.collection("calleeCandidates").snapshotChanges().subscribe(changes => {
+            changes.forEach(doc => {
+                if (doc.type == "added") {
+                    peerConnection.addIceCandidate(doc.payload.doc.data())
                 }
             })
         })
@@ -47,8 +86,11 @@ export class CommunicationService {
                 case "connected":
                     this.loadingState = true
                     return true
-                case "setup":
-                    this.handleSetup(event)
+                case "userDisplayName":
+                    this.handleUserDisplayName(event)
+                    return true
+                case "userProfileImage":
+                    this.handleUserProfileImage(event)
                     return true
                 case "putContact":
                     this.handlePutContact(event)
@@ -85,72 +127,49 @@ export class CommunicationService {
             timestamp: message.timestamp.getTime()
         }
 
-        setDoc(doc(this.communicationCollection), {
+        this.dataChannel?.send(JSON.stringify({
             origin: "web",
             type: "message",
-            message: JSON.stringify(event),
-        })
+            message: event,
+        }))
     }
 
     createChat(contactPhoneNumber: string) {
-        setDoc(doc(this.communicationCollection), {
+        this.dataChannel?.send(JSON.stringify({
             origin: "web",
             type: "newChat",
             contactPhoneNumber: contactPhoneNumber,
-        })
+        }))
     }
 
-    private get communicationCollection() {
-        return collection(this.firestore, `relays/${this.relayId}/communication`)
-    }
-
-    private handleSetup(event: any) {
-        const userDisplayName = event.userDisplayName as string || null
-        const userProfilePhoto = event.userProfilePhoto as string || null
-        const chats = JSON.parse(event.chats) as any[] || null
-        const contacts = JSON.parse(event.contacts) as any[] || null
-        const messages = JSON.parse(event.messages) as any[] || null
-
-        if (userDisplayName != null) {
-            this.userDisplayName$.next(userDisplayName)
+    sendSeen(messageIds: string[]) {
+        if(messageIds.length > 0) {
+            this.dataChannel?.send(JSON.stringify({
+                origin: "web",
+                    type: "seen",
+                    messageIds: messageIds,
+            }))
         }
+    }
 
-        chats?.forEach(c => {
-            const chat = c as Chat || null
-            if (chat != null) {
-                this.chats$.next({
-                    type: IncomingEventType.PUT,
-                    chat: chat,
-                    chatId: chat.id
-                })
-            }
-        })
+    private handleUserDisplayName(event: any) {
+        const displayName = event.displayName
 
-        contacts?.forEach(c => {
-            const contact = c as Contact || null
-            if (contact != null) {
-                this.contacts$.next({
-                    type: IncomingEventType.PUT,
-                    contact: contact,
-                    contactPhoneNumber: contact.phoneNumber
-                })
-            }
-        })
+        if (displayName) {
+            this.userDisplayName$.next(displayName)
+        }
+    }
 
-        messages?.reverse()?.forEach(m => {
-            const message = m as Message || null
-            if (message != null) {
-                this.messages$.next({
-                    type: IncomingEventType.PUT,
-                    message: message,
-                    messageId: message.id
-                })
-            }
-        })
+    private handleUserProfileImage(event: any) {
+        const profileImage = event.profileImage
+
+        if (profileImage) {
+            this.userProfileImage$.next(profileImage)
+        }
     }
 
     private handlePutContact(event: any) {
-        const contact = JSON.parse(event.contact) as Contact || null
+        const contact = event.contact as Contact || null
 
         if (contact != null) {
             this.contacts$.next({
@@ -174,7 +193,7 @@ export class CommunicationService {
     }
 
     private handlePutChat(event: any) {
-        const chat = JSON.parse(event.chat) as Chat || null
+        const chat = event.chat as Chat || null
 
         if (chat != null) {
             this.chats$.next({
@@ -198,9 +217,11 @@ export class CommunicationService {
     }
 
     private handlePutMessage(event: any) {
-        const message = JSON.parse(event.message) as Message || null
+        const iMessage = event.message as IMessage || null
 
-        if (message != null) {
+        if (iMessage != null) {
+            const message = Message.fromIMessage(iMessage)
+
             this.messages$.next({
                 type: IncomingEventType.PUT,
                 message: message,

@@ -2,17 +2,17 @@
 
   <div>
     <button class="btn">
-      <img src="../../../../assets/add_circle_outline_black_24dp.svg" alt="Add Image">
+      <img src="assets/add_circle_outline_black_24dp.svg" alt="Add Image">
     </button>
   </div>
 
   <div class="flex-grow-1 mx-2">
-    <input type="text" class="w-100 form-control" [(ngModel)]="inputBarContents">
+    <input type="text" class="w-100 form-control" [(ngModel)]="inputBarContents" (keydown.enter)="sendMessage()">
   </div>
 
   <div>
     <button class="btn" (click)="sendMessage()">
-      <img src="../../../../assets/send_black_24dp.svg" alt="Send Message">
+      <img src="assets/send_black_24dp.svg" alt="Send Message">
     </button>
   </div>
 

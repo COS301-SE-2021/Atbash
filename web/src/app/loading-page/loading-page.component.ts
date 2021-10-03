@@ -11,10 +11,12 @@ export class LoadingPageComponent implements OnInit {
 
     elementType = NgxQrcodeElementTypes.IMG
     correctionLevel = NgxQrcodeErrorCorrectionLevels.HIGH
-    qrCodeValue: string
 
     constructor(private com: CommunicationService) {
-        this.qrCodeValue = `@b,${com.relayId},${com.relaySymmetricKey}`
+    }
+
+    get qrCodeValue() {
+        return `@b,${this.com.callId}`
     }
 
     ngOnInit(): void {

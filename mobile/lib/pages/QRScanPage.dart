@@ -41,7 +41,6 @@ class _QRScanPageState extends State<QRScanPage> {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
       final code = scanData.code;
-
       if (code.startsWith("@b")) {
         final splitCode = code.split(",");
         final relayId = splitCode[1];

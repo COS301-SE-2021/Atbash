@@ -340,7 +340,7 @@ class CommunicationService {
     final userDisplayNameFuture = userService.getDisplayName();
     final userProfilePhotoFuture = userService.getProfileImage();
     final contactsFuture = contactService.fetchAll();
-    final chatsFuture = chatService.fetchAll();
+    final chatsFuture = chatService.fetchByChatType(ChatType.general);
     final messagesFuture = messageService.fetchAll();
 
     await Future.wait([
@@ -360,7 +360,7 @@ class CommunicationService {
     pcConnectionService.connectToPc(
       relayId,
       userDisplayName: userDisplayName,
-      userProfilePhoto: "",
+      userProfilePhoto: base64Encode(userProfilePhoto ?? []),
       contacts: contacts,
       chats: chats,
       messages: messages,
@@ -383,6 +383,9 @@ class CommunicationService {
     };
 
     pcConnectionService.onMessageEvent = (message) async {
+      _onMessageListeners.forEach((listener) {
+        listener(message);
+      });
       messageService.insert(message);
       sendMessage(
         message,
@@ -390,6 +393,20 @@ class CommunicationService {
         message.otherPartyPhoneNumber,
         null,
       );
+    };
+
+    pcConnectionService.onSeenEvent = (messageIds) async {
+      try{
+        final otherNumber = (await messageService.fetchById(messageIds[0])).otherPartyPhoneNumber;
+
+        messageIds.forEach((element) {
+          messageService.setMessageReadReceiptFromPc(element, ReadReceipt.seen);
+        });
+        this.sendAckSeen(messageIds, otherNumber);
+
+      } catch (e){
+        print(e);
+      }
     };
   }
 

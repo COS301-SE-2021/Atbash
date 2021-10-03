@@ -1,6 +1,18 @@
 <div class="w-100 mw-75" [class.text-end]="!message?.isIncoming">
   <div class="message-card" [class.message-incoming]="message?.isIncoming"
        [class.message-outgoing]="!message?.isIncoming">
-    {{message?.contents}}
+    <img *ngIf="isMediaMessage else notMedia" [src]="mediaContents" alt="Image media" height="400" class="message-media" (click)="enlargeImage()">
+    <ng-template #notMedia>
+      <span [class.fst-italic]="message?.deleted == true">
+        {{messageContents}}
+      </span>
+    </ng-template>
+    <br/>
+    <div class="message-status">
+      <span>
+      {{messageTimestamp | date:"HH:mm"}}
+      </span>
+      <img *ngIf="!message?.isIncoming" [src]="readStatusSVG" alt="x" height="15" style="padding-left: 4px;">
+    </div>
   </div>
 </div>

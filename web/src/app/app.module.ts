@@ -16,9 +16,10 @@ import { ContactListComponent } from './app-page/sidebar/contact-list/contact-li
 import { ContactItemComponent } from './app-page/sidebar/contact-list/contact-item/contact-item.component';
 import { LoadingPageComponent } from './loading-page/loading-page.component';
 import { AppPageComponent } from './app-page/app-page.component';
-import { initializeApp, provideFirebaseApp } from "@angular/fire/app";
-import { getFirestore, provideFirestore } from "@angular/fire/firestore";
 import { NgxQRCodeModule } from "@techiediaries/ngx-qrcode";
+import { ImageViewModal } from './app-page/image-view/image-view.modal';
+import { AngularFireModule } from "@angular/fire";
+import { AngularFirestoreModule } from "@angular/fire/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyCh6lYwbK46C5UarTn0NE9dCTnaAVdD2Qo",
@@ -45,13 +46,14 @@ const firebaseConfig = {
         ContactListComponent,
         ContactItemComponent,
         LoadingPageComponent,
-        AppPageComponent
+        AppPageComponent,
+        ImageViewModal
     ],
     imports: [
         BrowserModule,
         FormsModule,
-        provideFirebaseApp(() => initializeApp(firebaseConfig)),
-        provideFirestore(() => getFirestore()),
+        AngularFireModule.initializeApp(firebaseConfig),
+        AngularFirestoreModule,
         NgxQRCodeModule
     ],
     providers: [],

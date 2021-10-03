@@ -1,45 +1,127 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 
 class PCConnectionService {
+  static const configuration = {
+    "iceServers": [
+      {
+        "urls": [
+          "stun:stun1.l.google.com:19302",
+          "stun:stun2.l.google.com:19302",
+        ]
+      }
+    ]
+  };
+
   void Function(Message message)? onMessageEvent;
   void Function(String contactPhoneNumber)? onNewChatEvent;
+  void Function(List<String> messageIds)? onSeenEvent;
 
-  String? pcRelayId;
+  RTCDataChannel? dataChannel;
+  StreamController<Map<String, dynamic>>? _outgoingStream;
 
-  Future<void> connectToPc(
-    String relayId, {
+  Future<void> connectToPc(String callId, {
     required String userDisplayName,
     required String userProfilePhoto,
     required List<Contact> contacts,
     required List<Chat> chats,
     required List<Message> messages,
   }) async {
-    this.pcRelayId = relayId;
-    _collection(relayId).add({
-      "origin": "phone",
-      "type": "connected",
-    });
+    _outgoingStream = StreamController();
 
-    _collection(relayId).add({
-      "origin": "phone",
-      "type": "setup",
-      "userDisplayName": userDisplayName,
-      "userProfilePhoto": userProfilePhoto,
-      "contacts": jsonEncode(contacts),
-      "chats": jsonEncode(chats),
-      "messages": jsonEncode(messages),
-    });
+    final call = db.collection("calls").doc(callId);
+    final offer = (await call.get()).data()?["offer"];
 
-    _collection(relayId).snapshots().listen((snapshot) {
-      snapshot.docs.forEach((doc) {
-        final handled = handleEvent(doc.data());
-        if (handled) {
-          doc.reference.delete();
+    if (offer == null) {
+      print("Tried to answer with unset offer");
+      return;
+    }
+
+    final remoteConnection = await createPeerConnection(configuration);
+
+    remoteConnection.onDataChannel = (channel) {
+      channel.messageStream.listen((mEvent) {
+        handleEvent(jsonDecode(mEvent.text) as Map<String, dynamic>);
+      });
+
+      _outgoingStream?.stream.listen((event) async {
+        event["origin"] = "phone";
+
+        if (event["type"] == "putMessage") {
+          event["message"] = await _compressImageIfTooLarge(event);
+        }
+
+        // if (event["type"] == "putMessage" &&
+        //     (event["message"]["contents"] as String).length > 65000) {
+        //   return;
+        // }
+
+        channel.send(RTCDataChannelMessage(jsonEncode(event)));
+      });
+
+      channel.send(
+        RTCDataChannelMessage(jsonEncode({
+          "origin": "phone",
+          "type": "connected",
+        })),
+      );
+
+      _outgoingStream?.sink.add({
+        "type": "userProfileImage",
+        "profileImage": userProfilePhoto,
+      });
+
+      _outgoingStream?.sink.add({
+        "type": "userDisplayName",
+        "displayName": userDisplayName,
+      });
+
+      contacts.forEach((contact) {
+        notifyPcPutContact(contact);
+      });
+
+      chats.forEach((chat) {
+        notifyPcPutChat(chat);
+      });
+
+      messages.forEach((message) {
+        notifyPcPutMessage(message);
+      });
+    };
+
+    remoteConnection.onIceCandidate = (candidate) {
+      call.collection("calleeCandidates").add(candidate.toMap());
+    };
+
+    await remoteConnection.setRemoteDescription(RTCSessionDescription(
+      offer["sdp"],
+      offer["type"],
+    ));
+    final answer = await remoteConnection.createAnswer();
+    await remoteConnection.setLocalDescription(answer);
+    await call.update({"answer": answer.toMap()});
+
+    call.collection("callerCandidates").snapshots().listen((snapshot) {
+      snapshot.docChanges.forEach((change) {
+        if (change.type == DocumentChangeType.added) {
+          final data = change.doc.data();
+          if (data != null) {
+            print(data);
+
+            remoteConnection.addCandidate(RTCIceCandidate(
+              data["candidate"],
+              data["sdpMid"],
+              data["sdpMLineIndex"],
+            ));
+          }
         }
       });
     });
@@ -57,6 +139,9 @@ class PCConnectionService {
         case "newChat":
           handleNewChat(event);
           return true;
+        case "seen":
+          handleSeen(event);
+          return true;
         default:
           return false;
       }
@@ -66,7 +151,7 @@ class PCConnectionService {
   }
 
   void handleMessage(Map<String, dynamic> event) {
-    final messageEvent = jsonDecode(event["message"]) as Map<String, dynamic>;
+    final messageEvent = event["message"] as Map<String, dynamic>;
 
     final id = messageEvent["id"] as String;
     final chatId = messageEvent["chatId"] as String;
@@ -92,85 +177,91 @@ class PCConnectionService {
     onNewChatEvent?.call(contactPhoneNumber);
   }
 
-  Future<void> notifyPcPutContact(Contact contact) async {
-    final relayId = this.pcRelayId;
+  void handleSeen(Map<String, dynamic> event) {
+    final messageIds =
+    (event["messageIds"] as List).map((e) => e as String).toList();
 
-    if (relayId != null) {
-      _collection(relayId).add({
-        "origin": "phone",
-        "type": "putContact",
-        "contact": jsonEncode(contact),
-      });
+    if (messageIds.isNotEmpty) {
+      onSeenEvent?.call(messageIds);
     }
+  }
+
+  Future<void> notifyPcPutContact(Contact contact) async {
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putContact",
+      "contact": contact,
+    });
   }
 
   Future<void> notifyPcDeleteContact(String contactPhoneNumber) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      FirebaseFirestore.instance
-          .collection("relays")
-          .doc(relayId)
-          .collection("communication")
-          .add({
-        "origin": "phone",
-        "type": "deleteContact",
-        "contactPhoneNumber": contactPhoneNumber,
-      });
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteContact",
+      "contactPhoneNumber": contactPhoneNumber,
+    });
   }
 
   Future<void> notifyPcPutChat(Chat chat) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      _collection(relayId).add({
-        "origin": "phone",
-        "type": "putChat",
-        "chat": jsonEncode(chat),
-      });
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putChat",
+      "chat": chat,
+    });
   }
 
   Future<void> notifyPcDeleteChat(String chatId) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      _collection(relayId).add({
-        "origin": "phone",
-        "type": "deleteChat",
-        "chatId": chatId,
-      });
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteChat",
+      "chatId": chatId,
+    });
   }
 
   Future<void> notifyPcPutMessage(Message message) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      _collection(relayId).add({
-        "origin": "phone",
-        "type": "putMessage",
-        "message": jsonEncode(message),
-      });
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "putMessage",
+      "message": message,
+    });
   }
 
   Future<void> notifyPcDeleteMessage(String messageId) async {
-    final relayId = this.pcRelayId;
-
-    if (relayId != null) {
-      _collection(relayId).add({
-        "origin": "phone",
-        "type": "deleteMessage",
-        "messageId": messageId,
-      });
-    }
+    _outgoingStream?.sink.add({
+      "origin": "phone",
+      "type": "deleteMessage",
+      "messageId": messageId,
+    });
   }
 
-  CollectionReference<Map<String, dynamic>> _collection(String relayId) =>
-      FirebaseFirestore.instance
-          .collection("relays")
-          .doc(relayId)
-          .collection("communication");
+  FirebaseFirestore get db => FirebaseFirestore.instance;
+
+  Future<Message> _compressImageIfTooLarge(
+      Map<String, dynamic> event) async {
+    final message = event["message"] as Message;
+    final isMedia = message.isMedia;
+
+    if (!isMedia) {
+      return message;
+    } else {
+      final contents = message.contents;
+
+      if (contents.length > 60000) {
+        final binaryContents = base64Decode(contents);
+        var compressionLevel = 95;
+        Uint8List compressedContents;
+        do {
+          compressedContents = await FlutterImageCompress.compressWithList(
+            binaryContents,
+            quality: compressionLevel,
+          );
+          compressionLevel -= 5;
+        } while (compressedContents.length > 44500);
+
+        message.contents = base64Encode(compressedContents);
+      }
+
+      return message;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from "@angular/core";
 import { Contact } from "../../../../domain/contact";
 import { MessageService } from "../../../services/message.service";
 import { ChatService } from "../../../services/chat.service";
+import { calculateImageMimeType } from "../../../../utils/utils";
 
 @Component({
     selector: "app-contact-item",
@@ -23,6 +24,8 @@ export class ContactItemComponent implements OnInit {
         let profileImage = this.contact?.profileImage
         if (profileImage == null || profileImage.trim() == "") {
             profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        } else {
+            profileImage = `data:${calculateImageMimeType(profileImage)};base64,${profileImage}`
         }
         return profileImage
     }

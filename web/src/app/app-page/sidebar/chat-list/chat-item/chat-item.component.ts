@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { Chat } from "../../../../domain/chat";
 import { MessageService } from "../../../services/message.service";
+import { calculateImageMimeType } from "../../../../utils/utils";
 
 @Component({
     selector: "app-chat-item",
@@ -22,6 +23,8 @@ export class ChatItemComponent implements OnInit {
         let profileImage = this.chat?.contact?.profileImage
         if (profileImage == null || profileImage.trim() == "") {
             profileImage = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+        } else {
+            profileImage = `data:${calculateImageMimeType(profileImage)};base64,${profileImage}`
         }
         return profileImage
     }
@@ -33,6 +36,18 @@ export class ChatItemComponent implements OnInit {
     get mostRecentMessage() {
         return this.chat?.mostRecentMessage
     }
+
+    get mostRecentMessageContents() {
+        const message = this.mostRecentMessage
+        if (message == null) {
+            return ""
+        } else if (message.isMedia) {
+            return "\u{1F4F7} Photo"
+        } else {
+            return message.contents
+        }
+    }
+
 
     selectChat() {
         this.messageService.enterChat(this.chat)

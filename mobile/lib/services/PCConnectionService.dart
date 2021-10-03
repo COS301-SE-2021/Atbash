@@ -140,7 +140,7 @@ class PCConnectionService {
   }
 
   void handleMessage(Map<String, dynamic> event) {
-    final messageEvent = jsonDecode(event["message"]) as Map<String, dynamic>;
+    final messageEvent = event["message"] as Map<String, dynamic>;
 
     final id = messageEvent["id"] as String;
     final chatId = messageEvent["chatId"] as String;

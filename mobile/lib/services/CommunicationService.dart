@@ -1038,12 +1038,23 @@ class CommunicationService {
             //update associated child Message table with new message (This is on parent phone)
             final map = decryptedContents["message"] as Map<String, dynamic>;
 
+            String contents = map["contents"];
+            if (map["isMedia"]) {
+              final imageId = decryptedContents["imageId"] as String;
+              final secretKeyBase64 = decryptedContents["key"] as String;
+
+              final image =
+                  await mediaService.fetchMedia(imageId, secretKeyBase64);
+
+              if (image != null) contents = image;
+            }
+
             await childMessageService.insert(ChildMessage(
                 id: map["id"],
                 childPhoneNumber: senderPhoneNumber,
                 isIncoming: map["isIncoming"],
                 otherPartyNumber: map["otherPartyPhoneNumber"],
-                contents: map["contents"],
+                contents: contents,
                 timestamp:
                     DateTime.fromMillisecondsSinceEpoch(map["timestamp"])));
 
@@ -1436,9 +1447,12 @@ class CommunicationService {
     final List<Message> messages = await messageService.fetchAll();
 
     messages.forEach((message) {
-      if (message.isMedia) {
-        message.isMedia = false;
-        message.contents = "This was an Image before";
+      if (!message.isMedia) {
+        final contents =
+            jsonEncode({"type": "messageToParent", "message": message});
+        _queueForSending(contents, parentNumber);
+      } else {
+        _sendMessageImageToParent(parentNumber, message);
       }
     });
 
@@ -1535,9 +1549,13 @@ class CommunicationService {
 
   Future<void> sendChildMessageToParent(
       String parentNumber, Message message) async {
-    final contents =
-        jsonEncode({"type": "messageToParent", "message": message});
-    _queueForSending(contents, parentNumber);
+    if (!message.isMedia) {
+      final contents =
+          jsonEncode({"type": "messageToParent", "message": message});
+      _queueForSending(contents, parentNumber);
+    } else {
+      _sendMessageImageToParent(parentNumber, message);
+    }
   }
 
   Future<void> sendContactToParent(
@@ -1566,6 +1584,22 @@ class CommunicationService {
         "key": mediaUpload.secretKeyBase64
       });
 
+      _queueForSending(contents, parentNumber);
+    }
+  }
+
+  Future<void> _sendMessageImageToParent(
+      String parentNumber, Message message) async {
+    final mediaUpload = await mediaService.uploadMedia(message.contents);
+
+    if (mediaUpload != null) {
+      message.contents = "";
+      final contents = jsonEncode({
+        "type": "messageToParent",
+        "message": message,
+        "mediaId": mediaUpload.mediaId,
+        "key": mediaUpload.secretKeyBase64
+      });
       _queueForSending(contents, parentNumber);
     }
   }

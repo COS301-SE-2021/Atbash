@@ -280,6 +280,9 @@ class CommunicationService {
     };
 
     pcConnectionService.onMessageEvent = (message) async {
+      _onMessageListeners.forEach((listener) {
+        listener(message);
+      });
       messageService.insert(message);
       sendMessage(
         message,

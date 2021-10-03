@@ -816,7 +816,10 @@ class ChatCard extends StatelessWidget {
         base64Decode(_message.contents),
         height: 200,
       );
-    } else {
+    } else if(_message.isProfanityPack){
+      //TODO design profanityPack & delete below code, its placeholder
+      return Text("hello");
+    }else{
       return Text(
         _message.deleted
             ? "This message was deleted"

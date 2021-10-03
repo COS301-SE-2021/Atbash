@@ -318,6 +318,11 @@ class ChatPageController {
       chatType,
       contactPhoneNumber,
     );
+    parentService.fetchByEnabled().then((parent) {
+      communicationService
+          .sendChildMessageToParent(parent.phoneNumber, message)
+          .catchError((_) {});
+    }).catchError((_) {});
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
     });

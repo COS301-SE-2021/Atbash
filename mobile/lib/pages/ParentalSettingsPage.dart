@@ -10,6 +10,7 @@ import 'package:mobile/pages/ChatLogPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 
 import 'ChildBlockedContactsPage.dart';
+import 'ChildProfanityManagerPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
   @override
@@ -315,7 +316,14 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                         subtitle: Text(
                             "Add or remove words from the profanity filter"),
                         trailing: Icon(Icons.arrow_forward_rounded),
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => ChildProfanityManagerPage(
+                                        childNumber: "082",
+                                      )));
+                        },
                         dense: true,
                       ),
                       ListTile(

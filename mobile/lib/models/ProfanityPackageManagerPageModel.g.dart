@@ -43,19 +43,37 @@ mixin _$ProfanityPackageManagerPageModel
     });
   }
 
-  final _$packageCountsAtom =
-      Atom(name: '_ProfanityPackageManagerPageModel.packageCounts');
+  final _$packageCountsGeneralAtom =
+      Atom(name: '_ProfanityPackageManagerPageModel.packageCountsGeneral');
 
   @override
-  ObservableList<Tuple<int, String>> get packageCounts {
-    _$packageCountsAtom.reportRead();
-    return super.packageCounts;
+  ObservableList<Tuple<int, String>> get packageCountsGeneral {
+    _$packageCountsGeneralAtom.reportRead();
+    return super.packageCountsGeneral;
   }
 
   @override
-  set packageCounts(ObservableList<Tuple<int, String>> value) {
-    _$packageCountsAtom.reportWrite(value, super.packageCounts, () {
-      super.packageCounts = value;
+  set packageCountsGeneral(ObservableList<Tuple<int, String>> value) {
+    _$packageCountsGeneralAtom.reportWrite(value, super.packageCountsGeneral,
+        () {
+      super.packageCountsGeneral = value;
+    });
+  }
+
+  final _$packageCountsCreatedAtom =
+      Atom(name: '_ProfanityPackageManagerPageModel.packageCountsCreated');
+
+  @override
+  ObservableList<Tuple<int, String>> get packageCountsCreated {
+    _$packageCountsCreatedAtom.reportRead();
+    return super.packageCountsCreated;
+  }
+
+  @override
+  set packageCountsCreated(ObservableList<Tuple<int, String>> value) {
+    _$packageCountsCreatedAtom.reportWrite(value, super.packageCountsCreated,
+        () {
+      super.packageCountsCreated = value;
     });
   }
 
@@ -64,7 +82,8 @@ mixin _$ProfanityPackageManagerPageModel
     return '''
 profanityWords: ${profanityWords},
 storedProfanityWords: ${storedProfanityWords},
-packageCounts: ${packageCounts}
+packageCountsGeneral: ${packageCountsGeneral},
+packageCountsCreated: ${packageCountsCreated}
     ''';
   }
 }

@@ -1,58 +1,40 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile/domain/StoredProfanityWord.dart';
 
 class ProfanityPackageDetailsPage extends StatelessWidget {
-  ProfanityPackageDetailsPage();
+  final String packageName;
+  final List<StoredProfanityWord> profanityWords;
+  ProfanityPackageDetailsPage(
+      {required this.packageName, required this.profanityWords});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("'Profanity Package name' Details"),
+        title: Text("$packageName Details"),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-                child: Text(
-                  "Package Name",
-                  style: TextStyle(fontSize: 20),
-                ),
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+              child: Text(
+                packageName,
+                style: TextStyle(fontSize: 20),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-                child: Text(
-                  "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              Column(
-                children: _buildWords(5),
-              ),
-            ],
-          ),
+            ),
+            Expanded(
+                child: ListView.builder(
+                    itemCount: profanityWords.length,
+                    itemBuilder: (_, i) {
+                      return ListTile(
+                        title: Text("\u2022 ${profanityWords[i].word}"),
+                      );
+                    })),
+          ],
         ),
       ),
     );
-  }
-
-  List<Widget> _buildWords(int count) {
-    List<Widget> words = [];
-    for (int i = 0; i < count; i++) {
-      words.add(Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-          child: Text(
-            "\u2022 Profanity Word",
-            style: TextStyle(fontSize: 20),
-          ),
-        ),
-      ));
-    }
-
-    return words;
   }
 }

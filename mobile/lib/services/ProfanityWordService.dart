@@ -29,7 +29,8 @@ class ProfanityWordService {
     final response = await db.rawQuery(
         "SELECT COUNT(${ProfanityWord.COLUMN_ID}) AS package_count,${ProfanityWord.COLUMN_PACKAGE_NAME} "
         "FROM ${ProfanityWord.TABLE_NAME} "
-        "GROUP BY ${ProfanityWord.COLUMN_PACKAGE_NAME}"
+        "GROUP BY ${ProfanityWord.COLUMN_PACKAGE_NAME} "
+        "ORDER BY ${ProfanityWord.COLUMN_PACKAGE_NAME} COLLATE NOCASE"
         ";");
 
     final packageCounts = <Tuple<int, String>>[];

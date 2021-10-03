@@ -1,6 +1,7 @@
 import 'package:mobile/domain/StoredProfanityWord.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/util/RegexGeneration.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:uuid/uuid.dart';
 
 class StoredProfanityWordService {
@@ -50,6 +51,28 @@ class StoredProfanityWordService {
     });
 
     return storedProfanityWord;
+  }
+
+  Future<List<Tuple<int, String>>> fetchAllGroupByPackage(bool general) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawQuery(
+        "SELECT COUNT(${StoredProfanityWord.COLUMN_ID}) AS package_count,${StoredProfanityWord.COLUMN_PACKAGE_NAME} "
+        "FROM ${StoredProfanityWord.TABLE_NAME} "
+        "WHERE ${StoredProfanityWord.COLUMN_REMOVABLE} = ${general ? 0 : 1} "
+        "GROUP BY ${StoredProfanityWord.COLUMN_PACKAGE_NAME} "
+        "ORDER BY ${StoredProfanityWord.COLUMN_PACKAGE_NAME} COLLATE NOCASE"
+        ";");
+
+    final packageCounts = <Tuple<int, String>>[];
+
+    response.forEach((element) {
+      final packageCount = Tuple(element["package_count"] as int,
+          element[StoredProfanityWord.COLUMN_PACKAGE_NAME] as String);
+      packageCounts.add(packageCount);
+    });
+
+    return packageCounts;
   }
 
   Future<void> deleteByWordAndPackage(String word, String package) async {

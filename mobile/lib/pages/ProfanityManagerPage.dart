@@ -56,9 +56,11 @@ class _ProfanityManagerPageState extends State<ProfanityManagerPage> {
               ListTile(
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ProfanityPackageManagerPage()));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ProfanityPackageManagerPage()))
+                      .then((value) => controller.reload());
                 },
                 tileColor: Constants.orange,
                 title: Text("Add New Packages"),

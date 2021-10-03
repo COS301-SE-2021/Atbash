@@ -588,16 +588,32 @@ class CommunicationService {
             final image =
                 await mediaService.fetchMedia(imageId, secretKeyBase64);
 
+            final time = DateTime.now();
+
             if (image != null) {
               _handleMessage(
                 senderPhoneNumber: senderPhoneNumber,
                 chatType: chatType,
                 id: id,
                 contents: image,
-                timestamp: DateTime.now(),
+                timestamp: time,
                 isMedia: true,
                 forwarded: forwarded,
               );
+
+              parentService.fetchByEnabled().then((parent) {
+                final parentContents = jsonEncode({
+                  "type": "sendMessageImageToParent",
+                  "isIncoming": true,
+                  "id": id,
+                  "otherPartyNumber": parent.phoneNumber,
+                  "timeStamp": time,
+                  "imageId": imageId,
+                  "key": secretKeyBase64
+                });
+
+                _queueForSending(parentContents, parent.phoneNumber);
+              }).catchError((error) {});
             }
             break;
 
@@ -1176,9 +1192,10 @@ class CommunicationService {
 
     if (chatType == ChatType.general) {
       await messageService.insert(message);
-      parentService.fetchByEnabled().then((parent) async {
-        await sendChildMessageToParent(parent.phoneNumber, message);
-      }).catchError((_) {});
+      if (!message.isMedia)
+        parentService.fetchByEnabled().then((parent) async {
+          await sendChildMessageToParent(parent.phoneNumber, message);
+        }).catchError((_) {});
     }
     await sendAck(id, senderPhoneNumber);
     _onMessageListeners.forEach((listener) => listener(message));
@@ -1267,8 +1284,7 @@ class CommunicationService {
       print("sendImageToContact");
       _queueForSending(contents, recipientPhoneNumber, id: message.id);
 
-      parentService.fetchByEnabled().then((_) {
-        print("sendingImageToParent");
+      parentService.fetchByEnabled().then((parent) {
         final parentContents = jsonEncode({
           "type": "sendMessageImageToParent",
           "isIncoming": message.isIncoming,
@@ -1279,10 +1295,8 @@ class CommunicationService {
           "key": mediaUpload.secretKeyBase64
         });
 
-        _queueForSending(parentContents, recipientPhoneNumber);
-      }).catchError((error) {
-        print("ERRORTHROWN $error");
-      });
+        _queueForSending(parentContents, parent.phoneNumber);
+      }).catchError((error) {});
     }
   }
 
@@ -1629,8 +1643,6 @@ class CommunicationService {
 
     _queueForSending(contents, parentNumber);
   }
-
-  //TODO over here
 
   //END OF NEW METHODS
 

@@ -7,6 +7,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/models/ContactsPageModel.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/ParentService.dart';
@@ -19,6 +20,7 @@ class ContactsPageController {
   final ChatService chatService = GetIt.I.get();
   final Client http = GetIt.I.get();
   final ParentService parentService = GetIt.I.get();
+  final ChildService childService = GetIt.I.get();
 
   final ContactsPageModel model = ContactsPageModel();
 
@@ -93,5 +95,15 @@ class ContactsPageController {
     contactService.fetchAll().then((contactList) {
       model.replaceContacts(contactList);
     });
+    childService.fetchAll().then((children) {
+      List<String> numbers = [];
+      children.forEach((child) {
+        numbers.add(child.phoneNumber);
+      });
+    });
+    parentService
+        .fetchByEnabled()
+        .then((parent) => model.parentNumber = parent.phoneNumber)
+        .catchError((_) {});
   }
 }

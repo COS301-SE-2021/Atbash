@@ -317,6 +317,13 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _deleteContact(Contact contact) {
+    if (controller.model.parentNumber != null &&
+        controller.model.parentNumber == contact.phoneNumber) {
+      showSnackBar(context, "You cannot delete your parent!");
+    } else if (controller.model.childNumbers
+        .any((number) => number == contact.phoneNumber)) {
+      showSnackBar(context, "You cannot delete your children!");
+    }
     controller.deleteContact(contact);
   }
 }

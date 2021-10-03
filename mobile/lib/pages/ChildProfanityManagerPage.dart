@@ -87,7 +87,6 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
                     child: ExpansionTile(
                       childrenPadding: EdgeInsets.zero,
                       title: Text("Package Name"),
-                      //TODO: Replace with _buildWords
                       children: _buildWords(controller
                           .model.filteredProfanityWords
                           .where((word) => word.packageName == packageName)

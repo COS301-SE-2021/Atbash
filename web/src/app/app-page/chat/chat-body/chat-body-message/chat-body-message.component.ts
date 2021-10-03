@@ -49,13 +49,8 @@ export class ChatBodyMessageComponent implements OnInit {
         }
     }
 
-    get messageTime(){
-        if(this.message != null){
-            var date = new Date(this.message.timestamp)
-            return date.toTimeString().slice(0, 5)
-        } else {
-            return "--:--"
-        }
+    get messageTimestamp() {
+        return this.message?.timestamp ?? new Date()
     }
 
     get readStatusSVG(){

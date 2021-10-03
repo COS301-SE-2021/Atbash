@@ -10,7 +10,7 @@
     <br/>
     <div class="message-status">
       <span>
-      {{messageTime}}
+      {{messageTimestamp | date:"HH:mm"}}
       </span>
       <img *ngIf="!message?.isIncoming" [src]="readStatusSVG" alt="x" height="15" style="padding-left: 4px;">
     </div>

@@ -18,6 +18,15 @@ mixin _$ProfanityManagerPageModel on _ProfanityManagerPageModel, Store {
                   () => super.filteredProfanityWords,
                   name: '_ProfanityManagerPageModel.filteredProfanityWords'))
           .value;
+  Computed<ObservableList<Tuple<int, String>>>? _$filteredPackageCountsComputed;
+
+  @override
+  ObservableList<Tuple<int, String>> get filteredPackageCounts =>
+      (_$filteredPackageCountsComputed ??=
+              Computed<ObservableList<Tuple<int, String>>>(
+                  () => super.filteredPackageCounts,
+                  name: '_ProfanityManagerPageModel.filteredPackageCounts'))
+          .value;
 
   final _$profanityWordsAtom =
       Atom(name: '_ProfanityManagerPageModel.profanityWords');
@@ -72,7 +81,8 @@ mixin _$ProfanityManagerPageModel on _ProfanityManagerPageModel, Store {
 profanityWords: ${profanityWords},
 packageCounts: ${packageCounts},
 filter: ${filter},
-filteredProfanityWords: ${filteredProfanityWords}
+filteredProfanityWords: ${filteredProfanityWords},
+filteredPackageCounts: ${filteredPackageCounts}
     ''';
   }
 }

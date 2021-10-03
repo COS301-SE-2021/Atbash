@@ -1,6 +1,7 @@
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/util/RegexGeneration.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:uuid/uuid.dart';
 
 class ProfanityWordService {
@@ -22,6 +23,26 @@ class ProfanityWordService {
     return profanityWords;
   }
 
+  Future<List<Tuple<int, String>>> fetchAllGroupByPackage() async {
+    final db = await databaseService.database;
+
+    final response = await db.rawQuery(
+        "SELECT COUNT(${ProfanityWord.COLUMN_ID}) AS package_count,${ProfanityWord.COLUMN_PACKAGE_NAME} "
+        "FROM ${ProfanityWord.TABLE_NAME} "
+        "GROUP BY ${ProfanityWord.COLUMN_PACKAGE_NAME}"
+        ";");
+
+    final packageCounts = <Tuple<int, String>>[];
+
+    response.forEach((element) {
+      final packageCount = Tuple(element["package_count"] as int,
+          element[ProfanityWord.COLUMN_PACKAGE_NAME] as String);
+      packageCounts.add(packageCount);
+    });
+
+    return packageCounts;
+  }
+
   Future<ProfanityWord> addWord(String word, String packageName,
       {bool addedByParent = false}) async {
     final db = await databaseService.database;
@@ -31,7 +52,7 @@ class ProfanityWordService {
     final profanityWord = ProfanityWord(
         id: Uuid().v4(),
         packageName: packageName,
-        word: word,
+        word: word.toLowerCase(),
         regex: regex,
         addedByParent: addedByParent);
 
@@ -57,6 +78,14 @@ class ProfanityWordService {
         where:
             "${ProfanityWord.COLUMN_WORD} =? AND ${ProfanityWord.COLUMN_PACKAGE_NAME} = ?",
         whereArgs: [word, package]);
+  }
+
+  Future<void> deleteByPackage(String package) async {
+    final db = await databaseService.database;
+
+    db.delete(ProfanityWord.TABLE_NAME,
+        where: "${ProfanityWord.COLUMN_PACKAGE_NAME} = ?",
+        whereArgs: [package]);
   }
 
   Future<void> deleteByID(String id) async {

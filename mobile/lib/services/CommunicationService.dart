@@ -408,7 +408,7 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
-    print("Fetching unread messages for number");
+    print("Fetching unread messages for number " + phoneNumber);
     await _fetchUnreadMessages(encodedPhoneNumber);
     await _fetchUnreadMessageboxMessages();
     await encryptionService.managePreKeys();
@@ -495,7 +495,9 @@ class CommunicationService {
 
     if (response.statusCode == 200) {
       final messages = jsonDecode(response.body) as List;
-      messages.forEach((message) async => await _handleEvent(message));
+      // var messagesJson = jsonDecode(response.body);
+      // List<dynamic> messages = messagesJson != null ? List.from(messagesJson) : [];
+      messages.forEach((message) async => await _handleEvent(message as Map<String, Object?>));
     } else {
       print("${response.statusCode} - ${response.body}");
     }
@@ -525,17 +527,22 @@ class CommunicationService {
     }
   }
 
-  Future<void> _handleEvent(dynamic event) async {
+  ///DON'T DO THIS!!! => Future<void> _handleEvent(dynamic event) async {
+  ///The jsonDecoding must be done before getting to this method
+  ///This ensures data is parse here in the correct format
+  Future<void> _handleEvent(Map<String, Object?> event) async {
     await communicationLock.synchronized(() async {
       print("Acquired communication lock for handling event.");
-      final Map<String, Object?> parsedEvent =
-          event is Map ? event : jsonDecode(event);
+      // final Map<String, Object?> parsedEvent =
+      //     event is Map ? event : jsonDecode(event);
+      final Map<String, Object?> parsedEvent = event;
 
       print("Parsing event payload");
       final eventPayload = await getParsedEventPayload(parsedEvent);
 
       if (eventPayload == null) {
         print("Event payload is null");
+        print("Event: " + event.toString());
       }
       if (eventPayload != null) {
         final senderPhoneNumber = eventPayload.senderPhoneNumber;
@@ -1526,13 +1533,13 @@ class CommunicationService {
     final timestamp = event["timestamp"] as int?;
 
     if (id == null || encryptedContents == null || timestamp == null) {
-      print("Error: Invalid event");
+      print("Error: Invalid event (id, encryptedContents or timestamp is null)");
       return null;
     }
-    print("Event id: " + id);
+    // print("Event id: " + id);
     if (recipientMid == null) {
       if (senderNumberEncrypted == null) {
-        print("Error: Invalid event");
+        print("Error: Invalid event (recipientMid and senderNumberEncrypted is null)");
         return null;
       }
       final senderPhoneNumber =
@@ -1600,6 +1607,7 @@ class CommunicationService {
           await messageboxService.fetchMessageboxWithID(recipientMid);
       if (messagebox == null || messagebox.number == null) {
         //This shouldn't be possible
+        print("Failed to fetch messagebox with id: " + recipientMid.toString());
         return null;
       }
 

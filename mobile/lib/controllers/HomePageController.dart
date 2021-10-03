@@ -29,7 +29,7 @@ class HomePageController {
   HomePageController() {
     final CommunicationService communicationService = GetIt.I.get();
 
-    // communicationService.goOnline();
+    communicationService.goOnline();
 
     contactService.onChanged(reload);
     chatService.onChanged(reload);

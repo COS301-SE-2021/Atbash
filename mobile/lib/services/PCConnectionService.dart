@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
@@ -26,8 +28,7 @@ class PCConnectionService {
   RTCDataChannel? dataChannel;
   StreamController<Map<String, dynamic>>? _outgoingStream;
 
-  Future<void> connectToPc(
-    String callId, {
+  Future<void> connectToPc(String callId, {
     required String userDisplayName,
     required String userProfilePhoto,
     required List<Contact> contacts,
@@ -51,8 +52,18 @@ class PCConnectionService {
         handleEvent(jsonDecode(mEvent.text) as Map<String, dynamic>);
       });
 
-      _outgoingStream?.stream.listen((event) {
+      _outgoingStream?.stream.listen((event) async {
         event["origin"] = "phone";
+
+        if (event["type"] == "putMessage") {
+          event["message"] = await _compressImageIfTooLarge(event);
+        }
+
+        // if (event["type"] == "putMessage" &&
+        //     (event["message"]["contents"] as String).length > 65000) {
+        //   return;
+        // }
+
         channel.send(RTCDataChannelMessage(jsonEncode(event)));
       });
 
@@ -168,7 +179,7 @@ class PCConnectionService {
 
   void handleSeen(Map<String, dynamic> event) {
     final messageIds =
-        (event["messageIds"] as List).map((e) => e as String).toList();
+    (event["messageIds"] as List).map((e) => e as String).toList();
 
     if (messageIds.isNotEmpty) {
       onSeenEvent?.call(messageIds);
@@ -224,4 +235,33 @@ class PCConnectionService {
   }
 
   FirebaseFirestore get db => FirebaseFirestore.instance;
+
+  Future<Message> _compressImageIfTooLarge(
+      Map<String, dynamic> event) async {
+    final message = event["message"] as Message;
+    final isMedia = message.isMedia;
+
+    if (!isMedia) {
+      return message;
+    } else {
+      final contents = message.contents;
+
+      if (contents.length > 60000) {
+        final binaryContents = base64Decode(contents);
+        var compressionLevel = 95;
+        Uint8List compressedContents;
+        do {
+          compressedContents = await FlutterImageCompress.compressWithList(
+            binaryContents,
+            quality: compressionLevel,
+          );
+          compressionLevel -= 5;
+        } while (compressedContents.length > 44500);
+
+        message.contents = base64Encode(compressedContents);
+      }
+
+      return message;
+    }
+  }
 }

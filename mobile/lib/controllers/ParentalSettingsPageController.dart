@@ -8,6 +8,8 @@ import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/util/Tuple.dart';
+import 'package:mobile/util/Utils.dart';
 
 class ParentalSettingsPageController {
   final CommunicationService communicationService = GetIt.I.get();
@@ -140,9 +142,8 @@ class ParentalSettingsPageController {
   }
 
   void addParent(String code) async {
-    final parent = await parentService.fetchByCode(code).catchError((_) {
-      //TODO show no parent with that code exists
-    });
+    final parent = await parentService.fetchByCode(code).catchError((_) {});
+    model.parentName = parent.name;
     parentService.updateEnabledByCode(code, true);
     communicationService.sendSetupChild(parent.phoneNumber);
   }

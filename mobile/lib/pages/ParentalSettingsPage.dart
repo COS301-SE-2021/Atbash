@@ -7,10 +7,10 @@ import 'package:mobile/dialogs/ConfirmDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/domain/Child.dart';
 import 'package:mobile/pages/ChatLogPage.dart';
-import 'package:mobile/pages/ChildProfanityFilterListPage.dart';
 import 'package:mobile/pages/NewChildPage.dart';
 
 import 'ChildBlockedContactsPage.dart';
+import 'ChildProfanityManagerPage.dart';
 
 class ParentalSettingsPage extends StatefulWidget {
   @override
@@ -331,13 +331,9 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      ChildProfanityFilterListPage(
-                                          childNumber: controller
-                                              .model
-                                              .children[controller.model.index]
-
-                                              .phoneNumber)));
+                                  builder: (_) => ChildProfanityManagerPage(
+                                        childNumber: "082",
+                                      )));
                         },
                         dense: true,
                       ),

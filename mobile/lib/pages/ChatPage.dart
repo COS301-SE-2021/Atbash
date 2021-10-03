@@ -840,7 +840,7 @@ class ChatCard extends StatelessWidget {
     // return unfilteredContents;
     words.forEach((profanityWord) {
       unfilteredContents = unfilteredContents.replaceAllMapped(
-          RegExp(profanityWord.profanityWordRegex, caseSensitive: false),
+          RegExp(profanityWord.regex, caseSensitive: false),
           (match) => List.filled(match.end - match.start, "*").join());
     });
     return unfilteredContents;

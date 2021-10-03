@@ -3,6 +3,7 @@ import 'package:mobile/domain/Child.dart';
 import 'package:mobile/models/ParentalSettingsPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
 import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
@@ -17,6 +18,7 @@ class ParentalSettingsPageController {
   final ParentService parentService = GetIt.I.get();
   final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
   final ChildProfanityWordService childProfanityWordService = GetIt.I.get();
+  final ChildContactService childContactService = GetIt.I.get();
 
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
@@ -62,8 +64,9 @@ class ParentalSettingsPageController {
     await childService.deleteByNumber(child.phoneNumber);
     await childBlockedNumberService.deleteAllForChild(child.phoneNumber);
     await childProfanityWordService.deleteAllByNumber(child.phoneNumber);
-    model.children.removeWhere(
-        (element) => element.phoneNumber == child.phoneNumber);
+    await childContactService.deleteAllByChildNumber(child.phoneNumber);
+    model.children
+        .removeWhere((element) => element.phoneNumber == child.phoneNumber);
     if (model.children.isNotEmpty) model.index = 0;
   }
 

@@ -235,7 +235,8 @@ class ChatPageController {
   }
 
   void dispose() {
-    communicationService.disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService
+        .disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
     communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
@@ -318,11 +319,6 @@ class ChatPageController {
       chatType,
       contactPhoneNumber,
     );
-    parentService.fetchByEnabled().then((parent) {
-      communicationService
-          .sendChildMessageToParent(parent.phoneNumber, message)
-          .catchError((_) {});
-    }).catchError((_) {});
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
     });

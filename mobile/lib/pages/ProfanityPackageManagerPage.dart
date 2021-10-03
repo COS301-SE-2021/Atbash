@@ -4,9 +4,6 @@ import 'package:mobile/pages/ProfanityPackageCreationPage.dart';
 import 'package:mobile/pages/ProfanityPackageDetailsPage.dart';
 
 class ProfanityPackageManagerPage extends StatefulWidget {
-  final String description =
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
-
   ProfanityPackageManagerPage();
 
   @override
@@ -57,7 +54,7 @@ class _ProfanityPackageManagerPageState
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              _buildPackageTile("Package Name", widget.description),
+              _buildPackageTile("Package Name"),
               Container(
                 margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Text(
@@ -65,8 +62,8 @@ class _ProfanityPackageManagerPageState
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              _buildPackageTile("Package Name", widget.description),
-              _buildPackageTile("Package Name", widget.description),
+              _buildPackageTile("Package Name"),
+              _buildPackageTile("Package Name"),
               Container(
                 margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Text(
@@ -74,7 +71,7 @@ class _ProfanityPackageManagerPageState
                   style: TextStyle(fontSize: 20),
                 ),
               ),
-              _buildPackageTile("Package Name", widget.description)
+              _buildPackageTile("Package Name")
             ],
           ),
         ),
@@ -82,13 +79,10 @@ class _ProfanityPackageManagerPageState
     );
   }
 
-  Widget _buildPackageTile(String title, String description) {
+  Widget _buildPackageTile(String title) {
     return ExpansionTile(
       title: Text(title),
       children: [
-        Container(
-          child: Text(description),
-        ),
         TextButton(
             onPressed: () {
               Navigator.push(

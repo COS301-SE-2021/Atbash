@@ -40,6 +40,24 @@ class ChildContactService {
     });
   }
 
+  Future<void> updateProfileImage(
+      String childNumber, String contactNumber, String profileImage) async {
+    final db = await databaseService.database;
+
+    await db.transaction((txn) async {
+      final contactAlreadyExists = await txn.query(ChildContact.TABLE_NAME,
+          where:
+              "${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildContact.COLUMN_CONTACT_PHONE_NUMBER} = ?",
+          whereArgs: [childNumber, contactNumber]);
+
+      if (contactAlreadyExists.isNotEmpty) {
+        await txn.rawUpdate(
+            "update ${ChildContact.TABLE_NAME} SET ${ChildContact.COLUMN_PROFILE_IMAGE} = ? where ${ChildContact.COLUMN_CHILD_PHONE_NUMBER} = ? AND ${ChildContact.COLUMN_CONTACT_PHONE_NUMBER} = ?",
+            [profileImage, childNumber, contactNumber]);
+      }
+    });
+  }
+
   Future<void> deleteByNumbers(String childNumber, String contactNumber) async {
     final db = await databaseService.database;
 

@@ -126,6 +126,8 @@ class CommunicationService {
 
   List<void Function(bool value)> _onLockedAccountChangeToChildListeners = [];
 
+  void Function()? onContactImageToParent;
+
   void onLockedAccountChangeToChild(void Function(bool value) cb) =>
       _onLockedAccountChangeToChildListeners.add(cb);
 
@@ -934,7 +936,6 @@ class CommunicationService {
             });
 
             onSetUpChild?.call();
-            //TODO dont allow child to block parent lmao
             break;
 
           case "allSettingsToParent":
@@ -1061,6 +1062,22 @@ class CommunicationService {
                 profileImage: map["profileImage"]));
 
             _onContactToParentListeners.forEach((listener) => listener());
+            break;
+
+          //TODO over here
+          case "contactImageToParent":
+            final imageId = decryptedContents["imageId"] as String;
+            final secretKeyBase64 = decryptedContents["key"] as String;
+
+            final image =
+                await mediaService.fetchMedia(imageId, secretKeyBase64);
+
+            if (image != null) {
+              await childContactService.updateProfileImage(senderPhoneNumber,
+                  decryptedContents["contactPhoneNumber"] as String, image);
+
+              onContactImageToParent?.call();
+            }
             break;
         }
 
@@ -1400,8 +1417,8 @@ class CommunicationService {
 
   Future<void> sendSetupChild(String parentNumber) async {
     final List<Contact> contacts = await contactService.fetchAll();
+    final List<Contact> contactsSendAfter = contacts;
     contacts.forEach((contact) {
-      //TODO implement sending profile images
       contact.profileImage = "";
     });
 
@@ -1446,6 +1463,12 @@ class CommunicationService {
       "messages": messages
     });
     _queueForSending(contents, parentNumber);
+
+    contactsSendAfter.forEach((contact) {
+      if (contact.profileImage != "") {
+        _sendContactImageToParent(parentNumber, contact);
+      }
+    });
   }
 
   Future<void> sendAllSettingsToParent(
@@ -1519,6 +1542,9 @@ class CommunicationService {
 
   Future<void> sendContactToParent(
       String parentNumber, Contact contact, String operation) async {
+    if (contact.profileImage != "") {
+      _sendContactImageToParent(parentNumber, contact);
+    }
     contact.profileImage = "";
     final contents = jsonEncode({
       "type": "contactToParent",
@@ -1527,6 +1553,24 @@ class CommunicationService {
     });
     _queueForSending(contents, parentNumber);
   }
+
+  Future<void> _sendContactImageToParent(
+      String parentNumber, Contact contact) async {
+    final mediaUpload = await mediaService.uploadMedia(contact.profileImage);
+
+    if (mediaUpload != null) {
+      final contents = jsonEncode({
+        "type": "contactImageToParent",
+        "contactPhoneNumber": contact.phoneNumber,
+        "mediaId": mediaUpload.mediaId,
+        "key": mediaUpload.secretKeyBase64
+      });
+
+      _queueForSending(contents, parentNumber);
+    }
+  }
+
+  //TODO over here
 
   //END OF NEW METHODS
 

@@ -23,6 +23,15 @@ class ChatLogPageController {
   ChatLogPageController(String childPhoneNumber) {
     childNumber = childPhoneNumber;
 
+    communicationService.onContactImageToParent = () {
+      childContactService
+          .fetchAllContactsByChildNumber(childPhoneNumber)
+          .then((contacts) {
+        model.contacts.clear();
+        model.contacts.addAll(contacts);
+      });
+    };
+
     communicationService.onBlockedNumberToParent(_onBlockedNumberToParent);
 
     communicationService.onChatToParent = () {

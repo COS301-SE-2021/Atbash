@@ -47,6 +47,25 @@ class PCConnectionService {
       channel.messageStream.listen((mEvent) {
         handleEvent(jsonDecode(mEvent.text) as Map<String, dynamic>);
       });
+
+      channel.send(
+        RTCDataChannelMessage(jsonEncode({
+          "origin": "phone",
+          "type": "connected",
+        })),
+      );
+
+      channel.send(
+        RTCDataChannelMessage(jsonEncode({
+          "origin": "phone",
+          "type": "setup",
+          "userDisplayName": userDisplayName,
+          "userProfilePhoto": userProfilePhoto,
+          "contacts": jsonEncode(contacts),
+          "chats": jsonEncode(chats),
+          "messages": jsonEncode(messages),
+        })),
+      );
     };
 
     remoteConnection.onIceCandidate = (candidate) {

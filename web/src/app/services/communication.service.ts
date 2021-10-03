@@ -2,9 +2,7 @@ import { Injectable } from "@angular/core";
 import { Chat } from "../domain/chat";
 import { Message } from "../domain/message";
 import { Contact } from "../domain/contact";
-import { collection, deleteDoc, doc, Firestore, onSnapshot, query, setDoc } from "@angular/fire/firestore";
-import * as uuid from "uuid";
-import { SHA256 } from "crypto-js";
+import { AngularFirestore, } from "@angular/fire/firestore";
 import { ReplaySubject } from "rxjs";
 
 @Injectable({
@@ -12,24 +10,64 @@ import { ReplaySubject } from "rxjs";
 })
 export class CommunicationService {
 
-    readonly relayId = uuid.v4()
-    readonly relaySymmetricKey = SHA256(uuid.v4())
+    readonly configuration = {
+        iceServers: [
+            {
+                urls: [
+                    "stun:stun1.l.google.com:19302",
+                    "stun:stun2.l.google.com:19302"
+                ]
+            }
+        ],
+        iceCandidatePoolSize: 10
+    }
+
+    callId: string | undefined
+    dataChannel: RTCDataChannel | undefined
     loadingState = false
 
-    constructor(private firestore: Firestore) {
-        const relayDoc = doc(collection(firestore, "relays"))
-        this.relayId = relayDoc.id
-        console.log(`Relay ID is ${this.relayId}`)
+    constructor(private db: AngularFirestore) {
+    }
 
-        const communicationCollection = collection(relayDoc, "communication")
-        setDoc(doc(communicationCollection), { type: "connected", origin: "web" })
+    async createOffer() {
+        const call = this.db.collection("calls").doc()
 
-        const q = query(communicationCollection)
-        onSnapshot(q, snapshot => {
-            snapshot.forEach(document => {
-                const handled = this.handleEvent(document.data())
-                if (handled) {
-                    deleteDoc(document.ref)
+        const peerConnection = new RTCPeerConnection(this.configuration)
+
+        this.dataChannel = peerConnection.createDataChannel("dataChannel")
+        this.dataChannel.onmessage = event => {
+            this.handleEvent(JSON.parse(event.data))
+        }
+
+        peerConnection.onicecandidate = async event => {
+            const candidate = event.candidate
+            if (candidate) {
+                await call.collection("callerCandidates").add(candidate.toJSON())
+            }
+        }
+
+        const offer = await peerConnection.createOffer()
+        await peerConnection.setLocalDescription(offer)
+
+        await call.set({offer})
+        this.callId = call.ref.id
+
+        call.snapshotChanges().subscribe(changes => {
+            const data = changes.payload.data() as any
+
+            const answer = data.answer
+            if (answer) {
+                peerConnection.setRemoteDescription({
+                    type: answer.type,
+                    sdp: answer.sdp,
+                })
+            }
+        })
+
+        call.collection("calleeCandidates").snapshotChanges().subscribe(changes => {
+            changes.forEach(doc => {
+                if (doc.type == "added") {
+                    peerConnection.addIceCandidate(doc.payload.doc.data())
                 }
             })
         })
@@ -85,33 +123,29 @@ export class CommunicationService {
             timestamp: message.timestamp.getTime()
         }
 
-        setDoc(doc(this.communicationCollection), {
+        this.dataChannel?.send(JSON.stringify({
             origin: "web",
             type: "message",
-            message: JSON.stringify(event),
-        })
+            message: event,
+        }))
     }
 
     createChat(contactPhoneNumber: string) {
-        setDoc(doc(this.communicationCollection), {
+        this.dataChannel?.send(JSON.stringify({
             origin: "web",
             type: "newChat",
             contactPhoneNumber: contactPhoneNumber,
-        })
+        }))
     }
 
     sendSeen(messageIds: string[]) {
         if(messageIds.length > 0) {
-            setDoc(doc(this.communicationCollection), {
+            this.dataChannel?.send(JSON.stringify({
                 origin: "web",
-                type: "seen",
-                messageIds: messageIds,
-            })
+                    type: "seen",
+                    messageIds: messageIds,
+            }))
         }
-    }
-
-    private get communicationCollection() {
-        return collection(this.firestore, `relays/${this.relayId}/communication`)
     }
 
     private handleSetup(event: any) {

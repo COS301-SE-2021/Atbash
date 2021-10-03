@@ -14,7 +14,7 @@ export class LoadingPageComponent implements OnInit {
     qrCodeValue: string
 
     constructor(private com: CommunicationService) {
-        this.qrCodeValue = `@b,${com.relayId},${com.relaySymmetricKey}`
+        this.qrCodeValue = `@b,${com.callId}`
     }
 
     ngOnInit(): void {

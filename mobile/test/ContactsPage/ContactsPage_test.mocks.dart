@@ -2,31 +2,41 @@
 // in mobile/test/ContactsPage/ContactsPage_test.dart.
 // Do not manually edit this file.
 
-import 'dart:async' as _i21;
-import 'dart:convert' as _i23;
-import 'dart:typed_data' as _i24;
+import 'dart:async' as _i30;
+import 'dart:convert' as _i33;
+import 'dart:typed_data' as _i34;
 
-import 'package:http/http.dart' as _i17;
-import 'package:mobile/domain/Chat.dart' as _i16;
-import 'package:mobile/domain/Contact.dart' as _i15;
-import 'package:mobile/domain/Message.dart' as _i20;
+import 'package:http/http.dart' as _i26;
+import 'package:mobile/domain/BlockedNumber.dart' as _i31;
+import 'package:mobile/domain/Chat.dart' as _i25;
+import 'package:mobile/domain/Contact.dart' as _i24;
+import 'package:mobile/domain/Message.dart' as _i29;
 import 'package:mobile/services/BlockedNumbersService.dart' as _i2;
-import 'package:mobile/services/ChatService.dart' as _i5;
-import 'package:mobile/services/CommunicationService.dart' as _i18;
-import 'package:mobile/services/ContactService.dart' as _i6;
-import 'package:mobile/services/DatabaseService.dart' as _i14;
-import 'package:mobile/services/EncryptionService.dart' as _i3;
-import 'package:mobile/services/MediaService.dart' as _i9;
-import 'package:mobile/services/MemoryStoreService.dart' as _i10;
-import 'package:mobile/services/MessageboxService.dart' as _i12;
-import 'package:mobile/services/MessageService.dart' as _i7;
-import 'package:mobile/services/NotificationService.dart' as _i11;
-import 'package:mobile/services/SettingsService.dart' as _i8;
-import 'package:mobile/services/UserService.dart' as _i4;
-import 'package:mobile/util/Tuple.dart' as _i22;
+import 'package:mobile/services/ChatService.dart' as _i10;
+import 'package:mobile/services/ChildBlockedNumberService.dart' as _i7;
+import 'package:mobile/services/ChildChatService.dart' as _i5;
+import 'package:mobile/services/ChildContactService.dart' as _i20;
+import 'package:mobile/services/ChildMessageService.dart' as _i6;
+import 'package:mobile/services/ChildProfanityWordService.dart' as _i19;
+import 'package:mobile/services/ChildService.dart' as _i4;
+import 'package:mobile/services/CommunicationService.dart' as _i27;
+import 'package:mobile/services/ContactService.dart' as _i11;
+import 'package:mobile/services/DatabaseService.dart' as _i23;
+import 'package:mobile/services/EncryptionService.dart' as _i8;
+import 'package:mobile/services/MediaService.dart' as _i14;
+import 'package:mobile/services/MemoryStoreService.dart' as _i15;
+import 'package:mobile/services/MessageboxService.dart' as _i17;
+import 'package:mobile/services/MessageService.dart' as _i12;
+import 'package:mobile/services/NotificationService.dart' as _i16;
+import 'package:mobile/services/ParentService.dart' as _i21;
+import 'package:mobile/services/PCConnectionService.dart' as _i18;
+import 'package:mobile/services/ProfanityWordService.dart' as _i3;
+import 'package:mobile/services/SettingsService.dart' as _i13;
+import 'package:mobile/services/UserService.dart' as _i9;
+import 'package:mobile/util/Tuple.dart' as _i32;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:synchronized/synchronized.dart' as _i13;
-import 'package:web_socket_channel/io.dart' as _i19;
+import 'package:synchronized/synchronized.dart' as _i22;
+import 'package:web_socket_channel/io.dart' as _i28;
 
 // ignore_for_file: avoid_redundant_argument_values
 // ignore_for_file: avoid_setters_without_getters
@@ -39,49 +49,75 @@ import 'package:web_socket_channel/io.dart' as _i19;
 class _FakeBlockedNumbersService_0 extends _i1.Fake
     implements _i2.BlockedNumbersService {}
 
-class _FakeEncryptionService_1 extends _i1.Fake
-    implements _i3.EncryptionService {}
+class _FakeProfanityWordService_1 extends _i1.Fake
+    implements _i3.ProfanityWordService {}
 
-class _FakeUserService_2 extends _i1.Fake implements _i4.UserService {}
+class _FakeChildService_2 extends _i1.Fake implements _i4.ChildService {}
 
-class _FakeChatService_3 extends _i1.Fake implements _i5.ChatService {}
-
-class _FakeContactService_4 extends _i1.Fake implements _i6.ContactService {}
-
-class _FakeMessageService_5 extends _i1.Fake implements _i7.MessageService {}
-
-class _FakeSettingsService_6 extends _i1.Fake implements _i8.SettingsService {}
-
-class _FakeMediaService_7 extends _i1.Fake implements _i9.MediaService {}
-
-class _FakeMemoryStoreService_8 extends _i1.Fake
-    implements _i10.MemoryStoreService {}
-
-class _FakeNotificationService_9 extends _i1.Fake
-    implements _i11.NotificationService {}
-
-class _FakeMessageboxService_10 extends _i1.Fake
-    implements _i12.MessageboxService {}
-
-class _FakeLock_11 extends _i1.Fake implements _i13.Lock {}
-
-class _FakeDatabaseService_12 extends _i1.Fake implements _i14.DatabaseService {
+class _FakeChildChatService_3 extends _i1.Fake implements _i5.ChildChatService {
 }
 
-class _FakeContact_13 extends _i1.Fake implements _i15.Contact {}
+class _FakeChildMessageService_4 extends _i1.Fake
+    implements _i6.ChildMessageService {}
 
-class _FakeChat_14 extends _i1.Fake implements _i16.Chat {}
+class _FakeChildBlockedNumberService_5 extends _i1.Fake
+    implements _i7.ChildBlockedNumberService {}
 
-class _FakeResponse_15 extends _i1.Fake implements _i17.Response {}
+class _FakeEncryptionService_6 extends _i1.Fake
+    implements _i8.EncryptionService {}
 
-class _FakeStreamedResponse_16 extends _i1.Fake
-    implements _i17.StreamedResponse {}
+class _FakeUserService_7 extends _i1.Fake implements _i9.UserService {}
+
+class _FakeChatService_8 extends _i1.Fake implements _i10.ChatService {}
+
+class _FakeContactService_9 extends _i1.Fake implements _i11.ContactService {}
+
+class _FakeMessageService_10 extends _i1.Fake implements _i12.MessageService {}
+
+class _FakeSettingsService_11 extends _i1.Fake implements _i13.SettingsService {
+}
+
+class _FakeMediaService_12 extends _i1.Fake implements _i14.MediaService {}
+
+class _FakeMemoryStoreService_13 extends _i1.Fake
+    implements _i15.MemoryStoreService {}
+
+class _FakeNotificationService_14 extends _i1.Fake
+    implements _i16.NotificationService {}
+
+class _FakeMessageboxService_15 extends _i1.Fake
+    implements _i17.MessageboxService {}
+
+class _FakePCConnectionService_16 extends _i1.Fake
+    implements _i18.PCConnectionService {}
+
+class _FakeChildProfanityWordService_17 extends _i1.Fake
+    implements _i19.ChildProfanityWordService {}
+
+class _FakeChildContactService_18 extends _i1.Fake
+    implements _i20.ChildContactService {}
+
+class _FakeParentService_19 extends _i1.Fake implements _i21.ParentService {}
+
+class _FakeLock_20 extends _i1.Fake implements _i22.Lock {}
+
+class _FakeDatabaseService_21 extends _i1.Fake implements _i23.DatabaseService {
+}
+
+class _FakeContact_22 extends _i1.Fake implements _i24.Contact {}
+
+class _FakeChat_23 extends _i1.Fake implements _i25.Chat {}
+
+class _FakeResponse_24 extends _i1.Fake implements _i26.Response {}
+
+class _FakeStreamedResponse_25 extends _i1.Fake
+    implements _i26.StreamedResponse {}
 
 /// A class which mocks [CommunicationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCommunicationService extends _i1.Mock
-    implements _i18.CommunicationService {
+    implements _i27.CommunicationService {
   MockCommunicationService() {
     _i1.throwOnMissingStub(this);
   }
@@ -92,59 +128,97 @@ class MockCommunicationService extends _i1.Mock
               returnValue: _FakeBlockedNumbersService_0())
           as _i2.BlockedNumbersService);
   @override
-  _i3.EncryptionService get encryptionService =>
+  _i3.ProfanityWordService get profanityWordService => (super.noSuchMethod(
+      Invocation.getter(#profanityWordService),
+      returnValue: _FakeProfanityWordService_1()) as _i3.ProfanityWordService);
+  @override
+  _i4.ChildService get childService =>
+      (super.noSuchMethod(Invocation.getter(#childService),
+          returnValue: _FakeChildService_2()) as _i4.ChildService);
+  @override
+  _i5.ChildChatService get childChatService =>
+      (super.noSuchMethod(Invocation.getter(#childChatService),
+          returnValue: _FakeChildChatService_3()) as _i5.ChildChatService);
+  @override
+  _i6.ChildMessageService get childMessageService => (super.noSuchMethod(
+      Invocation.getter(#childMessageService),
+      returnValue: _FakeChildMessageService_4()) as _i6.ChildMessageService);
+  @override
+  _i7.ChildBlockedNumberService get childBlockedNumberService =>
+      (super.noSuchMethod(Invocation.getter(#childBlockedNumberService),
+              returnValue: _FakeChildBlockedNumberService_5())
+          as _i7.ChildBlockedNumberService);
+  @override
+  _i8.EncryptionService get encryptionService =>
       (super.noSuchMethod(Invocation.getter(#encryptionService),
-          returnValue: _FakeEncryptionService_1()) as _i3.EncryptionService);
+          returnValue: _FakeEncryptionService_6()) as _i8.EncryptionService);
   @override
-  _i4.UserService get userService =>
+  _i9.UserService get userService =>
       (super.noSuchMethod(Invocation.getter(#userService),
-          returnValue: _FakeUserService_2()) as _i4.UserService);
+          returnValue: _FakeUserService_7()) as _i9.UserService);
   @override
-  _i5.ChatService get chatService =>
+  _i10.ChatService get chatService =>
       (super.noSuchMethod(Invocation.getter(#chatService),
-          returnValue: _FakeChatService_3()) as _i5.ChatService);
+          returnValue: _FakeChatService_8()) as _i10.ChatService);
   @override
-  _i6.ContactService get contactService =>
+  _i11.ContactService get contactService =>
       (super.noSuchMethod(Invocation.getter(#contactService),
-          returnValue: _FakeContactService_4()) as _i6.ContactService);
+          returnValue: _FakeContactService_9()) as _i11.ContactService);
   @override
-  _i7.MessageService get messageService =>
+  _i12.MessageService get messageService =>
       (super.noSuchMethod(Invocation.getter(#messageService),
-          returnValue: _FakeMessageService_5()) as _i7.MessageService);
+          returnValue: _FakeMessageService_10()) as _i12.MessageService);
   @override
-  _i8.SettingsService get settingsService =>
+  _i13.SettingsService get settingsService =>
       (super.noSuchMethod(Invocation.getter(#settingsService),
-          returnValue: _FakeSettingsService_6()) as _i8.SettingsService);
+          returnValue: _FakeSettingsService_11()) as _i13.SettingsService);
   @override
-  _i9.MediaService get mediaService =>
+  _i14.MediaService get mediaService =>
       (super.noSuchMethod(Invocation.getter(#mediaService),
-          returnValue: _FakeMediaService_7()) as _i9.MediaService);
+          returnValue: _FakeMediaService_12()) as _i14.MediaService);
   @override
-  _i10.MemoryStoreService get memoryStoreService =>
-      (super.noSuchMethod(Invocation.getter(#memoryStoreService),
-          returnValue: _FakeMemoryStoreService_8()) as _i10.MemoryStoreService);
+  _i15.MemoryStoreService get memoryStoreService => (super.noSuchMethod(
+      Invocation.getter(#memoryStoreService),
+      returnValue: _FakeMemoryStoreService_13()) as _i15.MemoryStoreService);
   @override
-  _i11.NotificationService get notificationService => (super.noSuchMethod(
+  _i16.NotificationService get notificationService => (super.noSuchMethod(
       Invocation.getter(#notificationService),
-      returnValue: _FakeNotificationService_9()) as _i11.NotificationService);
+      returnValue: _FakeNotificationService_14()) as _i16.NotificationService);
   @override
-  _i12.MessageboxService get messageboxService =>
+  _i17.MessageboxService get messageboxService =>
       (super.noSuchMethod(Invocation.getter(#messageboxService),
-          returnValue: _FakeMessageboxService_10()) as _i12.MessageboxService);
+          returnValue: _FakeMessageboxService_15()) as _i17.MessageboxService);
   @override
-  _i13.Lock get communicationLock =>
+  _i18.PCConnectionService get pcConnectionService => (super.noSuchMethod(
+      Invocation.getter(#pcConnectionService),
+      returnValue: _FakePCConnectionService_16()) as _i18.PCConnectionService);
+  @override
+  _i19.ChildProfanityWordService get childProfanityWordService =>
+      (super.noSuchMethod(Invocation.getter(#childProfanityWordService),
+              returnValue: _FakeChildProfanityWordService_17())
+          as _i19.ChildProfanityWordService);
+  @override
+  _i20.ChildContactService get childContactService => (super.noSuchMethod(
+      Invocation.getter(#childContactService),
+      returnValue: _FakeChildContactService_18()) as _i20.ChildContactService);
+  @override
+  _i21.ParentService get parentService =>
+      (super.noSuchMethod(Invocation.getter(#parentService),
+          returnValue: _FakeParentService_19()) as _i21.ParentService);
+  @override
+  _i22.Lock get communicationLock =>
       (super.noSuchMethod(Invocation.getter(#communicationLock),
-          returnValue: _FakeLock_11()) as _i13.Lock);
+          returnValue: _FakeLock_20()) as _i22.Lock);
   @override
-  set communicationLock(_i13.Lock? _communicationLock) => super.noSuchMethod(
+  set communicationLock(_i22.Lock? _communicationLock) => super.noSuchMethod(
       Invocation.setter(#communicationLock, _communicationLock),
       returnValueForMissingStub: null);
   @override
-  set channelNumber(_i19.IOWebSocketChannel? _channelNumber) =>
+  set channelNumber(_i28.IOWebSocketChannel? _channelNumber) =>
       super.noSuchMethod(Invocation.setter(#channelNumber, _channelNumber),
           returnValueForMissingStub: null);
   @override
-  set channelAnonymous(_i19.IOWebSocketChannel? _channelAnonymous) => super
+  set channelAnonymous(_i28.IOWebSocketChannel? _channelAnonymous) => super
       .noSuchMethod(Invocation.setter(#channelAnonymous, _channelAnonymous),
           returnValueForMissingStub: null);
   @override
@@ -182,11 +256,107 @@ class MockCommunicationService extends _i1.Mock
               #shouldBlockNotifications, _shouldBlockNotifications),
           returnValueForMissingStub: null);
   @override
-  void onMessage(void Function(_i20.Message)? cb) =>
+  set onRemoveChild(void Function()? _onRemoveChild) =>
+      super.noSuchMethod(Invocation.setter(#onRemoveChild, _onRemoveChild),
+          returnValueForMissingStub: null);
+  @override
+  set onSetUpChild(void Function()? _onSetUpChild) =>
+      super.noSuchMethod(Invocation.setter(#onSetUpChild, _onSetUpChild),
+          returnValueForMissingStub: null);
+  @override
+  set onAllSettingsToParent(void Function()? _onAllSettingsToParent) =>
+      super.noSuchMethod(
+          Invocation.setter(#onAllSettingsToParent, _onAllSettingsToParent),
+          returnValueForMissingStub: null);
+  @override
+  set onNewProfanityWordToParent(
+          void Function()? _onNewProfanityWordToParent) =>
+      super.noSuchMethod(
+          Invocation.setter(
+              #onNewProfanityWordToParent, _onNewProfanityWordToParent),
+          returnValueForMissingStub: null);
+  @override
+  set onChatToParent(void Function()? _onChatToParent) =>
+      super.noSuchMethod(Invocation.setter(#onChatToParent, _onChatToParent),
+          returnValueForMissingStub: null);
+  @override
+  set onChildMessageToParent(void Function()? _onChildMessageToParent) =>
+      super.noSuchMethod(
+          Invocation.setter(#onChildMessageToParent, _onChildMessageToParent),
+          returnValueForMissingStub: null);
+  @override
+  set onEditableSettingsChangeToChild(
+          void Function(bool)? _onEditableSettingsChangeToChild) =>
+      super.noSuchMethod(
+          Invocation.setter(#onEditableSettingsChangeToChild,
+              _onEditableSettingsChangeToChild),
+          returnValueForMissingStub: null);
+  @override
+  set onContactImageToParent(void Function()? _onContactImageToParent) =>
+      super.noSuchMethod(
+          Invocation.setter(#onContactImageToParent, _onContactImageToParent),
+          returnValueForMissingStub: null);
+  @override
+  void onLockedAccountChangeToChild(void Function(bool)? cb) =>
+      super.noSuchMethod(Invocation.method(#onLockedAccountChangeToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnLockedAccountChangeToChild(void Function(bool)? cb) =>
+      super.noSuchMethod(
+          Invocation.method(#disposeOnLockedAccountChangeToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void onContactToParent(void Function()? cb) =>
+      super.noSuchMethod(Invocation.method(#onContactToParent, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnContactToParent(void Function()? cb) =>
+      super.noSuchMethod(Invocation.method(#disposeOnContactToParent, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void onBlockedNumberToParent(void Function()? cb) =>
+      super.noSuchMethod(Invocation.method(#onBlockedNumberToParent, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnBlockedNumberToParent(void Function()? cb) => super
+      .noSuchMethod(Invocation.method(#disposeOnBlockedNumberToParent, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void onBlockedNumberToChild(void Function()? cb) =>
+      super.noSuchMethod(Invocation.method(#onBlockedNumberToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnBlockedNumberToChild(void Function()? cb) => super.noSuchMethod(
+      Invocation.method(#disposeOnBlockedNumberToChild, [cb]),
+      returnValueForMissingStub: null);
+  @override
+  void onNewProfanityWordToChild(void Function()? cb) =>
+      super.noSuchMethod(Invocation.method(#onNewProfanityWordToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnNewProfanityWordToChild(void Function()? cb) => super
+      .noSuchMethod(Invocation.method(#disposeOnNewProfanityWordToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void onAllSettingsToChild(
+          void Function(bool, bool, bool, bool, bool, bool, bool, bool, bool,
+                  bool, bool, bool)?
+              cb) =>
+      super.noSuchMethod(Invocation.method(#onAllSettingsToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnAllSettingsToChild(
+          void Function(bool, bool, bool, bool, bool, bool, bool, bool, bool,
+                  bool, bool, bool)?
+              cb) =>
+      super.noSuchMethod(Invocation.method(#disposeOnAllSettingsToChild, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void onMessage(void Function(_i29.Message)? cb) =>
       super.noSuchMethod(Invocation.method(#onMessage, [cb]),
           returnValueForMissingStub: null);
   @override
-  void disposeOnMessage(void Function(_i20.Message)? cb) =>
+  void disposeOnMessage(void Function(_i29.Message)? cb) =>
       super.noSuchMethod(Invocation.method(#disposeOnMessage, [cb]),
           returnValueForMissingStub: null);
   @override
@@ -230,155 +400,303 @@ class MockCommunicationService extends _i1.Mock
       super.noSuchMethod(Invocation.method(#disposeOnMessageEdited, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i21.Future<void> registerConnectionForMessagebox(String? mid) =>
+  void onLockedAccountSet(void Function(bool)? cb) =>
+      super.noSuchMethod(Invocation.method(#onLockedAccountSet, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  void disposeOnLockedAccountSet(void Function(bool)? cb) =>
+      super.noSuchMethod(Invocation.method(#disposeOnLockedAccountSet, [cb]),
+          returnValueForMissingStub: null);
+  @override
+  _i30.Future<void> connectToPc(String? relayId) => (super.noSuchMethod(
+      Invocation.method(#connectToPc, [relayId]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> registerConnectionForMessagebox(String? mid) =>
       (super.noSuchMethod(
               Invocation.method(#registerConnectionForMessagebox, [mid]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> goOnline() => (super.noSuchMethod(
+  _i30.Future<void> goOnline() => (super.noSuchMethod(
       Invocation.method(#goOnline, []),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i21.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> sendMessage(_i20.Message? message, _i16.ChatType? chatType,
+  _i30.Future<void> sendMessage(_i29.Message? message, _i25.ChatType? chatType,
           String? recipientPhoneNumber, String? repliedMessageId) =>
       (super.noSuchMethod(
               Invocation.method(#sendMessage,
                   [message, chatType, recipientPhoneNumber, repliedMessageId]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendImage(_i20.Message? message, _i16.ChatType? chatType,
+  _i30.Future<void> sendImage(_i29.Message? message, _i25.ChatType? chatType,
           String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(
                   #sendImage, [message, chatType, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendDelete(
+  _i30.Future<void> sendDelete(
           String? messageId, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendDelete, [messageId, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendLiked(
+  _i30.Future<void> sendLiked(
           String? messageId, bool? liked, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(
                   #sendLiked, [messageId, liked, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendEditedMessage(String? messageID, String? newMessage,
+  _i30.Future<void> sendEditedMessage(String? messageID, String? newMessage,
           String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendEditedMessage,
                   [messageID, newMessage, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendOnlineStatus(
+  _i30.Future<void> sendOnlineStatus(
           bool? online, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendOnlineStatus, [online, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i21.Future<void>);
+              Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> sendStatus(String? status, String? recipientPhoneNumber) =>
+  _i30.Future<void> sendStatus(String? status, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStatus, [status, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendBirthday(int? birthday, String? recipientPhoneNumber) =>
+  _i30.Future<void> sendBirthday(int? birthday, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendBirthday, [birthday, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i21.Future<void>);
+              Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> sendProfileImage(
+  _i30.Future<void> sendProfileImage(
           String? profileImageBase64, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(
               #sendProfileImage, [profileImageBase64, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i21.Future<void>);
+              Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> sendAck(String? messageId, String? recipientPhoneNumber) =>
+  _i30.Future<void> sendAck(String? messageId, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendAck, [messageId, recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendAckSeen(
+  _i30.Future<void> sendAckSeen(
           List<String>? messageIds, String? recipientPhoneNumber) =>
       (super.noSuchMethod(
           Invocation.method(#sendAckSeen, [messageIds, recipientPhoneNumber]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i21.Future<void>);
+              Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> sendRequestStatus(String? contactPhoneNumber) =>
+  _i30.Future<void> sendRequestStatus(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestStatus, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendRequestBirthday(String? contactPhoneNumber) =>
+  _i30.Future<void> sendRequestBirthday(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestBirthday, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendRequestProfileImage(String? contactPhoneNumber) =>
+  _i30.Future<void> sendRequestProfileImage(String? contactPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendRequestProfileImage, [contactPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendStartPrivateChat(String? recipientPhoneNumber) =>
+  _i30.Future<void> sendStartPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStartPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendStopPrivateChat(String? recipientPhoneNumber) =>
+  _i30.Future<void> sendStopPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendStopPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> sendAcceptPrivateChat(String? recipientPhoneNumber) =>
+  _i30.Future<void> sendAcceptPrivateChat(String? recipientPhoneNumber) =>
       (super.noSuchMethod(
               Invocation.method(#sendAcceptPrivateChat, [recipientPhoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<_i18.EventPayload?> getParsedEventPayload(
+  _i30.Future<void> sendAddChild(
+          String? childNumber, String? name, String? code) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendAddChild, [childNumber, name, code]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendRemoveChild(String? childNumber) => (super.noSuchMethod(
+      Invocation.method(#sendRemoveChild, [childNumber]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendAllSettingsToChild(
+          String? childNumber,
+          bool? editableSettings,
+          bool? blurImages,
+          bool? safeMode,
+          bool? shareProfilePicture,
+          bool? shareStatus,
+          bool? shareReadReceipts,
+          bool? shareBirthday,
+          bool? lockedAccount,
+          bool? privateChatAccess,
+          bool? blockSaveMedia,
+          bool? blockEditingMessages,
+          bool? blockDeletingMessages) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendAllSettingsToChild, [
+                childNumber,
+                editableSettings,
+                blurImages,
+                safeMode,
+                shareProfilePicture,
+                shareStatus,
+                shareReadReceipts,
+                shareBirthday,
+                lockedAccount,
+                privateChatAccess,
+                blockSaveMedia,
+                blockEditingMessages,
+                blockDeletingMessages
+              ]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendBlockedNumberToChild(String? childNumber,
+          _i31.BlockedNumber? blockedNumber, String? operation) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendBlockedNumberToChild,
+                  [childNumber, blockedNumber, operation]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendSetupChild(String? parentNumber) => (super.noSuchMethod(
+      Invocation.method(#sendSetupChild, [parentNumber]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendAllSettingsToParent(
+          String? parentNumber,
+          bool? blurImages,
+          bool? safeMode,
+          bool? shareProfilePicture,
+          bool? shareStatus,
+          bool? shareReadReceipts,
+          bool? shareBirthday) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendAllSettingsToParent, [
+                parentNumber,
+                blurImages,
+                safeMode,
+                shareProfilePicture,
+                shareStatus,
+                shareReadReceipts,
+                shareBirthday
+              ]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendEditableSettingsChangeToChild(
+          String? childNumber, bool? value) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #sendEditableSettingsChangeToChild, [childNumber, value]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendLockedAccountChangeToChild(
+          String? childNumber, bool? value) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #sendLockedAccountChangeToChild, [childNumber, value]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendBlockedNumberToParent(String? parentNumber,
+          _i31.BlockedNumber? number, String? operation) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #sendBlockedNumberToParent, [parentNumber, number, operation]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub:
+              Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendChatToParent(
+          String? parentNumber, _i25.Chat? chat, String? operation) =>
+      (super.noSuchMethod(
+          Invocation.method(#sendChatToParent, [parentNumber, chat, operation]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub:
+              Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendChildMessageToParent(
+          String? parentNumber, _i29.Message? message) =>
+      (super.noSuchMethod(
+          Invocation.method(#sendChildMessageToParent, [parentNumber, message]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub:
+              Future<void>.value()) as _i30.Future<void>);
+  @override
+  _i30.Future<void> sendContactToParent(
+          String? parentNumber, _i24.Contact? contact, String? operation) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #sendContactToParent, [parentNumber, contact, operation]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i30.Future<void>);
+  @override
+  _i30.Future<_i27.EventPayload?> getParsedEventPayload(
           Map<String, Object?>? event) =>
       (super.noSuchMethod(Invocation.method(#getParsedEventPayload, [event]),
-              returnValue: Future<_i18.EventPayload?>.value())
-          as _i21.Future<_i18.EventPayload?>);
+              returnValue: Future<_i27.EventPayload?>.value())
+          as _i30.Future<_i27.EventPayload?>);
   @override
   String toString() => super.toString();
 }
@@ -386,15 +704,19 @@ class MockCommunicationService extends _i1.Mock
 /// A class which mocks [ContactService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockContactService extends _i1.Mock implements _i6.ContactService {
+class MockContactService extends _i1.Mock implements _i11.ContactService {
   MockContactService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i14.DatabaseService get databaseService =>
+  _i23.DatabaseService get databaseService =>
       (super.noSuchMethod(Invocation.getter(#databaseService),
-          returnValue: _FakeDatabaseService_12()) as _i14.DatabaseService);
+          returnValue: _FakeDatabaseService_21()) as _i23.DatabaseService);
+  @override
+  _i18.PCConnectionService get pcConnectionService => (super.noSuchMethod(
+      Invocation.getter(#pcConnectionService),
+      returnValue: _FakePCConnectionService_16()) as _i18.PCConnectionService);
   @override
   void onChanged(void Function()? cb) =>
       super.noSuchMethod(Invocation.method(#onChanged, [cb]),
@@ -404,57 +726,57 @@ class MockContactService extends _i1.Mock implements _i6.ContactService {
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i21.Future<List<_i15.Contact>> fetchAll() =>
+  _i30.Future<List<_i24.Contact>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
-              returnValue: Future<List<_i15.Contact>>.value(<_i15.Contact>[]))
-          as _i21.Future<List<_i15.Contact>>);
+              returnValue: Future<List<_i24.Contact>>.value(<_i24.Contact>[]))
+          as _i30.Future<List<_i24.Contact>>);
   @override
-  _i21.Future<_i15.Contact> fetchByPhoneNumber(String? phoneNumber) =>
+  _i30.Future<_i24.Contact> fetchByPhoneNumber(String? phoneNumber) =>
       (super.noSuchMethod(Invocation.method(#fetchByPhoneNumber, [phoneNumber]),
-              returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i21.Future<_i15.Contact>);
+              returnValue: Future<_i24.Contact>.value(_FakeContact_22()))
+          as _i30.Future<_i24.Contact>);
   @override
-  _i21.Future<_i15.Contact> insert(_i15.Contact? contact) =>
+  _i30.Future<_i24.Contact> insert(_i24.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#insert, [contact]),
-              returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i21.Future<_i15.Contact>);
+              returnValue: Future<_i24.Contact>.value(_FakeContact_22()))
+          as _i30.Future<_i24.Contact>);
   @override
-  _i21.Future<_i15.Contact> update(_i15.Contact? contact) =>
+  _i30.Future<_i24.Contact> update(_i24.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#update, [contact]),
-              returnValue: Future<_i15.Contact>.value(_FakeContact_13()))
-          as _i21.Future<_i15.Contact>);
+              returnValue: Future<_i24.Contact>.value(_FakeContact_22()))
+          as _i30.Future<_i24.Contact>);
   @override
-  _i21.Future<void> setContactStatus(
+  _i30.Future<void> setContactStatus(
           String? contactPhoneNumber, String? status) =>
       (super.noSuchMethod(
           Invocation.method(#setContactStatus, [contactPhoneNumber, status]),
           returnValue: Future<void>.value(),
           returnValueForMissingStub:
-              Future<void>.value()) as _i21.Future<void>);
+              Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<void> setContactProfileImage(
+  _i30.Future<void> setContactProfileImage(
           String? contactPhoneNumber, String? profileImage) =>
       (super.noSuchMethod(
               Invocation.method(
                   #setContactProfileImage, [contactPhoneNumber, profileImage]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> setContactBirthday(
+  _i30.Future<void> setContactBirthday(
           String? contactPhoneNumber, DateTime? birthday) =>
       (super.noSuchMethod(
               Invocation.method(
                   #setContactBirthday, [contactPhoneNumber, birthday]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-          as _i21.Future<void>);
+          as _i30.Future<void>);
   @override
-  _i21.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
+  _i30.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
           .noSuchMethod(Invocation.method(#deleteByPhoneNumber, [phoneNumber]),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
-      as _i21.Future<void>);
+      as _i30.Future<void>);
   @override
   String toString() => super.toString();
 }
@@ -462,15 +784,19 @@ class MockContactService extends _i1.Mock implements _i6.ContactService {
 /// A class which mocks [ChatService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockChatService extends _i1.Mock implements _i5.ChatService {
+class MockChatService extends _i1.Mock implements _i10.ChatService {
   MockChatService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i14.DatabaseService get databaseService =>
+  _i23.DatabaseService get databaseService =>
       (super.noSuchMethod(Invocation.getter(#databaseService),
-          returnValue: _FakeDatabaseService_12()) as _i14.DatabaseService);
+          returnValue: _FakeDatabaseService_21()) as _i23.DatabaseService);
+  @override
+  _i18.PCConnectionService get pcConnectionService => (super.noSuchMethod(
+      Invocation.getter(#pcConnectionService),
+      returnValue: _FakePCConnectionService_16()) as _i18.PCConnectionService);
   @override
   void onChanged(void Function()? cb) =>
       super.noSuchMethod(Invocation.method(#onChanged, [cb]),
@@ -480,61 +806,61 @@ class MockChatService extends _i1.Mock implements _i5.ChatService {
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i21.Future<List<_i16.Chat>> fetchAll() =>
+  _i30.Future<List<_i25.Chat>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
-              returnValue: Future<List<_i16.Chat>>.value(<_i16.Chat>[]))
-          as _i21.Future<List<_i16.Chat>>);
+              returnValue: Future<List<_i25.Chat>>.value(<_i25.Chat>[]))
+          as _i30.Future<List<_i25.Chat>>);
   @override
-  _i21.Future<_i16.Chat> fetchById(String? chatId) =>
+  _i30.Future<_i25.Chat> fetchById(String? chatId) =>
       (super.noSuchMethod(Invocation.method(#fetchById, [chatId]),
-              returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i21.Future<_i16.Chat>);
+              returnValue: Future<_i25.Chat>.value(_FakeChat_23()))
+          as _i30.Future<_i25.Chat>);
   @override
-  _i21.Future<List<_i22.Tuple<String, String>>> fetchIdsByContactPhoneNumbers(
+  _i30.Future<List<_i32.Tuple<String, String>>> fetchIdsByContactPhoneNumbers(
           List<String>? numbers) =>
       (super.noSuchMethod(
               Invocation.method(#fetchIdsByContactPhoneNumbers, [numbers]),
-              returnValue: Future<List<_i22.Tuple<String, String>>>.value(
-                  <_i22.Tuple<String, String>>[]))
-          as _i21.Future<List<_i22.Tuple<String, String>>>);
+              returnValue: Future<List<_i32.Tuple<String, String>>>.value(
+                  <_i32.Tuple<String, String>>[]))
+          as _i30.Future<List<_i32.Tuple<String, String>>>);
   @override
-  _i21.Future<List<_i16.Chat>> fetchByChatType(_i16.ChatType? chatType) =>
+  _i30.Future<List<_i25.Chat>> fetchByChatType(_i25.ChatType? chatType) =>
       (super.noSuchMethod(Invocation.method(#fetchByChatType, [chatType]),
-              returnValue: Future<List<_i16.Chat>>.value(<_i16.Chat>[]))
-          as _i21.Future<List<_i16.Chat>>);
+              returnValue: Future<List<_i25.Chat>>.value(<_i25.Chat>[]))
+          as _i30.Future<List<_i25.Chat>>);
   @override
-  _i21.Future<_i16.Chat> insert(_i16.Chat? chat) =>
+  _i30.Future<_i25.Chat> insert(_i25.Chat? chat) =>
       (super.noSuchMethod(Invocation.method(#insert, [chat]),
-              returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i21.Future<_i16.Chat>);
+              returnValue: Future<_i25.Chat>.value(_FakeChat_23()))
+          as _i30.Future<_i25.Chat>);
   @override
-  _i21.Future<_i16.Chat> update(_i16.Chat? chat) =>
+  _i30.Future<_i25.Chat> update(_i25.Chat? chat) =>
       (super.noSuchMethod(Invocation.method(#update, [chat]),
-              returnValue: Future<_i16.Chat>.value(_FakeChat_14()))
-          as _i21.Future<_i16.Chat>);
+              returnValue: Future<_i25.Chat>.value(_FakeChat_23()))
+          as _i30.Future<_i25.Chat>);
   @override
-  _i21.Future<void> deleteById(String? id) => (super.noSuchMethod(
+  _i30.Future<void> deleteById(String? id) => (super.noSuchMethod(
       Invocation.method(#deleteById, [id]),
       returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i21.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i30.Future<void>);
   @override
-  _i21.Future<bool> existsById(String? id) =>
+  _i30.Future<bool> existsById(String? id) =>
       (super.noSuchMethod(Invocation.method(#existsById, [id]),
-          returnValue: Future<bool>.value(false)) as _i21.Future<bool>);
+          returnValue: Future<bool>.value(false)) as _i30.Future<bool>);
   @override
-  _i21.Future<bool> existsByPhoneNumberAndChatType(
-          String? phoneNumber, _i16.ChatType? chatType) =>
+  _i30.Future<bool> existsByPhoneNumberAndChatType(
+          String? phoneNumber, _i25.ChatType? chatType) =>
       (super.noSuchMethod(
           Invocation.method(
               #existsByPhoneNumberAndChatType, [phoneNumber, chatType]),
-          returnValue: Future<bool>.value(false)) as _i21.Future<bool>);
+          returnValue: Future<bool>.value(false)) as _i30.Future<bool>);
   @override
-  _i21.Future<String> findIdByPhoneNumberAndChatType(
-          String? phoneNumber, _i16.ChatType? chatType) =>
+  _i30.Future<String> findIdByPhoneNumberAndChatType(
+          String? phoneNumber, _i25.ChatType? chatType) =>
       (super.noSuchMethod(
           Invocation.method(
               #findIdByPhoneNumberAndChatType, [phoneNumber, chatType]),
-          returnValue: Future<String>.value('')) as _i21.Future<String>);
+          returnValue: Future<String>.value('')) as _i30.Future<String>);
   @override
   String toString() => super.toString();
 }
@@ -542,78 +868,78 @@ class MockChatService extends _i1.Mock implements _i5.ChatService {
 /// A class which mocks [Client].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockClient extends _i1.Mock implements _i17.Client {
+class MockClient extends _i1.Mock implements _i26.Client {
   MockClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i21.Future<_i17.Response> head(Uri? url, {Map<String, String>? headers}) =>
+  _i30.Future<_i26.Response> head(Uri? url, {Map<String, String>? headers}) =>
       (super.noSuchMethod(Invocation.method(#head, [url], {#headers: headers}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<_i17.Response> get(Uri? url, {Map<String, String>? headers}) =>
+  _i30.Future<_i26.Response> get(Uri? url, {Map<String, String>? headers}) =>
       (super.noSuchMethod(Invocation.method(#get, [url], {#headers: headers}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<_i17.Response> post(Uri? url,
+  _i30.Future<_i26.Response> post(Uri? url,
           {Map<String, String>? headers,
           Object? body,
-          _i23.Encoding? encoding}) =>
+          _i33.Encoding? encoding}) =>
       (super.noSuchMethod(
               Invocation.method(#post, [url],
                   {#headers: headers, #body: body, #encoding: encoding}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<_i17.Response> put(Uri? url,
+  _i30.Future<_i26.Response> put(Uri? url,
           {Map<String, String>? headers,
           Object? body,
-          _i23.Encoding? encoding}) =>
+          _i33.Encoding? encoding}) =>
       (super.noSuchMethod(
               Invocation.method(#put, [url],
                   {#headers: headers, #body: body, #encoding: encoding}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<_i17.Response> patch(Uri? url,
+  _i30.Future<_i26.Response> patch(Uri? url,
           {Map<String, String>? headers,
           Object? body,
-          _i23.Encoding? encoding}) =>
+          _i33.Encoding? encoding}) =>
       (super.noSuchMethod(
               Invocation.method(#patch, [url],
                   {#headers: headers, #body: body, #encoding: encoding}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<_i17.Response> delete(Uri? url,
+  _i30.Future<_i26.Response> delete(Uri? url,
           {Map<String, String>? headers,
           Object? body,
-          _i23.Encoding? encoding}) =>
+          _i33.Encoding? encoding}) =>
       (super.noSuchMethod(
               Invocation.method(#delete, [url],
                   {#headers: headers, #body: body, #encoding: encoding}),
-              returnValue: Future<_i17.Response>.value(_FakeResponse_15()))
-          as _i21.Future<_i17.Response>);
+              returnValue: Future<_i26.Response>.value(_FakeResponse_24()))
+          as _i30.Future<_i26.Response>);
   @override
-  _i21.Future<String> read(Uri? url, {Map<String, String>? headers}) =>
+  _i30.Future<String> read(Uri? url, {Map<String, String>? headers}) =>
       (super.noSuchMethod(Invocation.method(#read, [url], {#headers: headers}),
-          returnValue: Future<String>.value('')) as _i21.Future<String>);
+          returnValue: Future<String>.value('')) as _i30.Future<String>);
   @override
-  _i21.Future<_i24.Uint8List> readBytes(Uri? url,
+  _i30.Future<_i34.Uint8List> readBytes(Uri? url,
           {Map<String, String>? headers}) =>
       (super.noSuchMethod(
               Invocation.method(#readBytes, [url], {#headers: headers}),
-              returnValue: Future<_i24.Uint8List>.value(_i24.Uint8List(0)))
-          as _i21.Future<_i24.Uint8List>);
+              returnValue: Future<_i34.Uint8List>.value(_i34.Uint8List(0)))
+          as _i30.Future<_i34.Uint8List>);
   @override
-  _i21.Future<_i17.StreamedResponse> send(_i17.BaseRequest? request) =>
+  _i30.Future<_i26.StreamedResponse> send(_i26.BaseRequest? request) =>
       (super.noSuchMethod(Invocation.method(#send, [request]),
-              returnValue: Future<_i17.StreamedResponse>.value(
-                  _FakeStreamedResponse_16()))
-          as _i21.Future<_i17.StreamedResponse>);
+              returnValue: Future<_i26.StreamedResponse>.value(
+                  _FakeStreamedResponse_25()))
+          as _i30.Future<_i26.StreamedResponse>);
   @override
   void close() => super.noSuchMethod(Invocation.method(#close, []),
       returnValueForMissingStub: null);

@@ -2,13 +2,14 @@
 // in mobile/test/ContactInfoPage/ContactInfoPage_test.dart.
 // Do not manually edit this file.
 
-import 'dart:async' as _i6;
+import 'dart:async' as _i7;
 
-import 'package:mobile/domain/BlockedNumber.dart' as _i4;
-import 'package:mobile/domain/Contact.dart' as _i3;
-import 'package:mobile/services/BlockedNumbersService.dart' as _i7;
-import 'package:mobile/services/ContactService.dart' as _i5;
+import 'package:mobile/domain/BlockedNumber.dart' as _i5;
+import 'package:mobile/domain/Contact.dart' as _i4;
+import 'package:mobile/services/BlockedNumbersService.dart' as _i8;
+import 'package:mobile/services/ContactService.dart' as _i6;
 import 'package:mobile/services/DatabaseService.dart' as _i2;
+import 'package:mobile/services/PCConnectionService.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: avoid_redundant_argument_values
@@ -21,14 +22,17 @@ import 'package:mockito/mockito.dart' as _i1;
 
 class _FakeDatabaseService_0 extends _i1.Fake implements _i2.DatabaseService {}
 
-class _FakeContact_1 extends _i1.Fake implements _i3.Contact {}
+class _FakePCConnectionService_1 extends _i1.Fake
+    implements _i3.PCConnectionService {}
 
-class _FakeBlockedNumber_2 extends _i1.Fake implements _i4.BlockedNumber {}
+class _FakeContact_2 extends _i1.Fake implements _i4.Contact {}
+
+class _FakeBlockedNumber_3 extends _i1.Fake implements _i5.BlockedNumber {}
 
 /// A class which mocks [ContactService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockContactService extends _i1.Mock implements _i5.ContactService {
+class MockContactService extends _i1.Mock implements _i6.ContactService {
   MockContactService() {
     _i1.throwOnMissingStub(this);
   }
@@ -38,6 +42,10 @@ class MockContactService extends _i1.Mock implements _i5.ContactService {
       (super.noSuchMethod(Invocation.getter(#databaseService),
           returnValue: _FakeDatabaseService_0()) as _i2.DatabaseService);
   @override
+  _i3.PCConnectionService get pcConnectionService => (super.noSuchMethod(
+      Invocation.getter(#pcConnectionService),
+      returnValue: _FakePCConnectionService_1()) as _i3.PCConnectionService);
+  @override
   void onChanged(void Function()? cb) =>
       super.noSuchMethod(Invocation.method(#onChanged, [cb]),
           returnValueForMissingStub: null);
@@ -46,53 +54,53 @@ class MockContactService extends _i1.Mock implements _i5.ContactService {
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i6.Future<List<_i3.Contact>> fetchAll() =>
+  _i7.Future<List<_i4.Contact>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
-              returnValue: Future<List<_i3.Contact>>.value(<_i3.Contact>[]))
-          as _i6.Future<List<_i3.Contact>>);
+              returnValue: Future<List<_i4.Contact>>.value(<_i4.Contact>[]))
+          as _i7.Future<List<_i4.Contact>>);
   @override
-  _i6.Future<_i3.Contact> fetchByPhoneNumber(String? phoneNumber) =>
+  _i7.Future<_i4.Contact> fetchByPhoneNumber(String? phoneNumber) =>
       (super.noSuchMethod(Invocation.method(#fetchByPhoneNumber, [phoneNumber]),
-              returnValue: Future<_i3.Contact>.value(_FakeContact_1()))
-          as _i6.Future<_i3.Contact>);
+              returnValue: Future<_i4.Contact>.value(_FakeContact_2()))
+          as _i7.Future<_i4.Contact>);
   @override
-  _i6.Future<_i3.Contact> insert(_i3.Contact? contact) =>
+  _i7.Future<_i4.Contact> insert(_i4.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#insert, [contact]),
-              returnValue: Future<_i3.Contact>.value(_FakeContact_1()))
-          as _i6.Future<_i3.Contact>);
+              returnValue: Future<_i4.Contact>.value(_FakeContact_2()))
+          as _i7.Future<_i4.Contact>);
   @override
-  _i6.Future<_i3.Contact> update(_i3.Contact? contact) =>
+  _i7.Future<_i4.Contact> update(_i4.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#update, [contact]),
-              returnValue: Future<_i3.Contact>.value(_FakeContact_1()))
-          as _i6.Future<_i3.Contact>);
+              returnValue: Future<_i4.Contact>.value(_FakeContact_2()))
+          as _i7.Future<_i4.Contact>);
   @override
-  _i6.Future<void> setContactStatus(
+  _i7.Future<void> setContactStatus(
           String? contactPhoneNumber, String? status) =>
       (super.noSuchMethod(
           Invocation.method(#setContactStatus, [contactPhoneNumber, status]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<void> setContactProfileImage(
+  _i7.Future<void> setContactProfileImage(
           String? contactPhoneNumber, String? profileImage) =>
       (super.noSuchMethod(
           Invocation.method(
               #setContactProfileImage, [contactPhoneNumber, profileImage]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<void> setContactBirthday(
+  _i7.Future<void> setContactBirthday(
           String? contactPhoneNumber, DateTime? birthday) =>
       (super.noSuchMethod(
           Invocation.method(
               #setContactBirthday, [contactPhoneNumber, birthday]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
-  _i6.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
+  _i7.Future<void> deleteByPhoneNumber(String? phoneNumber) => (super
       .noSuchMethod(Invocation.method(#deleteByPhoneNumber, [phoneNumber]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
   String toString() => super.toString();
 }
@@ -101,7 +109,7 @@ class MockContactService extends _i1.Mock implements _i5.ContactService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBlockedNumbersService extends _i1.Mock
-    implements _i7.BlockedNumbersService {
+    implements _i8.BlockedNumbersService {
   MockBlockedNumbersService() {
     _i1.throwOnMissingStub(this);
   }
@@ -119,26 +127,30 @@ class MockBlockedNumbersService extends _i1.Mock
       super.noSuchMethod(Invocation.method(#disposeOnChanged, [cb]),
           returnValueForMissingStub: null);
   @override
-  _i6.Future<List<_i4.BlockedNumber>> fetchAll() =>
+  _i7.Future<List<_i5.BlockedNumber>> fetchAll() =>
       (super.noSuchMethod(Invocation.method(#fetchAll, []),
               returnValue:
-                  Future<List<_i4.BlockedNumber>>.value(<_i4.BlockedNumber>[]))
-          as _i6.Future<List<_i4.BlockedNumber>>);
+                  Future<List<_i5.BlockedNumber>>.value(<_i5.BlockedNumber>[]))
+          as _i7.Future<List<_i5.BlockedNumber>>);
   @override
-  _i6.Future<bool> checkIfBlocked(String? phoneNumber) =>
+  _i7.Future<bool> checkIfBlocked(String? phoneNumber) =>
       (super.noSuchMethod(Invocation.method(#checkIfBlocked, [phoneNumber]),
-          returnValue: Future<bool>.value(false)) as _i6.Future<bool>);
+          returnValue: Future<bool>.value(false)) as _i7.Future<bool>);
   @override
-  _i6.Future<_i4.BlockedNumber> insert(_i4.BlockedNumber? blockedNumber) =>
+  _i7.Future<bool> checkIfBlockedByParent(String? phoneNumber) => (super
+      .noSuchMethod(Invocation.method(#checkIfBlockedByParent, [phoneNumber]),
+          returnValue: Future<bool>.value(false)) as _i7.Future<bool>);
+  @override
+  _i7.Future<_i5.BlockedNumber> insert(_i5.BlockedNumber? blockedNumber) =>
       (super.noSuchMethod(Invocation.method(#insert, [blockedNumber]),
               returnValue:
-                  Future<_i4.BlockedNumber>.value(_FakeBlockedNumber_2()))
-          as _i6.Future<_i4.BlockedNumber>);
+                  Future<_i5.BlockedNumber>.value(_FakeBlockedNumber_3()))
+          as _i7.Future<_i5.BlockedNumber>);
   @override
-  _i6.Future<void> delete(String? number) =>
+  _i7.Future<void> delete(String? number) =>
       (super.noSuchMethod(Invocation.method(#delete, [number]),
           returnValue: Future<void>.value(),
-          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
+          returnValueForMissingStub: Future<void>.value()) as _i7.Future<void>);
   @override
   String toString() => super.toString();
 }

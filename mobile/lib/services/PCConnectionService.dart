@@ -52,6 +52,7 @@ class PCConnectionService {
       });
 
       _outgoingStream?.stream.listen((event) {
+        event["origin"] = "phone";
         channel.send(RTCDataChannelMessage(jsonEncode(event)));
       });
 
@@ -62,17 +63,27 @@ class PCConnectionService {
         })),
       );
 
-      channel.send(
-        RTCDataChannelMessage(jsonEncode({
-          "origin": "phone",
-          "type": "setup",
-          "userDisplayName": userDisplayName,
-          "userProfilePhoto": userProfilePhoto,
-          "contacts": jsonEncode(contacts),
-          "chats": jsonEncode(chats),
-          "messages": jsonEncode(messages),
-        })),
-      );
+      _outgoingStream?.sink.add({
+        "type": "userProfileImage",
+        "profileImage": userProfilePhoto,
+      });
+
+      _outgoingStream?.sink.add({
+        "type": "userDisplayName",
+        "displayName": userDisplayName,
+      });
+
+      contacts.forEach((contact) {
+        notifyPcPutContact(contact);
+      });
+
+      chats.forEach((chat) {
+        notifyPcPutChat(chat);
+      });
+
+      messages.forEach((message) {
+        notifyPcPutMessage(message);
+      });
     };
 
     remoteConnection.onIceCandidate = (candidate) {

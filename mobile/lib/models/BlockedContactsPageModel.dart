@@ -18,6 +18,9 @@ abstract class _BlockedContactsPageModel with Store {
   @observable
   String filter = "";
 
+  @observable
+  String? parentNumber;
+
   @computed
   ObservableList<BlockedNumber> get filteredNumbers => blockedNumbers
       .where((element) => element.phoneNumber.contains(filter))

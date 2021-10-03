@@ -21,12 +21,14 @@ class ChildProfanityManagerPageController {
         .then((profanityWords) {
       model.profanityWords.clear();
       model.profanityWords.addAll(profanityWords);
+      print(model.profanityWords.length);
     });
     childProfanityWordService
         .fetchAllGroupByPackage(childNumber)
         .then((packageCounts) {
       model.packageCounts.clear();
       model.packageCounts.addAll(packageCounts);
+      print(model.packageCounts.length);
     });
   }
 

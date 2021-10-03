@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/controllers/ChildProfanityPackageManagerPageController.dart';
 import 'package:mobile/domain/StoredProfanityWord.dart';
 
@@ -39,33 +40,51 @@ class _ChildProfanityPackageManagerPageState
               child: Text(
                   "Please select the packages you wish to add to your child's profanity filter."),
             ),
-            Expanded(child: ListView.builder(itemBuilder: (_, i) {
-              return ExpansionTile(
-                title: Text("Package Name"),
-                leading: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.add),
-                ),
-                children: _buildWords(8),
-              );
-            })),
+            Expanded(
+              child: Observer(
+                builder: (_) {
+                  return ListView.builder(
+                      itemCount: controller.model.packageCounts.length,
+                      itemBuilder: (_, i) {
+                        final packageName =
+                            controller.model.packageCounts[i].second;
+                        return ExpansionTile(
+                          title: Text(packageName),
+                          leading: IconButton(
+                            onPressed: () {
+                              controller.addPackage(controller
+                                  .model.storedProfanityWords
+                                  .where((word) =>
+                                      word.packageName.toLowerCase() ==
+                                      packageName.toLowerCase())
+                                  .toList());
+                            },
+                            icon: Icon(Icons.add),
+                          ),
+                          children: _buildWords(controller
+                              .model.storedProfanityWords
+                              .where((word) =>
+                                  word.packageName.toLowerCase() ==
+                                  packageName.toLowerCase())
+                              .toList()),
+                        );
+                      });
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildWords(int count) {
+  List<Widget> _buildWords(List<StoredProfanityWord> profanityWords) {
     final words = <Widget>[];
-    for (int i = 0; i < count; i++) {
-      words.add(
-        ListTile(
-          title: Text("Profanity Word"),
-          dense: true,
-        ),
-      );
-    }
-
+    profanityWords.forEach((word) {
+      words.add(ListTile(
+        title: Text(word.word),
+      ));
+    });
     return words;
   }
 }

@@ -86,8 +86,11 @@ export class CommunicationService {
                 case "connected":
                     this.loadingState = true
                     return true
-                case "setup":
-                    this.handleSetup(event)
+                case "userDisplayName":
+                    this.handleUserDisplayName(event)
+                    return true
+                case "userProfileImage":
+                    this.handleUserProfileImage(event)
                     return true
                 case "putContact":
                     this.handlePutContact(event)
@@ -149,53 +152,20 @@ export class CommunicationService {
         }
     }
 
-    private handleSetup(event: any) {
-        const userDisplayName = event.userDisplayName as string || null
-        const userProfilePhoto = event.userProfilePhoto as string || null
-        const chats = JSON.parse(event.chats) as any[] || null
-        const contacts = JSON.parse(event.contacts) as any[] || null
-        const messages = JSON.parse(event.messages) as any[] || null
+    private handleUserDisplayName(event: any) {
+        const displayName = event.displayName
 
-        if (userDisplayName != null) {
-            this.userDisplayName$.next(userDisplayName)
+        if (displayName) {
+            this.userDisplayName$.next(displayName)
         }
+    }
 
-        if (userProfilePhoto != null) {
-            this.userProfileImage$.next(userProfilePhoto)
+    private handleUserProfileImage(event: any) {
+        const profileImage = event.profileImage
+
+        if (profileImage) {
+            this.userProfileImage$.next(profileImage)
         }
-
-        chats?.forEach(c => {
-            const chat = c as Chat || null
-            if (chat != null) {
-                this.chats$.next({
-                    type: IncomingEventType.PUT,
-                    chat: chat,
-                    chatId: chat.id
-                })
-            }
-        })
-
-        contacts?.forEach(c => {
-            const contact = c as Contact || null
-            if (contact != null) {
-                this.contacts$.next({
-                    type: IncomingEventType.PUT,
-                    contact: contact,
-                    contactPhoneNumber: contact.phoneNumber
-                })
-            }
-        })
-
-        messages?.forEach(m => {
-            const message = m as Message || null
-            if (message != null) {
-                this.messages$.next({
-                    type: IncomingEventType.PUT,
-                    message: message,
-                    messageId: message.id
-                })
-            }
-        })
     }
 
     private handlePutContact(event: any) {

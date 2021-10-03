@@ -199,7 +199,7 @@ export class CommunicationService {
     }
 
     private handlePutContact(event: any) {
-        const contact = JSON.parse(event.contact) as Contact || null
+        const contact = event.contact as Contact || null
 
         if (contact != null) {
             this.contacts$.next({
@@ -223,7 +223,7 @@ export class CommunicationService {
     }
 
     private handlePutChat(event: any) {
-        const chat = JSON.parse(event.chat) as Chat || null
+        const chat = event.chat as Chat || null
 
         if (chat != null) {
             this.chats$.next({
@@ -247,7 +247,7 @@ export class CommunicationService {
     }
 
     private handlePutMessage(event: any) {
-        const message = JSON.parse(event.message) as Message || null
+        const message = event.message as Message || null
 
         if (message != null) {
             this.messages$.next({

@@ -79,7 +79,7 @@ class _ChatLogPageState extends State<ChatLogPage> {
               "View ${controller.model.childName}'s chat with $displayName"),
           leading: AvatarIcon.fromString(
             profilePicture,
-            radius: 36,
+            radius: 22,
           ),
           trailing: Icon(Icons.arrow_forward_rounded),
           dense: true,

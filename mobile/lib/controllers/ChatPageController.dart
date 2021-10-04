@@ -460,8 +460,15 @@ class ChatPageController {
               forwarded: true,
               isMedia: message.isMedia);
 
-          communicationService.sendMessage(
-              newMessage, ChatType.general, element.first, null);
+          if (message.isMedia) {
+            communicationService.sendImage(
+                message, ChatType.general, element.first);
+          } else if (message.isProfanityPack) {
+          } else {
+            communicationService.sendMessage(
+                newMessage, ChatType.general, element.first, null);
+          }
+
           messageService.insert(newMessage);
         });
       });

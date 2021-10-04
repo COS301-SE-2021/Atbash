@@ -22,6 +22,7 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
+import 'package:mobile/util/RegexGeneration.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/util/Extensions.dart';
@@ -914,7 +915,7 @@ class ChatCard extends StatelessWidget {
         _message.deleted
             ? "This message was deleted"
             : profanityFilter
-                ? _filterContents(_message.contents, words)
+                ? filterString(_message.contents, words)
                 : _message.contents,
         style: TextStyle(
           color: Colors.white,
@@ -922,21 +923,6 @@ class ChatCard extends StatelessWidget {
         ),
       );
     }
-  }
-
-  String _filterContents(String unfilteredContents, List<ProfanityWord> words) {
-    // Constants.profanityRegex.forEach((regex) {
-    //   unfilteredContents = unfilteredContents.replaceAllMapped(
-    //       RegExp(regex, caseSensitive: false),
-    //       (match) => List.filled(match.end - match.start, "*").join());
-    // });
-    // return unfilteredContents;
-    words.forEach((profanityWord) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(
-          RegExp(profanityWord.regex, caseSensitive: false),
-          (match) => List.filled(match.end - match.start, "*").join());
-    });
-    return unfilteredContents;
   }
 
   Icon? _readReceipt() {

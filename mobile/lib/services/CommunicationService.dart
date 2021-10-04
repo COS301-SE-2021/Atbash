@@ -35,6 +35,7 @@ import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/StoredProfanityWordService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
+import 'package:mobile/util/RegexGeneration.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -1276,7 +1277,7 @@ class CommunicationService {
       if (isMedia) {
         body = "\u{1f4f7} Photo";
       } else {
-        body = _filterContents(
+        body = filterString(
             messageContents, await profanityWordService.fetchAll());
       }
     }
@@ -1291,15 +1292,6 @@ class CommunicationService {
       body: body,
       payload: payload,
     );
-  }
-
-  String _filterContents(String unfilteredContents, List<ProfanityWord> words) {
-    words.forEach((profanityWord) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(
-          RegExp(profanityWord.regex, caseSensitive: false),
-          (match) => List.filled(match.end - match.start, "*").join());
-    });
-    return unfilteredContents;
   }
 
   Future<void> _deleteMessageFromServer(String id) async {

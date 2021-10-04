@@ -60,10 +60,9 @@ class SettingsPageController {
     userService
         .getProfileImage()
         .then((value) => model.userProfilePicture = value);
-    parentService
-        .fetchByEnabled()
-        .then((value) => model.parentName = value.name)
-        .catchError((_) => model.parentName = "");
+    parentService.fetchByEnabled().then((value) {
+      model.parentName = value.name;
+    }).catchError((_) => model.parentName = "");
   }
 
   void setBlurImages(bool value) {
@@ -117,23 +116,23 @@ class SettingsPageController {
     await contactService.insert(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
-    parentService
-        .fetchByEnabled()
-        .then((parent) => communicationService.sendContactToParent(
-            parent.phoneNumber, contact, "insert"))
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendContactToParent(
+          parent.phoneNumber, contact, "insert");
+    }).catchError((_) {});
   }
 
   void sentUpdatedSettingsToParent() async {
-    final parent = await parentService.fetchByEnabled().catchError((_) {});
-    communicationService.sendAllSettingsToParent(
-        parent.phoneNumber,
-        model.blurImages,
-        model.safeMode,
-        model.sharedProfilePicture,
-        model.shareStatus,
-        model.shareReadReceipts,
-        model.shareBirthday);
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendAllSettingsToParent(
+          parent.phoneNumber,
+          model.blurImages,
+          model.safeMode,
+          model.sharedProfilePicture,
+          model.shareStatus,
+          model.shareReadReceipts,
+          model.shareBirthday);
+    }).catchError((_) {});
   }
 
   void _onAllSettingsToChild(

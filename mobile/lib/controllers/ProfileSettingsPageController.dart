@@ -74,11 +74,10 @@ class ProfileSettingsPageController {
     await contactService.insert(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
-    parentService
-        .fetchByEnabled()
-        .then((parent) => communicationService.sendContactToParent(
-        parent.phoneNumber, contact, "insert"))
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendContactToParent(
+          parent.phoneNumber, contact, "insert");
+    }).catchError((_) {});
   }
 
   Future<void> importContacts() async {

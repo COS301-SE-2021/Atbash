@@ -62,10 +62,11 @@ class StoredProfanityWordService {
     final response = await db.rawQuery(
         "SELECT COUNT(${StoredProfanityWord.COLUMN_ID}) AS package_count,${StoredProfanityWord.COLUMN_PACKAGE_NAME} "
         "FROM ${StoredProfanityWord.TABLE_NAME} "
-        "WHERE ${StoredProfanityWord.COLUMN_REMOVABLE} = ${general ? 0 : 1} AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = 1 "
+        "WHERE ${StoredProfanityWord.COLUMN_REMOVABLE} = ? AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = ? "
         "GROUP BY ${StoredProfanityWord.COLUMN_PACKAGE_NAME} "
         "ORDER BY ${StoredProfanityWord.COLUMN_PACKAGE_NAME} COLLATE NOCASE"
-        ";");
+        ";",
+        [general ? 0 : 1, 1]);
 
     final packageCounts = <Tuple<int, String>>[];
 
@@ -97,10 +98,12 @@ class StoredProfanityWordService {
   Future<void> downloadByPackageName(String packageName) async {
     final db = await databaseService.database;
 
-    await db.rawUpdate("UPDATE ${StoredProfanityWord.TABLE_NAME} "
-        "SET ${StoredProfanityWord.COLUMN_DOWNLOADED} = 1 "
-        "WHERE ${StoredProfanityWord.COLUMN_PACKAGE_NAME} = '$packageName' AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = 0"
-        ";");
+    await db.rawUpdate(
+        "UPDATE ${StoredProfanityWord.TABLE_NAME} "
+        "SET ${StoredProfanityWord.COLUMN_DOWNLOADED} = ? "
+        "WHERE ${StoredProfanityWord.COLUMN_PACKAGE_NAME} = ? AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = ?"
+        ";",
+        [1, packageName, 0]);
   }
 }
 

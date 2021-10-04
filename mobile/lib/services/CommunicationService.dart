@@ -427,7 +427,7 @@ class CommunicationService {
 
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
-    print("Fetching unread messages for number");
+    print("Fetching unread messages for number " + phoneNumber);
     await _fetchUnreadMessages(encodedPhoneNumber);
     await _fetchUnreadMessageboxMessages();
     await encryptionService.managePreKeys();
@@ -555,6 +555,7 @@ class CommunicationService {
 
       if (eventPayload == null) {
         print("Event payload is null");
+        print("Event: " + event.toString());
       }
       if (eventPayload != null) {
         final senderPhoneNumber = eventPayload.senderPhoneNumber;
@@ -1662,13 +1663,15 @@ class CommunicationService {
     final timestamp = event["timestamp"] as int?;
 
     if (id == null || encryptedContents == null || timestamp == null) {
-      print("Error: Invalid event");
+      print(
+          "Error: Invalid event (id, encryptedContents or timestamp is null)");
       return null;
     }
-    print("Event id: " + id);
+    // print("Event id: " + id);
     if (recipientMid == null) {
       if (senderNumberEncrypted == null) {
-        print("Error: Invalid event");
+        print(
+            "Error: Invalid event (recipientMid and senderNumberEncrypted is null)");
         return null;
       }
       final senderPhoneNumber =
@@ -1736,6 +1739,7 @@ class CommunicationService {
           await messageboxService.fetchMessageboxWithID(recipientMid);
       if (messagebox == null || messagebox.number == null) {
         //This shouldn't be possible
+        print("Failed to fetch messagebox with id: " + recipientMid.toString());
         return null;
       }
 

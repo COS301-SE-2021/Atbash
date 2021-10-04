@@ -717,7 +717,9 @@ class ChatCard extends StatelessWidget {
                               title: Text("Edit"),
                               onPressed: onEditPressed,
                               trailingIcon: Icon(Icons.edit)),
-                        if (!_message.deleted && chatType == ChatType.general)
+                        if (!_message.deleted &&
+                            chatType == ChatType.general &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                               title: Text("Forward"),
                               onPressed: () {
@@ -751,7 +753,7 @@ class ChatCard extends StatelessWidget {
                         children: [
                           if (_message.forwarded &&
                               _message.isIncoming &&
-                              _message.isProfanityPack)
+                              !_message.isProfanityPack)
                             Container(
                               child: Row(
                                 children: [

@@ -464,6 +464,16 @@ class ChatPageController {
             communicationService.sendImage(
                 message, ChatType.general, element.first);
           } else if (message.isProfanityPack) {
+            storedProfanityWordService.fetchAll().then((value) {
+              final words = value
+                  .where((word) =>
+                      word.packageName.toLowerCase() ==
+                      message.contents.toLowerCase())
+                  .toList();
+              if (words.isNotEmpty)
+                communicationService.sendProfanityWords(
+                    words, ChatType.general, message, element.first);
+            });
           } else {
             communicationService.sendMessage(
                 newMessage, ChatType.general, element.first, null);

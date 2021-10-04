@@ -55,11 +55,10 @@ class ContactsPageController {
       communicationService.sendRequestStatus(number);
       communicationService.sendRequestProfileImage(number);
       communicationService.sendRequestBirthday(number);
-      parentService
-          .fetchByEnabled()
-          .then((parent) => communicationService.sendContactToParent(
-              parent.phoneNumber, contact, "insert"))
-          .catchError((_) {});
+      parentService.fetchByEnabled().then((parent) {
+        communicationService.sendContactToParent(
+            parent.phoneNumber, contact, "insert");
+      }).catchError((_) {});
     } else {
       showSnackBar(context, "No user with phone number $number exists");
     }
@@ -83,11 +82,9 @@ class ContactsPageController {
         chatType: chatType);
 
     chatService.insert(chat);
-    parentService
-        .fetchByEnabled()
-        .then((parent) => communicationService.sendChatToParent(
-            parent.phoneNumber, chat, "insert"))
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendChatToParent(parent.phoneNumber, chat, "insert");
+    }).catchError((_) {});
     return chat;
   }
 

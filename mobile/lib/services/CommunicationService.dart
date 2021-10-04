@@ -403,15 +403,15 @@ class CommunicationService {
     };
 
     pcConnectionService.onSeenEvent = (messageIds) async {
-      try{
-        final otherNumber = (await messageService.fetchById(messageIds[0])).otherPartyPhoneNumber;
+      try {
+        final otherNumber = (await messageService.fetchById(messageIds[0]))
+            .otherPartyPhoneNumber;
 
         messageIds.forEach((element) {
           messageService.setMessageReadReceiptFromPc(element, ReadReceipt.seen);
         });
         this.sendAckSeen(messageIds, otherNumber);
-
-      } catch (e){
+      } catch (e) {
         print(e);
       }
     };
@@ -433,8 +433,10 @@ class CommunicationService {
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
     print("Fetching unread messages for number " + phoneNumber);
-    await _fetchUnreadMessages(encodedPhoneNumber);
-    await _fetchUnreadMessageboxMessages();
+    Timer.periodic(Duration(seconds: 3), (timer) {
+      _fetchUnreadMessages(encodedPhoneNumber);
+      _fetchUnreadMessageboxMessages();
+    });
     await encryptionService.managePreKeys();
 
     channelNumber?.sink.close();

@@ -49,6 +49,15 @@ class StoredProfanityWord {
     }
   }
 
+  Map toJson() => {
+        'id': id,
+        'packageName': packageName,
+        'word': word,
+        'regex': regex,
+        'removable': removable,
+        'downloaded': downloaded
+      };
+
   static const String TABLE_NAME = "stored_profanity_word";
   static const String COLUMN_ID = "id";
   static const String COLUMN_PACKAGE_NAME = "package_name";

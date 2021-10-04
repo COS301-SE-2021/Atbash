@@ -936,7 +936,8 @@ class CommunicationService {
             final wordList = decryptedContents["words"] as List;
             wordList.forEach((word) {
               final map = word as Map<String, dynamic>;
-              childProfanityWordService.insert(senderPhoneNumber, map["word"], map["packageName"], Uuid().v4());
+              childProfanityWordService.insert(senderPhoneNumber, map["word"],
+                  map["packageName"], Uuid().v4());
             });
 
             final blockedNumbersList =
@@ -1324,7 +1325,7 @@ class CommunicationService {
       "chatType": chatType.toString(),
       "forwarded": message.forwarded,
       "words": words,
-      "packageName": words.first.packageName
+      "packageName": words[0].packageName
     });
 
     _queueForSending(contents, recipientPhoneNumber);

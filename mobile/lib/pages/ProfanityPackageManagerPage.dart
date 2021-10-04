@@ -24,73 +24,74 @@ class _ProfanityPackageManagerPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Profanity Package Management"),
-        ),
-        body: Observer(
-          builder: (_) {
-            return SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: Constants.darkGrey,
-                          border: Border.all(color: Colors.black),
-                          borderRadius: BorderRadius.circular(24)),
-                      child: Text(
-                        "Profanity packages contain profanity words blah blah blah.",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    ListTile(
-                      onTap: () {
-                        Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        ProfanityPackageCreationPage()))
-                            .then((value) => controller.reload());
-                      },
-                      tileColor: Constants.orange,
-                      title: Text("Create your own package"),
-                      trailing: Icon(Icons.add),
-                    ),
-                    Container(
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      child: Text(
-                        "General Packages",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                    Column(
-                      children: _buildPackages(
-                          controller.model.packageCountsGeneral.toList(), true),
-                    ),
-                    Container(
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      child: Text(
-                        "My Packages",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                    Column(
-                      children: _buildPackages(
-                          controller.model.packageCountsCreated.toList(),
-                          false),
-                    ),
-                  ],
+      appBar: AppBar(
+        title: Text("Profanity Package Management"),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    color: Constants.darkGrey,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(24)),
+                child: Text(
+                  "Profanity packages contain a list of words that can be added to your own profanity filter."
+                  "You can also create your own to send to others.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
                 ),
               ),
-            );
-          },
-        ));
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => ProfanityPackageCreationPage()))
+                      .then((value) => controller.reload());
+                },
+                tileColor: Constants.orange,
+                title: Text("Create your own package"),
+                trailing: Icon(Icons.add),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Text(
+                  "General Packages",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Observer(
+                builder: (_) {
+                  return Column(
+                    children: _buildPackages(
+                        controller.model.packageCountsGeneral.toList(), true),
+                  );
+                },
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Text(
+                  "My Packages",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              Observer(
+                builder: (_) {
+                  return Column(
+                    children: _buildPackages(
+                        controller.model.packageCountsCreated.toList(), false),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   List<Widget> _buildPackages(List<Tuple<int, String>> words, bool general) {
@@ -132,7 +133,9 @@ class _ProfanityPackageManagerPageState
           trailing: general
               ? null
               : TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    controller.deletePackage(title);
+                  },
                   child: Text("Delete"),
                 ),
         )

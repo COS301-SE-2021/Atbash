@@ -32,8 +32,8 @@ class StoredProfanityWordService {
 
     final storedProfanityWord = StoredProfanityWord(
         id: Uuid().v4(),
-        packageName: packageName,
-        word: word,
+        packageName: packageName.toLowerCase(),
+        word: word.toLowerCase(),
         regex: generateRegex(word),
         removable: removable,
         downloaded: downloaded);

@@ -382,6 +382,7 @@ class ChatPageController {
           isProfanityPack: true);
       communicationService.sendProfanityWords(
           wordsToSend, ChatType.general, message, contactPhoneNumber);
+      model.addMessage(message);
     });
   }
 

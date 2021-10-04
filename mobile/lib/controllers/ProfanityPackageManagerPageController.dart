@@ -42,8 +42,20 @@ class ProfanityPackageManagerPageController {
 
       if (wordAlreadyExists.isEmpty)
         profanityWordService
-            .addWord(word.word, word.packageName)
+            .addWord(word.word.toLowerCase(), word.packageName)
             .catchError((_) {});
     });
+  }
+
+  void deletePackage(String packageName) {
+    storedProfanityWordService.fetchAll().then((value) {
+      final wordsToDelete = value.where((element) =>
+          element.packageName.toLowerCase() == packageName.toLowerCase() &&
+          element.removable == true);
+      wordsToDelete.forEach((element) {
+        storedProfanityWordService.deleteByID(element.id);
+      });
+    });
+    reload();
   }
 }

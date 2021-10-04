@@ -1372,7 +1372,7 @@ class CommunicationService {
       "packageName": words[0].packageName
     });
 
-    _queueForSending(contents, recipientPhoneNumber);
+    _queueForSending(contents, recipientPhoneNumber, id: message.id);
   }
 
   Future<void> sendDelete(String messageId, String recipientPhoneNumber) async {

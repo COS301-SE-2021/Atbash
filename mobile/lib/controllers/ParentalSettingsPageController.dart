@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Child.dart';
-import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/models/ParentalSettingsPageModel.dart';
 import 'package:mobile/services/ChildBlockedNumberService.dart';
 import 'package:mobile/services/ChildChatService.dart';
@@ -13,7 +12,6 @@ import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/StoredProfanityWordService.dart';
-import 'package:mobile/services/UserService.dart';
 
 class ParentalSettingsPageController {
   final CommunicationService communicationService = GetIt.I.get();
@@ -49,8 +47,12 @@ class ParentalSettingsPageController {
       model.children.addAll(children);
       parentService
           .fetchByEnabled()
-          .then((parent) => model.parentName = parent.name)
-          .catchError((_) {});
+          .then((parent) {
+            model.parentName = parent.name;
+          })
+          .catchError((_) {
+            return;
+      });
     });
   }
 

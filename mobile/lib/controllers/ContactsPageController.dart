@@ -102,9 +102,10 @@ class ContactsPageController {
       });
       model.childNumbers = numbers;
     });
-    parentService
-        .fetchByEnabled()
-        .then((parent) => model.parentNumber = parent.phoneNumber)
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      model.parentNumber = parent.phoneNumber;
+    }).catchError((error) {
+      print(error);
+    });
   }
 }

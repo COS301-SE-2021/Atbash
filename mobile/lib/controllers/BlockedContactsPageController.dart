@@ -30,8 +30,12 @@ class BlockedContactsPageController {
     });
     parentService
         .fetchByEnabled()
-        .then((parent) => model.parentNumber = parent.phoneNumber)
-        .catchError((_) {});
+        .then((parent) {
+          model.parentNumber = parent.phoneNumber;
+        })
+        .catchError((error) {
+          print(error);
+    });
   }
 
   void dispose() {

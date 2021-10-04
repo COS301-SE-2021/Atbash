@@ -55,7 +55,7 @@ class ProfanityPackageManagerPageController {
       wordsToDelete.forEach((element) {
         storedProfanityWordService.deleteByID(element.id);
       });
+      reload();
     });
-    reload();
   }
 }

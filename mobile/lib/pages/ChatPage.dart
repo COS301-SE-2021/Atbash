@@ -444,7 +444,7 @@ class _ChatPageState extends State<ChatPage> {
   Container _buildInput() {
     return Container(
       color: Constants.darkGrey.withOpacity(0.88),
-      height: 65,
+      height: isInputClicked ? 65 : null,
       child: SafeArea(
         child: Row(
           children: [
@@ -717,7 +717,9 @@ class ChatCard extends StatelessWidget {
                               title: Text("Edit"),
                               onPressed: onEditPressed,
                               trailingIcon: Icon(Icons.edit)),
-                        if (!_message.deleted && chatType == ChatType.general)
+                        if (!_message.deleted &&
+                            chatType == ChatType.general &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                               title: Text("Forward"),
                               onPressed: () {
@@ -751,7 +753,7 @@ class ChatCard extends StatelessWidget {
                         children: [
                           if (_message.forwarded &&
                               _message.isIncoming &&
-                              _message.isProfanityPack)
+                              !_message.isProfanityPack)
                             Container(
                               child: Row(
                                 children: [
@@ -865,7 +867,7 @@ class ChatCard extends StatelessWidget {
   }
 
   Widget _renderMessageContents(List<ProfanityWord> words) {
-    if (_message.isMedia) {
+    if (_message.isMedia && !_message.deleted) {
       if (blurImages) {
         return Row(
           children: [
@@ -894,12 +896,17 @@ class ChatCard extends StatelessWidget {
     } else if (_message.isProfanityPack && !_message.deleted) {
       return Row(
         children: [
-          Icon(Icons.description),
+          Icon(
+            Icons.description,
+            color: _message.isIncoming ? Constants.orange : null,
+          ),
           Expanded(
               child: Text(
             "Profanity Package",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(
+                fontSize: 16,
+                color: _message.isIncoming ? Constants.orange : null),
           )),
           Expanded(
             child: Text(

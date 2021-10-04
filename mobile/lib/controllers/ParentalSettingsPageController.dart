@@ -45,14 +45,11 @@ class ParentalSettingsPageController {
     childService.fetchAll().then((children) {
       model.children.clear();
       model.children.addAll(children);
-      parentService
-          .fetchByEnabled()
-          .then((parent) {
-            model.parentName = parent.name;
-          })
-          .catchError((_) {
-            return;
-      });
+    });
+    parentService.fetchByEnabled().then((parent) {
+      model.parentName = parent.name;
+    }).catchError((error) {
+      print(error);
     });
   }
 
@@ -160,8 +157,9 @@ class ParentalSettingsPageController {
     await storedProfanityWordService.fetchAll().then((value) {
       value.forEach((element) {
         if (!element.removable)
-          profanityWordService.addWord(element.word, element.packageName,
-              addedByParent: true);
+          profanityWordService
+              .addWord(element.word, element.packageName, addedByParent: true)
+              .catchError((_) {});
       });
     });
     settingsService.setSafeMode(true);

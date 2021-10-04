@@ -28,10 +28,11 @@ class BlockedContactsPageController {
       model.blockedNumbers.clear();
       model.blockedNumbers.addAll(numbers);
     });
-    parentService
-        .fetchByEnabled()
-        .then((parent) => model.parentNumber = parent.phoneNumber)
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      model.parentNumber = parent.phoneNumber;
+    }).catchError((error) {
+      print(error);
+    });
   }
 
   void dispose() {
@@ -49,11 +50,10 @@ class BlockedContactsPageController {
     final blockedNumber = new BlockedNumber(phoneNumber: number);
     await blockedNumbersService.insert(blockedNumber);
     model.blockedNumbers.add(blockedNumber);
-    parentService
-        .fetchByEnabled()
-        .then((parent) => communicationService.sendBlockedNumberToParent(
-            parent.phoneNumber, BlockedNumber(phoneNumber: number), "insert"))
-        .catchError((_) {});
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendBlockedNumberToParent(
+          parent.phoneNumber, BlockedNumber(phoneNumber: number), "insert");
+    }).catchError((_) {});
   }
 
   Future<void> deleteNumber(String number) async {

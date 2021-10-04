@@ -89,12 +89,13 @@ class _ProfanityPackageCreationPageState
                   borderRadius: BorderRadius.circular(24)),
               child: TextButton(
                 onPressed: () {
-                  if (packageNameController.text.trim() != "") {
+                  if (packageNameController.text.trim() != "" &&
+                      controller.model.storedProfanityWords.isNotEmpty) {
                     controller.createPackage(packageNameController.text);
                     Navigator.pop(context);
                   } else
-                    showSnackBar(
-                        context, "Please enter a name for the package.");
+                    showSnackBar(context,
+                        "Please enter a name for the package and ensure there is at least one word.");
                 },
                 child: Text(
                   "Create New Package",

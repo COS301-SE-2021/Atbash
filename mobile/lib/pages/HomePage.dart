@@ -20,6 +20,7 @@ import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/util/RegexGeneration.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
@@ -391,20 +392,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       );
     }
 
-    // String _filterContents(String unfilteredContents) {
-    //   Constants.profanityRegex.forEach((regex) {
-    //     unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
-    //         (match) => List.filled(match.end - match.start, "*").join());
-    //   });
-    //   return unfilteredContents;
-    // }
     String _filterContents(String unfilteredContents) {
-      controller.model.profanityWords.forEach((profanityWord) {
-        unfilteredContents = unfilteredContents.replaceAllMapped(
-            RegExp(profanityWord.regex, caseSensitive: false),
-            (match) => List.filled(match.end - match.start, "*").join());
-      });
-      return unfilteredContents;
+      return filterString(unfilteredContents, controller.model.profanityWords);
     }
 
     Text _buildMessagePreview(Message message) {
@@ -414,6 +403,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         preview = "This message was deleted";
       } else if (message.isMedia) {
         preview = "\u{1f4f7} Photo";
+      } else if (message.isProfanityPack) {
+        preview = "\u{1f4d9} Profanity Pack";
       } else if (controller.model.profanityFilter) {
         preview = _filterContents(message.contents);
       } else {

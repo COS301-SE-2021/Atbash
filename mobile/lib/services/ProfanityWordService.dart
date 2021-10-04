@@ -52,7 +52,7 @@ class ProfanityWordService {
 
     final profanityWord = ProfanityWord(
         id: Uuid().v4(),
-        packageName: packageName,
+        packageName: packageName.toLowerCase(),
         word: word.toLowerCase(),
         regex: regex,
         addedByParent: addedByParent);

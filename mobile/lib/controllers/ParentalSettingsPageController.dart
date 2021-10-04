@@ -9,6 +9,9 @@ import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
+import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/services/StoredProfanityWordService.dart';
 
 class ParentalSettingsPageController {
   final CommunicationService communicationService = GetIt.I.get();
@@ -19,6 +22,9 @@ class ParentalSettingsPageController {
   final ChildBlockedNumberService childBlockedNumberService = GetIt.I.get();
   final ChildProfanityWordService childProfanityWordService = GetIt.I.get();
   final ChildContactService childContactService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
+  final StoredProfanityWordService storedProfanityWordService = GetIt.I.get();
+  final SettingsService settingsService = GetIt.I.get();
 
   final ParentalSettingsPageModel model = ParentalSettingsPageModel();
 
@@ -41,8 +47,12 @@ class ParentalSettingsPageController {
       model.children.addAll(children);
       parentService
           .fetchByEnabled()
-          .then((parent) => model.parentName = parent.name)
-          .catchError((_) {});
+          .then((parent) {
+            model.parentName = parent.name;
+          })
+          .catchError((_) {
+            return;
+      });
     });
   }
 
@@ -146,6 +156,15 @@ class ParentalSettingsPageController {
     final parent = await parentService.fetchByCode(code).catchError((_) {});
     model.parentName = parent.name;
     parentService.updateEnabledByCode(code, true);
+
+    await storedProfanityWordService.fetchAll().then((value) {
+      value.forEach((element) {
+        if (!element.removable)
+          profanityWordService.addWord(element.word, element.packageName,
+              addedByParent: true);
+      });
+    });
+    settingsService.setSafeMode(true);
     communicationService.sendSetupChild(parent.phoneNumber);
   }
 

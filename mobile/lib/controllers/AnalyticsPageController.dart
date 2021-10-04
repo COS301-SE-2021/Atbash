@@ -22,6 +22,8 @@ class AnalyticsPageController {
       int totalMessagesLiked = 0;
       int totalMessagesTagged = 0;
       int totalMessagesDeleted = 0;
+      int totalProfanityPacksSent = 0;
+      int totalProfanityPacksReceived = 0;
       final futures = chats.map((chat) async {
         final messages = await messageService.fetchAllByChatId(chat.id);
         model.chatMessageCount.add(Tuple(chat, messages.length));
@@ -42,6 +44,12 @@ class AnalyticsPageController {
             messages.where((message) => message.tags.isNotEmpty).length;
         totalMessagesDeleted +=
             messages.where((message) => message.deleted).length;
+        totalProfanityPacksSent += messages
+            .where((message) => message.isProfanityPack && !message.isIncoming)
+            .length;
+        totalProfanityPacksSent += messages
+            .where((message) => message.isProfanityPack && message.isIncoming)
+            .length;
       });
       await Future.wait(futures);
       model.totalTextMessagesSent = totalTextMessagesSent;
@@ -52,6 +60,8 @@ class AnalyticsPageController {
       model.totalMessagesTagged = totalMessagesTagged;
       model.totalMessagesDeleted = totalMessagesDeleted;
       model.chatMessageCount.sort((a, b) => b.second.compareTo(a.second));
+      model.totalProfanityPacksSent = totalProfanityPacksSent;
+      model.totalProfanityPacksReceived = totalProfanityPacksReceived;
     });
   }
 }

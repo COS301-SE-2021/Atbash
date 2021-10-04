@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/ChildProfanityManagerPageController.dart';
 import 'package:mobile/dialogs/ConfirmDialog.dart';
@@ -29,78 +30,81 @@ class _ChildProfanityManagerPageState extends State<ChildProfanityManagerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Child Profanity Management"),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.black),
+    return Observer(builder: (_) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Child Profanity Management"),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.black),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.search),
+                    Expanded(
+                      child: TextField(
+                        onChanged: (newValue) {
+                          controller.model.filter = newValue;
+                        },
+                        controller: searchBarController,
+                        decoration: InputDecoration(border: InputBorder.none),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.search),
-                  Expanded(
-                    child: TextField(
-                      onChanged: (newValue) {
-                        controller.model.filter = newValue;
-                      },
-                      controller: searchBarController,
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChildProfanityPackageManagerPage(
-                              childNumber: widget.childNumber,
-                            )));
-              },
-              tileColor: Constants.orange,
-              title: Text("Add New Packages"),
-              trailing: Icon(Icons.add),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: controller.model.filteredPackageCounts.length,
-                itemBuilder: (_, i) {
-                  final packageName =
-                      controller.model.filteredPackageCounts[i].second;
-                  return InkWell(
-                    onLongPress: () {
-                      showConfirmDialog(context,
-                              "Are you sure you want to delete this profanity package?")
-                          .then((value) {
-                        if (value != null && value)
-                          controller.deletePackage(packageName);
-                      });
-                    },
-                    child: ExpansionTile(
-                      childrenPadding: EdgeInsets.zero,
-                      title: Text("Package Name"),
-                      children: _buildWords(controller
-                          .model.filteredProfanityWords
-                          .where((word) => word.packageName == packageName)
-                          .toList()),
-                    ),
-                  );
+              ListTile(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ChildProfanityPackageManagerPage(
+                                childNumber: widget.childNumber,
+                              ))).then((value) => controller.reload());
                 },
+                tileColor: Constants.orange,
+                title: Text("Add New Packages"),
+                trailing: Icon(Icons.add),
               ),
-            ),
-          ],
+              Expanded(
+                child: ListView.builder(
+                  itemCount: controller.model.filteredPackageCounts.length,
+                  itemBuilder: (_, i) {
+                    final packageName =
+                        controller.model.filteredPackageCounts[i].second;
+                    return InkWell(
+                      onLongPress: () {
+                        showConfirmDialog(context,
+                                "Are you sure you want to delete this profanity package?")
+                            .then((value) {
+                          if (value != null && value)
+                            controller.deletePackage(packageName);
+                        });
+                      },
+                      child: ExpansionTile(
+                        childrenPadding: EdgeInsets.zero,
+                        title: Text(packageName),
+                        children: _buildWords(controller
+                            .model.filteredProfanityWords
+                            .where((word) => word.packageName == packageName)
+                            .toList()),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   List<Widget> _buildWords(List<ChildProfanityWord> profanityWords) {

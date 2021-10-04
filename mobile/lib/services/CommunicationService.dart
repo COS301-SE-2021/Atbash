@@ -495,9 +495,7 @@ class CommunicationService {
 
     if (response.statusCode == 200) {
       final messages = jsonDecode(response.body) as List;
-      // var messagesJson = jsonDecode(response.body);
-      // List<dynamic> messages = messagesJson != null ? List.from(messagesJson) : [];
-      messages.forEach((message) async => await _handleEvent(message as Map<String, Object?>));
+      messages.forEach((message) async => await _handleEvent(message));
     } else {
       print("${response.statusCode} - ${response.body}");
     }
@@ -527,15 +525,11 @@ class CommunicationService {
     }
   }
 
-  ///DON'T DO THIS!!! => Future<void> _handleEvent(dynamic event) async {
-  ///The jsonDecoding must be done before getting to this method
-  ///This ensures data is parse here in the correct format
-  Future<void> _handleEvent(Map<String, Object?> event) async {
+  Future<void> _handleEvent(dynamic event) async {
     await communicationLock.synchronized(() async {
       print("Acquired communication lock for handling event.");
-      // final Map<String, Object?> parsedEvent =
-      //     event is Map ? event : jsonDecode(event);
-      final Map<String, Object?> parsedEvent = event;
+      final Map<String, Object?> parsedEvent =
+          event is Map ? event : jsonDecode(event);
 
       print("Parsing event payload");
       final eventPayload = await getParsedEventPayload(parsedEvent);
@@ -1533,13 +1527,15 @@ class CommunicationService {
     final timestamp = event["timestamp"] as int?;
 
     if (id == null || encryptedContents == null || timestamp == null) {
-      print("Error: Invalid event (id, encryptedContents or timestamp is null)");
+      print(
+          "Error: Invalid event (id, encryptedContents or timestamp is null)");
       return null;
     }
     // print("Event id: " + id);
     if (recipientMid == null) {
       if (senderNumberEncrypted == null) {
-        print("Error: Invalid event (recipientMid and senderNumberEncrypted is null)");
+        print(
+            "Error: Invalid event (recipientMid and senderNumberEncrypted is null)");
         return null;
       }
       final senderPhoneNumber =

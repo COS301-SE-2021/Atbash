@@ -28,7 +28,8 @@ class PCConnectionService {
   RTCDataChannel? dataChannel;
   StreamController<Map<String, dynamic>>? _outgoingStream;
 
-  Future<void> connectToPc(String callId, {
+  Future<void> connectToPc(
+    String callId, {
     required String userDisplayName,
     required String userProfilePhoto,
     required List<Contact> contacts,
@@ -58,11 +59,6 @@ class PCConnectionService {
         if (event["type"] == "putMessage") {
           event["message"] = await _compressImageIfTooLarge(event);
         }
-
-        // if (event["type"] == "putMessage" &&
-        //     (event["message"]["contents"] as String).length > 65000) {
-        //   return;
-        // }
 
         channel.send(RTCDataChannelMessage(jsonEncode(event)));
       });
@@ -179,7 +175,7 @@ class PCConnectionService {
 
   void handleSeen(Map<String, dynamic> event) {
     final messageIds =
-    (event["messageIds"] as List).map((e) => e as String).toList();
+        (event["messageIds"] as List).map((e) => e as String).toList();
 
     if (messageIds.isNotEmpty) {
       onSeenEvent?.call(messageIds);
@@ -236,8 +232,7 @@ class PCConnectionService {
 
   FirebaseFirestore get db => FirebaseFirestore.instance;
 
-  Future<Message> _compressImageIfTooLarge(
-      Map<String, dynamic> event) async {
+  Future<Message> _compressImageIfTooLarge(Map<String, dynamic> event) async {
     final message = event["message"] as Message;
     final isMedia = message.isMedia;
 

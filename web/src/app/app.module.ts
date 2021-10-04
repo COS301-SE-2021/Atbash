@@ -12,12 +12,12 @@ import { ChatBodyComponent } from "./app-page/chat/chat-body/chat-body.component
 import { ChatInputBarComponent } from "./app-page/chat/chat-input-bar/chat-input-bar.component";
 import { ChatBodyMessageComponent } from "./app-page/chat/chat-body/chat-body-message/chat-body-message.component";
 import { FormsModule } from "@angular/forms";
-import { ContactListComponent } from './app-page/sidebar/contact-list/contact-list.component';
-import { ContactItemComponent } from './app-page/sidebar/contact-list/contact-item/contact-item.component';
-import { LoadingPageComponent } from './loading-page/loading-page.component';
-import { AppPageComponent } from './app-page/app-page.component';
+import { ContactListComponent } from "./app-page/sidebar/contact-list/contact-list.component";
+import { ContactItemComponent } from "./app-page/sidebar/contact-list/contact-item/contact-item.component";
+import { LoadingPageComponent } from "./loading-page/loading-page.component";
+import { AppPageComponent } from "./app-page/app-page.component";
 import { NgxQRCodeModule } from "@techiediaries/ngx-qrcode";
-import { ImageViewModal } from './app-page/image-view/image-view.modal';
+import { ImageViewModal } from "./app-page/image-view/image-view.modal";
 import { AngularFireModule } from "@angular/fire";
 import { AngularFirestoreModule } from "@angular/fire/firestore";
 

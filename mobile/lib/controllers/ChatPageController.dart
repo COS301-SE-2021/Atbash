@@ -164,7 +164,7 @@ class ChatPageController {
       model.addMessage(message);
       communicationService.sendAckSeen([message.id], contactPhoneNumber);
       chat.then((chat) {
-        if (chat.chatType == ChatType.general)
+        if (chat.chatType == ChatType.general && message.isIncoming)
           messageService.setMessageReadReceipt(message.id, ReadReceipt.seen);
       });
     } else if (message.otherPartyPhoneNumber == contactPhoneNumber) {

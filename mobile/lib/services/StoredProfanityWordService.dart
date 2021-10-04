@@ -97,7 +97,7 @@ class StoredProfanityWordService {
   Future<void> downloadByPackageName(String packageName) async {
     final db = await databaseService.database;
 
-    await db.rawUpdate("UPDATE TABLE ${StoredProfanityWord.TABLE_NAME} "
+    await db.rawUpdate("UPDATE ${StoredProfanityWord.TABLE_NAME} "
         "SET ${StoredProfanityWord.COLUMN_DOWNLOADED} = 1 "
         "WHERE ${StoredProfanityWord.COLUMN_PACKAGE_NAME} = '$packageName' AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = 0"
         ";");

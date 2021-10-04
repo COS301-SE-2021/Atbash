@@ -865,7 +865,7 @@ class ChatCard extends StatelessWidget {
   }
 
   Widget _renderMessageContents(List<ProfanityWord> words) {
-    if (_message.isMedia) {
+    if (_message.isMedia && !_message.deleted) {
       if (blurImages) {
         return Row(
           children: [

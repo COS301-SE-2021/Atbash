@@ -17,6 +17,7 @@ import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/MessageEditDialog.dart';
+import 'package:mobile/dialogs/ProfanityPickerDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
@@ -55,6 +56,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final ChatPageController controller;
+  bool isInputClicked = false;
 
   _ChatPageState({
     required String chatId,
@@ -424,6 +426,8 @@ class _ChatPageState extends State<ChatPage> {
         );
       },
       onMediaDownload: () => _saveImage(base64Decode(message.contents)),
+      onProfanityDownload: () =>
+          controller.downloadProfanityPack(message.contents),
       contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
       profanityFilter: controller.model.profanityFilter,
@@ -439,54 +443,102 @@ class _ChatPageState extends State<ChatPage> {
   Container _buildInput() {
     return Container(
       color: Constants.darkGrey.withOpacity(0.88),
+      height: 65,
       child: SafeArea(
         child: Row(
           children: [
             IconButton(
               padding: EdgeInsets.only(
                 top: 10,
-                left: 5,
+                left: 10,
               ),
-              onPressed: _sendImage,
+              onPressed: () {
+                setState(() {
+                  isInputClicked = !isInputClicked;
+                });
+              },
               icon: Icon(
                 Icons.add_circle_outline,
                 color: Constants.white,
               ),
             ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
-                decoration: BoxDecoration(
-                  color: Constants.orange,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: TextField(
-                    cursorColor: Constants.black,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: "Type message",
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
+            if (!isInputClicked)
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                  decoration: BoxDecoration(
+                    color: Constants.orange,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextField(
+                      cursorColor: Constants.black,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Type message",
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                      ),
+                      maxLines: 4,
+                      minLines: 1,
+                      controller: _inputController,
+                      style: TextStyle(fontSize: 16.0),
                     ),
-                    maxLines: 4,
-                    minLines: 1,
-                    controller: _inputController,
-                    style: TextStyle(fontSize: 16.0),
                   ),
                 ),
               ),
-            ),
-            IconButton(
-              padding: EdgeInsets.only(top: 10),
-              onPressed: _sendMessage,
-              icon: Icon(
-                Icons.send,
-                color: Constants.white,
+            if (isInputClicked)
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _sendImage();
+                          setState(() {
+                            isInputClicked = false;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _sendProfanityPack();
+                            isInputClicked = false;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.description,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            Container(
+              child: IconButton(
+                padding: EdgeInsets.only(top: 10),
+                onPressed: _sendMessage,
+                icon: Icon(
+                  Icons.send,
+                  color: Constants.white,
+                ),
               ),
             )
           ],
@@ -537,6 +589,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _sendProfanityPack() async {
+    showProfanityPickerDialog(context, await controller.getPacks())
+        .then((packageName) {
+      if (packageName != null) controller.sendPackage(packageName);
+    });
+  }
+
   void _saveImage(Uint8List messageBytes) async {
     await ImageGallerySaver.saveImage(messageBytes);
     showSnackBar(context, "Image saved.");
@@ -553,6 +612,7 @@ class ChatCard extends StatelessWidget {
   final void Function() onReplyPressed;
   final void Function() onRepliedMessagePressed;
   final void Function() onMediaDownload;
+  final void Function() onProfanityDownload;
   final bool blurImages;
   final bool profanityFilter;
   final bool blockEditingMessages;
@@ -573,6 +633,7 @@ class ChatCard extends StatelessWidget {
     required this.onReplyPressed,
     required this.onRepliedMessagePressed,
     required this.onMediaDownload,
+    required this.onProfanityDownload,
     this.blurImages = false,
     this.profanityFilter = false,
     this.chatType = ChatType.general,
@@ -591,200 +652,245 @@ class ChatCard extends StatelessWidget {
     return Observer(builder: (context) {
       final repliedMessage = this.repliedMessage;
 
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
-        child: Align(
-          alignment: _message.isIncoming
-              ? Alignment.centerLeft
-              : Alignment.centerRight,
-          child: IntrinsicWidth(
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: _message.isIncoming
-                        ? Constants.darkGrey.withOpacity(0.88)
-                        : Constants.orange.withOpacity(0.88),
-                  ),
-                  //TODO swipe right to reply
-                  child: InkWell(
-                    onDoubleTap: onDoubleTap,
-                    child: FocusedMenuHolder(
-                      animateMenuItems: false,
-                      blurSize: 2,
-                      blurBackgroundColor: Constants.black,
-                      menuWidth: MediaQuery.of(context).size.width * 0.4,
-                      onPressed: onTap,
-                      menuItemExtent: 40,
-                      menuItems: [
-                        if (!_message.deleted && !_message.isMedia)
-                          FocusedMenuItem(
-                            title: Text("Reply"),
-                            onPressed: onReplyPressed,
-                            trailingIcon: Icon(Icons.reply),
-                          ),
-                        if (!_message.deleted &&
-                            _message.isMedia &&
-                            !blockSaveMedia)
-                          FocusedMenuItem(
-                            title: Text("Download"),
-                            onPressed: onMediaDownload,
-                            trailingIcon: Icon(Icons.save_alt),
-                          ),
-                        // if (!_message.deleted && chatType == ChatType.general)
-                        //   FocusedMenuItem(
-                        //       title: Text("Tag"),
-                        //       onPressed: () {},
-                        //       trailingIcon: Icon(Icons.tag)),
-                        if (!_message.deleted &&
-                            !_message.isMedia &&
-                            !_message.isIncoming &&
-                            !blockEditingMessages)
-                          FocusedMenuItem(
-                              title: Text("Edit"),
-                              onPressed: onEditPressed,
-                              trailingIcon: Icon(Icons.edit)),
-                        if (!_message.deleted && chatType == ChatType.general)
-                          FocusedMenuItem(
-                              title: Text("Forward"),
-                              onPressed: () {
-                                onForwardPressed();
-                              },
-                              trailingIcon: Icon(Icons.forward)),
-                        if (!_message.deleted && !_message.isMedia)
-                          FocusedMenuItem(
-                              title: Text("Copy"),
-                              onPressed: () => Clipboard.setData(
-                                  ClipboardData(text: _message.contents)),
-                              trailingIcon: Icon(Icons.copy)),
-                        if (chatType == ChatType.general &&
-                            !blockDeletingMessages)
-                          FocusedMenuItem(
-                              title: Text(
-                                "Delete",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              onPressed: onDelete,
-                              trailingIcon: Icon(
-                                Icons.delete,
-                                color: Constants.white,
-                              ),
-                              backgroundColor: Colors.redAccent),
-                      ],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          if (_message.forwarded && _message.isIncoming)
-                            Container(
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.reply,
-                                    textDirection: TextDirection.rtl,
-                                    size: 16,
-                                    color: Colors.white.withOpacity(0.69),
-                                  ),
-                                  Text(
-                                    "Forwarded",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white.withOpacity(0.69)),
-                                  ),
+      return Row(
+        mainAxisAlignment: _message.isIncoming
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.end,
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 2.5),
+            child: Align(
+              alignment: _message.isIncoming
+                  ? Alignment.centerLeft
+                  : Alignment.centerRight,
+              child: IntrinsicWidth(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(Icons.document_scanner),
+                        Expanded(
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: _message.isProfanityPack
+                                  ? Border.all(color: Colors.black, width: 2)
+                                  : null,
+                              borderRadius: BorderRadius.circular(
+                                  _message.isProfanityPack ? 16 : 4),
+                              color: _message.isIncoming
+                                  ? Constants.darkGrey.withOpacity(0.88)
+                                  : Constants.orange.withOpacity(0.88),
+                            ),
+                            //TODO swipe right to reply
+                            child: InkWell(
+                              onDoubleTap: onDoubleTap,
+                              child: FocusedMenuHolder(
+                                animateMenuItems: false,
+                                blurSize: 2,
+                                blurBackgroundColor: Constants.black,
+                                menuWidth:
+                                    MediaQuery.of(context).size.width * 0.4,
+                                onPressed: onTap,
+                                menuItemExtent: 40,
+                                menuItems: [
+                                  if (!_message.deleted &&
+                                      !_message.isMedia &&
+                                      !_message.isProfanityPack)
+                                    FocusedMenuItem(
+                                      title: Text("Reply"),
+                                      onPressed: onReplyPressed,
+                                      trailingIcon: Icon(Icons.reply),
+                                    ),
+                                  if (!_message.deleted &&
+                                      (_message.isMedia && !blockSaveMedia ||
+                                          _message.isProfanityPack))
+                                    FocusedMenuItem(
+                                      title: Text("Download"),
+                                      onPressed: _message.isProfanityPack
+                                          ? onProfanityDownload
+                                          : onMediaDownload,
+                                      trailingIcon: Icon(Icons.save_alt),
+                                    ),
+                                  // if (!_message.deleted && chatType == ChatType.general)
+                                  //   FocusedMenuItem(
+                                  //       title: Text("Tag"),
+                                  //       onPressed: () {},
+                                  //       trailingIcon: Icon(Icons.tag)),
+                                  if (!_message.deleted &&
+                                      !_message.isMedia &&
+                                      !_message.isIncoming &&
+                                      !blockEditingMessages &&
+                                      !_message.isProfanityPack)
+                                    FocusedMenuItem(
+                                        title: Text("Edit"),
+                                        onPressed: onEditPressed,
+                                        trailingIcon: Icon(Icons.edit)),
+                                  if (!_message.deleted &&
+                                      chatType == ChatType.general)
+                                    FocusedMenuItem(
+                                        title: Text("Forward"),
+                                        onPressed: () {
+                                          onForwardPressed();
+                                        },
+                                        trailingIcon: Icon(Icons.forward)),
+                                  if (!_message.deleted &&
+                                      !_message.isMedia &&
+                                      !_message.isProfanityPack)
+                                    FocusedMenuItem(
+                                        title: Text("Copy"),
+                                        onPressed: () => Clipboard.setData(
+                                            ClipboardData(
+                                                text: _message.contents)),
+                                        trailingIcon: Icon(Icons.copy)),
+                                  if (chatType == ChatType.general &&
+                                      !blockDeletingMessages)
+                                    FocusedMenuItem(
+                                        title: Text(
+                                          "Delete",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        onPressed: onDelete,
+                                        trailingIcon: Icon(
+                                          Icons.delete,
+                                          color: Constants.white,
+                                        ),
+                                        backgroundColor: Colors.redAccent),
                                 ],
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (_message.forwarded &&
+                                        _message.isIncoming &&
+                                        _message.isProfanityPack)
+                                      Container(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.reply,
+                                              textDirection: TextDirection.rtl,
+                                              size: 16,
+                                              color: Colors.white
+                                                  .withOpacity(0.69),
+                                            ),
+                                            Text(
+                                              "Forwarded",
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.white
+                                                      .withOpacity(0.69)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    if (repliedMessage != null &&
+                                        repliedMessage.contents != "")
+                                      InkWell(
+                                        onTap: onRepliedMessagePressed,
+                                        child: Container(
+                                          padding: EdgeInsets.all(5),
+                                          decoration: BoxDecoration(
+                                            color: _message.isIncoming
+                                                ? Constants.orange
+                                                : Constants.darkGrey,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          constraints: BoxConstraints(
+                                            maxWidth: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.7,
+                                          ),
+                                          child: Text(
+                                            "${repliedMessage.isIncoming ? contactTitle : "You"}\n${repliedMessage.contents}",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12),
+                                            maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    SizedBox(
+                                      height: 4,
+                                    ),
+                                    Container(
+                                      child: _renderMessageContents(words),
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.7,
+                                      ),
+                                    ),
+                                    Container(
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          if (_message.edited)
+                                            Text(
+                                              "Edited",
+                                              style: TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.white),
+                                            ),
+                                          if (_message.edited)
+                                            Expanded(child: Container()),
+                                          if (_message.edited)
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                          Text(
+                                            dateFormatter
+                                                .format(_message.timestamp),
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.white),
+                                          ),
+                                          SizedBox(
+                                            width: 2,
+                                          ),
+                                          if (!_message.isIncoming)
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 2),
+                                              child: _readReceipt(),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          if (repliedMessage != null &&
-                              repliedMessage.contents != "")
-                            InkWell(
-                              onTap: onRepliedMessagePressed,
-                              child: Container(
-                                padding: EdgeInsets.all(5),
-                                decoration: BoxDecoration(
-                                  color: _message.isIncoming
-                                      ? Constants.orange
-                                      : Constants.darkGrey,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.7,
-                                ),
-                                child: Text(
-                                  "${repliedMessage.isIncoming ? contactTitle : "You"}\n${repliedMessage.contents}",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                          SizedBox(
-                            height: 4,
                           ),
-                          Container(
-                            child: _renderMessageContents(words),
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.7,
-                            ),
-                          ),
-                          Container(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (_message.edited)
-                                  Text(
-                                    "Edited",
-                                    style: TextStyle(
-                                        fontSize: 10, color: Colors.white),
-                                  ),
-                                if (_message.edited)
-                                  Expanded(child: Container()),
-                                if (_message.edited)
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                Text(
-                                  dateFormatter.format(_message.timestamp),
-                                  style: TextStyle(
-                                      fontSize: 10, color: Colors.white),
-                                ),
-                                SizedBox(
-                                  width: 2,
-                                ),
-                                if (!_message.isIncoming)
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2),
-                                    child: _readReceipt(),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
+                      ],
+                    ),
+                    if (_message.liked)
+                      Container(
+                        alignment: _message.isIncoming
+                            ? Alignment.topLeft
+                            : Alignment.topRight,
+                        child: Icon(
+                          Icons.favorite,
+                          size: 16,
+                          color: _message.isIncoming
+                              ? Constants.orange
+                              : Constants.darkGrey,
+                        ),
                       ),
-                    ),
-                  ),
+                  ],
                 ),
-                if (_message.liked)
-                  Container(
-                    alignment: _message.isIncoming
-                        ? Alignment.topLeft
-                        : Alignment.topRight,
-                    child: Icon(
-                      Icons.favorite,
-                      size: 16,
-                      color: _message.isIncoming
-                          ? Constants.orange
-                          : Constants.darkGrey,
-                    ),
-                  ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       );
     });
   }
@@ -816,10 +922,13 @@ class ChatCard extends StatelessWidget {
         base64Decode(_message.contents),
         height: 200,
       );
-    } else if(_message.isProfanityPack){
-      //TODO design profanityPack & delete below code, its placeholder
-      return Text("hello");
-    }else{
+    } else if (_message.isProfanityPack && !_message.deleted) {
+      return Text(
+        "Profanity Pack\nName: ${_message.contents}",
+        style: TextStyle(color: Colors.white),
+        textAlign: TextAlign.center,
+      );
+    } else {
       return Text(
         _message.deleted
             ? "This message was deleted"

@@ -93,6 +93,15 @@ class StoredProfanityWordService {
     db.delete(StoredProfanityWord.TABLE_NAME,
         where: "${StoredProfanityWord.COLUMN_ID} =?", whereArgs: [id]);
   }
+
+  Future<void> downloadByPackageName(String packageName) async {
+    final db = await databaseService.database;
+
+    await db.rawUpdate("UPDATE TABLE ${StoredProfanityWord.TABLE_NAME} "
+        "SET ${StoredProfanityWord.COLUMN_DOWNLOADED} = 1 "
+        "WHERE ${StoredProfanityWord.COLUMN_PACKAGE_NAME} = '$packageName' AND ${StoredProfanityWord.COLUMN_DOWNLOADED} = 0"
+        ";");
+  }
 }
 
 class StoredProfanityWordAlreadyExistsException {}

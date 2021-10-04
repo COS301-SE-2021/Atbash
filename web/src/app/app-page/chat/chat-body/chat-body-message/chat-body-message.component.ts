@@ -53,8 +53,8 @@ export class ChatBodyMessageComponent implements OnInit {
         return this.message?.timestamp ?? new Date()
     }
 
-    get readStatusSVG(){
-        if(this.message != null) {
+    get readStatusSVG() {
+        if (this.message != null) {
             switch (this.message?.readReceipt) {
                 case ReadReceipt.undelivered:
                     return "assets/close_black_24dp.svg";

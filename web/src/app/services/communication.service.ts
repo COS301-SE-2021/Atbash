@@ -50,7 +50,7 @@ export class CommunicationService {
         const offer = await peerConnection.createOffer()
         await peerConnection.setLocalDescription(offer)
 
-        await call.set({offer})
+        await call.set({ offer })
         this.callId = call.ref.id
 
         call.snapshotChanges().subscribe(changes => {
@@ -143,11 +143,11 @@ export class CommunicationService {
     }
 
     sendSeen(messageIds: string[]) {
-        if(messageIds.length > 0) {
+        if (messageIds.length > 0) {
             this.dataChannel?.send(JSON.stringify({
                 origin: "web",
-                    type: "seen",
-                    messageIds: messageIds,
+                type: "seen",
+                messageIds: messageIds,
             }))
         }
     }

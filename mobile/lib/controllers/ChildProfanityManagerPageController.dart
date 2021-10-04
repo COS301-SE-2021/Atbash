@@ -51,6 +51,7 @@ class ChildProfanityManagerPageController {
         addedByParent: true));
     communicationService.sendNewProfanityWordToChild(
         childNumber, words, "insert");
+    reload();
   }
 
   void deleteWord(ChildProfanityWord profanityWord) {
@@ -65,6 +66,7 @@ class ChildProfanityManagerPageController {
         childNumber, words, "delete");
     childProfanityWordService.deleteByNumberAndID(
         childNumber, profanityWord.id);
+    reload();
   }
 
   void deletePackage(String packageName) {
@@ -88,5 +90,6 @@ class ChildProfanityManagerPageController {
 
     childProfanityWordService.deleteByChildNumberAndPackageName(
         childNumber, packageName);
+    reload();
   }
 }

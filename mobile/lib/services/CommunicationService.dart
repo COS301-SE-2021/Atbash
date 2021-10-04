@@ -633,7 +633,7 @@ class CommunicationService {
             final contents = decryptedContents["packageName"] as String;
 
             profanityWords.forEach((word) {
-              final map = ProfanityWord as Map<String, dynamic>;
+              final map = word as Map<String, dynamic>;
               storedProfanityWordService.addWord(
                   map["word"], map["packageName"], true,
                   downloaded: false);
@@ -1141,6 +1141,8 @@ class CommunicationService {
             break;
 
           case "contactImageToParent":
+            print(
+                "IVE RECIEVD CHILDS CONTACTS PROFILE PHOTOS FOR ${decryptedContents["contactPhoneNumber"] as String}");
             final imageId = decryptedContents["mediaId"] as String;
             final secretKeyBase64 = decryptedContents["key"] as String;
 
@@ -1201,6 +1203,7 @@ class CommunicationService {
       timestamp: timestamp,
       isMedia: isMedia,
       forwarded: forwarded,
+      isProfanityPack: isProfanityPack,
       readReceipt: ReadReceipt.delivered,
       repliedMessageId: repliedMessageId,
       deleted: false,
@@ -1210,7 +1213,7 @@ class CommunicationService {
 
     if (chatType == ChatType.general) {
       await messageService.insert(message);
-      if (!message.isMedia)
+      if (!message.isMedia && !message.isProfanityPack)
         parentService.fetchByEnabled().then((parent) async {
           await sendChildMessageToParent(parent.phoneNumber, message);
         }).catchError((_) {});
@@ -1523,7 +1526,7 @@ class CommunicationService {
 
   Future<void> sendSetupChild(String parentNumber) async {
     final List<Contact> contacts = await contactService.fetchAll();
-    final List<Contact> contactsSendAfter = contacts;
+    final List<Contact> contactsSendAfter = contacts.where((element) => true).toList();
     contacts.forEach((contact) {
       contact.profileImage = "";
     });
@@ -1571,7 +1574,9 @@ class CommunicationService {
     _queueForSending(contents, parentNumber);
 
     contactsSendAfter.forEach((contact) async {
+      print("${contact.displayName} has photo: ${contact.profileImage}");
       if (contact.profileImage != "") {
+        print("IM IN SENDING CONTACT PHOTO");
         final mediaUpload =
             await mediaService.uploadMedia(contact.profileImage);
 

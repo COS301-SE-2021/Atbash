@@ -29,16 +29,16 @@ export class MessageService {
 
                     if (message.chatId == this.selectedChat?.id) {
                         const chatMessagesIndex = this.chatMessages.findIndex(m => m.id == message.id)
-                        if (message.readReceipt != ReadReceipt.seen) {
-                            message.readReceipt = ReadReceipt.seen
-                        }
                         if (chatMessagesIndex == -1) {
                             this.chatMessages.push(message)
                             this.chatMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
                         } else {
                             this.chatMessages[chatMessagesIndex] = message
                         }
-                        this.com.sendSeen([message.id])
+                        if (message.isIncoming && message.readReceipt != ReadReceipt.seen) {
+                            message.readReceipt = ReadReceipt.seen
+                            this.com.sendSeen([message.id])
+                        }
                     }
                 }
             } else if (event.type == IncomingEventType.DELETE) {
@@ -51,21 +51,18 @@ export class MessageService {
     enterChat(chat: Chat | null) {
         this.selectedChat = chat
         this.chatMessages = []
-        //this.chatMessages = this.messageList.filter(message => message.chatId == chat?.id)
-        let messageIds: string[] = []
-
-        this.messageList.map((message, index) => {
+        this.chatMessages = this.messageList.filter(message => {
             if (message.chatId == chat?.id) {
                 if (message.isIncoming && message.readReceipt != ReadReceipt.seen) {
                     message.readReceipt = ReadReceipt.seen
-                    this.messageList[index] = message
-                    messageIds.push(message.id)
+                    this.com.sendSeen([message.id])
                 }
-                this.chatMessages.push(message)
+
+                return true
+            } else {
+                return false
             }
         })
-
-        this.com.sendSeen(messageIds)
     }
 
     sendMessage(contents: string) {

@@ -20,6 +20,7 @@ class _LockedAccountPageState extends State<LockedAccountPage> {
         context,
         MaterialPageRoute(
           builder: (BuildContext context) => HomePage(),
+          settings: RouteSettings(name: "/"),
         ),
         (route) => false,
       );

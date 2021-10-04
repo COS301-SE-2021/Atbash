@@ -50,11 +50,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   late final FocusNode _searchFocusNode;
 
   void _onLockedAccountChangeToChild(value) {
-    if (value)
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (BuildContext context) => LockedAccountPage(),
+          builder: (BuildContext context) => value ? LockedAccountPage() : HomePage(),
         ),
         (route) => false,
       );
@@ -66,7 +65,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     settingsService.getLockedAccount().then((value) {
       if (value) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => LockedAccountPage()));
+            context, MaterialPageRoute(builder: (_) => value ? LockedAccountPage() : HomePage()));
       }
     });
 

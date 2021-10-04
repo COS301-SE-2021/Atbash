@@ -985,6 +985,27 @@ class CommunicationService {
             });
 
             onSetUpChild?.call();
+
+            _sendSetupChildConfirmation(senderPhoneNumber);
+            break;
+
+          case "setupChildConfirmation":
+            final List<Contact> contacts = await contactService.fetchAll();
+
+            contacts.forEach((contact) async {
+              if (contact.profileImage != "") {
+                final mediaUpload =
+                    await mediaService.uploadMedia(contact.profileImage);
+
+                if (mediaUpload != null) {
+                  _sendContactImageToParent(
+                      senderPhoneNumber,
+                      contact.phoneNumber,
+                      mediaUpload.mediaId,
+                      mediaUpload.secretKeyBase64);
+                }
+              }
+            });
             break;
 
           case "newProfanityWordsToChild":
@@ -1526,7 +1547,6 @@ class CommunicationService {
 
   Future<void> sendSetupChild(String parentNumber) async {
     final List<Contact> contacts = await contactService.fetchAll();
-    final List<Contact> contactsSendAfter = contacts.where((element) => true).toList();
     contacts.forEach((contact) {
       contact.profileImage = "";
     });
@@ -1572,20 +1592,6 @@ class CommunicationService {
       "messages": messages
     });
     _queueForSending(contents, parentNumber);
-
-    contactsSendAfter.forEach((contact) async {
-      print("${contact.displayName} has photo: ${contact.profileImage}");
-      if (contact.profileImage != "") {
-        print("IM IN SENDING CONTACT PHOTO");
-        final mediaUpload =
-            await mediaService.uploadMedia(contact.profileImage);
-
-        if (mediaUpload != null) {
-          _sendContactImageToParent(parentNumber, contact.phoneNumber,
-              mediaUpload.mediaId, mediaUpload.secretKeyBase64);
-        }
-      }
-    });
   }
 
   Future<void> sendAllSettingsToParent(
@@ -1606,6 +1612,12 @@ class CommunicationService {
       "shareBirthday": shareBirthday
     });
     _queueForSending(contents, parentNumber);
+  }
+
+  Future<void> _sendSetupChildConfirmation(String recipientPhoneNumber) async {
+    final contents = jsonEncode({"type": "setupChildConfirmation"});
+
+    _queueForSending(contents, recipientPhoneNumber);
   }
 
   Future<void> sendEditableSettingsChangeToChild(

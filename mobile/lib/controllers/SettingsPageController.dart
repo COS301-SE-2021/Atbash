@@ -62,7 +62,7 @@ class SettingsPageController {
         .then((value) => model.userProfilePicture = value);
     parentService.fetchByEnabled().then((value) {
       model.parentName = value.name;
-    }).catchError((_) => model.parentName = "");
+    }).catchError((_) {});
   }
 
   void setBlurImages(bool value) {

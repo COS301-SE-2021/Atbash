@@ -414,6 +414,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         preview = "This message was deleted";
       } else if (message.isMedia) {
         preview = "\u{1f4f7} Photo";
+      } else if (message.isProfanityPack) {
+        preview = "\u{1f4d9} Profanity Pack";
       } else if (controller.model.profanityFilter) {
         preview = _filterContents(message.contents);
       } else {

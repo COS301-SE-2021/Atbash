@@ -31,4 +31,10 @@ abstract class _AnalyticsPageModel with Store {
 
   @observable
   int totalMessagesDeleted = 0;
+
+  @observable
+  int totalProfanityPacksSent = 0;
+
+  @observable
+  int totalProfanityPacksReceived = 0;
 }

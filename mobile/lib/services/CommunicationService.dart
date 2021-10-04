@@ -1276,7 +1276,8 @@ class CommunicationService {
       if (isMedia) {
         body = "\u{1f4f7} Photo";
       } else {
-        body = messageContents;
+        body = _filterContents(
+            messageContents, await profanityWordService.fetchAll());
       }
     }
 
@@ -1290,6 +1291,15 @@ class CommunicationService {
       body: body,
       payload: payload,
     );
+  }
+
+  String _filterContents(String unfilteredContents, List<ProfanityWord> words) {
+    words.forEach((profanityWord) {
+      unfilteredContents = unfilteredContents.replaceAllMapped(
+          RegExp(profanityWord.regex, caseSensitive: false),
+          (match) => List.filled(match.end - match.start, "*").join());
+    });
+    return unfilteredContents;
   }
 
   Future<void> _deleteMessageFromServer(String id) async {

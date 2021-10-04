@@ -383,6 +383,7 @@ class ChatPageController {
       communicationService.sendProfanityWords(
           wordsToSend, ChatType.general, message, contactPhoneNumber);
       model.addMessage(message);
+      messageService.insert(message);
     });
   }
 

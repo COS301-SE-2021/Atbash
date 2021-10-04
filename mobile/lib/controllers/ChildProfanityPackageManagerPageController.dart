@@ -61,9 +61,8 @@ class ChildProfanityPackageManagerPageController {
             addedByParent: true);
         sentProfanityWords.add(profanityWord);
       }
-
-      communicationService.sendNewProfanityWordToChild(
-          childNumber, sentProfanityWords, "insert");
     });
+    communicationService.sendNewProfanityWordToChild(
+        childNumber, sentProfanityWords, "insert");
   }
 }

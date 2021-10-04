@@ -301,7 +301,10 @@ class _ParentalSettingsPageState extends State<ParentalSettingsPage> {
                             context,
                             MaterialPageRoute(
                                 builder: (_) => ChildProfanityManagerPage(
-                                      childNumber: "082",
+                                      childNumber: controller
+                                          .model
+                                          .children[controller.model.index]
+                                          .phoneNumber,
                                     )));
                       },
                       dense: true,

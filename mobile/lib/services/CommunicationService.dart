@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:crypton/crypton.dart';
 import 'package:http/http.dart';
 import 'package:mobile/constants.dart';
@@ -285,7 +286,7 @@ class CommunicationService {
                 print("Failed to createMessagebox for sending message");
                 return;
               }
-              await registerConnectionForMessagebox(senderMid);
+              await registerConnectionForMessageboxes([senderMid]);
             } else {
               senderMid = messagebox.id;
             }
@@ -417,15 +418,6 @@ class CommunicationService {
     };
   }
 
-  Future<void> registerConnectionForMessagebox(String mid) async {
-    if (anonymousConnectionId == null) {
-      await _getAnonymousConnectionId(anonymousId);
-    }
-    print("Registering connection for mid:" + mid);
-    final uri = Uri.parse(Constants.httpUrl + "messageboxes/$mid/connectionId");
-    await put(uri, body: anonymousConnectionId);
-  }
-
   Future<void> goOnline() async {
     print("Going online");
     final phoneNumber = await userService.getPhoneNumber();
@@ -433,10 +425,12 @@ class CommunicationService {
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
     print("Fetching unread messages for number " + phoneNumber);
-    Timer.periodic(Duration(seconds: 3), (timer) {
-      _fetchUnreadMessages(encodedPhoneNumber);
-      _fetchUnreadMessageboxMessages();
-    });
+    // Timer.periodic(Duration(seconds: 3), (timer) {
+    //   _fetchUnreadMessages(encodedPhoneNumber);
+    //   _fetchUnreadMessageboxMessages();
+    // });
+    _fetchUnreadMessages(encodedPhoneNumber);
+    _fetchUnreadMessageboxMessages();
     await encryptionService.managePreKeys();
 
     channelNumber?.sink.close();
@@ -450,30 +444,7 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    anonymousId = Uuid().v4();
-    channelAnonymous?.sink.close();
-    channelAnonymous = IOWebSocketChannel.connect(
-      Uri.parse("${Constants.webSocketUrl}?anonymousId=$anonymousId"),
-      pingInterval: Duration(minutes: 9),
-    );
-
-    channelAnonymous?.stream.listen((event) async {
-      // if(anonymousConnectionId == null){
-      //   anonymousConnectionId = event as String;
-      //   print("AnonymousConnectionId is: " + anonymousConnectionId!);
-      //
-      //   final List<String> ids = await messageboxService.getAllMessageboxIds();
-      //
-      //   ids.forEach((element) async {
-      //     await registerConnectionForMessagebox(element);
-      //   });
-      // } else {
-      //   print("Handling anonymous event");
-      //   await _handleEvent(event);
-      // }
-      print("Handling anonymous event");
-      await _handleEvent(event);
-    });
+    await _setupAnonymousConnection();
 
     await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
@@ -491,27 +462,45 @@ class CommunicationService {
         });
       });
     });
-
-    await _getAnonymousConnectionId(anonymousId);
   }
 
-  Future<void> _getAnonymousConnectionId(String anonymousId) async {
-    final uri =
-        Uri.parse(Constants.httpUrl + "connection?anonymousId=$anonymousId");
-    final response = await get(uri);
+  Future<void> _setupAnonymousConnection() async {
+    print("_setupAnonymousConnection");
+    channelAnonymous?.sink.close();
+    channelAnonymous = IOWebSocketChannel.connect(
+      Uri.parse("${Constants.webSocketUrl}?anonymousId=$anonymousId"),
+      pingInterval: Duration(minutes: 1),
+    );
 
-    if (response.statusCode == 200) {
-      anonymousConnectionId = response.body;
-      print("AnonymousConnectionId is: " + anonymousConnectionId!);
+    channelAnonymous?.stream.listen((event) async {
+      print("Handling anonymous event");
+      await _handleEvent(event);
+    });
 
-      final List<String> ids = await messageboxService.getAllMessageboxIds();
+    final List<String> ids = await messageboxService.getAllMessageboxIds();
 
-      ids.forEach((element) async {
-        await registerConnectionForMessagebox(element);
-      });
-    } else {
-      print("${response.statusCode} - ${response.body}");
+    if(ids.isNotEmpty){
+      print("Registering Connection For Messageboxes");
+      while((await registerConnectionForMessageboxes(ids)) == false);
+      print("Registering complete");
     }
+
+    //If this connection closes, start another
+    channelAnonymous?.innerWebSocket?.done.then((val) => _setupAnonymousConnection());
+  }
+
+  Future<bool> registerConnectionForMessageboxes(List<String> ids) async{
+    if(channelAnonymous != null && channelAnonymous?.innerWebSocket != null && channelAnonymous?.innerWebSocket?.readyState != WebSocket.open){
+      channelAnonymous?.sink.add(jsonEncode(
+          {
+            "action": "registermidsconnection",
+            "data": ids
+          }
+      ));
+
+      return true;
+    }
+    return false;
   }
 
   Future<void> _fetchUnreadMessages(String encodedPhoneNumber) async {
@@ -1779,7 +1768,7 @@ class CommunicationService {
               await messageboxService.updateMessageboxRSAKey(
                   newMid, RSAPublicKey.fromString(rsaKey));
             }
-            await registerConnectionForMessagebox(newMid);
+            await registerConnectionForMessageboxes([newMid]);
           }
         } else {
           if (messagebox.recipientId != senderMid) {

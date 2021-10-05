@@ -4,6 +4,8 @@ exports.handler = async event => {
     const {connectionId} = event.requestContext
     const {data} = JSON.parse(event.body)
 
+    console.log(event.body);
+
     if (connectionId === undefined) {
         return {statusCode: 500, body: "connectionId not present"}
     }

@@ -64,12 +64,29 @@ mixin _$BlockedContactsPageModel on _BlockedContactsPageModel, Store {
     });
   }
 
+  final _$parentNumberAtom =
+      Atom(name: '_BlockedContactsPageModel.parentNumber');
+
+  @override
+  String? get parentNumber {
+    _$parentNumberAtom.reportRead();
+    return super.parentNumber;
+  }
+
+  @override
+  set parentNumber(String? value) {
+    _$parentNumberAtom.reportWrite(value, super.parentNumber, () {
+      super.parentNumber = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
 blockedNumbers: ${blockedNumbers},
 contacts: ${contacts},
 filter: ${filter},
+parentNumber: ${parentNumber},
 filteredNumbers: ${filteredNumbers}
     ''';
   }

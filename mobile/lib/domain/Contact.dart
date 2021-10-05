@@ -26,12 +26,45 @@ class Contact extends _Contact with _$Contact {
     };
   }
 
+  Map toJson() => {
+        'phoneNumber': phoneNumber,
+        'displayName': displayName,
+        'status': status,
+        'profileImage': profileImage,
+        'birthday': birthday?.millisecondsSinceEpoch ?? 0
+      };
+
   static Contact? fromMap(Map<String, Object?> map) {
     final phoneNumber = map[COLUMN_PHONE_NUMBER] as String?;
     final displayName = map[COLUMN_DISPLAY_NAME] as String?;
     final status = map[COLUMN_STATUS] as String?;
     final profileImage = map[COLUMN_PROFILE_IMAGE] as String?;
     final birthday = map[COLUMN_BIRTHDAY] as int?;
+
+    if (phoneNumber != null &&
+        displayName != null &&
+        status != null &&
+        profileImage != null) {
+      return Contact(
+        phoneNumber: phoneNumber,
+        displayName: displayName,
+        status: status,
+        profileImage: profileImage,
+        birthday: birthday != null
+            ? DateTime.fromMillisecondsSinceEpoch(birthday)
+            : null,
+      );
+    } else {
+      return null;
+    }
+  }
+
+  static Contact? fromJson(Map<String, dynamic> json) {
+    final phoneNumber = json["phoneNumber"] as String?;
+    final displayName = json["displayName"] as String?;
+    final status = json["status"] as String?;
+    final profileImage = json["profileImage"] as String?;
+    final birthday = json["birthday"] as int?;
 
     if (phoneNumber != null &&
         displayName != null &&

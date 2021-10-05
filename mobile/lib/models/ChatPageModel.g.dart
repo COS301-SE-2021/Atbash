@@ -24,6 +24,21 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$profanityWordsAtom = Atom(name: '_ChatPageModel.profanityWords');
+
+  @override
+  List<ProfanityWord> get profanityWords {
+    _$profanityWordsAtom.reportRead();
+    return super.profanityWords;
+  }
+
+  @override
+  set profanityWords(List<ProfanityWord> value) {
+    _$profanityWordsAtom.reportWrite(value, super.profanityWords, () {
+      super.profanityWords = value;
+    });
+  }
+
   final _$onlineAtom = Atom(name: '_ChatPageModel.online');
 
   @override
@@ -145,6 +160,71 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
     });
   }
 
+  final _$privateChatAccessAtom =
+      Atom(name: '_ChatPageModel.privateChatAccess');
+
+  @override
+  bool get privateChatAccess {
+    _$privateChatAccessAtom.reportRead();
+    return super.privateChatAccess;
+  }
+
+  @override
+  set privateChatAccess(bool value) {
+    _$privateChatAccessAtom.reportWrite(value, super.privateChatAccess, () {
+      super.privateChatAccess = value;
+    });
+  }
+
+  final _$blockSaveMediaAtom = Atom(name: '_ChatPageModel.blockSaveMedia');
+
+  @override
+  bool get blockSaveMedia {
+    _$blockSaveMediaAtom.reportRead();
+    return super.blockSaveMedia;
+  }
+
+  @override
+  set blockSaveMedia(bool value) {
+    _$blockSaveMediaAtom.reportWrite(value, super.blockSaveMedia, () {
+      super.blockSaveMedia = value;
+    });
+  }
+
+  final _$blockEditingMessagesAtom =
+      Atom(name: '_ChatPageModel.blockEditingMessages');
+
+  @override
+  bool get blockEditingMessages {
+    _$blockEditingMessagesAtom.reportRead();
+    return super.blockEditingMessages;
+  }
+
+  @override
+  set blockEditingMessages(bool value) {
+    _$blockEditingMessagesAtom.reportWrite(value, super.blockEditingMessages,
+        () {
+      super.blockEditingMessages = value;
+    });
+  }
+
+  final _$blockDeletingMessagesAtom =
+      Atom(name: '_ChatPageModel.blockDeletingMessages');
+
+  @override
+  bool get blockDeletingMessages {
+    _$blockDeletingMessagesAtom.reportRead();
+    return super.blockDeletingMessages;
+  }
+
+  @override
+  set blockDeletingMessages(bool value) {
+    _$blockDeletingMessagesAtom.reportWrite(value, super.blockDeletingMessages,
+        () {
+      super.blockDeletingMessages = value;
+    });
+  }
+
   final _$messagesAtom = Atom(name: '_ChatPageModel.messages');
 
   @override
@@ -244,6 +324,7 @@ mixin _$ChatPageModel on _ChatPageModel, Store {
   String toString() {
     return '''
 contactTitle: ${contactTitle},
+profanityWords: ${profanityWords},
 online: ${online},
 contactStatus: ${contactStatus},
 wallpaperImage: ${wallpaperImage},
@@ -252,6 +333,10 @@ contactSaved: ${contactSaved},
 chatType: ${chatType},
 blurImages: ${blurImages},
 profanityFilter: ${profanityFilter},
+privateChatAccess: ${privateChatAccess},
+blockSaveMedia: ${blockSaveMedia},
+blockEditingMessages: ${blockEditingMessages},
+blockDeletingMessages: ${blockDeletingMessages},
 messages: ${messages}
     ''';
   }

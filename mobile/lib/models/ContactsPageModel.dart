@@ -9,6 +9,12 @@ abstract class _ContactsPageModel with Store {
   @observable
   ObservableList<Contact> contacts = <Contact>[].asObservable();
 
+  @observable
+  String? parentNumber;
+
+  @observable
+  List<String> childNumbers = <String>[].asObservable();
+
   @action
   void addContact(Contact contact) {
     contacts.add(contact);

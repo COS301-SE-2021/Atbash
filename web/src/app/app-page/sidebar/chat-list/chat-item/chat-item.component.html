@@ -1,0 +1,19 @@
+<div class="chat-item d-flex flex-row justify-contents-start align-items-center p-2 w-100" (click)="selectChat()">
+
+  <div>
+    <img [src]="profileImage" alt="Contact Profile Image" class="profile-image">
+  </div>
+
+  <div class="mx-2 flex-grow-1 min-width-0">
+    <div class="d-flex flex-column">
+      <div class="d-flex flex-row justify-content-between">
+        <span class="display-name">{{displayName}}</span>
+
+        <span>{{mostRecentMessage?.timestamp | date:"HH:mm"}}</span>
+      </div>
+
+      <span class="most-recent-message">{{mostRecentMessageContents}}</span>
+    </div>
+  </div>
+
+</div>

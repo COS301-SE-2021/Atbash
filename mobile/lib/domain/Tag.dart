@@ -26,6 +26,24 @@ class Tag extends _Tag with _$Tag {
     }
   }
 
+  Map<String, Object> toJson() {
+    return {
+      "id": id,
+      "name": name,
+    };
+  }
+
+  static Tag? fromJson(Map<String, Object?> json) {
+    final id = json["id"] as String?;
+    final name = json["name"] as String?;
+
+    if (id != null && name != null) {
+      return Tag(id: id, name: name);
+    } else {
+      return null;
+    }
+  }
+
   static const String TABLE_NAME = "tag";
   static const String COLUMN_ID = "tag_id";
   static const String COLUMN_NAME = "tag_name";

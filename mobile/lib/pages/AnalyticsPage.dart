@@ -73,6 +73,17 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         thickness: 2,
                       ),
                       _buildStatisticsWidget(
+                          "Total Profanity Packages Sent:",
+                          "Total Profanity Packages Received:",
+                          controller.model.totalProfanityPacksSent,
+                          controller.model.totalProfanityPacksReceived,
+                          Icons.document_scanner,
+                          true),
+                      Divider(
+                        height: 2,
+                        thickness: 2,
+                      ),
+                      _buildStatisticsWidget(
                         "Total messages liked:",
                         null,
                         controller.model.totalMessagesLiked,
@@ -85,17 +96,6 @@ class _AnalyticsPageState extends State<AnalyticsPage> {
                         height: 2,
                         thickness: 2,
                       ),
-                      // _buildStatisticsWidget(
-                      //     "Total messages tagged:",
-                      //     null,
-                      //     controller.model.totalMessagesTagged,
-                      //     null,
-                      //     Icons.tag,
-                      //     false),
-                      // Divider(
-                      //   height: 2,
-                      //   thickness: 2,
-                      // ),
                     ],
                   ),
                 ),

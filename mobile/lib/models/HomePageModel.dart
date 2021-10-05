@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobx/mobx.dart';
 
 part 'HomePageModel.g.dart';
@@ -22,7 +23,13 @@ abstract class _HomePageModel with Store {
   bool profanityFilter = true;
 
   @observable
+  bool blockSaveMedia = false;
+
+  @observable
   ObservableList<Chat> chats = <Chat>[].asObservable();
+
+  @observable
+  List<ProfanityWord> profanityWords = <ProfanityWord>[].asObservable();
 
   @computed
   List<Chat> get orderedChats {

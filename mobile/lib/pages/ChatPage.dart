@@ -17,9 +17,12 @@ import 'package:mobile/dialogs/DeleteMessagesDialog.dart';
 import 'package:mobile/dialogs/ImageViewDialog.dart';
 import 'package:mobile/dialogs/InputDialog.dart';
 import 'package:mobile/dialogs/MessageEditDialog.dart';
+import 'package:mobile/dialogs/ProfanityPickerDialog.dart';
 import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/pages/ContactInfoPage.dart';
+import 'package:mobile/util/RegexGeneration.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/util/Extensions.dart';
@@ -54,6 +57,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final ChatPageController controller;
+  bool isInputClicked = false;
 
   _ChatPageState({
     required String chatId,
@@ -203,7 +207,8 @@ class _ChatPageState extends State<ChatPage> {
           }
         }),
         Observer(builder: (_) {
-          if (controller.model.chatType != ChatType.private)
+          if (controller.model.chatType != ChatType.private &&
+              !controller.model.privateChatAccess)
             return IconButton(
               onPressed: () {
                 controller.startPrivateChat(context);
@@ -404,13 +409,14 @@ class _ChatPageState extends State<ChatPage> {
       message,
       onTap: () {
         if (message.isMedia) {
-          showImageViewDialog(context, base64Decode(message.contents));
+          showImageViewDialog(context, base64Decode(message.contents),
+              controller.model.blockSaveMedia);
         }
       },
       onDelete: () => _deleteSingleMessage(message),
       onDoubleTap: () => _likeMessage(message),
       onForwardPressed: () => controller.forwardMessage(
-          context, message.contents, controller.model.contactTitle),
+          context, message, controller.model.contactTitle),
       onEditPressed: () => _editMessage(message),
       onReplyPressed: () => _startReplying(message),
       onRepliedMessagePressed: () {
@@ -421,65 +427,119 @@ class _ChatPageState extends State<ChatPage> {
         );
       },
       onMediaDownload: () => _saveImage(base64Decode(message.contents)),
+      onProfanityDownload: () =>
+          controller.downloadProfanityPack(message.contents),
       contactTitle: controller.model.contactTitle,
       blurImages: controller.model.blurImages,
       profanityFilter: controller.model.profanityFilter,
+      blockDeletingMessages: controller.model.blockDeletingMessages,
+      blockEditingMessages: controller.model.blockEditingMessages,
+      blockSaveMedia: controller.model.blockSaveMedia,
       chatType: controller.model.chatType,
       repliedMessage: repliedMessage,
+      words: controller.model.profanityWords,
     );
   }
 
   Container _buildInput() {
     return Container(
       color: Constants.darkGrey.withOpacity(0.88),
+      height: isInputClicked ? 65 : null,
       child: SafeArea(
         child: Row(
           children: [
             IconButton(
               padding: EdgeInsets.only(
                 top: 10,
-                left: 5,
+                left: 10,
               ),
-              onPressed: _sendImage,
+              onPressed: () {
+                setState(() {
+                  isInputClicked = !isInputClicked;
+                });
+              },
               icon: Icon(
                 Icons.add_circle_outline,
                 color: Constants.white,
               ),
             ),
-            Expanded(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
-                decoration: BoxDecoration(
-                  color: Constants.orange,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: TextField(
-                    cursorColor: Constants.black,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: "Type message",
-                      border: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      errorBorder: InputBorder.none,
-                      disabledBorder: InputBorder.none,
+            if (!isInputClicked)
+              Expanded(
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(5, 20, 5, 10),
+                  decoration: BoxDecoration(
+                    color: Constants.orange,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextField(
+                      cursorColor: Constants.black,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Type message",
+                        border: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        errorBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                      ),
+                      maxLines: 4,
+                      minLines: 1,
+                      controller: _inputController,
+                      style: TextStyle(fontSize: 16.0),
                     ),
-                    maxLines: 4,
-                    minLines: 1,
-                    controller: _inputController,
-                    style: TextStyle(fontSize: 16.0),
                   ),
                 ),
               ),
-            ),
-            IconButton(
-              padding: EdgeInsets.only(top: 10),
-              onPressed: _sendMessage,
-              icon: Icon(
-                Icons.send,
-                color: Constants.white,
+            if (isInputClicked)
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          _sendImage();
+                          setState(() {
+                            isInputClicked = false;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _sendProfanityPack();
+                            isInputClicked = false;
+                          });
+                        },
+                        icon: Icon(
+                          Icons.description,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            Container(
+              child: IconButton(
+                padding: EdgeInsets.only(top: 10),
+                onPressed: _sendMessage,
+                icon: Icon(
+                  Icons.send,
+                  color: Constants.white,
+                ),
               ),
             )
           ],
@@ -530,6 +590,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  void _sendProfanityPack() async {
+    showProfanityPickerDialog(context, await controller.getPacks())
+        .then((packageName) {
+      if (packageName != null) controller.sendPackage(packageName);
+    });
+  }
+
   void _saveImage(Uint8List messageBytes) async {
     await ImageGallerySaver.saveImage(messageBytes);
     showSnackBar(context, "Image saved.");
@@ -546,11 +613,16 @@ class ChatCard extends StatelessWidget {
   final void Function() onReplyPressed;
   final void Function() onRepliedMessagePressed;
   final void Function() onMediaDownload;
+  final void Function() onProfanityDownload;
   final bool blurImages;
   final bool profanityFilter;
+  final bool blockEditingMessages;
+  final bool blockDeletingMessages;
+  final bool blockSaveMedia;
   final ChatType chatType;
   final Message? repliedMessage;
   final String contactTitle;
+  final List<ProfanityWord> words;
 
   ChatCard(
     this._message, {
@@ -562,11 +634,16 @@ class ChatCard extends StatelessWidget {
     required this.onReplyPressed,
     required this.onRepliedMessagePressed,
     required this.onMediaDownload,
+    required this.onProfanityDownload,
     this.blurImages = false,
     this.profanityFilter = false,
     this.chatType = ChatType.general,
     this.repliedMessage,
+    this.blockDeletingMessages = false,
+    this.blockEditingMessages = false,
+    this.blockSaveMedia = false,
     required this.contactTitle,
+    required this.words,
   });
 
   final dateFormatter = intl.DateFormat("Hm");
@@ -588,7 +665,11 @@ class ChatCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
+                    border: _message.isProfanityPack
+                        ? Border.all(color: Colors.black, width: 2)
+                        : null,
+                    borderRadius: BorderRadius.circular(
+                        _message.isProfanityPack ? 16 : 4),
                     color: _message.isIncoming
                         ? Constants.darkGrey.withOpacity(0.88)
                         : Constants.orange.withOpacity(0.88),
@@ -604,16 +685,22 @@ class ChatCard extends StatelessWidget {
                       onPressed: onTap,
                       menuItemExtent: 40,
                       menuItems: [
-                        if (!_message.deleted && !_message.isMedia)
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                             title: Text("Reply"),
                             onPressed: onReplyPressed,
                             trailingIcon: Icon(Icons.reply),
                           ),
-                        if (!_message.deleted && _message.isMedia)
+                        if (!_message.deleted &&
+                            (_message.isMedia && !blockSaveMedia ||
+                                _message.isProfanityPack))
                           FocusedMenuItem(
                             title: Text("Download"),
-                            onPressed: onMediaDownload,
+                            onPressed: _message.isProfanityPack
+                                ? onProfanityDownload
+                                : onMediaDownload,
                             trailingIcon: Icon(Icons.save_alt),
                           ),
                         // if (!_message.deleted && chatType == ChatType.general)
@@ -623,25 +710,32 @@ class ChatCard extends StatelessWidget {
                         //       trailingIcon: Icon(Icons.tag)),
                         if (!_message.deleted &&
                             !_message.isMedia &&
-                            !_message.isIncoming)
+                            !_message.isIncoming &&
+                            !blockEditingMessages &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                               title: Text("Edit"),
                               onPressed: onEditPressed,
                               trailingIcon: Icon(Icons.edit)),
-                        if (!_message.deleted && chatType == ChatType.general)
+                        if (!_message.deleted &&
+                            chatType == ChatType.general &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                               title: Text("Forward"),
                               onPressed: () {
                                 onForwardPressed();
                               },
                               trailingIcon: Icon(Icons.forward)),
-                        if (!_message.deleted && !_message.isMedia)
+                        if (!_message.deleted &&
+                            !_message.isMedia &&
+                            !_message.isProfanityPack)
                           FocusedMenuItem(
                               title: Text("Copy"),
                               onPressed: () => Clipboard.setData(
                                   ClipboardData(text: _message.contents)),
                               trailingIcon: Icon(Icons.copy)),
-                        if (chatType == ChatType.general)
+                        if (chatType == ChatType.general &&
+                            !blockDeletingMessages)
                           FocusedMenuItem(
                               title: Text(
                                 "Delete",
@@ -657,7 +751,9 @@ class ChatCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (_message.forwarded && _message.isIncoming)
+                          if (_message.forwarded &&
+                              _message.isIncoming &&
+                              !_message.isProfanityPack)
                             Container(
                               child: Row(
                                 children: [
@@ -705,7 +801,7 @@ class ChatCard extends StatelessWidget {
                             height: 4,
                           ),
                           Container(
-                            child: _renderMessageContents(),
+                            child: _renderMessageContents(words),
                             constraints: BoxConstraints(
                               maxWidth: MediaQuery.of(context).size.width * 0.7,
                             ),
@@ -770,8 +866,8 @@ class ChatCard extends StatelessWidget {
     });
   }
 
-  Widget _renderMessageContents() {
-    if (_message.isMedia) {
+  Widget _renderMessageContents(List<ProfanityWord> words) {
+    if (_message.isMedia && !_message.deleted) {
       if (blurImages) {
         return Row(
           children: [
@@ -797,12 +893,36 @@ class ChatCard extends StatelessWidget {
         base64Decode(_message.contents),
         height: 200,
       );
+    } else if (_message.isProfanityPack && !_message.deleted) {
+      return Row(
+        children: [
+          Icon(
+            Icons.description,
+            color: _message.isIncoming ? Constants.orange : null,
+          ),
+          Expanded(
+              child: Text(
+            "Profanity Package",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 16,
+                color: _message.isIncoming ? Constants.orange : null),
+          )),
+          Expanded(
+            child: Text(
+              _message.contents,
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      );
     } else {
       return Text(
         _message.deleted
             ? "This message was deleted"
             : profanityFilter
-                ? _filterContents(_message.contents)
+                ? filterString(_message.contents, words)
                 : _message.contents,
         style: TextStyle(
           color: Colors.white,
@@ -810,14 +930,6 @@ class ChatCard extends StatelessWidget {
         ),
       );
     }
-  }
-
-  String _filterContents(String unfilteredContents) {
-    Constants.profanityRegex.forEach((regex) {
-      unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
-          (match) => List.filled(match.end - match.start, "*").join());
-    });
-    return unfilteredContents;
   }
 
   Icon? _readReceipt() {

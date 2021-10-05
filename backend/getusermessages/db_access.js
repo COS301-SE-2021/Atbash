@@ -15,10 +15,10 @@ exports.getMessageForPhoneNumber = (phoneNumber) => {
 
             const messages = response.Items.map(each => ({
                 id: each.id,
-                senderPhoneNumber: each.senderPhoneNumber,
+                senderNumberEncrypted: each.senderNumberEncrypted,
                 recipientPhoneNumber: each.recipientPhoneNumber,
                 timestamp: each.timestamp,
-                contents: each.contents
+                encryptedContents: each.encryptedContents
             }))
 
             resolve(messages)

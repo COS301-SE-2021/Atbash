@@ -196,9 +196,9 @@ class _ContactsPageState extends State<ContactsPage> {
 
     for (int i = 1; i < contacts.length; i++) {
       String prevContactFirstLetter =
-          contacts[i - 1].displayName.substring(0, 1);
+          contacts[i - 1].displayName.toUpperCase().substring(0, 1);
       String currentContactFirstLetter =
-          contacts[i].displayName.substring(0, 1);
+          contacts[i].displayName.toUpperCase().substring(0, 1);
 
       if (prevContactFirstLetter.compareTo(currentContactFirstLetter) < 0)
         contactList.add(_buildContact(contacts[i], true));
@@ -219,7 +219,7 @@ class _ContactsPageState extends State<ContactsPage> {
             decoration: BoxDecoration(
               color: Constants.darkGrey.withOpacity(0.2),
             ),
-            child: Text(contact.displayName.substring(0, 1)),
+            child: Text(contact.displayName.toUpperCase().substring(0, 1)),
           ),
           _createContactItem(contact)
         ],
@@ -317,6 +317,14 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   void _deleteContact(Contact contact) {
-    controller.deleteContact(contact.phoneNumber);
+    if (controller.model.parentNumber != null &&
+        controller.model.parentNumber == contact.phoneNumber) {
+      showSnackBar(context, "You cannot delete your parent!");
+    } else if (controller.model.childNumbers
+        .any((number) => number == contact.phoneNumber)) {
+      showSnackBar(context, "You cannot delete your children!");
+    } else {
+      controller.deleteContact(contact);
+    }
   }
 }

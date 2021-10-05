@@ -4,6 +4,8 @@ import 'package:mobile/constants.dart';
 import 'package:mobile/controllers/SettingsPageController.dart';
 import 'package:mobile/pages/AnalyticsPage.dart';
 import 'package:mobile/pages/BlockedContactsPage.dart';
+import 'package:mobile/pages/ParentalSettingsPage.dart';
+import 'package:mobile/pages/ProfanityManagerPage.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/pages/WallpaperPage.dart';
 import 'package:mobile/util/Utils.dart';
@@ -22,6 +24,12 @@ class _SettingsPageState extends State<SettingsPage> {
   final SettingsPageController controller;
 
   _SettingsPageState() : controller = SettingsPageController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +91,18 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
+              if (!controller.model.editableSettings)
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.black)),
+                  child: Text(
+                    "Privacy settings have been disabled. Please contact \n${controller.model.parentName}\nto allow access.",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(
@@ -93,9 +113,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("blurImages"),
                 value: controller.model.blurImages,
-                onChanged: (bool newValue) {
-                  controller.setBlurImages(newValue);
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setBlurImages(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Hide images",
                   style: TextStyle(fontSize: 16),
@@ -111,10 +134,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("safeMode"),
                 value: controller.model.safeMode,
-                onChanged: (bool newValue) {
-                  //TODO Create Pin logic
-                  controller.setSafeMode(newValue, "Pin");
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setSafeMode(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Profanity Filter",
                   style: TextStyle(fontSize: 16),
@@ -129,9 +154,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("sharedProfilePicture"),
                 value: controller.model.sharedProfilePicture,
-                onChanged: (bool newValue) {
-                  controller.setSharedProfilePicture(newValue);
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setSharedProfilePicture(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Don't share profile photo",
                   style: TextStyle(fontSize: 16),
@@ -147,9 +175,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("shareStatus"),
                 value: controller.model.shareStatus,
-                onChanged: (bool newValue) {
-                  controller.setShareStatus(newValue);
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setShareStatus(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Don't share status",
                   style: TextStyle(fontSize: 16),
@@ -165,9 +196,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("shareBirthday"),
                 value: controller.model.shareBirthday,
-                onChanged: (bool newValue) {
-                  controller.setShareBirthday(newValue);
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setShareBirthday(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Don't share birthday",
                   style: TextStyle(fontSize: 16),
@@ -183,9 +217,12 @@ class _SettingsPageState extends State<SettingsPage> {
               SwitchListTile(
                 key: Key("shareReadReceipts"),
                 value: controller.model.shareReadReceipts,
-                onChanged: (bool newValue) {
-                  controller.setShareReadReceipts(newValue);
-                },
+                onChanged: controller.model.editableSettings
+                    ? (bool newValue) {
+                        controller.setShareReadReceipts(newValue);
+                        controller.sentUpdatedSettingsToParent();
+                      }
+                    : null,
                 title: Text(
                   "Don't share read receipts",
                   style: TextStyle(fontSize: 16),
@@ -198,6 +235,28 @@ class _SettingsPageState extends State<SettingsPage> {
                 subtitle: Text(
                     "Choose whether others can see if you've read their messages"),
               ),
+              if (controller.model.parentName == "")
+                ListTile(
+                  leading: Icon(
+                    Icons.admin_panel_settings_sharp,
+                    color: Constants.orange,
+                  ),
+                  title: Text(
+                    "Profanity Filtering List",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  subtitle:
+                      Text("Add or remove words from the profanity filter"),
+                  trailing: Icon(Icons.arrow_forward_rounded),
+                  onTap: () {
+                    print(controller.model.parentName);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ProfanityManagerPage()));
+                  },
+                  dense: true,
+                ),
               ListTile(
                 key: Key("blockedContacts"),
                 leading: Icon(
@@ -224,6 +283,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   "Account",
                   style: TextStyle(fontSize: 20),
                 ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.perm_contact_calendar_rounded,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Parental Controls",
+                  style: TextStyle(fontSize: 16),
+                ),
+                trailing: Icon(Icons.arrow_forward_rounded),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => ParentalSettingsPage()),
+                  );
+                },
+                dense: true,
               ),
               ListTile(
                 key: Key("changeWallpaper"),
@@ -275,21 +351,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 dense: true,
               ),
-              // ListTile(
-              //   leading: Icon(
-              //     Icons.delete_forever,
-              //     color: Constants.orange,
-              //   ),
-              //   title: Text(
-              //     "Delete Account",
-              //     style: TextStyle(fontSize: 16),
-              //   ),
-              //   trailing: Icon(Icons.arrow_forward_rounded),
-              //   onTap: () {
-              //     //TODO Delete Account Logic
-              //   },
-              //   dense: true,
-              // ),
               Container(
                 padding: EdgeInsets.all(15),
                 child: Text(

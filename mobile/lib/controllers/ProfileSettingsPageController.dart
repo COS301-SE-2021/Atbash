@@ -7,6 +7,7 @@ import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/models/ProfileSettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/ParentService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -18,6 +19,7 @@ class ProfileSettingsPageController {
   final UserService userService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final ProfileSettingsPageModel model = ProfileSettingsPageModel();
 
@@ -72,6 +74,10 @@ class ProfileSettingsPageController {
     await contactService.insert(contact);
     communicationService.sendRequestStatus(number);
     communicationService.sendRequestProfileImage(number);
+    parentService.fetchByEnabled().then((parent) {
+      communicationService.sendContactToParent(
+          parent.phoneNumber, contact, "insert");
+    }).catchError((_) {});
   }
 
   Future<void> importContacts() async {

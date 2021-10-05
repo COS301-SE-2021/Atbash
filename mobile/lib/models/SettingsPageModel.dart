@@ -14,6 +14,9 @@ abstract class _SettingsPageModel with Store {
   String userStatus = "";
 
   @observable
+  String parentName = "";
+
+  @observable
   Uint8List? userProfilePicture = Uint8List(0);
 
   @observable
@@ -43,7 +46,6 @@ abstract class _SettingsPageModel with Store {
   @observable
   bool autoDownloadMedia = false;
 
-//TODO add pin
-// @observable
-// String pin = "";
+  @observable
+  bool editableSettings = true;
 }

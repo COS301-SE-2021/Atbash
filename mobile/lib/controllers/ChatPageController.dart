@@ -16,7 +16,11 @@ import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
+import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/services/StoredProfanityWordService.dart';
+import 'package:mobile/util/Tuple.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatPageController {
@@ -27,6 +31,9 @@ class ChatPageController {
   final ChatCacheService chatCacheService = GetIt.I.get();
   final MemoryStoreService memoryStoreService = GetIt.I.get();
   final SettingsService settingsService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
+  final StoredProfanityWordService storedProfanityWordService = GetIt.I.get();
+  final ParentService parentService = GetIt.I.get();
 
   final ChatPageModel model = ChatPageModel();
 
@@ -51,6 +58,10 @@ class ChatPageController {
     communicationService.onMessageLiked(_onMessageLiked);
 
     communicationService.onMessageEdited(_onMessageEdited);
+
+    communicationService.onAllSettingsToChild(_onAllSettingsToChild);
+
+    communicationService.onNewProfanityWordToChild(_onNewProfanityWordToChild);
 
     communicationService.shouldBlockNotifications =
         (senderPhoneNumber) => senderPhoneNumber == contactPhoneNumber;
@@ -113,6 +124,11 @@ class ChatPageController {
       model.replaceMessages(messages);
     });
 
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
+
     settingsService
         .getWallpaperImage()
         .then((value) => model.wallpaperImage = value);
@@ -124,6 +140,22 @@ class ChatPageController {
     settingsService
         .getSafeMode()
         .then((value) => model.profanityFilter = value);
+
+    settingsService
+        .getPrivateChatAccess()
+        .then((value) => model.privateChatAccess = value);
+
+    settingsService
+        .getBlockSaveMedia()
+        .then((value) => model.blockSaveMedia = value);
+
+    settingsService
+        .getBlockEditingMessages()
+        .then((value) => model.blockEditingMessages = value);
+
+    settingsService
+        .getBlockDeletingMessages()
+        .then((value) => model.blockDeletingMessages = value);
   }
 
   void _onOnline(bool online) {
@@ -135,7 +167,7 @@ class ChatPageController {
       model.addMessage(message);
       communicationService.sendAckSeen([message.id], contactPhoneNumber);
       chat.then((chat) {
-        if (chat.chatType == ChatType.general)
+        if (chat.chatType == ChatType.general && message.isIncoming)
           messageService.setMessageReadReceipt(message.id, ReadReceipt.seen);
       });
     } else if (message.otherPartyPhoneNumber == contactPhoneNumber) {
@@ -176,7 +208,39 @@ class ChatPageController {
     model.setEditedById(messageID, message);
   }
 
+  void _onAllSettingsToChild(
+    editableSettings,
+    blurImages,
+    safeMode,
+    shareProfilePicture,
+    shareStatus,
+    shareReadReceipts,
+    shareBirthday,
+    lockedAccount,
+    privateChatAccess,
+    blockSaveMedia,
+    blockEditingMessages,
+    blockDeletingMessages,
+  ) {
+    model.blockDeletingMessages = blockDeletingMessages;
+    model.blockEditingMessages = blockEditingMessages;
+    model.blockSaveMedia = blockSaveMedia;
+    model.privateChatAccess = privateChatAccess;
+    model.blurImages = blurImages;
+    model.profanityFilter = safeMode;
+  }
+
+  void _onNewProfanityWordToChild() {
+    profanityWordService.fetchAll().then((words) {
+      model.profanityWords.clear();
+      model.profanityWords.addAll(words);
+    });
+  }
+
   void dispose() {
+    communicationService
+        .disposeOnNewProfanityWordToChild(_onNewProfanityWordToChild);
+    communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
     communicationService.disposeOnMessage(_onMessage);
     communicationService.disposeOnDelete(_onDelete);
     communicationService.disposeOnAck(_onAck);
@@ -203,6 +267,12 @@ class ChatPageController {
 
     communicationService.sendMessage(
         message, chatType, contactPhoneNumber, null);
+    parentService.fetchByEnabled().then((parent) {
+      communicationService
+          .sendChildMessageToParent(parent.phoneNumber, message)
+          .catchError((_) {});
+    }).catchError((_) {});
+
     model.addMessage(message);
     chat.then((chat) {
       if (chat.chatType == ChatType.general) messageService.insert(message);
@@ -286,6 +356,37 @@ class ChatPageController {
     });
   }
 
+  void downloadProfanityPack(String packageName) {
+    storedProfanityWordService.downloadByPackageName(packageName);
+  }
+
+  Future<List<Tuple<int, String>>> getPacks() async {
+    return await storedProfanityWordService.fetchAllGroupByPackage(false);
+  }
+
+  void sendPackage(String package) {
+    storedProfanityWordService.fetchAll().then((words) {
+      final wordsToSend = words
+          .where((element) =>
+              element.packageName.toLowerCase() == package &&
+              element.removable == true)
+          .toList();
+      final message = Message(
+          id: Uuid().v4(),
+          chatId: chatId,
+          isIncoming: false,
+          otherPartyPhoneNumber: contactPhoneNumber,
+          contents: package,
+          timestamp: DateTime.now(),
+          forwarded: false,
+          isProfanityPack: true);
+      communicationService.sendProfanityWords(
+          wordsToSend, ChatType.general, message, contactPhoneNumber);
+      model.addMessage(message);
+      messageService.insert(message);
+    });
+  }
+
   void addSenderAsContact(String displayName) {
     final contact = Contact(
       phoneNumber: contactPhoneNumber,
@@ -303,6 +404,10 @@ class ChatPageController {
 
     chat.then((chat) {
       if (chat.chatType == ChatType.general) contactService.insert(contact);
+      parentService.fetchByEnabled().then((parent) {
+        communicationService.sendContactToParent(
+            parent.phoneNumber, contact, "insert");
+      }).catchError((_) {});
     });
   }
 
@@ -318,7 +423,7 @@ class ChatPageController {
   }
 
   void forwardMessage(
-      BuildContext context, String message, String currentContactName) {
+      BuildContext context, Message message, String currentContactName) {
     contactService.fetchAll().then((contacts) {
       showForwardDialog(context, contacts, currentContactName)
           .then((forwardContacts) async {
@@ -335,6 +440,10 @@ class ChatPageController {
               contactPhoneNumber: contact.phoneNumber,
               chatType: ChatType.general);
           await chatService.insert(newChat);
+          parentService.fetchByEnabled().then((parent) {
+            communicationService.sendChatToParent(
+                parent.phoneNumber, newChat, "insert");
+          }).catchError((_) {});
         }));
 
         final allNumberChats = await chatService.fetchIdsByContactPhoneNumbers(
@@ -342,17 +451,34 @@ class ChatPageController {
 
         allNumberChats.forEach((element) {
           final newMessage = Message(
-            id: Uuid().v4(),
-            chatId: element.second,
-            isIncoming: false,
-            otherPartyPhoneNumber: element.first,
-            contents: message,
-            timestamp: DateTime.now(),
-            forwarded: true,
-          );
+              id: Uuid().v4(),
+              chatId: element.second,
+              isIncoming: false,
+              otherPartyPhoneNumber: element.first,
+              contents: message.contents,
+              timestamp: DateTime.now(),
+              forwarded: true,
+              isMedia: message.isMedia);
 
-          communicationService.sendMessage(
-              newMessage, ChatType.general, element.first, null);
+          if (message.isMedia) {
+            communicationService.sendImage(
+                message, ChatType.general, element.first);
+          } else if (message.isProfanityPack) {
+            storedProfanityWordService.fetchAll().then((value) {
+              final words = value
+                  .where((word) =>
+                      word.packageName.toLowerCase() ==
+                      message.contents.toLowerCase())
+                  .toList();
+              if (words.isNotEmpty)
+                communicationService.sendProfanityWords(
+                    words, ChatType.general, message, element.first);
+            });
+          } else {
+            communicationService.sendMessage(
+                newMessage, ChatType.general, element.first, null);
+          }
+
           messageService.insert(newMessage);
         });
       });

@@ -86,6 +86,8 @@ exports.handler = async event => {
     })
 
     try {
+        console.log(`Verification code is ${verificationCode} for phone number ${phoneNumber}`)
+
         const response = await sns.publish({
             Message: `Your Atbash verification code is ${verificationCode}`,
             PhoneNumber: phoneNumber,

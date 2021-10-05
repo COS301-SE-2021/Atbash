@@ -2,13 +2,18 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/util/Utils.dart';
 
-Future<String?> showNewNumberDialog(BuildContext context) {
+Future<String?> showNewNumberDialog(BuildContext context, String message,
+    {String hint = ""}) {
   return showDialog<String>(
-      context: context, builder: (BuildContext context) => NewNumberDialog());
+      context: context,
+      builder: (BuildContext context) => NewNumberDialog(message, hint));
 }
 
 class NewNumberDialog extends StatefulWidget {
-  const NewNumberDialog({Key? key}) : super(key: key);
+  final String message;
+  final String hint;
+
+  NewNumberDialog(this.message, this.hint);
 
   @override
   _NewNumberDialogState createState() => _NewNumberDialogState();
@@ -22,7 +27,7 @@ class _NewNumberDialogState extends State<NewNumberDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Please insert the number you wish to block."),
+      title: Text(widget.message),
       content: Row(
         children: [
           CountryCodePicker(

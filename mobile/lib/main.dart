@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -14,6 +15,12 @@ import 'package:mobile/pages/VerificationPage.dart';
 import 'package:mobile/services/BlockedNumbersService.dart';
 import 'package:mobile/services/ChatCacheService.dart';
 import 'package:mobile/services/ChatService.dart';
+import 'package:mobile/services/ChildBlockedNumberService.dart';
+import 'package:mobile/services/ChildChatService.dart';
+import 'package:mobile/services/ChildContactService.dart';
+import 'package:mobile/services/ChildMessageService.dart';
+import 'package:mobile/services/ChildProfanityWordService.dart';
+import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/DatabaseService.dart';
@@ -22,8 +29,12 @@ import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
 import 'package:mobile/services/MessageService.dart';
 import 'package:mobile/services/NotificationService.dart';
+import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
 import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/services/StoredProfanityWordService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
 
@@ -42,6 +53,7 @@ class AtbashApp extends StatelessWidget {
   final NavigationObserver navigationObserver = GetIt.I.get();
   final NotificationService notificationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
+  final CommunicationService communicationService = GetIt.I.get();
 
   final GlobalKey<NavigatorState> _navigatorKey;
 
@@ -50,16 +62,20 @@ class AtbashApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final registrationState = _registrationState();
+    final firebaseInit = Firebase.initializeApp();
 
     return FutureBuilder(
-      future: registrationState,
+      future: Future.wait([registrationState, firebaseInit]),
       builder: (context, snapshot) {
         Widget page = LoadingPage();
 
         if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.data == RegistrationState.registered) {
+          final snapshotData = snapshot.data as List;
+
+          if (snapshotData[0] == RegistrationState.registered) {
+            // communicationService.goOnline();
             page = HomePage();
-          } else if (snapshot.data == RegistrationState.unverified) {
+          } else if (snapshotData[0] == RegistrationState.unverified) {
             page = VerificationPage();
           } else {
             page = RegistrationPage();
@@ -113,33 +129,64 @@ void _registerServices() async {
 
   GetIt.I.registerSingleton(registrationService);
 
+  final pcConnectionService = PCConnectionService();
+  GetIt.I.registerSingleton(pcConnectionService);
+
+  final storedProfanityWordService =
+      StoredProfanityWordService(databaseService);
+  final profanityWordService = ProfanityWordService(databaseService);
   final chatService = ChatService(databaseService);
   final contactService = ContactService(databaseService);
   final messageService = MessageService(databaseService);
   final blockedNumbersService = BlockedNumbersService(databaseService);
+  final childService = ChildService(databaseService);
+  final childChatService = ChildChatService(databaseService);
+  final childMessageService = ChildMessageService(databaseService);
+  final childBlockedNumberService = ChildBlockedNumberService(databaseService);
+  final childProfanityWordService = ChildProfanityWordService(databaseService);
+  final childContactService = ChildContactService(databaseService);
+  final parentService = ParentService(databaseService);
   final settingsService = SettingsService();
   final chatCacheService = ChatCacheService();
   final mediaEncryptionService = MediaService();
   final memoryStoreService = MemoryStoreService();
   final notificationService = NotificationService();
   final communicationService = CommunicationService(
-    blockedNumbersService,
-    encryptionService,
-    userService,
-    chatService,
-    contactService,
-    messageService,
-    settingsService,
-    mediaEncryptionService,
-    memoryStoreService,
-    notificationService,
-    messageboxService,
-  );
+      blockedNumbersService,
+      profanityWordService,
+      childService,
+      childChatService,
+      childMessageService,
+      childBlockedNumberService,
+      encryptionService,
+      userService,
+      chatService,
+      contactService,
+      messageService,
+      settingsService,
+      mediaEncryptionService,
+      memoryStoreService,
+      notificationService,
+      messageboxService,
+      childProfanityWordService,
+      childContactService,
+      parentService,
+      pcConnectionService,
+      storedProfanityWordService);
 
+  GetIt.I.registerSingleton(storedProfanityWordService);
+  GetIt.I.registerSingleton(profanityWordService);
   GetIt.I.registerSingleton(chatService);
   GetIt.I.registerSingleton(contactService);
   GetIt.I.registerSingleton(messageService);
   GetIt.I.registerSingleton(blockedNumbersService);
+  GetIt.I.registerSingleton(childService);
+  GetIt.I.registerSingleton(childChatService);
+  GetIt.I.registerSingleton(childMessageService);
+  GetIt.I.registerSingleton(childBlockedNumberService);
+  GetIt.I.registerSingleton(childProfanityWordService);
+  GetIt.I.registerSingleton(childContactService);
+  GetIt.I.registerSingleton(parentService);
   GetIt.I.registerSingleton(userService);
   GetIt.I.registerSingleton(settingsService);
   GetIt.I.registerSingleton(chatCacheService);

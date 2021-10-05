@@ -1,11 +1,29 @@
+import 'package:get_it/get_it.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/domain/Tag.dart';
 import 'package:mobile/services/DatabaseService.dart';
+import 'package:mobile/services/PCConnectionService.dart';
 
 class MessageService {
   final DatabaseService databaseService;
+  final PCConnectionService pcConnectionService = GetIt.I.get();
 
   MessageService(this.databaseService);
+
+  Future<List<Message>> fetchAll() async {
+    final db = await databaseService.database;
+
+    final response = await db.query(Message.TABLE_NAME);
+
+    final messages = <Message>[];
+    response.forEach((map) {
+      final message = Message.fromMap(map);
+
+      if (message != null) messages.add(message);
+    });
+
+    return messages;
+  }
 
   Future<List<Message>> fetchAllByChatId(String chatId) async {
     final db = await databaseService.database;
@@ -102,6 +120,8 @@ class MessageService {
       await Future.wait([messageInsert, ...tagRelationInserts]);
     });
 
+    await pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -134,6 +154,8 @@ class MessageService {
       }));
     });
 
+    await pcConnectionService.notifyPcPutMessage(message);
+
     return message;
   }
 
@@ -147,6 +169,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> setMessageDeleted(String messageId) async {
@@ -158,9 +183,27 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 
   Future<void> setMessageReadReceipt(
+      String messageId, ReadReceipt readReceipt) async {
+    final db = await databaseService.database;
+
+    final response = await db.rawUpdate(
+      "update ${Message.TABLE_NAME} set ${Message.COLUMN_READ_RECEIPT} = ? where ${Message.COLUMN_ID} = ? and ? > ${Message.COLUMN_READ_RECEIPT}",
+      [readReceipt.index, messageId, readReceipt.index],
+    );
+
+    if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
+  }
+
+  Future<void> setMessageReadReceiptFromPc(
       String messageId, ReadReceipt readReceipt) async {
     final db = await databaseService.database;
 
@@ -192,6 +235,8 @@ class MessageService {
         whereArgs: [id],
       );
     });
+
+    pcConnectionService.notifyPcDeleteMessage(id);
   }
 
   Future<void> deleteAllByChatId(String chatId) async {
@@ -211,6 +256,9 @@ class MessageService {
     );
 
     if (response == 0) throw MessageNotFoundException();
+
+    Message message = await fetchById(messageId);
+    await pcConnectionService.notifyPcPutMessage(message);
   }
 }
 

@@ -42,6 +42,22 @@ class BlockedNumbersService {
     }
   }
 
+  Future<bool> checkIfBlockedByParent(String phoneNumber) async {
+    final db = await databaseService.database;
+
+    final response = await db.query(
+      BlockedNumber.TABLE_NAME,
+      where: "${BlockedNumber.COLUMN_PHONE_NUMBER} = ? AND ${BlockedNumber.COLUMN_ADDED_BY_PARENT} = ?",
+      whereArgs: [phoneNumber, 1],
+    );
+
+    if (response.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   Future<BlockedNumber> insert(BlockedNumber blockedNumber) async {
     final db = await databaseService.database;
 

@@ -85,6 +85,21 @@ mixin _$ContactInfoPageModel on _ContactInfoPageModel, Store {
     });
   }
 
+  final _$parentNumberAtom = Atom(name: '_ContactInfoPageModel.parentNumber');
+
+  @override
+  String? get parentNumber {
+    _$parentNumberAtom.reportRead();
+    return super.parentNumber;
+  }
+
+  @override
+  set parentNumber(String? value) {
+    _$parentNumberAtom.reportWrite(value, super.parentNumber, () {
+      super.parentNumber = value;
+    });
+  }
+
   final _$isBlockedAtom = Atom(name: '_ContactInfoPageModel.isBlocked');
 
   @override
@@ -100,6 +115,22 @@ mixin _$ContactInfoPageModel on _ContactInfoPageModel, Store {
     });
   }
 
+  final _$isBlockedByParentAtom =
+      Atom(name: '_ContactInfoPageModel.isBlockedByParent');
+
+  @override
+  bool get isBlockedByParent {
+    _$isBlockedByParentAtom.reportRead();
+    return super.isBlockedByParent;
+  }
+
+  @override
+  set isBlockedByParent(bool value) {
+    _$isBlockedByParentAtom.reportWrite(value, super.isBlockedByParent, () {
+      super.isBlockedByParent = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
@@ -108,7 +139,9 @@ phoneNumber: ${phoneNumber},
 profilePicture: ${profilePicture},
 status: ${status},
 birthday: ${birthday},
-isBlocked: ${isBlocked}
+parentNumber: ${parentNumber},
+isBlocked: ${isBlocked},
+isBlockedByParent: ${isBlockedByParent}
     ''';
   }
 }

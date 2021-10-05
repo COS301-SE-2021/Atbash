@@ -1,3 +1,4 @@
+import 'package:mobile/domain/Parent.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ContactInfoPageModel.g.dart';
@@ -21,5 +22,11 @@ abstract class _ContactInfoPageModel with Store {
   DateTime? birthday;
 
   @observable
+  String? parentNumber;
+
+  @observable
   bool isBlocked = false;
+
+  @observable
+  bool isBlockedByParent = false;
 }

@@ -12,10 +12,15 @@ import 'package:mobile/domain/Chat.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
 import 'package:mobile/pages/ChatPage.dart';
+import 'package:mobile/pages/LockedAccountPage.dart';
+import 'package:mobile/pages/QRScanPage.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/NotificationService.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
+import 'package:mobile/services/ProfanityWordService.dart';
+import 'package:mobile/services/SettingsService.dart';
+import 'package:mobile/util/RegexGeneration.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:mobile/constants.dart';
 import 'package:mobile/pages/ContactsPage.dart';
@@ -35,6 +40,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final NotificationService notificationService = GetIt.I.get();
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
+  final ProfanityWordService profanityWordService = GetIt.I.get();
+  final SettingsService settingsService = GetIt.I.get();
 
   bool _searching = false;
   String _filterQuery = "";
@@ -42,9 +49,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _searchController = TextEditingController();
   late final FocusNode _searchFocusNode;
 
+  void _onLockedAccountChangeToChild(value) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => value ? LockedAccountPage() : HomePage(),
+        ),
+        (route) => false,
+      );
+  }
+
   @override
   void initState() {
     super.initState();
+    settingsService.getLockedAccount().then((value) {
+      if (value) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => value ? LockedAccountPage() : HomePage()));
+      }
+    });
 
     notificationService.onNotificationPressed = (String? payload) async {
       if (payload != null) {
@@ -86,6 +109,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       }
     };
 
+    communicationService
+        .onLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+
     communicationService.onStopPrivateChat = (String senderPhoneNumber) async {
       String body = "";
       try {
@@ -111,6 +137,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance?.removeObserver(this);
 
     _searchFocusNode.dispose();
+    communicationService
+        .disposeOnLockedAccountChangeToChild(_onLockedAccountChangeToChild);
+    notificationService.onNotificationPressed = null;
+    communicationService.onStopPrivateChat = null;
     controller.dispose();
   }
 
@@ -260,7 +290,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         PopupMenuButton(
           icon: new Icon(Icons.more_vert),
           itemBuilder: (context) {
-            return ["Settings"].map((menuItem) {
+            return ["Settings", "Atbash Web"].map((menuItem) {
               return PopupMenuItem(
                 child: Text(menuItem),
                 value: menuItem,
@@ -272,6 +302,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            } else if (value == "Atbash Web") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => QRScanPage()),
               );
             }
           },
@@ -357,11 +392,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
 
     String _filterContents(String unfilteredContents) {
-      Constants.profanityRegex.forEach((regex) {
-        unfilteredContents = unfilteredContents.replaceAllMapped(RegExp(regex, caseSensitive: false),
-            (match) => List.filled(match.end - match.start, "*").join());
-      });
-      return unfilteredContents;
+      return filterString(unfilteredContents, controller.model.profanityWords);
     }
 
     Text _buildMessagePreview(Message message) {
@@ -371,6 +402,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         preview = "This message was deleted";
       } else if (message.isMedia) {
         preview = "\u{1f4f7} Photo";
+      } else if (message.isProfanityPack) {
+        preview = "\u{1f4d9} Profanity Pack";
       } else if (controller.model.profanityFilter) {
         preview = _filterContents(message.contents);
       } else {
@@ -449,7 +482,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       final profileImage = contact?.profileImage;
                       if (profileImage != null) {
                         final profileImageBytes = base64Decode(profileImage);
-                        showImageViewDialog(context, profileImageBytes);
+                        showImageViewDialog(context, profileImageBytes,
+                            controller.model.blockSaveMedia);
                       }
                     },
                   ),

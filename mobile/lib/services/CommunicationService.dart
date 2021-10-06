@@ -425,12 +425,8 @@ class CommunicationService {
     final encodedPhoneNumber = Uri.encodeQueryComponent(phoneNumber);
 
     print("Fetching unread messages for number " + phoneNumber);
-    // Timer.periodic(Duration(seconds: 3), (timer) {
-    //   _fetchUnreadMessages(encodedPhoneNumber);
-    //   _fetchUnreadMessageboxMessages();
-    // });
-    _fetchUnreadMessages(encodedPhoneNumber);
-    _fetchUnreadMessageboxMessages();
+    await _fetchUnreadMessages(encodedPhoneNumber);
+    await _fetchUnreadMessageboxMessages();
     await encryptionService.managePreKeys();
 
     channelNumber?.sink.close();
@@ -466,6 +462,10 @@ class CommunicationService {
 
   Future<void> _setupAnonymousConnection() async {
     print("_setupAnonymousConnection");
+    if(channelAnonymous?.innerWebSocket?.readyState == 1){
+      channelAnonymous?.sink.close();
+      return;
+    }
     channelAnonymous?.sink.close();
     channelAnonymous = IOWebSocketChannel.connect(
       Uri.parse("${Constants.webSocketUrl}?anonymousId=$anonymousId"),
@@ -477,28 +477,55 @@ class CommunicationService {
       await _handleEvent(event);
     });
 
-    final List<String> ids = await messageboxService.getAllMessageboxIds();
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      final List<String> ids = await messageboxService.getAllMessageboxIds();
+      var registrationComplete = false;
 
-    if(ids.isNotEmpty){
-      print("Registering Connection For Messageboxes");
-      while((await registerConnectionForMessageboxes(ids)) == false);
-      print("Registering complete");
-    }
+      if(ids.isNotEmpty){
+        print("Registering Connection For Messageboxes");
+        registrationComplete = await registerConnectionForMessageboxes(ids);
+        print("Registering complete: " + registrationComplete.toString());
+        if(registrationComplete){
+          timer.cancel();
+        }
+      } else if(channelAnonymous != null && channelAnonymous!.innerWebSocket != null && channelAnonymous!.innerWebSocket!.readyState == 1){
+        timer.cancel();
+        registrationComplete = true;
+      }
 
-    //If this connection closes, start another
-    channelAnonymous?.innerWebSocket?.done.then((val) => _setupAnonymousConnection());
+      //If this connection closes, start another
+      if(registrationComplete) {
+        // print("Adding onDone function");
+        await channelAnonymous?.innerWebSocket?.done
+            .then((val) => (channelAnonymous != null ? print("Anonymous channel closed. Setting up another."): null ))
+            .then((val) => _setupAnonymousConnection());
+      }
+    });
   }
 
-  Future<bool> registerConnectionForMessageboxes(List<String> ids) async{
-    if(channelAnonymous != null && channelAnonymous?.innerWebSocket != null && channelAnonymous?.innerWebSocket?.readyState != WebSocket.open){
+
+
+  Future<bool> registerConnectionForMessageboxes(List<String> ids) async {
+    if(channelAnonymous != null && channelAnonymous!.innerWebSocket != null && channelAnonymous!.innerWebSocket!.readyState == 1){
       channelAnonymous?.sink.add(jsonEncode(
           {
+            // "message": "registermidsconnection",
             "action": "registermidsconnection",
+            // "data": {
+            //   "myarray" : ["asfdsfsdfsaff", "asfsdfsfsdf"]
+            // }
             "data": ids
           }
       ));
+      print("Registered connection for mids: " + ids.toString());
 
       return true;
+    } else if (channelAnonymous == null) {
+      print("channelAnonymous == null");
+    } else if(channelAnonymous?.innerWebSocket == null){
+      print("channelAnonymous?.innerWebSocket == null");
+    } else {
+      print("ReadyState: " + channelAnonymous!.innerWebSocket!.readyState.toString());
     }
     return false;
   }

@@ -28,7 +28,7 @@ exports.handler = async event => {
         let callbackArray = data.map(async(value) => {
             await setMessageboxConnectionId(value, connectionId);
         })
-        Promise.all(callbackArray);
+        await Promise.all(callbackArray);
 
         console.log("Successfully updated")
         return {statusCode: 200, body: "Successfully updated"}

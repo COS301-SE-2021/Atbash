@@ -10,6 +10,18 @@
 Atbash is a messaging application, where the privacy of users and their messages is the top priority. Atbash provides end-to-end encryption with the use of the [Signal Encryption Protocol](https://signal.org/docs/) which is currently the state of the art for end-to-end encryption applications. Atbash even takes this a step further by encrypting the sender and receiver addresses on messages using a solution proposed in a recently [published paper](https://cs-people.bu.edu/kaptchuk/publications/ndss21.pdf)
 
 ---
+# Final Documentation
+
+- Please see our [SRS document](/Documentation/Final/Atbash_SRS.pdf) to see more about the technical details of our application.
+- Please see our [Architectural Requirements document](/Documentation/Final/Atbash_Architectural_Requirements.pdf) to see more about the architectural details of our application.
+- Please see our [Coding Standards document](/Documentation/Final/Atbash_Coding_Standards.pdf) to see more about the coding details of our application.
+- Please see our [Technical Installation Manual document](/Documentation/Final/Atbash_Technical_Installations_Manual.pdf) to see more about the installation details of our application.
+- Please see our [User Manual document](/Documentation/Final/Atbash_User_Manual.pdf) to see more about how to use our application.
+- Please see our [Testing Policy](/Documentation/Final/Atbash_Testing_Policy.pdf) to see more about how aour application's testing procedures take place.
+
+---
+
+---
 ## Demo Recordings
 
 - You can see a recoding of our [first demo here](https://drive.google.com/file/d/1DMy0GptLXR87wrKEufVdGTTObUrbgjsH/view?usp=sharing) 

@@ -89,7 +89,6 @@ class DatabaseService {
       db.execute(Messagebox.CREATE_TABLE),
       db.execute(ProfanityWord.CREATE_TABLE),
       db.execute(StoredProfanityWord.CREATE_TABLE),
-      //MessageboxTokenDBRecord
     ]);
 
     await db.execute("create table ${Message.TABLE_NAME}_${Tag.TABLE_NAME} ("

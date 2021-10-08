@@ -7,9 +7,16 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:mobile/constants.dart';
+import 'package:mobile/encryption/Messagebox.dart';
+import 'package:mobile/encryption/MessageboxToken.dart';
+import 'package:mobile/encryption/PreKeyDBRecord.dart';
+import 'package:mobile/encryption/SessionDBRecord.dart';
+import 'package:mobile/encryption/SignedPreKeyDBRecord.dart';
+import 'package:mobile/encryption/TrustedKeyDBRecord.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
 import 'package:mobile/exceptions/RegistrationErrorException.dart';
 import 'package:mobile/util/Validations.dart';
+import 'DatabaseService.dart';
 import 'EncryptionService.dart';
 
 import 'package:crypton/crypton.dart';
@@ -21,22 +28,56 @@ import 'MessageboxService.dart';
 
 class RegistrationService {
   RegistrationService(
-      this._encryptionService, this._userService, this._messageboxService);
+      this._encryptionService, this._userService, this._databaseService, this._messageboxService);
 
   final EncryptionService _encryptionService;
   final UserService _userService;
   final MessageboxService _messageboxService;
+  final DatabaseService _databaseService;
   final _storage = FlutterSecureStorage();
+
+  ///This method will return false if the number is already registered and
+  ///true if the code was successfully created
+  Future<bool> requestRegistrationCode(String phoneNumber, bool reregister) async {
+    throwIfNot(
+        Validations().numberIsValid(phoneNumber),
+        new InvalidNumberException(
+            "Invalid number provided in register method"));
+
+    if(!reregister && (await isRegistering() || await isRegistered())){
+      return false;
+    }
+
+    final url = Uri.parse(Constants.httpUrl + "requestRegistrationCode");
+
+    var data = {
+      "phoneNumber": phoneNumber,
+      "reregister": reregister
+    };
+
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200){
+      return true;
+    } else {
+      throw new RegistrationErrorException(
+          "Request of Registration Code was unsuccessful: " +
+              response.body);
+    }
+    return false;
+  }
+
+
 
   ///This function creates a new Atbash account on the server which will be
   ///needed for linking a users phone number with their keys
-  Future<String?> register(String phoneNumber) async {
+  Future<bool> register(String phoneNumber, int registrationCode) async {
     final url = Uri.parse(Constants.httpUrl + "register");
 
     throwIfNot(
         Validations().numberIsValid(phoneNumber),
         new InvalidNumberException(
-            "Invalid number provided in requestRegistrationCode method"));
+            "Invalid number provided in register method"));
 
     ///A MAC is used to prevent an attacker from editing the transmitted data
     ///The signalingKey contains the data for this
@@ -56,6 +97,7 @@ class RegistrationService {
     var data = {
       "registrationId": registrationId,
       "phoneNumber": phoneNumber,
+      "registrationCode": registrationCode,
       "rsaPublicKey": {
         "n": pubRsaKey.n.toString(),
         "e": pubRsaKey.publicExponent.toString()
@@ -81,7 +123,6 @@ class RegistrationService {
           jsonDecode(response.body) as Map<String, dynamic>;
       final encryptedDevicePassword = responseBodyJson["password"] as String?;
       final formattedPhoneNumber = responseBodyJson["phoneNumber"] as String?;
-      final verificationCode = responseBodyJson["verification"] as String?;
       if (encryptedDevicePassword == null) {
         throw new RegistrationErrorException(
             "Server response was in an invalid format. Response body: " +
@@ -98,23 +139,27 @@ class RegistrationService {
       final authTokenEncoded =
           _generateAuthenticationToken(phoneNumber, devicePassword);
 
-      Future.wait([
-        //_storage.write(key: "registration_id", value: registrationId.toString()),
+      if(await isRegistering() || await isRegistered()){
+        await clearEncryptionTables();
+      }
+
+      await Future.wait([
+        setRegistering(),
+        _storage.write(key: "registration_id", value: registrationId.toString()),
         _storage.write(
             key: "device_password_base64", value: base64DevicePassword),
         _storage.write(
             key: "device_authentication_token_base64", value: authTokenEncoded),
-        _storage.write(key: "phone_number", value: phoneNumber),
+        _userService.setPhoneNumber(phoneNumber),
+        _encryptionService.generateInitialKeyBundle(registrationId),
       ]);
-
-      await _encryptionService.generateInitialKeyBundle(registrationId);
 
       final success = await registerKeys();
       if (success) {
-        _messageboxService.getMessageboxKeys(6);
-        return verificationCode;
+        _messageboxService.getMessageboxKeys(6).then((_) => _messageboxService.getMessageboxKeys(10));
+        return true;
       } else {
-        return null;
+        return false;
       }
     } else {
       print("Server request was unsuccessful.\nResponse code: " +
@@ -179,7 +224,7 @@ class RegistrationService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200) {
-      Future.wait([
+      await Future.wait([
         _storage.write(key: "registered", value: "1"),
       ]);
 
@@ -213,12 +258,40 @@ class RegistrationService {
 
   /// Check if the user is registered
   Future<bool> isRegistered() async {
-    final registered = await _storage.read(key: "registered");
-    if (registered == "1") {
+    final registrationStatus = await _storage.read(key: "registrationStatus");
+    if (registrationStatus == "2") {
       return true;
     } else {
       return false;
     }
+  }
+
+  /// Check if the user has started registering
+  Future<bool> isRegistering() async {
+    final registrationStatus = await _storage.read(key: "registrationStatus");
+    if (registrationStatus == "1") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /// Specifies that the user has started registering
+  Future<void> setRegistering() async {
+    await _storage.write(
+        key: "registrationStatus", value: "1");
+  }
+
+  /// Specifies that the user is registered
+  Future<void> setRegistered() async {
+    await _storage.write(
+        key: "registrationStatus", value: "2");
+  }
+
+  /// Specifies that the user is unregistered
+  Future<void> setUnregistered() async {
+    await _storage.write(
+        key: "registrationStatus", value: "0");
   }
 
   ///This method combines the phone number with the returned password to
@@ -234,26 +307,20 @@ class RegistrationService {
     return base64.encode(authBytesBuilder.toBytes());
   }
 
-// Future<bool> requestRegistrationVerificationCode(String phoneNumber) async {
-//   throwIfNot(
-//       Validations().numberIsValid(phoneNumber),
-//       new InvalidNumberException(
-//           "Invalid number provided in requestRegistrationCode method"));
-//
-//   final url =
-//   Uri.parse(baseURLHttps + "accounts/sms/code/$phoneNumber");
-//
-//   final response = await http.get(url);
-//
-//   if (response.statusCode == 200) {
-//     Future.wait([
-//       _storage.write(key: "phone_number", value: phoneNumber),
-//     ]);
-//
-//     return true;
-//   } else {
-//     return false;
-//   }
-// }
+  /// Clears database of encryption related tables
+  /// This is used when reregistering
+  Future<void> clearEncryptionTables() async {
+    final db = await _databaseService.database;
+
+    await Future.wait([
+      db.delete(PreKeyDBRecord.TABLE_NAME),
+      db.delete(SessionDBRecord.TABLE_NAME),
+      db.delete(SignedPreKeyDBRecord.TABLE_NAME),
+      db.delete(TrustedKeyDBRecord.TABLE_NAME),
+      db.delete(MessageboxToken.TABLE_NAME),
+      db.delete(Messagebox.TABLE_NAME),
+    ]);
+  }
+
 
 }

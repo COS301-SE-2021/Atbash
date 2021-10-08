@@ -28,16 +28,17 @@ exports.handler = async event => {
     }
 
     const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
-    const verificationCode = randomCode(6)
+    const registrationCode = randomCode(6)
+    const expirationTime = Date.now() + (1000*60*5)
 
     try {
         if ((await existsNumber(formattedNumber)) === true) {
             if(!reregister) {
                 return {statusCode: 409, body: "Phone number already in use."}
             }
-            await updateUser(formattedNumber, verificationCode, Date.now())
+            await updateUser(formattedNumber, registrationCode, expirationTime)
         } else {
-            await addUser(formattedNumber, verificationCode, Date.now())
+            await addUser(formattedNumber, registrationCode, expirationTime)
         }
     } catch (error) {
         return {statusCode: 500, body: JSON.stringify(error)}
@@ -51,10 +52,10 @@ exports.handler = async event => {
     })
 
     try {
-        console.log(`Verification code is ${verificationCode} for phone number ${phoneNumber}`)
+        console.log(`Verification code is ${registrationCode} for phone number ${phoneNumber}`)
 
         const response = await sns.publish({
-            Message: `Your Atbash verification code is ${verificationCode}`,
+            Message: `Your Atbash verification code is ${registrationCode}`,
             PhoneNumber: phoneNumber,
             MessageAttributes: {
                 "AWS.SNS.SMS.SMSType": {

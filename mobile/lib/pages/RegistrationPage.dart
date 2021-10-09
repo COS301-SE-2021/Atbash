@@ -98,7 +98,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
           SizedBox(
             height: 25,
           ),
-          _buildRegisterButton(context),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildRegisterButton(context),
+                Spacer(
+                  flex: 2,
+                ),
+                _buildReregisterButton(context),
+              ]
+          ),
           Spacer(
             flex: 2,
           ),
@@ -131,7 +140,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
     }
   }
 
-  void _register(BuildContext context) {
+  Widget _buildReregisterButton(BuildContext context) {
+    if (loading) {
+      return SpinKitThreeBounce(
+        color: Colors.orange,
+        size: 24.0,
+      );
+    } else {
+      return MaterialButton(
+        color: Constants.orange,
+        elevation: 10,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          "Reregister",
+          style: TextStyle(
+            fontSize: 20,
+          ),
+        ),
+        onPressed: () => _register(context, reregister: true),
+      );
+    }
+  }
+
+  void _register(BuildContext context, {bool reregister = false}) {
     setState(() {
       loading = true;
     });
@@ -139,20 +172,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    controller.register(phoneNumber).then((verificationCode) {
-      print("Verification code is $verificationCode");
-      FlutterSecureStorage()
-          .write(key: "verification_code", value: verificationCode);
+    controller.requestRegistrationCode(phoneNumber, reregister: reregister).then((succeeded) {
 
-      if (verificationCode != null) {
+      if (succeeded) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => VerificationPage(code: verificationCode),
+            builder: (_) => VerificationPage(phoneNumber),
           ),
         );
       } else {
-        showSnackBar(context, "This phone number is already registered");
+        showSnackBar(context, "This phone number is already registered. Please reregister.");
         setState(() {
           loading = false;
         });

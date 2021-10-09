@@ -75,8 +75,6 @@ class AtbashApp extends StatelessWidget {
           if (snapshotData[0] == RegistrationState.registered) {
             // communicationService.goOnline();
             page = HomePage();
-          } else if (snapshotData[0] == RegistrationState.unverified) {
-            page = VerificationPage();
           } else {
             page = RegistrationPage();
           }
@@ -94,14 +92,13 @@ class AtbashApp extends StatelessWidget {
   }
 
   Future<RegistrationState> _registrationState() async {
-    final verified =
-        await FlutterSecureStorage().read(key: "verified_flag") != null;
+    final registered = await registrationService.isRegistered();
 
-    if (verified) {
+    if (registered) {
       return RegistrationState.registered;
     } else {
-      final registered = await registrationService.isRegistered();
-      return registered
+      final registering = await registrationService.isRegistering();
+      return registering
           ? RegistrationState.unverified
           : RegistrationState.unregistered;
     }
@@ -125,7 +122,7 @@ void _registerServices() async {
       databaseService, userService, messageboxService);
 
   final registrationService =
-      RegistrationService(encryptionService, userService, messageboxService);
+      RegistrationService(encryptionService, userService, databaseService, messageboxService);
 
   GetIt.I.registerSingleton(registrationService);
 

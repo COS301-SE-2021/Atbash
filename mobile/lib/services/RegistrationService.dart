@@ -15,6 +15,7 @@ import 'package:mobile/encryption/SignedPreKeyDBRecord.dart';
 import 'package:mobile/encryption/TrustedKeyDBRecord.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
 import 'package:mobile/exceptions/RegistrationErrorException.dart';
+import 'package:mobile/exceptions/VerificationErrorException.dart';
 import 'package:mobile/util/Validations.dart';
 import 'DatabaseService.dart';
 import 'EncryptionService.dart';
@@ -44,8 +45,10 @@ class RegistrationService {
         new InvalidNumberException(
             "Invalid number provided in register method"));
 
-    if(!reregister && (await isRegistering() || await isRegistered())){
+    if(!reregister && (await isRegistered())){
       return false;
+    } else if (await isRegistering()){
+      reregister = true;
     }
 
     final url = Uri.parse(Constants.httpUrl + "requestRegistrationCode");
@@ -71,7 +74,7 @@ class RegistrationService {
 
   ///This function creates a new Atbash account on the server which will be
   ///needed for linking a users phone number with their keys
-  Future<bool> register(String phoneNumber, int registrationCode) async {
+  Future<bool> register(String phoneNumber, String registrationCode) async {
     final url = Uri.parse(Constants.httpUrl + "register");
 
     throwIfNot(
@@ -151,16 +154,11 @@ class RegistrationService {
         _storage.write(
             key: "device_authentication_token_base64", value: authTokenEncoded),
         _userService.setPhoneNumber(phoneNumber),
-        _encryptionService.generateInitialKeyBundle(registrationId),
       ]);
 
-      final success = await registerKeys();
-      if (success) {
-        _messageboxService.getMessageboxKeys(6).then((_) => _messageboxService.getMessageboxKeys(10));
-        return true;
-      } else {
-        return false;
-      }
+      return true;
+    } else if (response.statusCode == 400) {
+      throw new VerificationErrorException(response.body);
     } else {
       print("Server request was unsuccessful.\nResponse code: " +
           response.statusCode.toString() +
@@ -172,6 +170,30 @@ class RegistrationService {
               ".\nReason: " +
               response.body);
       //return false;
+    }
+  }
+
+  ///This function is called after register to complete the registration process
+  Future<bool> registerComplete() async {
+    if(!(await isRegistering())){
+      return false;
+    }
+
+    final registrationId = await _storage.read(key: "registration_id");
+
+    if(registrationId == null){
+      return false;
+    }
+
+    await _encryptionService.generateInitialKeyBundle(int.parse(registrationId));
+
+    final success = await registerKeys();
+    if (success) {
+      await setRegistered();
+      _messageboxService.getMessageboxKeys(6).then((value) => _messageboxService.getMessageboxKeys(10));
+      return true;
+    } else {
+      return false;
     }
   }
 

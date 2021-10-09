@@ -134,35 +134,13 @@ class EncryptionService {
         throw InvalidNumberException("Cannot decrypt own encrypted message.");
       }
 
-      // final Map<String, Object?> data = jsonDecode(encryptedContents);
-      //
-      // int mType = data["type"] as int;
-      // int mNumber = data["m_number"] as int;
-      // encryptedContents = data["message"] as String;
-      //
-      // print("Decrypting message number: " + mNumber.toString());
-      // print("Decrypting message type: " + mType.toString());
-
       String plaintext = "Failed to decrypt...";
       try {
         print("Decrypting CipherTextMessage");
         final decodedEncryptedContents = base64Decode(encryptedContents);
         // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
 
-        // CiphertextMessage? reconstructedCipherMessage;
         print("Trying to reconstruct CipherTextMessage");
-        // if (mType == CiphertextMessage.prekeyType) {
-        //   reconstructedCipherMessage =
-        //       PreKeySignalMessage(decodedEncryptedContents);
-        // } else if (mType == CiphertextMessage.whisperType) {
-        //   reconstructedCipherMessage =
-        //       SignalMessage.fromSerialized(decodedEncryptedContents);
-        // } else {
-        //   print("Failed");
-        //   return plaintext;
-        // }
-        // plaintext = await _decryptCipherTextMessage(
-        //     senderPhoneNumber, reconstructedCipherMessage);
         try {
           plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
               SignalMessage.fromSerialized(decodedEncryptedContents));
@@ -181,6 +159,9 @@ class EncryptionService {
       } on InvalidMessageException catch (e) {
         throw DecryptionErrorException(e.detailMessage);
       }
+      //TODO: Create new session after certain number of messages have failed
+      //InvalidProtocolBufferException
+      //DuplicateMessageException
     });
   }
 
@@ -283,7 +264,6 @@ class EncryptionService {
     final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
-      //Todo: Implement Authorization header and place this there instead
       "authorization": "Bearer $authTokenEncoded",
       "phoneNumber": phoneNumber,
       "recipientNumber": number

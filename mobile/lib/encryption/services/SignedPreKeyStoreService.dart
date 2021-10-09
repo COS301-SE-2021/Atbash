@@ -99,7 +99,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
         SignedPreKeyDBRecord(signedPreKeyId, record.serialize());
     final db = await _databaseService.database;
 
-    db.insert(SignedPreKeyDBRecord.TABLE_NAME, signedPreKeyDBRecord.toMap(),
+    await db.insert(SignedPreKeyDBRecord.TABLE_NAME, signedPreKeyDBRecord.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -121,7 +121,7 @@ class SignedPreKeyStoreService extends SignedPreKeyStore {
   Future<void> removeSignedPreKey(int signedPreKeyId) async {
     final db = await _databaseService.database;
 
-    db.delete(
+    await db.delete(
       SignedPreKeyDBRecord.TABLE_NAME,
       where: "${SignedPreKeyDBRecord.COLUMN_KEY_ID} = ?",
       whereArgs: [signedPreKeyId],

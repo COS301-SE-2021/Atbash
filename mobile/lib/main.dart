@@ -169,7 +169,8 @@ void _registerServices() async {
       childContactService,
       parentService,
       pcConnectionService,
-      storedProfanityWordService);
+      storedProfanityWordService,
+      databaseService);
 
   GetIt.I.registerSingleton(storedProfanityWordService);
   GetIt.I.registerSingleton(profanityWordService);

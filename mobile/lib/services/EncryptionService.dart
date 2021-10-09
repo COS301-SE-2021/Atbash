@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/encryption/services/FailedDecryptionCounterService.dart';
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
@@ -40,7 +41,8 @@ class EncryptionService {
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
       this._sessionStoreService,
-      this._messageboxService);
+      this._messageboxService,
+      this._failedDecryptionCounterService);
 
   final UserService _userService;
   final SessionStoreService _sessionStoreService;
@@ -49,6 +51,7 @@ class EncryptionService {
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
   final MessageboxService _messageboxService;
+  final FailedDecryptionCounterService _failedDecryptionCounterService;
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
@@ -155,13 +158,26 @@ class EncryptionService {
           }
         }
 
+        await resetFailedDecryptionCounter(senderPhoneNumber);
         return jsonDecode(plaintext);
-      } on InvalidMessageException catch (e) {
+      } on DuplicateMessageException catch (e) {
+        //Create new session here
+        await createSession(SignalProtocolAddress(senderPhoneNumber, 1));
+        await resetFailedDecryptionCounter(senderPhoneNumber);
+
         throw DecryptionErrorException(e.detailMessage);
+      } on InvalidMessageException catch (e) {
+        //Increment counter then create new session if above threshold
+        await incrementFailedDecryptionCounter(senderPhoneNumber);
+
+        throw DecryptionErrorException(e.detailMessage);
+      } catch (e) {
+        //Increment counter then create new session if above threshold
+        await incrementFailedDecryptionCounter(senderPhoneNumber);
+
+        throw DecryptionErrorException(e.toString());
       }
-      //TODO: Create new session after certain number of messages have failed
-      //InvalidProtocolBufferException
-      //DuplicateMessageException
+
     });
   }
 
@@ -521,5 +537,20 @@ class EncryptionService {
     final keypair = await _userService.fetchRSAKeyPair();
 
     return keypair.privateKey.decrypt(encryptedNumber);
+  }
+
+  /// This method increments the failed decryption counter for the specified number
+  Future<void> incrementFailedDecryptionCounter(String phoneNumber) async {
+    int count = await _failedDecryptionCounterService.incrementCounter(phoneNumber);
+
+    if(count >= Constants.maxFailedDecryptedMessages){
+      await _failedDecryptionCounterService.resetCounter(phoneNumber);
+      await createSession(SignalProtocolAddress(phoneNumber, 1));
+    }
+  }
+
+  /// This method resets the failed decryption counter for the specified number
+  Future<void> resetFailedDecryptionCounter(String phoneNumber) async {
+    await _failedDecryptionCounterService.resetCounter(phoneNumber);
   }
 }

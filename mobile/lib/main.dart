@@ -38,6 +38,8 @@ import 'package:mobile/services/StoredProfanityWordService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
 
+import 'encryption/services/FailedDecryptionCounterService.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -209,6 +211,7 @@ EncryptionService _initialiseEncryptionService(DatabaseService databaseService,
     signedPreKeyStoreService,
     identityKeyStoreService,
   );
+  final failedDecryptionCounterService = FailedDecryptionCounterService(databaseService);
   return EncryptionService(
     userService,
     signalProtocolStoreService,
@@ -217,6 +220,7 @@ EncryptionService _initialiseEncryptionService(DatabaseService databaseService,
     preKeyStoreService,
     sessionStoreService,
     messageboxService,
+    failedDecryptionCounterService,
   );
 }
 

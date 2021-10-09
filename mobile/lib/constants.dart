@@ -4,6 +4,9 @@ class Constants {
   //Key sizes
   static const int RSAKEYSIZE = 1024;
 
+  //Encryption
+  static const int maxFailedDecryptedMessages = 3;
+
   //paddings
   static const double screenBorderPadding = 15;
 

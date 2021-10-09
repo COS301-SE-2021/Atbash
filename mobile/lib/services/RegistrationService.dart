@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:mobile/constants.dart';
+import 'package:mobile/domain/MessagePayload.dart';
+import 'package:mobile/domain/MessageResendRequest.dart';
+import 'package:mobile/encryption/FailedDecryptionCounter.dart';
 import 'package:mobile/encryption/Messagebox.dart';
 import 'package:mobile/encryption/MessageboxToken.dart';
 import 'package:mobile/encryption/PreKeyDBRecord.dart';
@@ -343,6 +346,7 @@ class RegistrationService {
       db.delete(TrustedKeyDBRecord.TABLE_NAME),
       db.delete(MessageboxToken.TABLE_NAME),
       db.delete(Messagebox.TABLE_NAME),
+      db.delete(FailedDecryptionCounter.TABLE_NAME)
     ]);
   }
 
@@ -364,6 +368,7 @@ class RegistrationService {
     final response = await http.post(url, body: jsonEncode(data));
 
     if (response.statusCode == 200){
+      final db = await _databaseService.database;
       await clearEncryptionTables();
       await Future.wait([
         setUnregistered(),
@@ -371,6 +376,8 @@ class RegistrationService {
         _userService.setProfileImage(Uint8List.fromList([])),
         _userService.setStatus(""),
         _userService.setPhoneNumber(""),
+        db.delete(MessagePayload.TABLE_NAME),
+        db.delete(MessageResendRequest.TABLE_NAME),
       ]);
     }
   }

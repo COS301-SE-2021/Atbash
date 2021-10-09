@@ -346,5 +346,33 @@ class RegistrationService {
     ]);
   }
 
+  Future<void> deleteAccount() async {
+    if(!(await isRegistered())){
+      return;
+    }
+
+    final phoneNumber = await _userService.getPhoneNumber();
+    final authTokenEncoded = await _userService.getDeviceAuthTokenEncoded();
+
+    final url = Uri.parse(Constants.httpUrl + "deleteAccount");
+
+    var data = {
+      "authorization": "Bearer $authTokenEncoded",
+      "phoneNumber": phoneNumber
+    };
+
+    final response = await http.post(url, body: jsonEncode(data));
+
+    if (response.statusCode == 200){
+      await clearEncryptionTables();
+      await Future.wait([
+        setUnregistered(),
+        _userService.setDisplayName(""),
+        _userService.setProfileImage(Uint8List.fromList([])),
+        _userService.setStatus(""),
+        _userService.setPhoneNumber(""),
+      ]);
+    }
+  }
 
 }

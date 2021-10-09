@@ -5,6 +5,7 @@ import 'package:mobile/models/SettingsPageModel.dart';
 import 'package:mobile/services/CommunicationService.dart';
 import 'package:mobile/services/ContactService.dart';
 import 'package:mobile/services/ParentService.dart';
+import 'package:mobile/services/RegistrationService.dart';
 import 'package:mobile/services/SettingsService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/util/Utils.dart';
@@ -19,6 +20,7 @@ class SettingsPageController {
   final ContactService contactService = GetIt.I.get();
   final CommunicationService communicationService = GetIt.I.get();
   final ParentService parentService = GetIt.I.get();
+  final RegistrationService registrationService = GetIt.I.get();
 
   final SettingsPageModel model = SettingsPageModel();
 
@@ -160,6 +162,10 @@ class SettingsPageController {
 
   void dispose() {
     communicationService.disposeOnAllSettingsToChild(_onAllSettingsToChild);
+  }
+
+  Future<void> deleteAccount() async {
+    await registrationService.deleteAccount();
   }
 
   Future<void> importContacts() async {

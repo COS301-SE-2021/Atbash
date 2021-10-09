@@ -585,6 +585,11 @@ class CommunicationService {
       if (eventPayload == null) {
         print("Event payload is null");
         print("Event: " + event.toString());
+
+        final id = parsedEvent["id"] as String?;
+        if(id != null){
+          await _deleteMessageFromServer(id);
+        }
       }
       if (eventPayload != null) {
         final senderPhoneNumber = eventPayload.senderPhoneNumber;

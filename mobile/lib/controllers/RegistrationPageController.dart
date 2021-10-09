@@ -5,12 +5,14 @@ import 'package:mobile/exceptions/RegistrationErrorException.dart';
 class RegistrationPageController {
   final RegistrationService registrationService = GetIt.I.get();
 
-  Future<bool> requestRegistrationCode(String phoneNumber, {bool reregister = false}){
+  Future<bool> requestRegistrationCode(String phoneNumber, {bool reregister = false}) async {
     try {
-      return registrationService.requestRegistrationCode(
+      var result = await registrationService.requestRegistrationCode(
           phoneNumber, reregister);
+      return result;
     } on RegistrationErrorException catch (e){
       if(reregister){
+        print(e.cause);
         throw e;
       } else {
         return Future.value(false);

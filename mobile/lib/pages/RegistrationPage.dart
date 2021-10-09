@@ -101,11 +101,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
           Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildRegisterButton(context),
-                Spacer(
-                  flex: 2,
+                Padding(
+                  padding: EdgeInsets.only(right: 3),
+                  child: _buildRegisterButton(context),
                 ),
-                _buildReregisterButton(context),
+                Padding(
+                  padding: EdgeInsets.only(left: 3),
+                  child: _buildReregisterButton(context),
+                )
               ]
           ),
           Spacer(
@@ -188,6 +191,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         });
       }
     }).catchError((error) {
+      showSnackBar(context, error.toString());
       setState(() {
         loading = false;
       });

@@ -11,8 +11,8 @@ import 'RegistrationPage.dart';
 
 class VerificationPage extends StatefulWidget {
   late final String phoneNumber;
-  VerificationPage(String phoneNumber, {Key? key}) : super(key: key){
-    phoneNumber = phoneNumber;
+  VerificationPage(String phoneNumberVal, {Key? key}) : super(key: key){
+    phoneNumber = phoneNumberVal;
   }
   // late final String actualCode;
   //
@@ -159,10 +159,6 @@ class _VerificationPageState extends State<VerificationPage> {
           builder: (context) => ProfileSettingsPage(setup: true),
         ),
       );
-    } else {
-      codeController.text = "";
-
-      showSnackBar(context, "Invalid code");
     }
 
     setState(() {

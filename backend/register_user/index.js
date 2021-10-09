@@ -78,8 +78,6 @@ exports.handler = async event => {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
 
-    //getMessageTokenInfo
-
     let devicePassword = getRandomValues(new Uint8Array(24))
     let numberAsUintArr = utf8Encoder.encode(phoneNumber + ":")
     let unencodedAuthToken = new Uint8Array([...numberAsUintArr, ...devicePassword]);

@@ -23,6 +23,19 @@ exports.addUser = async (registrationId, phoneNumber, rsaPublicKey, authToken, n
   }
 }
 
+exports.deleteUser = async (phoneNumber) => {
+  try {
+    await db.delete({
+      TableName: process.env.TABLE_USERS,
+      Key: {
+        "phoneNumber": phoneNumber
+      },
+    }).promise()
+  } catch (error) {
+    throw error
+  }
+}
+
 exports.validateRegistrationCode = async (phoneNumber, registrationCode, timeNow) => {
   try {
     const response = await db.query({
@@ -36,7 +49,7 @@ exports.validateRegistrationCode = async (phoneNumber, registrationCode, timeNow
     if(response.Items.length > 0){
       let item = response.Items[0];
       if(item["registrationCode"] !== undefined && item["registrationCode"] !== null){
-        if(item["registrationCode"]["expirationTime"] <= timeNow){
+        if(item["registrationCode"]["expirationTime"] >= timeNow){
           return (item["registrationCode"]["code"] === registrationCode)
         }
       }

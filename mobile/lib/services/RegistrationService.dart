@@ -157,8 +157,10 @@ class RegistrationService {
       ]);
 
       return true;
-    } else if (response.statusCode == 400) {
-      throw new VerificationErrorException(response.body);
+    } else if (response.statusCode == 400) { 
+      throw new VerificationErrorException("Response code: " +
+          response.statusCode.toString() +
+          ".\nReason: " +response.body);
     } else {
       print("Server request was unsuccessful.\nResponse code: " +
           response.statusCode.toString() +

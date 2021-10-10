@@ -35,7 +35,7 @@ class MessageResendRequest {
     }
   }
 
-  static const String TABLE_NAME = "message_payload";
+  static const String TABLE_NAME = "message_resend_request";
   static const String COLUMN_ID = "message_id";
   static const String COLUMN_SENDER_PHONE_NUMBER =
       "sender_phone_number";

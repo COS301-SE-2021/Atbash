@@ -191,6 +191,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         });
       }
     }).catchError((error) {
+      print(error.toString());
       showSnackBar(context, error.toString());
       setState(() {
         loading = false;

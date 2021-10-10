@@ -2,10 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>io.flutter.embedded_views_preview</key>
-    <true/>
-    <key>NSCameraUsageDescription</key>
-    <string>This app needs camera access to scan QR codes</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AtBash needs access to your photos for profile photos and sending images</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -48,9 +54,9 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
-    <array>
-      <string>https</string>
-      <string>http</string>
-    </array>
+	<array>
+		<string>https</string>
+		<string>http</string>
+	</array>
 </dict>
 </plist>

@@ -59,7 +59,8 @@ dependencies:
 #  image_gallery_saver: ^1.7.0 #Fails??
   url_launcher: ^6.0.9
   qr_code_scanner: ^0.5.2
-  flutter_webrtc: ^0.6.10+hotfix.1
+#  flutter_webrtc: ^0.6.10+hotfix.1
+  flutter_webrtc: 0.6.8 #Versions higher than this cause ios build to fail
   flutter_image_compress: ^1.1.0
 
 dev_dependencies:

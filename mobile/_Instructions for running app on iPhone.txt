@@ -1,0 +1,9 @@
+- Navigate to the IOS folder
+- Delete Pods folder, Podfile.lock, and Runner.xcworkspace
+- Run the following commands in terminal:
+    - pod deintegrate
+    - pod repo update
+    - pod install
+- Open the Runner.xcworkspace with Xcode 
+- Make sure iPhone is connect to mac
+- Click build/run

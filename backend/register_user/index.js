@@ -61,7 +61,7 @@ exports.handler = async event => {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
 
-    if(tokenInfo == null){
+    if(tokenInfo.lastAddedTokens === undefined || tokenInfo.numberAvailableTokens === undefined){
         tokenInfo = {
             numberAvailableTokens: 50,
             lastAddedTokens: Date.now()

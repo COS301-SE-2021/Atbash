@@ -30,7 +30,7 @@ exports.handler = async event => {
     return {statusCode: 500, body: JSON.stringify(error)}
   }
 
-  if(tokenInfo == null){
+  if(tokenInfo.lastAddedTokens === undefined || tokenInfo.numberAvailableTokens === undefined){
     return {statusCode: 500, body: "Unable to get Messagebox Tokens information"}
   }
 

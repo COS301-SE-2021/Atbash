@@ -211,25 +211,20 @@ class EncryptionService {
     var sessionCipher =
         SessionCipher.fromStore(_signalProtocolStoreService, address);
 
-    //Todo: Handle this:
-    ///Both methods below throw "InvalidMessageException" and "DuplicateMessageException"
     if (ciphertext.getType() == CiphertextMessage.prekeyType) {
       //Prekey signal message
-      print("Message is PreKeySignalMessage");
       final plaintextEncoded =
           await sessionCipher.decrypt(ciphertext as PreKeySignalMessage);
+      print("Message is PreKeySignalMessage");
       final plaintext = utf8.decode(plaintextEncoded);
       print("Decrypted plaintext: " + plaintext);
 
       return plaintext;
     } else if (ciphertext.getType() == CiphertextMessage.whisperType) {
-      //Todo: Handle this
-      /// This throws "NoSessionException"
-      /// Need to handle this!!!
       //Plain signal message
-      print("Message is plain SignalMessage");
       final plaintextEncoded =
           await sessionCipher.decryptFromSignal(ciphertext as SignalMessage);
+      print("Message is plain SignalMessage");
       final plaintext = utf8.decode(plaintextEncoded);
 
       return plaintext;
@@ -543,7 +538,9 @@ class EncryptionService {
   Future<void> incrementFailedDecryptionCounter(String phoneNumber) async {
     int count = await _failedDecryptionCounterService.incrementCounter(phoneNumber);
 
+    print("Failed decrypted messages for " + phoneNumber + " is " + count.toString() + "/" + Constants.maxFailedDecryptedMessages.toString());
     if(count >= Constants.maxFailedDecryptedMessages){
+      print("Creating new session for " + phoneNumber);
       await _failedDecryptionCounterService.resetCounter(phoneNumber);
       await createSession(SignalProtocolAddress(phoneNumber, 1));
     }

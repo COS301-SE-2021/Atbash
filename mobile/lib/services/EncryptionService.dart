@@ -93,30 +93,6 @@ class EncryptionService {
       }
 
       return encodedSerializedCipherMessage;
-
-      // print("Created type: " + ciphertext.getType().toString());
-      //
-      // final mNumber = await _storage.read(key: "m_number");
-      // int number = 1;
-      // if (mNumber == null) {
-      //   await _storage.write(key: "m_number", value: "1");
-      // } else {
-      //   number = int.parse(mNumber) + 1;
-      //   await _storage.write(key: "m_number", value: number.toString());
-      // }
-      //
-      // var data = {
-      //   "type": ciphertext.getType(),
-      //   "m_number": number,
-      //   "message": encodedSerializedCipherMessage,
-      // };
-      //
-      // print("Sending message number: " +
-      //     number.toString() +
-      //     " Content: " +
-      //     messageContent);
-      //
-      // return jsonEncode(data);
     });
   }
 
@@ -354,7 +330,6 @@ class EncryptionService {
     final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
-      //Todo: Implement Authorization header and place this there instead
       "authorization": "Bearer $authTokenEncoded",
       "phoneNumber": phoneNumber
     };
@@ -400,7 +375,6 @@ class EncryptionService {
         }
 
         var data = {
-          //Todo: Implement Authorization header and place this there instead
           "authorization": "Bearer $authTokenEncoded",
           "phoneNumber": phoneNumber,
           "preKeys": preKeysArr

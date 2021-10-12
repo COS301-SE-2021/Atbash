@@ -68,6 +68,9 @@ class IdentityKeyStoreService extends IdentityKeyStore {
     return true;
 
     ///Disabling this for now as don't really need it
+    ///This can be used at a later date to check when an identify key changes
+    ///The user should be notified of this so that they can check they're still
+    ///talking to who they think they're talking to
     // final trusted = await fetchTrustedKey(address);
     // if (identityKey == null) {
     //   return false;

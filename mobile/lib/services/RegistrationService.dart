@@ -232,7 +232,6 @@ class RegistrationService {
     }
 
     var data = {
-      //Todo: Implement Authorization header and place this there instead
       "authorization": "Bearer $authTokenEncoded",
       "phoneNumber": phoneNumber,
       "identityKey": base64Encode(identityKeyPair.getPublicKey().serialize()),

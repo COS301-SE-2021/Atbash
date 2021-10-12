@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/exceptions/RegistrationErrorException.dart';
 import 'package:mobile/exceptions/VerificationErrorException.dart';
@@ -11,7 +10,7 @@ import 'RegistrationPage.dart';
 
 class VerificationPage extends StatefulWidget {
   late final String phoneNumber;
-  VerificationPage(String phoneNumberVal, {Key? key}) : super(key: key){
+  VerificationPage(String phoneNumberVal, {Key? key}) : super(key: key) {
     phoneNumber = phoneNumberVal;
   }
   // late final String actualCode;
@@ -101,16 +100,13 @@ class _VerificationPageState extends State<VerificationPage> {
       loading = true;
     });
 
-    var delayedFuture =  Future.delayed(Duration(seconds: 2));
-
     var registerResult = false;
     try {
-      registerResult = await controller.register(
-          widget.phoneNumber, code);
-    } on VerificationErrorException catch (e){
+      registerResult = await controller.register(widget.phoneNumber, code);
+    } on VerificationErrorException catch (e) {
       codeController.text = "";
       showSnackBar(context, e.cause);
-    } on RegistrationErrorException catch (e) {
+    } on RegistrationErrorException {
       await controller.clearRegistration();
       Navigator.pushReplacement(
         context,
@@ -122,7 +118,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
     if (registerResult) {
       controller.registerComplete().then((value) async {
-        if(!value){
+        if (!value) {
           setState(() {
             loading = false;
           });
@@ -135,10 +131,17 @@ class _VerificationPageState extends State<VerificationPage> {
               builder: (context) => RegistrationPage(),
             ),
           );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(setup: true),
+            ),
+          );
         }
       }).catchError((error) async {
         setState(() {
-        loading = false;
+          loading = false;
         });
 
         showSnackBar(context, error.toString());
@@ -149,21 +152,11 @@ class _VerificationPageState extends State<VerificationPage> {
             builder: (context) => RegistrationPage(),
           ),
         );
+      }).whenComplete(() {
+        setState(() {
+          loading = false;
+        });
       });
-      //Ensuring there is a minimum 2 second delay
-      await delayedFuture;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfileSettingsPage(setup: true),
-        ),
-      );
     }
-
-    setState(() {
-      loading = false;
-    });
   }
-
 }

@@ -65,13 +65,16 @@ class IdentityKeyStoreService extends IdentityKeyStore {
   @override
   Future<bool> isTrustedIdentity(SignalProtocolAddress address,
       IdentityKey? identityKey, Direction? direction) async {
-    final trusted = await fetchTrustedKey(address);
-    if (identityKey == null) {
-      return false;
-    }
-    // ignore: avoid_dynamic_calls
-    return trusted == null ||
-        ListEquality().equals(trusted.serialize(), identityKey.serialize());
+    return true;
+
+    ///Disabling this for now as don't really need it
+    // final trusted = await fetchTrustedKey(address);
+    // if (identityKey == null) {
+    //   return false;
+    // }
+    // // ignore: avoid_dynamic_calls
+    // return trusted == null ||
+    //     ListEquality().equals(trusted.serialize(), identityKey.serialize());
   }
 
   @override

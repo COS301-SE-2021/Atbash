@@ -43,16 +43,17 @@ exports.handler = async event => {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
 
-    const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_SECRET)
-
     try {
+        const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_SECRET)
+
         console.log(`Verification code is ${registrationCode} for phone number ${phoneNumber}`)
 
-        twilio.messages.create({
+        const message = await twilio.messages.create({
             body: `Your Atbash verification code is ${registrationCode}`,
             messagingServiceSid: process.env.MESSAGING_SERVICE_SID,
             to: phoneNumber
-        }).then(message => console.log(`Sent ${message}`))
+        })
+        console.log(`Sent ${message}`)
     } catch (error) {
         console.log("SNS Error " + error)
     }

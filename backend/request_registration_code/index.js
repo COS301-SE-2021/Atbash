@@ -1,6 +1,5 @@
 const {addUser, updateUser, existsNumber} = require("./db_access")
 
-const AWS = require("aws-sdk")
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 
@@ -44,28 +43,16 @@ exports.handler = async event => {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
 
-    const sns = new AWS.SNS({
-        region: process.env.AWS_REGION, apiVersion: "2010-03-31", signatureVersion: "v4", credentials: {
-            accessKeyId: process.env.SNS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.SNS_SECRET_ACCESS_KEY
-        }
-    })
+    const twilio = require("twilio")(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_ACCOUNT_SECRET)
 
     try {
         console.log(`Verification code is ${registrationCode} for phone number ${phoneNumber}`)
 
-        const response = await sns.publish({
-            Message: `Your Atbash verification code is ${registrationCode}`,
-            PhoneNumber: phoneNumber,
-            MessageAttributes: {
-                "AWS.SNS.SMS.SMSType": {
-                    DataType: "String",
-                    StringValue: "Transactional"
-                }
-            }
-        }).promise()
-
-        console.log("SNS Response " + response)
+        twilio.messages.create({
+            body: `Your Atbash verification code is ${registrationCode}`,
+            messagingServiceSid: process.env.MESSAGING_SERVICE_SID,
+            to: phoneNumber
+        }).then(message => console.log(`Sent ${message}`))
     } catch (error) {
         console.log("SNS Error " + error)
     }

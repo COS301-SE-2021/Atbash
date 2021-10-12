@@ -131,6 +131,13 @@ class _VerificationPageState extends State<VerificationPage> {
               builder: (context) => RegistrationPage(),
             ),
           );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(setup: true),
+            ),
+          );
         }
       }).catchError((error) async {
         setState(() {
@@ -145,18 +152,11 @@ class _VerificationPageState extends State<VerificationPage> {
             builder: (context) => RegistrationPage(),
           ),
         );
+      }).whenComplete(() {
+        setState(() {
+          loading = false;
+        });
       });
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ProfileSettingsPage(setup: true),
-        ),
-      );
     }
-
-    setState(() {
-      loading = false;
-    });
   }
 }

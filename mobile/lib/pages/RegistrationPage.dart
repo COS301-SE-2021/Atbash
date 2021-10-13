@@ -1,6 +1,5 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mobile/controllers/RegistrationPageController.dart';
@@ -98,7 +97,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
           SizedBox(
             height: 25,
           ),
-          _buildRegisterButton(context),
+          if (loading)
+            SpinKitThreeBounce(
+              color: Colors.orange,
+              size: 24.0,
+            )
+          else
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Padding(
+                padding: EdgeInsets.only(right: 3),
+                child: _buildRegisterButton(context),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 3),
+                child: _buildReregisterButton(context),
+              )
+            ]),
           Spacer(
             flex: 2,
           ),
@@ -108,30 +122,40 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _buildRegisterButton(BuildContext context) {
-    if (loading) {
-      return SpinKitThreeBounce(
-        color: Colors.orange,
-        size: 24.0,
-      );
-    } else {
-      return MaterialButton(
-        color: Constants.orange,
-        elevation: 10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+    return MaterialButton(
+      color: Constants.orange,
+      elevation: 10,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        "Register",
+        style: TextStyle(
+          fontSize: 20,
         ),
-        child: Text(
-          "Register",
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
-        onPressed: () => _register(context),
-      );
-    }
+      ),
+      onPressed: () => _register(context),
+    );
   }
 
-  void _register(BuildContext context) {
+  Widget _buildReregisterButton(BuildContext context) {
+    return MaterialButton(
+      color: Constants.orange,
+      elevation: 10,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        "Reregister",
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
+      onPressed: () => _register(context, reregister: true),
+    );
+  }
+
+  void _register(BuildContext context, {bool reregister = false}) {
     setState(() {
       loading = true;
     });
@@ -139,25 +163,26 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final phoneNumber =
         selectedDialCode + cullToE164(_phoneNumberController.text);
 
-    controller.register(phoneNumber).then((verificationCode) {
-      print("Verification code is $verificationCode");
-      FlutterSecureStorage()
-          .write(key: "verification_code", value: verificationCode);
-
-      if (verificationCode != null) {
+    controller
+        .requestRegistrationCode(phoneNumber, reregister: reregister)
+        .then((succeeded) {
+      if (succeeded) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => VerificationPage(code: verificationCode),
+            builder: (_) => VerificationPage(phoneNumber),
           ),
         );
       } else {
-        showSnackBar(context, "This phone number is already registered");
+        showSnackBar(context,
+            "This phone number is already registered. Please reregister.");
         setState(() {
           loading = false;
         });
       }
     }).catchError((error) {
+      print(error.toString());
+      showSnackBar(context, error.toString());
       setState(() {
         loading = false;
       });

@@ -13,6 +13,8 @@ import 'package:mobile/util/Utils.dart';
 import 'package:mobile/widgets/AvatarIcon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'RegistrationPage.dart';
+
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
@@ -348,6 +350,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 onTap: () {
                   controller.importContacts();
+                },
+                dense: true,
+              ),
+              ListTile(
+                key: Key("deleteAccount"),
+                leading: Icon(
+                  Icons.delete,
+                  color: Constants.orange,
+                ),
+                title: Text(
+                  "Delete Account",
+                  style: TextStyle(fontSize: 16),
+                ),
+                onTap: () {
+                  controller.deleteAccount().then((value) => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => RegistrationPage())));
                 },
                 dense: true,
               ),

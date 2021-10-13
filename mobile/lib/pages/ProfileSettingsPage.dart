@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -251,9 +252,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     if (pickedFile != null) {
       final File file = File(pickedFile.path);
       final imageBytes = await file.readAsBytes();
-      setState(() {
-        _selectedProfileImage = imageBytes;
-      });
+      if (base64Encode(imageBytes).length < 3000000) {
+        setState(() {
+          _selectedProfileImage = imageBytes;
+        });
+      } else {
+        showSnackBar(context, "Image too large");
+      }
     }
   }
 }

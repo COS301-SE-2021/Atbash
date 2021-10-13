@@ -30,26 +30,14 @@ exports.authenticateAuthenticationToken = async (phoneNumber, token) => {
   }
 }
 
-exports.uploadKeys = async (phoneNumber, preKeys) => {
+exports.deleteUser = async (phoneNumber) => {
   try {
-    let numPreKeys = preKeys.length;
-    console.log("Update: ");
-    await db.update({
+    await db.delete({
       TableName: process.env.TABLE_USERS,
       Key: {
         "phoneNumber": phoneNumber
       },
-      UpdateExpression: "SET numberFreeKeys = numberFreeKeys + :n, #keys.#pkeys = list_append(#keys.#pkeys, :k)",
-      ExpressionAttributeNames: {
-        "#keys": "keys",
-        "#pkeys": "preKeys"
-      },
-      ExpressionAttributeValues: {
-        ":n": numPreKeys,
-        ":k": preKeys
-      },
     }).promise()
-    return true;
   } catch (error) {
     throw error
   }

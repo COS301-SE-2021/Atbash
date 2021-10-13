@@ -13,6 +13,8 @@ import 'package:mobile/domain/ChildContact.dart';
 import 'package:mobile/domain/ChildMessage.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/MessagePayload.dart';
+import 'package:mobile/domain/MessageResendRequest.dart';
 import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/domain/StoredProfanityWord.dart';
@@ -25,6 +27,7 @@ import 'package:mobile/services/ChildMessageService.dart';
 import 'package:mobile/services/ChildProfanityWordService.dart';
 import 'package:mobile/services/ChildService.dart';
 import 'package:mobile/services/ContactService.dart';
+import 'package:mobile/services/DatabaseService.dart';
 import 'package:mobile/services/EncryptionService.dart';
 import 'package:mobile/services/MediaService.dart';
 import 'package:mobile/services/MemoryStoreService.dart';
@@ -37,6 +40,7 @@ import 'package:mobile/services/StoredProfanityWordService.dart';
 import 'package:mobile/services/UserService.dart';
 import 'package:mobile/services/MessageboxService.dart';
 import 'package:mobile/util/RegexGeneration.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -66,6 +70,7 @@ class CommunicationService {
   final ChildContactService childContactService;
   final ParentService parentService;
   final StoredProfanityWordService storedProfanityWordService;
+  final DatabaseService _databaseService;
 
   var communicationLock = new Lock();
 
@@ -261,7 +266,8 @@ class CommunicationService {
       this.childContactService,
       this.parentService,
       this.pcConnectionService,
-      this.storedProfanityWordService) {
+      this.storedProfanityWordService,
+      this._databaseService) {
     final uri = Uri.parse("${Constants.httpUrl}messages");
 
     _messageQueue.stream.listen(
@@ -579,6 +585,11 @@ class CommunicationService {
       if (eventPayload == null) {
         print("Event payload is null");
         print("Event: " + event.toString());
+
+        final id = parsedEvent["id"] as String?;
+        if(id != null){
+          await _deleteMessageFromServer(id);
+        }
       }
       if (eventPayload != null) {
         final senderPhoneNumber = eventPayload.senderPhoneNumber;
@@ -807,6 +818,13 @@ class CommunicationService {
 
             if (profileImage != null) {
               sendProfileImage(base64Encode(profileImage), senderPhoneNumber);
+            }
+            break;
+          case "requestMessageResend":
+            final requestedMessageId = decryptedContents["messageId"] as String?;
+
+            if(requestedMessageId != null){
+              sendMessageAgain(requestedMessageId);
             }
             break;
           case "startPrivateChat":
@@ -1517,6 +1535,23 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
+  Future<void> sendMessageResendRequest(MessageResendRequest messageResendRequest) async {
+    storeMessageResendRequest(messageResendRequest);
+    final contents = jsonEncode({
+      "type": "requestMessageResend",
+      "messageId": messageResendRequest.id
+    });
+    _queueForSending(contents, messageResendRequest.senderPhoneNumber);
+  }
+
+  Future<void> sendMessageAgain(String id) async {
+    MessagePayload? messagePayload = await fetchMessagePayload(id);
+
+    if(messagePayload != null){
+      _messageQueue.sink.add(messagePayload);
+    }
+  }
+
   //START OF NEW METHODS
 
   Future<void> sendAddChild(
@@ -1733,6 +1768,7 @@ class CommunicationService {
       contents: unencryptedContents,
     );
 
+    storeMessagePayload(payload);
     _messageQueue.sink.add(payload);
   }
 
@@ -1742,14 +1778,21 @@ class CommunicationService {
     final senderNumberEncrypted = event["senderNumberEncrypted"] as String?;
     final recipientMid = event["recipientMid"] as String?;
     final encryptedContents = event["encryptedContents"] as String?;
-    final timestamp = event["timestamp"] as int?;
+    var timestamp = event["timestamp"] as int?;
 
     if (id == null || encryptedContents == null || timestamp == null) {
       print(
           "Error: Invalid event (id, encryptedContents or timestamp is null)");
       return null;
     }
-    // print("Event id: " + id);
+
+    //If you have a message resent to you, you want its original timestamp
+    MessageResendRequest? messageResendRequest = await fetchMessageResendRequest(id);
+    if(messageResendRequest != null){
+      timestamp = messageResendRequest.originalTimestamp;
+      // removeMessageResendRequest(id); //Keep it incase multiple requests are sent
+    }
+
     if (recipientMid == null) {
       if (senderNumberEncrypted == null) {
         print(
@@ -1764,8 +1807,11 @@ class CommunicationService {
         decryptedContentsEncoded = await encryptionService
             .decryptMessageContents(encryptedContents, senderPhoneNumber);
       } on Exception catch (exception) {
-        print("Failed to decrypt message");
+        print("Failed to decrypt message. Requesting message to be resent.");
         print(exception.toString());
+        await sendMessageResendRequest(
+            new MessageResendRequest(id: id, senderPhoneNumber: senderPhoneNumber, originalTimestamp: timestamp)
+        );
         return null;
       }
 
@@ -1832,8 +1878,11 @@ class CommunicationService {
         decryptedContentsEncoded = await encryptionService
             .decryptMessageContents(encryptedContents, senderPhoneNumber);
       } on Exception catch (exception) {
-        print("Failed to decrypt message");
+        print("Failed to decrypt message. Requesting message to be resent.");
         print(exception.toString());
+        await sendMessageResendRequest(
+            new MessageResendRequest(id: id, senderPhoneNumber: senderPhoneNumber, originalTimestamp: timestamp)
+        );
         return null;
       }
 
@@ -1859,6 +1908,59 @@ class CommunicationService {
           contents: messageContents);
     }
   }
+
+  Future<void> storeMessagePayload(MessagePayload messagePayload) async {
+    final db = await _databaseService.database;
+
+    await db.insert(MessagePayload.TABLE_NAME, messagePayload.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<MessagePayload?> fetchMessagePayload(String id) async {
+    final db = await _databaseService.database;
+
+    final response = await db.query(
+      MessagePayload.TABLE_NAME,
+      where: "${MessagePayload.COLUMN_ID} = ?",
+      whereArgs: [id],
+    );
+
+    if (response.isNotEmpty) {
+      return MessagePayload.fromMap(response.first);
+    }
+  }
+
+  Future<void> storeMessageResendRequest(MessageResendRequest messageResendRequest) async {
+    final db = await _databaseService.database;
+
+    await db.insert(MessageResendRequest.TABLE_NAME, messageResendRequest.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<MessageResendRequest?> fetchMessageResendRequest(String id) async {
+    final db = await _databaseService.database;
+
+    final response = await db.query(
+      MessageResendRequest.TABLE_NAME,
+      where: "${MessageResendRequest.COLUMN_ID} = ?",
+      whereArgs: [id],
+    );
+
+    if (response.isNotEmpty) {
+      return MessageResendRequest.fromMap(response.first);
+    }
+  }
+
+  Future<void> removeMessageResendRequest(String id) async {
+    final db = await _databaseService.database;
+
+    await db.delete(
+      MessageResendRequest.TABLE_NAME,
+      where: "${MessageResendRequest.COLUMN_ID} = ?",
+      whereArgs: [id],
+    );
+  }
+
 }
 
 /*
@@ -1884,27 +1986,6 @@ class CommunicationService {
     )
   }
   */
-
-class MessagePayload {
-  final String id;
-  final String senderPhoneNumber;
-  final String recipientPhoneNumber;
-  String contents;
-
-  MessagePayload({
-    required this.id,
-    required this.senderPhoneNumber,
-    required this.recipientPhoneNumber,
-    required this.contents,
-  });
-
-  Map<String, Object> get asMap => {
-        "id": id,
-        "senderPhoneNumber": senderPhoneNumber,
-        "recipientPhoneNumber": recipientPhoneNumber,
-        "contents": contents
-      };
-}
 
 class EventPayload {
   final String id;

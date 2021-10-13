@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobile/exceptions/RegistrationErrorException.dart';
+import 'package:mobile/exceptions/VerificationErrorException.dart';
 import 'package:mobile/pages/ProfileSettingsPage.dart';
 import 'package:mobile/util/Utils.dart';
+import 'package:mobile/controllers/VerificationPageController.dart';
+
+import 'RegistrationPage.dart';
 
 class VerificationPage extends StatefulWidget {
-  late final String actualCode;
-
-  VerificationPage({Key? key, String? code}) : super(key: key) {
-    if (code != null) {
-      actualCode = code;
-    } else {
-      FlutterSecureStorage()
-          .read(key: "verification_code")
-          .then((verificationCode) => actualCode = verificationCode!);
-    }
+  late final String phoneNumber;
+  VerificationPage(String phoneNumberVal, {Key? key}) : super(key: key) {
+    phoneNumber = phoneNumberVal;
   }
+  // late final String actualCode;
+  //
+  // VerificationPage(String phoneNumber, {Key? key}) : super(key: key) {
+  //   if (code != null) {
+  //     actualCode = code;
+  //   } else {
+  //     FlutterSecureStorage()
+  //         .read(key: "verification_code")
+  //         .then((verificationCode) => actualCode = verificationCode!);
+  //   }
+  // }
 
   @override
   _VerificationPageState createState() => _VerificationPageState();
@@ -23,6 +31,9 @@ class VerificationPage extends StatefulWidget {
 
 class _VerificationPageState extends State<VerificationPage> {
   final codeController = TextEditingController();
+  final VerificationPageController controller;
+
+  _VerificationPageState() : controller = VerificationPageController();
 
   bool loading = false;
 
@@ -89,24 +100,63 @@ class _VerificationPageState extends State<VerificationPage> {
       loading = true;
     });
 
-    await Future.delayed(Duration(seconds: 2));
-
-    if (code == widget.actualCode) {
-      FlutterSecureStorage().write(key: "verified_flag", value: "");
+    var registerResult = false;
+    try {
+      registerResult = await controller.register(widget.phoneNumber, code);
+    } on VerificationErrorException catch (e) {
+      codeController.text = "";
+      showSnackBar(context, e.cause);
+    } on RegistrationErrorException {
+      await controller.clearRegistration();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => ProfileSettingsPage(setup: true),
+          builder: (context) => RegistrationPage(),
         ),
       );
-    } else {
-      codeController.text = "";
-
-      showSnackBar(context, "Invalid code");
     }
 
-    setState(() {
-      loading = false;
-    });
+    if (registerResult) {
+      controller.registerComplete().then((value) async {
+        if (!value) {
+          setState(() {
+            loading = false;
+          });
+
+          showSnackBar(context, "Failed to complete registration");
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegistrationPage(),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfileSettingsPage(setup: true),
+            ),
+          );
+        }
+      }).catchError((error) async {
+        setState(() {
+          loading = false;
+        });
+
+        showSnackBar(context, error.toString());
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegistrationPage(),
+          ),
+        );
+      }).whenComplete(() {
+        setState(() {
+          loading = false;
+        });
+      });
+    }
   }
 }

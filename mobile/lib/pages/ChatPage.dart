@@ -586,7 +586,12 @@ class _ChatPageState extends State<ChatPage> {
     if (pickedImage != null) {
       final file = File(pickedImage.path);
       final imageBytes = await file.readAsBytes();
-      controller.sendImage(imageBytes);
+
+      if (base64Encode(imageBytes).length < 3000000) {
+        controller.sendImage(imageBytes);
+      } else {
+        showSnackBar(context, "Image too big to send");
+      }
     }
   }
 

@@ -45,6 +45,7 @@ exports.getMessageTokenInfo = async (phoneNumber) => {
     }).promise()
 
     if(response.Count > 0){
+      // console.log(response)
       return {
         numberAvailableTokens: response.Items[0]["numberAvailableTokens"],
         lastAddedTokens: response.Items[0]["lastAddedTokens"]
@@ -60,7 +61,6 @@ exports.getMessageTokenInfo = async (phoneNumber) => {
 
 exports.updateMessageTokenInfo = async (phoneNumber, numberAvailableTokens, lastAddedTokens) => {
   try {
-    // console.log("GetAndRemovePreKey: ");
     let response = await db.update({
       TableName: process.env.TABLE_USERS,
       Key: {

@@ -8,10 +8,13 @@ import 'package:mobile/domain/ChildMessage.dart';
 import 'package:mobile/domain/ChildProfanityWord.dart';
 import 'package:mobile/domain/Contact.dart';
 import 'package:mobile/domain/Message.dart';
+import 'package:mobile/domain/MessagePayload.dart';
+import 'package:mobile/domain/MessageResendRequest.dart';
 import 'package:mobile/domain/Parent.dart';
 import 'package:mobile/domain/ProfanityWord.dart';
 import 'package:mobile/domain/StoredProfanityWord.dart';
 import 'package:mobile/domain/Tag.dart';
+import 'package:mobile/encryption/FailedDecryptionCounter.dart';
 import 'package:mobile/encryption/Messagebox.dart';
 import 'package:mobile/encryption/MessageboxToken.dart';
 import 'package:mobile/encryption/PreKeyDBRecord.dart';
@@ -31,7 +34,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 42, onCreate: (db, version) async {
+    return openDatabase(path, version: 45, onCreate: (db, version) async {
       await _createTables(db);
       await _insertProfanityWords(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
@@ -64,6 +67,9 @@ class DatabaseService {
       db.execute("drop table if exists ${Messagebox.TABLE_NAME};"),
       db.execute("drop table if exists ${ProfanityWord.TABLE_NAME};"),
       db.execute("drop table if exists ${StoredProfanityWord.TABLE_NAME};"),
+      db.execute("drop table if exists ${FailedDecryptionCounter.TABLE_NAME};"),
+      db.execute("drop table if exists ${MessagePayload.TABLE_NAME};"),
+      db.execute("drop table if exists ${MessageResendRequest.TABLE_NAME};"),
     ]);
   }
 
@@ -89,7 +95,9 @@ class DatabaseService {
       db.execute(Messagebox.CREATE_TABLE),
       db.execute(ProfanityWord.CREATE_TABLE),
       db.execute(StoredProfanityWord.CREATE_TABLE),
-      //MessageboxTokenDBRecord
+      db.execute(FailedDecryptionCounter.CREATE_TABLE),
+      db.execute(MessagePayload.CREATE_TABLE),
+      db.execute(MessageResendRequest.CREATE_TABLE),
     ]);
 
     await db.execute("create table ${Message.TABLE_NAME}_${Tag.TABLE_NAME} ("

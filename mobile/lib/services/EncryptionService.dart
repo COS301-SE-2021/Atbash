@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/encryption/services/FailedDecryptionCounterService.dart';
 
 import 'package:mobile/exceptions/DecryptionErrorException.dart';
 import 'package:mobile/exceptions/InvalidNumberException.dart';
@@ -40,7 +41,8 @@ class EncryptionService {
       this._signedPreKeyStoreService,
       this._preKeyStoreService,
       this._sessionStoreService,
-      this._messageboxService);
+      this._messageboxService,
+      this._failedDecryptionCounterService);
 
   final UserService _userService;
   final SessionStoreService _sessionStoreService;
@@ -49,6 +51,7 @@ class EncryptionService {
   final IdentityKeyStoreService _identityKeyStoreService;
   final SignalProtocolStoreService _signalProtocolStoreService;
   final MessageboxService _messageboxService;
+  final FailedDecryptionCounterService _failedDecryptionCounterService;
 
   final _storage = FlutterSecureStorage();
   final int desiredStoredPreKeys = 140;
@@ -90,30 +93,6 @@ class EncryptionService {
       }
 
       return encodedSerializedCipherMessage;
-
-      // print("Created type: " + ciphertext.getType().toString());
-      //
-      // final mNumber = await _storage.read(key: "m_number");
-      // int number = 1;
-      // if (mNumber == null) {
-      //   await _storage.write(key: "m_number", value: "1");
-      // } else {
-      //   number = int.parse(mNumber) + 1;
-      //   await _storage.write(key: "m_number", value: number.toString());
-      // }
-      //
-      // var data = {
-      //   "type": ciphertext.getType(),
-      //   "m_number": number,
-      //   "message": encodedSerializedCipherMessage,
-      // };
-      //
-      // print("Sending message number: " +
-      //     number.toString() +
-      //     " Content: " +
-      //     messageContent);
-      //
-      // return jsonEncode(data);
     });
   }
 
@@ -134,35 +113,13 @@ class EncryptionService {
         throw InvalidNumberException("Cannot decrypt own encrypted message.");
       }
 
-      // final Map<String, Object?> data = jsonDecode(encryptedContents);
-      //
-      // int mType = data["type"] as int;
-      // int mNumber = data["m_number"] as int;
-      // encryptedContents = data["message"] as String;
-      //
-      // print("Decrypting message number: " + mNumber.toString());
-      // print("Decrypting message type: " + mType.toString());
-
       String plaintext = "Failed to decrypt...";
       try {
         print("Decrypting CipherTextMessage");
         final decodedEncryptedContents = base64Decode(encryptedContents);
         // print("Encrypted contents as list: " + decodedEncryptedContents.toString());
 
-        // CiphertextMessage? reconstructedCipherMessage;
         print("Trying to reconstruct CipherTextMessage");
-        // if (mType == CiphertextMessage.prekeyType) {
-        //   reconstructedCipherMessage =
-        //       PreKeySignalMessage(decodedEncryptedContents);
-        // } else if (mType == CiphertextMessage.whisperType) {
-        //   reconstructedCipherMessage =
-        //       SignalMessage.fromSerialized(decodedEncryptedContents);
-        // } else {
-        //   print("Failed");
-        //   return plaintext;
-        // }
-        // plaintext = await _decryptCipherTextMessage(
-        //     senderPhoneNumber, reconstructedCipherMessage);
         try {
           plaintext = await _decryptCipherTextMessage(senderPhoneNumber,
               SignalMessage.fromSerialized(decodedEncryptedContents));
@@ -177,10 +134,26 @@ class EncryptionService {
           }
         }
 
+        await resetFailedDecryptionCounter(senderPhoneNumber);
         return jsonDecode(plaintext);
-      } on InvalidMessageException catch (e) {
+      } on DuplicateMessageException catch (e) {
+        //Create new session here
+        await createSession(SignalProtocolAddress(senderPhoneNumber, 1));
+        await resetFailedDecryptionCounter(senderPhoneNumber);
+
         throw DecryptionErrorException(e.detailMessage);
+      } on InvalidMessageException catch (e) {
+        //Increment counter then create new session if above threshold
+        await incrementFailedDecryptionCounter(senderPhoneNumber);
+
+        throw DecryptionErrorException(e.detailMessage);
+      } catch (e) {
+        //Increment counter then create new session if above threshold
+        await incrementFailedDecryptionCounter(senderPhoneNumber);
+
+        throw DecryptionErrorException(e.toString());
       }
+
     });
   }
 
@@ -214,25 +187,20 @@ class EncryptionService {
     var sessionCipher =
         SessionCipher.fromStore(_signalProtocolStoreService, address);
 
-    //Todo: Handle this:
-    ///Both methods below throw "InvalidMessageException" and "DuplicateMessageException"
     if (ciphertext.getType() == CiphertextMessage.prekeyType) {
       //Prekey signal message
-      print("Message is PreKeySignalMessage");
       final plaintextEncoded =
           await sessionCipher.decrypt(ciphertext as PreKeySignalMessage);
+      print("Message is PreKeySignalMessage");
       final plaintext = utf8.decode(plaintextEncoded);
       print("Decrypted plaintext: " + plaintext);
 
       return plaintext;
     } else if (ciphertext.getType() == CiphertextMessage.whisperType) {
-      //Todo: Handle this
-      /// This throws "NoSessionException"
-      /// Need to handle this!!!
       //Plain signal message
-      print("Message is plain SignalMessage");
       final plaintextEncoded =
           await sessionCipher.decryptFromSignal(ciphertext as SignalMessage);
+      print("Message is plain SignalMessage");
       final plaintext = utf8.decode(plaintextEncoded);
 
       return plaintext;
@@ -283,7 +251,6 @@ class EncryptionService {
     final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
-      //Todo: Implement Authorization header and place this there instead
       "authorization": "Bearer $authTokenEncoded",
       "phoneNumber": phoneNumber,
       "recipientNumber": number
@@ -363,7 +330,6 @@ class EncryptionService {
     final phoneNumber = await _userService.getPhoneNumber();
 
     var data = {
-      //Todo: Implement Authorization header and place this there instead
       "authorization": "Bearer $authTokenEncoded",
       "phoneNumber": phoneNumber
     };
@@ -409,7 +375,6 @@ class EncryptionService {
         }
 
         var data = {
-          //Todo: Implement Authorization header and place this there instead
           "authorization": "Bearer $authTokenEncoded",
           "phoneNumber": phoneNumber,
           "preKeys": preKeysArr
@@ -541,5 +506,22 @@ class EncryptionService {
     final keypair = await _userService.fetchRSAKeyPair();
 
     return keypair.privateKey.decrypt(encryptedNumber);
+  }
+
+  /// This method increments the failed decryption counter for the specified number
+  Future<void> incrementFailedDecryptionCounter(String phoneNumber) async {
+    int count = await _failedDecryptionCounterService.incrementCounter(phoneNumber);
+
+    print("Failed decrypted messages for " + phoneNumber + " is " + count.toString() + "/" + Constants.maxFailedDecryptedMessages.toString());
+    if(count >= Constants.maxFailedDecryptedMessages){
+      print("Creating new session for " + phoneNumber);
+      await _failedDecryptionCounterService.resetCounter(phoneNumber);
+      await createSession(SignalProtocolAddress(phoneNumber, 1));
+    }
+  }
+
+  /// This method resets the failed decryption counter for the specified number
+  Future<void> resetFailedDecryptionCounter(String phoneNumber) async {
+    await _failedDecryptionCounterService.resetCounter(phoneNumber);
   }
 }

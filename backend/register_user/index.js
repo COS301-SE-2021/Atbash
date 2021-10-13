@@ -1,7 +1,6 @@
-const {addUser, existsNumber, existsRegistrationId} = require("./db_access")
+const {addUser, existsNumber, existsRegistrationId, validateRegistrationCode, getMessageTokenInfo, deleteUser} = require("./db_access")
 const {bytesToBase64, base64ToBytes} = require("./base64")
 
-const AWS = require("aws-sdk")
 const PNF = require("google-libphonenumber").PhoneNumberFormat
 const phoneUtil = require("google-libphonenumber").PhoneNumberUtil.getInstance()
 const getRandomValues = require('get-random-values');
@@ -16,12 +15,12 @@ exports.handler = async event => {
     let bodyJson = JSON.parse(event.body);
     let bodyString = JSON.stringify(bodyJson);
 
-    const {registrationId, phoneNumber, rsaPublicKey, signalingKey} = bodyJson;
+    const {registrationId, phoneNumber, registrationCode, rsaPublicKey, signalingKey} = bodyJson;
 
     console.log("RequestBody: ");
     console.log(event.body);
 
-    if (anyUndefined(registrationId, phoneNumber, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, rsaPublicKey, signalingKey)) {
+    if (anyUndefined(registrationId, phoneNumber, registrationCode, rsaPublicKey, signalingKey) || anyBlank(registrationId, phoneNumber, registrationCode, rsaPublicKey, signalingKey)) {
         return {statusCode: 400, body: "Invalid request body."}
     }
 
@@ -36,6 +35,16 @@ exports.handler = async event => {
         return {statusCode: 400, body: "Invalid phone number."}
     }
 
+    const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
+
+    try {
+        if (!(await validateRegistrationCode(formattedNumber, registrationCode, Date.now()))) {
+            return {statusCode: 400, body: "Invalid Registration Code."}
+        }
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
+    }
+
     if (!authenticateRSAKey(rsaPublicKey)) {
         return {statusCode: 400, body: "Invalid RSA Public Key."}
     }
@@ -44,12 +53,23 @@ exports.handler = async event => {
         return {statusCode: 400, body: "Invalid Signaling Key."}
     }
 
-    const formattedNumber = phoneUtil.format(parsedNumber, PNF.E164)
+    let tokenInfo = null;
 
     try {
-        if ((await existsNumber(formattedNumber)) === true) {
-            return {statusCode: 409, body: "Phone number already in use."}
+        tokenInfo = await getMessageTokenInfo(formattedNumber);
+    } catch (error) {
+        return {statusCode: 500, body: JSON.stringify(error)}
+    }
+
+    if(tokenInfo.lastAddedTokens === undefined || tokenInfo.numberAvailableTokens === undefined){
+        tokenInfo = {
+            numberAvailableTokens: 10000,
+            lastAddedTokens: Date.now()
         }
+    }
+
+    try {
+        await deleteUser(formattedNumber);
 
         if ((await existsRegistrationId(registrationId)) === true) {
             return {statusCode: 409, body: "Registration ID already in use."}
@@ -64,7 +84,7 @@ exports.handler = async event => {
     let authToken = bytesToBase64(unencodedAuthToken);
 
     try {
-        await addUser(registrationId, phoneNumber, rsaPublicKey, authToken, Date.now())
+        await addUser(registrationId, phoneNumber, rsaPublicKey, authToken, tokenInfo.numberAvailableTokens, tokenInfo.lastAddedTokens)
     } catch (error) {
         return {statusCode: 500, body: JSON.stringify(error)}
     }
@@ -76,52 +96,15 @@ exports.handler = async event => {
     });
     let base64EncryptedPassword = crypt.encrypt(bytesToBase64(devicePassword));
 
-    const verificationCode = randomCode(6)
-
-    const sns = new AWS.SNS({
-        region: process.env.AWS_REGION, apiVersion: "2010-03-31", signatureVersion: "v4", credentials: {
-            accessKeyId: process.env.SNS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.SNS_SECRET_ACCESS_KEY
-        }
-    })
-
-    try {
-        console.log(`Verification code is ${verificationCode} for phone number ${phoneNumber}`)
-
-        const response = await sns.publish({
-            Message: `Your Atbash verification code is ${verificationCode}`,
-            PhoneNumber: phoneNumber,
-            MessageAttributes: {
-                "AWS.SNS.SMS.SMSType": {
-                    DataType: "String",
-                    StringValue: "Transactional"
-                }
-            }
-        }).promise()
-
-        console.log("SNS Response " + response)
-    } catch (error) {
-        console.log("SNS Error " + error)
-    }
-
     return {
         statusCode: 200,
         body: JSON.stringify({
             "phoneNumber": formattedNumber,
-            "password": base64EncryptedPassword,
-            "verification": verificationCode
+            "password": base64EncryptedPassword
         })
     }
 }
 
-const randomCode = (length) => {
-    const characters = "0123456789"
-    let str = ""
-    for (let i = 0; i < length; i++) {
-        str += characters.charAt(Math.floor(Math.random() * characters.length))
-    }
-    return str
-}
 
 const authenticateSignature = (body) => {
     let jsonObject = JSON.parse(body);

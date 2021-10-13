@@ -34,7 +34,7 @@ class DatabaseService {
   static Future<Database> _init() async {
     final dbPath = await getDatabasesPath();
     String path = join(dbPath, "atbash.db");
-    return openDatabase(path, version: 42, onCreate: (db, version) async {
+    return openDatabase(path, version: 45, onCreate: (db, version) async {
       await _createTables(db);
       await _insertProfanityWords(db);
     }, onUpgrade: (db, oldVersion, newVersion) async {
@@ -67,7 +67,6 @@ class DatabaseService {
       db.execute("drop table if exists ${Messagebox.TABLE_NAME};"),
       db.execute("drop table if exists ${ProfanityWord.TABLE_NAME};"),
       db.execute("drop table if exists ${StoredProfanityWord.TABLE_NAME};"),
-
       db.execute("drop table if exists ${FailedDecryptionCounter.TABLE_NAME};"),
       db.execute("drop table if exists ${MessagePayload.TABLE_NAME};"),
       db.execute("drop table if exists ${MessageResendRequest.TABLE_NAME};"),

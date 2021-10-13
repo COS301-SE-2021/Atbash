@@ -63,7 +63,7 @@ exports.handler = async event => {
 
     if(tokenInfo.lastAddedTokens === undefined || tokenInfo.numberAvailableTokens === undefined){
         tokenInfo = {
-            numberAvailableTokens: 50,
+            numberAvailableTokens: 10000,
             lastAddedTokens: Date.now()
         }
     }

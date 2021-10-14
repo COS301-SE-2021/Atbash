@@ -448,6 +448,15 @@ class CommunicationService {
 
     await _setupAnonymousConnection();
 
+    Timer.periodic(Duration(seconds: 30), (timerOnce) async {
+      Timer.periodic(Duration(seconds: 5), (timer) async {
+        if(channelAnonymous == null || channelAnonymous!.innerWebSocket == null || channelAnonymous!.innerWebSocket!.readyState != 1){
+          await _setupAnonymousConnection();
+        }
+      }
+      timerOnce.cancel();
+    });
+
     await contactService.fetchAll().then((contacts) {
       contacts.forEach((contact) {
         final encodedContactPhoneNumber =
@@ -482,6 +491,8 @@ class CommunicationService {
       print("Handling anonymous event");
       await _handleEvent(event);
     });
+    
+    await Future.delayed(Duration(seconds: 2));
 
     Timer.periodic(Duration(seconds: 1), (timer) async {
       final List<String> ids = await messageboxService.getAllMessageboxIds();

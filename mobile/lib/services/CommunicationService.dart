@@ -453,7 +453,7 @@ class CommunicationService {
         if(channelAnonymous == null || channelAnonymous!.innerWebSocket == null || channelAnonymous!.innerWebSocket!.readyState != 1){
           await _setupAnonymousConnection();
         }
-      }
+      });
       timerOnce.cancel();
     });
 

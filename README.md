@@ -20,10 +20,6 @@ Atbash is a messaging application, where the privacy of users and their messages
 - Please see our [Testing Policy](/Documentation/Final/Atbash_Testing_Policy.pdf) to see more about how aour application's testing procedures take place.
 
 ---
-
-# APK
-[Our APK](https://drive.google.com/file/d/1dLCb6621PTubEOvjB5kCFJpKFPy7JDG7/view?usp=sharing)
-
 ---
 ## Demo Recordings
 

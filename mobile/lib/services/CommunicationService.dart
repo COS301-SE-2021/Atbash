@@ -448,13 +448,14 @@ class CommunicationService {
 
     await _setupAnonymousConnection();
 
-    Timer.periodic(Duration(seconds: 30), (timerOnce) async {
+    Future.delayed(Duration(seconds: 30)).then((_) {
       Timer.periodic(Duration(seconds: 5), (timer) async {
-        if(channelAnonymous == null || channelAnonymous!.innerWebSocket == null || channelAnonymous!.innerWebSocket!.readyState != 1){
+        if (channelAnonymous == null ||
+            channelAnonymous!.innerWebSocket == null ||
+            channelAnonymous!.innerWebSocket!.readyState != 1) {
           await _setupAnonymousConnection();
         }
       });
-      timerOnce.cancel();
     });
 
     await contactService.fetchAll().then((contacts) {
@@ -477,7 +478,7 @@ class CommunicationService {
 
   Future<void> _setupAnonymousConnection() async {
     print("_setupAnonymousConnection");
-    if(channelAnonymous?.innerWebSocket?.readyState == 1){
+    if (channelAnonymous?.innerWebSocket?.readyState == 1) {
       channelAnonymous?.sink.close();
       return;
     }
@@ -491,58 +492,61 @@ class CommunicationService {
       print("Handling anonymous event");
       await _handleEvent(event);
     });
-    
+
     await Future.delayed(Duration(seconds: 2));
 
     Timer.periodic(Duration(seconds: 1), (timer) async {
       final List<String> ids = await messageboxService.getAllMessageboxIds();
       var registrationComplete = false;
 
-      if(ids.isNotEmpty){
+      if (ids.isNotEmpty) {
         print("Registering Connection For Messageboxes");
         registrationComplete = await registerConnectionForMessageboxes(ids);
         print("Registering complete: " + registrationComplete.toString());
-        if(registrationComplete){
+        if (registrationComplete) {
           timer.cancel();
         }
-      } else if(channelAnonymous != null && channelAnonymous!.innerWebSocket != null && channelAnonymous!.innerWebSocket!.readyState == 1){
+      } else if (channelAnonymous != null &&
+          channelAnonymous!.innerWebSocket != null &&
+          channelAnonymous!.innerWebSocket!.readyState == 1) {
         timer.cancel();
         registrationComplete = true;
       }
 
       //If this connection closes, start another
-      if(registrationComplete) {
+      if (registrationComplete) {
         // print("Adding onDone function");
         await channelAnonymous?.innerWebSocket?.done
-            .then((val) => (channelAnonymous != null ? print("Anonymous channel closed. Setting up another."): null ))
+            .then((val) => (channelAnonymous != null
+                ? print("Anonymous channel closed. Setting up another.")
+                : null))
             .then((val) => _setupAnonymousConnection());
       }
     });
   }
 
-
-
   Future<bool> registerConnectionForMessageboxes(List<String> ids) async {
-    if(channelAnonymous != null && channelAnonymous!.innerWebSocket != null && channelAnonymous!.innerWebSocket!.readyState == 1){
-      channelAnonymous?.sink.add(jsonEncode(
-          {
-            // "message": "registermidsconnection",
-            "action": "registermidsconnection",
-            // "data": {
-            //   "myarray" : ["asfdsfsdfsaff", "asfsdfsfsdf"]
-            // }
-            "data": ids
-          }
-      ));
+    if (channelAnonymous != null &&
+        channelAnonymous!.innerWebSocket != null &&
+        channelAnonymous!.innerWebSocket!.readyState == 1) {
+      channelAnonymous?.sink.add(jsonEncode({
+        // "message": "registermidsconnection",
+        "action": "registermidsconnection",
+        // "data": {
+        //   "myarray" : ["asfdsfsdfsaff", "asfsdfsfsdf"]
+        // }
+        "data": ids
+      }));
       print("Registered connection for mids: " + ids.toString());
 
       return true;
     } else if (channelAnonymous == null) {
       print("channelAnonymous == null");
-    } else if(channelAnonymous?.innerWebSocket == null){
+    } else if (channelAnonymous?.innerWebSocket == null) {
       print("channelAnonymous?.innerWebSocket == null");
     } else {
-      print("ReadyState: " + channelAnonymous!.innerWebSocket!.readyState.toString());
+      print("ReadyState: " +
+          channelAnonymous!.innerWebSocket!.readyState.toString());
     }
     return false;
   }
@@ -598,7 +602,7 @@ class CommunicationService {
         print("Event: " + event.toString());
 
         final id = parsedEvent["id"] as String?;
-        if(id != null){
+        if (id != null) {
           await _deleteMessageFromServer(id);
         }
       }
@@ -832,9 +836,10 @@ class CommunicationService {
             }
             break;
           case "requestMessageResend":
-            final requestedMessageId = decryptedContents["messageId"] as String?;
+            final requestedMessageId =
+                decryptedContents["messageId"] as String?;
 
-            if(requestedMessageId != null){
+            if (requestedMessageId != null) {
               sendMessageAgain(requestedMessageId);
             }
             break;
@@ -1546,19 +1551,18 @@ class CommunicationService {
     _queueForSending(contents, recipientPhoneNumber);
   }
 
-  Future<void> sendMessageResendRequest(MessageResendRequest messageResendRequest) async {
+  Future<void> sendMessageResendRequest(
+      MessageResendRequest messageResendRequest) async {
     storeMessageResendRequest(messageResendRequest);
-    final contents = jsonEncode({
-      "type": "requestMessageResend",
-      "messageId": messageResendRequest.id
-    });
+    final contents = jsonEncode(
+        {"type": "requestMessageResend", "messageId": messageResendRequest.id});
     _queueForSending(contents, messageResendRequest.senderPhoneNumber);
   }
 
   Future<void> sendMessageAgain(String id) async {
     MessagePayload? messagePayload = await fetchMessagePayload(id);
 
-    if(messagePayload != null){
+    if (messagePayload != null) {
       _messageQueue.sink.add(messagePayload);
     }
   }
@@ -1798,8 +1802,9 @@ class CommunicationService {
     }
 
     //If you have a message resent to you, you want its original timestamp
-    MessageResendRequest? messageResendRequest = await fetchMessageResendRequest(id);
-    if(messageResendRequest != null){
+    MessageResendRequest? messageResendRequest =
+        await fetchMessageResendRequest(id);
+    if (messageResendRequest != null) {
       timestamp = messageResendRequest.originalTimestamp;
       // removeMessageResendRequest(id); //Keep it incase multiple requests are sent
     }
@@ -1820,9 +1825,10 @@ class CommunicationService {
       } on Exception catch (exception) {
         print("Failed to decrypt message. Requesting message to be resent.");
         print(exception.toString());
-        await sendMessageResendRequest(
-            new MessageResendRequest(id: id, senderPhoneNumber: senderPhoneNumber, originalTimestamp: timestamp)
-        );
+        await sendMessageResendRequest(new MessageResendRequest(
+            id: id,
+            senderPhoneNumber: senderPhoneNumber,
+            originalTimestamp: timestamp));
         return null;
       }
 
@@ -1891,9 +1897,10 @@ class CommunicationService {
       } on Exception catch (exception) {
         print("Failed to decrypt message. Requesting message to be resent.");
         print(exception.toString());
-        await sendMessageResendRequest(
-            new MessageResendRequest(id: id, senderPhoneNumber: senderPhoneNumber, originalTimestamp: timestamp)
-        );
+        await sendMessageResendRequest(new MessageResendRequest(
+            id: id,
+            senderPhoneNumber: senderPhoneNumber,
+            originalTimestamp: timestamp));
         return null;
       }
 
@@ -1941,10 +1948,12 @@ class CommunicationService {
     }
   }
 
-  Future<void> storeMessageResendRequest(MessageResendRequest messageResendRequest) async {
+  Future<void> storeMessageResendRequest(
+      MessageResendRequest messageResendRequest) async {
     final db = await _databaseService.database;
 
-    await db.insert(MessageResendRequest.TABLE_NAME, messageResendRequest.toMap(),
+    await db.insert(
+        MessageResendRequest.TABLE_NAME, messageResendRequest.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
@@ -1971,7 +1980,6 @@ class CommunicationService {
       whereArgs: [id],
     );
   }
-
 }
 
 /*
